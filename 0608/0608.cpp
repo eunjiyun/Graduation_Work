@@ -126,6 +126,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+        //22.06.08
+        //p를 누르면 종료
+
+    case WM_CHAR:
+        if(wParam == 'P' || wParam == 'p')
+            PostQuitMessage(0);
+        break;
+        //
     case WM_COMMAND:
         {
             int wmId = LOWORD(wParam);

@@ -20,4 +20,7 @@
 #else
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
 #endif
+
+#include<iostream>
+#include<vector>
 //
