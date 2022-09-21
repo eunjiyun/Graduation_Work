@@ -1,0 +1,32 @@
+IOCP - 현 Windows I/O 모델 중 최상위의 성능(가장 최고는 아니지만 학부생 레벨에서는 최상위)
+
+Overlapped I/O 종료 시점(Send와 Recv의 종료)을 구분하는 두 가지 모델
+1. Overlapped I/O 이벤트 모델 
+	시스템 콜이 너무 많고 동접이 낮아서 별로 쓰이지 않음
+	Overlapped 구조체의 hEvent 멤버를 체크하여 종료 시점을 확인한다.
+		WSAWaitForMultipleEvents - 완료 확인
+		WSAGetOverlappedResult - 종료된 이벤트가 잘 전달되었는지 확인
+2. Overlapped I/O 콜백 모델
+	가장 널리 쓰이는 IOCP 모델(동접 제한이 없음)
+	콜백 함수들을 멀티스레드로 실행한다. 즉 여러 개의 콜백 함수가 동시에 실행될 수 있다.
+	I/O가 종료되면 사용자가 정의한 lpCompletionRoutine 함수가 호출된다.
+		잘 전달됐는지, 몇 바이트가 전송됐는지 등을 인자로 받는다.
+
+lpCompletionRoutine 함수가 NULL이면 Event, NULL이 아니면 Callback 모델으로 동작함
+
+
+WSASEND와 WSARECV는 항상 오류를 리턴한다.
+	WSA_IO_PENDING이라는 오류가 리턴되면 정상적으로 동작했다는 뜻
+
+멀티 플레이를 구현하려면?
+	1. 서버에서 여러 클라이언트의 접속을 유지해주어야 함
+		즉 여러 개의 소켓이 필요함
+		소켓은 해당 소켓의 정보를 담는 세션이라는 구조체와 함께 unordered_map으로 관리함
+			벡터를 사용할 경우 클라이언트의 입장과 퇴장으로 발생하는 중간 삽입과 삭제에서 비효율적임
+			unordered_map이 일반적으로 map보다 성능이 더 좋다
+	세션에는 overlapped 구조체와 WSA버퍼, 네트워크 버퍼가 들어간다.
+	2. 서버에 콜백 함수를 호출한 소켓을 구별할 수 있어야 한다.
+		Overlapped 구조체의 hEvent 멤버 값에 소켓의 정보를 넣어 구별한다.
+	3. 서버뿐만 아니라 클라이언트도 다른 클라이언트가 보낸 메시지를 받을 수 있어야 한다.
+		보내는 메시지에 클라이언트의 ID를 포함시켜 메시지를 구분한다.
+		
