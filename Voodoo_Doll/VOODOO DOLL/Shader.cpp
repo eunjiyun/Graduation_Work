@@ -719,7 +719,7 @@ void CPostProcessingShader::OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3
 	for (int i = 0; i < nRenderTargets; i++)
 	{
 		pd3dAllRtvCPUHandles[i] = pd3dRtvCPUHandles[i];
-		pd3dCommandList->ClearRenderTargetView(pd3dRtvCPUHandles[i], Colors::White, 0, NULL);
+		pd3dCommandList->ClearRenderTargetView(pd3dRtvCPUHandles[i], Colors::Black, 0, NULL);
 	}
 
 	for (int i = 0; i < nResources; i++)
