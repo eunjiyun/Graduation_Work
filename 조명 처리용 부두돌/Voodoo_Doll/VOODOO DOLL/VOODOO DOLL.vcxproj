@@ -139,9 +139,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\d3dx12.h" />
-    <ClInclude Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\DDSTextureLoader12.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
@@ -155,18 +155,16 @@
     <ClInclude Include="VOODOO DOLL.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Camera.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\DDSTextureLoader12.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Mesh.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Object.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Player.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Scene.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Shader.cpp" />
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Downloads\다중 렌더 타겟\LabProject08-9-1\Timer.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="GameFramework.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Object.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="VOODOO DOLL.cpp" />
   </ItemGroup>
   <ItemGroup>
