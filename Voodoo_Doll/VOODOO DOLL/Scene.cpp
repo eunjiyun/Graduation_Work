@@ -1,5 +1,6 @@
 //-----------------------------------------------------------------------------
 // File: CScene.cpp
+// 230104	|	게임 프레임워크 수정
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
@@ -77,15 +78,6 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	/*m_nShaders = 1;
-	m_ppShaders = new CShader*[m_nShaders];
-
-	CObjectsShader *pObjectShader = new CObjectsShader();
-	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	m_ppShaders[0] = pObjectShader;*/
-
 	BuildLightsAndMaterials();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -95,16 +87,7 @@ void CScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 
-	if (m_ppShaders)
-	{
-		for (int i = 0; i < m_nShaders; i++)
-		{
-			m_ppShaders[i]->ReleaseShaderVariables();
-			m_ppShaders[i]->ReleaseObjects();
-			m_ppShaders[i]->Release();
-		}
-		delete[] m_ppShaders;
-	}
+
 
 	ReleaseShaderVariables();
 
@@ -267,10 +250,7 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	}
+
 
 	if (m_pLights)
 	{
@@ -297,9 +277,6 @@ void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	for (int i = 0; i < m_nShaders; i++)
-	{
-		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
-	}
+
 }
 
