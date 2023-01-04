@@ -7,6 +7,8 @@ constexpr int MAX_USER = 10000;
 constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
 
+constexpr int VIEW_RANGE = 4;
+
 // Packet ID
 constexpr char CS_LOGIN = 0;
 constexpr char CS_MOVE = 1;
@@ -15,6 +17,7 @@ constexpr char SC_LOGIN_INFO = 2;
 constexpr char SC_ADD_PLAYER = 3;
 constexpr char SC_REMOVE_PLAYER = 4;
 constexpr char SC_MOVE_PLAYER = 5;
+
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {

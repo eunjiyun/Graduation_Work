@@ -134,6 +134,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="view_server.cpp" />
+    <ClCompile Include="소스.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protocol.h" />
