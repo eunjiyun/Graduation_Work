@@ -367,7 +367,13 @@ void CGameObject::ReleaseShaderVariables()
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	if (m_pMaterial)m_pcbMappedGameObject->m_nMaterialID = m_pMaterial->m_nReflection;
+	if (m_pMaterial)
+		m_pcbMappedGameObject->m_nMaterialID = m_pMaterial->m_nReflection;
+
+	//23.01.05
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
+	//
 }
 
 void CGameObject::Animate(float fTimeElapsed)
@@ -385,7 +391,7 @@ void CGameObject::SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList)
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-	OnPrepareRender(pd3dCommandList, pCamera);
+	/*OnPrepareRender(pd3dCommandList, pCamera);
 
 	if (m_pMaterial)
 	{
@@ -411,6 +417,30 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 		for (int i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i])m_ppMeshes[i]->Render(pd3dCommandList);
+		}
+	}*/
+
+	OnPrepareRender(pd3dCommandList, pCamera);
+
+	if (m_pMesh && m_ppMaterials)
+	{
+		if (m_pShader)
+		{
+			m_pShader->Render(pd3dCommandList, pCamera);
+			m_pShader->UpdateShaderVariables(pd3dCommandList);
+		}
+		if (m_pd3dcbGameObject && m_pcbMappedGameObject) UpdateShaderVariables(pd3dCommandList);
+
+		m_pMesh->OnPreRender(pd3dCommandList);
+		for (UINT i = 0; i < m_nMaterials; i++)
+		{
+			if (m_ppMaterials[i])
+			{
+				pd3dCommandList->SetGraphicsRoot32BitConstant(4, m_ppMaterials[i]->m_nMaterial, 0);
+				pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
+				pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
+			}
+			m_pMesh->Render(pd3dCommandList, i);
 		}
 	}
 }

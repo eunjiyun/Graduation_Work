@@ -161,6 +161,9 @@ public:
 	D3D12_INDEX_BUFFER_VIEW* m_pd3dIndexBufferViews = NULL;
 
 	char* pstrFileName;
+
+	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nSubset);
 	//
 };
 

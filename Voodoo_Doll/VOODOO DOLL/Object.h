@@ -147,6 +147,7 @@ public:
 	CMesh* m_pMesh = NULL;
 	UINT							m_nMaterials = 0;
 	CMaterial** m_ppMaterials = NULL;
+	CShader* m_pShader = NULL;
 	//
 
 	XMFLOAT4X4						m_xmf4x4World;
