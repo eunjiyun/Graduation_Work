@@ -455,58 +455,101 @@ void CObjectsShader::ReleaseShaderVariables()
 	CIlluminatedTexturedShader::ReleaseShaderVariables();
 }
 
-void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
+//22.01.05
+//void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
+vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, void* pContext)
+//
 {
-	int xObjects = 10, yObjects = 10, zObjects = 10, i = 0;
+	int nSceneTextures = 0;
+	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
 
-	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
+	int num = 0;
 
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0, 1);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/StonesArray.dds", RESOURCE_TEXTURE2DARRAY, 0);
-
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
-
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 1);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	CreateShaderResourceViews(pd3dDevice, pTexture, 0, 5);
-
-#ifdef _WITH_BATCH_MATERIAL
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
-#else
-	CMaterial *pCubeMaterial = new CMaterial();
-	pCubeMaterial->SetTexture(pTexture);
-	pCubeMaterial->SetReflection(1);
-#endif
-
-	CCubeMeshIlluminatedTextured *pCubeMesh = new CCubeMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
-
-	m_ppObjects = new CGameObject*[m_nObjects];
-
-	float fxPitch = 12.0f * 2.5f, fyPitch = 12.0f * 2.5f, fzPitch = 12.0f * 2.5f;
-
-	CRotatingObject *pRotatingObject = NULL;
-	for (int x = -xObjects; x <= xObjects; x++)
+	if (0 == strcmp("Models/Scene.bin", pstrFileName))
 	{
-		for (int y = -yObjects; y <= yObjects; y++)
+		for (int i = 0; i < m_nObjects; ++i)
 		{
-			for (int z = -zObjects; z <= zObjects; z++)
+			//canale
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp"))
+				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_pillar"))
+				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "canale"))
 			{
-				pRotatingObject = new CRotatingObject(1);
-				pRotatingObject->SetMesh(0, pCubeMesh);
-#ifndef _WITH_BATCH_MATERIAL
-				pRotatingObject->SetMaterial(pCubeMaterial);
-#endif
-				pRotatingObject->SetPosition(fxPitch*x, fyPitch*y, fzPitch*z);
-				pRotatingObject->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-				pRotatingObject->SetRotationSpeed(10.0f * (i % 10));
-				pRotatingObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-				m_ppObjects[i++] = pRotatingObject;
+				tmp = m_ppObjects[i]->GetPosition();
+				mpObjVec.push_back(tmp);
+
+
+				++num;
+				//cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
+			}
+
+			/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
+			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y += m_ppObjects[i]->GetPosition().y;
+			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z += m_ppObjects[i]->GetPosition().z;
+
+			cout <<i<< "번째 m_xmBoundingBox x : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x << endl;
+			cout << i << "번째 m_xmBoundingBox y : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y << endl;
+			cout << i << "번째 m_xmBoundingBox z : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z << endl;*/
+
 			}
 		}
+	else
+	{
+		num = 0;
+		for (int i = 0; i < m_nObjects; ++i)
+		{
+			//canale
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(1)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(2)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(3)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(4)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(5)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(6)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(7)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(8)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(9)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(10)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(11)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(12)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(13)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(14)")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(15)"))
+				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_pillar"))
+				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "canale"))
+			{
+				tmp = m_ppObjects[i]->GetPosition();
+				mpObjVec2.push_back(tmp);
+
+
+
+				++num;
+				cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
+			}
+
+			/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
+			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y += m_ppObjects[i]->GetPosition().y;
+			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z += m_ppObjects[i]->GetPosition().z;
+
+			cout <<i<< "번째 m_xmBoundingBox x : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x << endl;
+			cout << i << "번째 m_xmBoundingBox y : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y << endl;
+			cout << i << "번째 m_xmBoundingBox z : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z << endl;*/
+
+		}
 	}
+	cout << "그래서 몇 개? " << num << endl;
+
+	cout << "벡터는 몇 개? " << mpObjVec2.size() << endl;
+
+
+	//tmp._41 = -150.f;//고정
+	//tmp._42 = 0.0f;//고정
+	//tmp._43 = m_pPlayer->GetPosition().z + 160;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	if (0 == strcmp("Models/Scene.bin", pstrFileName))
+		return mpObjVec;
+	else
+		return mpObjVec2;
 }
 
 void CObjectsShader::ReleaseObjects()
@@ -719,7 +762,10 @@ void CPostProcessingShader::OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3
 	for (int i = 0; i < nRenderTargets; i++)
 	{
 		pd3dAllRtvCPUHandles[i] = pd3dRtvCPUHandles[i];
+		//22.01.04
+		//배경 색 변경
 		pd3dCommandList->ClearRenderTargetView(pd3dRtvCPUHandles[i], Colors::Black, 0, NULL);
+		//
 	}
 
 	for (int i = 0; i < nResources; i++)

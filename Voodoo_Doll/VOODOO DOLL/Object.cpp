@@ -230,6 +230,14 @@ CGameObject::CGameObject(int nMeshes)
 		m_ppMeshes = new CMesh*[m_nMeshes];
 		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
 	}
+
+	//22.01.05
+	m_nMaterials = nMeshes;
+	m_ppMaterials = new CMaterial * [m_nMaterials];
+	for (UINT i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
+
+	m_xmf4x4World = Matrix4x4::Identity();
+	//
 }
 
 CGameObject::~CGameObject()
@@ -248,32 +256,95 @@ CGameObject::~CGameObject()
 	if (m_pMaterial)m_pMaterial->Release();
 }
 
-void CGameObject::SetMesh(int nIndex, CMesh *pMesh)
+//22.01.05
+//void CGameObject::SetMesh(int nIndex, CMesh *pMesh)
+//{
+//	if (m_ppMeshes)
+//	{
+//		if (m_ppMeshes[nIndex])m_ppMeshes[nIndex]->Release();
+//		m_ppMeshes[nIndex] = pMesh;
+//		if (pMesh)pMesh->AddRef();
+//	}
+//}
+
+void CGameObject::SetMesh(CMesh* pMesh)
 {
-	if (m_ppMeshes)
-	{
-		if (m_ppMeshes[nIndex])m_ppMeshes[nIndex]->Release();
-		m_ppMeshes[nIndex] = pMesh;
-		if (pMesh)pMesh->AddRef();
-	}
+	if (m_pMesh) m_pMesh->Release();
+	m_pMesh = pMesh;
+	if (pMesh) pMesh->AddRef();
 }
+//
 
 void CGameObject::SetShader(CShader *pShader)
 {
 	if (!m_pMaterial)
 	{
 		CMaterial *pMaterial = new CMaterial();
-		SetMaterial(pMaterial);
+		//22.01.05
+		//SetMaterial(pMaterial);
+		SetMaterial(0,pMaterial);
+		//
 	}
 	if (m_pMaterial)m_pMaterial->SetShader(pShader);
 }
 
-void CGameObject::SetMaterial(CMaterial *pMaterial)
+//22.01.05
+//void CGameObject::SetMaterial(CMaterial *pMaterial)
+//{
+//	if (m_pMaterial)m_pMaterial->Release();
+//	m_pMaterial = pMaterial;
+//	if (m_pMaterial)m_pMaterial->AddRef();
+//}
+void CGameObject::SetMaterial(UINT nIndex, CMaterial* pMaterial)
 {
-	if (m_pMaterial)m_pMaterial->Release();
-	m_pMaterial = pMaterial;
-	if (m_pMaterial)m_pMaterial->AddRef();
+	if ((nIndex >= 0) && (nIndex < m_nMaterials))
+	{
+		if (m_ppMaterials[nIndex]) m_ppMaterials[nIndex]->Release();
+		m_ppMaterials[nIndex] = pMaterial;
+		if (pMaterial) pMaterial->AddRef();
+	}
 }
+void CGameObject::SetMaterial(UINT nIndex, UINT nReflection)
+{
+	if ((nIndex >= 0) && (nIndex < m_nMaterials))
+	{
+		if (!m_ppMaterials[nIndex])
+		{
+			m_ppMaterials[nIndex] = new CMaterial();
+			m_ppMaterials[nIndex]->AddRef();
+		}
+		m_ppMaterials[nIndex]->m_nMaterial = nReflection;
+	}
+}
+//
+
+//22.01.05
+void CGameObject::SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color)
+{
+	if ((nIndex >= 0) && (nIndex < m_nMaterials))
+	{
+		if (!m_ppMaterials[nIndex])
+		{
+			m_ppMaterials[nIndex] = new CMaterial();
+			m_ppMaterials[nIndex]->AddRef();
+		}
+		m_ppMaterials[nIndex]->SetAlbedoColor(xmf4Color);
+	}
+}
+
+void CGameObject::SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color)
+{
+	if ((nIndex >= 0) && (nIndex < m_nMaterials))
+	{
+		if (!m_ppMaterials[nIndex])
+		{
+			m_ppMaterials[nIndex] = new CMaterial();
+			m_ppMaterials[nIndex]->AddRef();
+		}
+		m_ppMaterials[nIndex]->SetEmissionColor(xmf4Color);
+	}
+}
+//
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {

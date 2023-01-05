@@ -1,6 +1,5 @@
 //-----------------------------------------------------------------------------
 // File: CScene.cpp
-// 230104	|	게임 프레임워크 수정
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
@@ -78,6 +77,55 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
+	//22.01.04
+	// 상자 지우기
+	//m_nShaders = 1;
+	//m_ppShaders = new CShader*[m_nShaders];
+
+	//CObjectsShader *pObjectShader = new CObjectsShader();
+	//DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	//pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
+	//pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	//m_ppShaders[0] = pObjectShader;
+	//
+
+	//22.01.05
+	m_nShaders = 2;
+	m_ppShaders = new CShader * [m_nShaders];
+
+	CObjectsShader* pObjectShader = new CObjectsShader();
+	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
+	CObjectsShader* pObjectShader2 = new CObjectsShader();
+	pObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
+
+	//if(false==choose)
+	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, "Models/Scene.bin");
+	//else
+	mpObjVec2 = pObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, "Models/Scene8.bin");
+
+	m_ppShaders[0] = pObjectShader;
+	m_ppShaders[1] = pObjectShader2;
+
+	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
+	{
+		//m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center = m_ppShaders[0]->m_ppObjects[i]->GetPosition();
+
+		m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.x = m_ppShaders[0]->m_ppObjects[i]->GetPosition().x;
+		m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.y = m_ppShaders[0]->m_ppObjects[i]->GetPosition().y + 6;
+		m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders[0]->m_ppObjects[i]->GetPosition().z;
+	}
+
+	for (int i = 0; i < m_ppShaders[1]->m_nObjects; ++i)
+	{
+		//m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center = m_ppShaders[0]->m_ppObjects[i]->GetPosition();
+
+		m_ppShaders[1]->m_ppObjects[i]->m_xmOOBB.Center.x = m_ppShaders[1]->m_ppObjects[i]->GetPosition().x;
+		m_ppShaders[1]->m_ppObjects[i]->m_xmOOBB.Center.y = m_ppShaders[1]->m_ppObjects[i]->GetPosition().y + 6;
+		m_ppShaders[1]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders[1]->m_ppObjects[i]->GetPosition().z;
+	}
+	//
+
 	BuildLightsAndMaterials();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -87,7 +135,19 @@ void CScene::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 
-
+	//22.01.04
+	//상자 지우기
+	/*if (m_ppShaders)
+	{
+		for (int i = 0; i < m_nShaders; i++)
+		{
+			m_ppShaders[i]->ReleaseShaderVariables();
+			m_ppShaders[i]->ReleaseObjects();
+			m_ppShaders[i]->Release();
+		}
+		delete[] m_ppShaders;
+	}*/
+	//
 
 	ReleaseShaderVariables();
 
@@ -97,6 +157,10 @@ void CScene::ReleaseObjects()
 
 void CScene::ReleaseUploadBuffers()
 {
+	//22.01.04
+	// 상자 지우기
+	//for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	//
 }
 
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice)
@@ -249,13 +313,19 @@ bool CScene::ProcessInput(UCHAR *pKeysBuffer)
 
 void CScene::AnimateObjects(float fTimeElapsed)
 {
-
+	//22.01.04
+	//상자 지우기
+	/*for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	}
 
 	if (m_pLights)
 	{
 		m_pLights->m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights->m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
-	}
+	}*/
+	//
 }
 
 void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -276,6 +346,12 @@ void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 
 void CScene::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
-
+	//22.01.04
+	//상자 지우기
+	/*for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	}*/
+	//
 }
 

@@ -96,7 +96,10 @@ public:
 class CMesh
 {
 public:
-	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	//22.01.05
+	//CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
+	//
 	virtual ~CMesh();
 
 private:
@@ -130,6 +133,35 @@ protected:
 
 public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	//22.01.05
+	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
+	BoundingBox						m_xmBoundingBox;
+	XMFLOAT3* m_pxmf3Positions = NULL;
+	XMFLOAT3* m_pxmf3Normals = NULL;
+	UINT* m_pnIndices = NULL;
+	UINT							m_nSubsets = 0;
+	UINT* m_pnSubSetIndices = NULL;
+	UINT* m_pnSubSetStartIndices = NULL;
+	UINT** m_ppnSubSetIndices = NULL;
+
+	ID3D12Resource* m_pd3dPositionBuffer = NULL;
+	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;
+
+	//XMFLOAT3* m_pxmf3Normals = NULL;
+	ID3D12Resource* m_pd3dNormalBuffer = NULL;
+	ID3D12Resource* m_pd3dNormalUploadBuffer = NULL;
+
+	UINT							m_nVertexBufferViews = 0;
+	D3D12_VERTEX_BUFFER_VIEW* m_pd3dVertexBufferViews = NULL;
+
+	ID3D12Resource** m_ppd3dIndexBuffers = NULL;
+	ID3D12Resource** m_ppd3dIndexUploadBuffers = NULL;
+
+	D3D12_INDEX_BUFFER_VIEW* m_pd3dIndexBufferViews = NULL;
+
+	char* pstrFileName;
+	//
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,7 +169,10 @@ public:
 class CMeshDiffused : public CMesh
 {
 public:
-	CMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList) { }
+	//22.01.05
+	//CMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList) { }
+	CMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList,  pstrFileName) { }
+	//
 	virtual ~CMeshDiffused() { }
 };
 

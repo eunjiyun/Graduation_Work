@@ -118,6 +118,19 @@ public:
 	void ReleaseShaderVariables();
 
 	void ReleaseUploadBuffers();
+
+	//22.01.05
+public:
+	int								m_nMaterial = 1; //Material Index, CScene::m_pReflections[]
+	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	CTexture* m_pAlbedoTexture = NULL;
+
+	XMFLOAT4						m_xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	CTexture* m_pEmissionTexture = NULL;
+
+	void SetAlbedoColor(XMFLOAT4 xmf4Color) { m_xmf4AlbedoColor = xmf4Color; }
+	void SetEmissionColor(XMFLOAT4 xmf4Color) { m_xmf4EmissionColor = xmf4Color; }
+	//
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,6 +142,13 @@ public:
 	virtual ~CGameObject();
 
 public:
+	//22.01.05
+	char							m_pstrName[64] = { '\0' };
+	CMesh* m_pMesh = NULL;
+	UINT							m_nMaterials = 0;
+	CMaterial** m_ppMaterials = NULL;
+	//
+
 	XMFLOAT4X4						m_xmf4x4World;
 
 	CMesh** m_ppMeshes;
@@ -143,9 +163,19 @@ protected:
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
 
 public:
-	void SetMesh(int nIndex, CMesh* pMesh);
+	//22.01.05
+	//void SetMesh(int nIndex, CMesh* pMesh);
+	void SetMesh(CMesh* pMesh);
+	//
 	void SetShader(CShader* pShader);
-	void SetMaterial(CMaterial* pMaterial);
+
+	//22.01.05
+	//void SetMaterial(CMaterial* pMaterial);
+	void SetMaterial(UINT nIndex, CMaterial* pMaterial);
+	void SetMaterial(UINT nIndex, UINT nReflection);
+	void SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color);
+	void SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color);
+	//
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
@@ -178,6 +208,10 @@ public:
 
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
+
+	//22.01.05
+	BoundingOrientedBox			m_xmOOBB = BoundingOrientedBox();
+	//
 };
 
 class CRotatingObject : public CGameObject
