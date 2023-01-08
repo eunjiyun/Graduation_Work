@@ -322,7 +322,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 	case WM_KEYUP:
 		switch (wParam)
 		{
-			//22.06.08
+			//23.01.03
 		//종료 버튼: P
 		case 0x50:
 			//
@@ -589,7 +589,7 @@ void CGameFramework::FrameAdvance()
 	m_pdxgiSwapChain->Present1(1, 0, &dxgiPresentParameters);
 #else
 #ifdef _WITH_SYNCH_SWAPCHAIN
-	m_pdxgiSwapChain->Present(1, 0);
+	m_pdgiSwapChain->Present(1, 0);
 #else
 	m_pdxgiSwapChain->Present(0, 0);
 #endif

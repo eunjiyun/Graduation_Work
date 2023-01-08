@@ -119,7 +119,7 @@ public:
 
 	void ReleaseUploadBuffers();
 
-	//22.01.05
+	//23.01.05
 public:
 	int								m_nMaterial = 1; //Material Index, CScene::m_pReflections[]
 	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -142,7 +142,7 @@ public:
 	virtual ~CGameObject();
 
 public:
-	//22.01.05
+	//23.01.05
 	char							m_pstrName[64] = { '\0' };
 	CMesh* m_pMesh = NULL;
 	UINT							m_nMaterials = 0;
@@ -164,13 +164,13 @@ protected:
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
 
 public:
-	//22.01.05
+	//23.01.05
 	//void SetMesh(int nIndex, CMesh* pMesh);
 	void SetMesh(CMesh* pMesh);
 	//
 	void SetShader(CShader* pShader);
 
-	//22.01.05
+	//23.01.05
 	//void SetMaterial(CMaterial* pMaterial);
 	void SetMaterial(UINT nIndex, CMaterial* pMaterial);
 	void SetMaterial(UINT nIndex, UINT nReflection);
@@ -210,7 +210,7 @@ public:
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3* pxmf3Axis, float fAngle);
 
-	//22.01.05
+	//23.01.05
 	BoundingOrientedBox			m_xmOOBB = BoundingOrientedBox();
 	//
 };

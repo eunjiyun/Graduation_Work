@@ -96,7 +96,7 @@ public:
 class CMesh
 {
 public:
-	//22.01.05
+	//23.01.05
 	//CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
 	//
@@ -134,7 +134,7 @@ protected:
 public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList);
 
-	//22.01.05
+	//23.01.05
 	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
 	BoundingBox						m_xmBoundingBox;
 	XMFLOAT3* m_pxmf3Positions = NULL;
@@ -172,7 +172,7 @@ public:
 class CMeshDiffused : public CMesh
 {
 public:
-	//22.01.05
+	//23.01.05
 	//CMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList) { }
 	CMeshDiffused(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList,  pstrFileName) { }
 	//

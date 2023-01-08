@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
-//22.01.05
+//23.01.05
 //CMesh::CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 //{
 //}
@@ -36,22 +36,9 @@ void CMesh::ReleaseUploadBuffers()
 	m_pd3dIndexUploadBuffer = NULL;
 };
 
-void CMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList)
-{
-	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
-	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
-	if (m_pd3dIndexBuffer)
-	{
-		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
-		pd3dCommandList->DrawIndexedInstanced(m_nIndices, 1, 0, 0, 0);
-	}
-	else
-	{
-		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
-	}
-}
 
-//22.01.05
+
+//23.01.05
 void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
 #ifdef _WITH_TEXT_MESH
@@ -192,6 +179,22 @@ void CMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList)
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, m_nVertexBufferViews, m_pd3dVertexBufferViews);
 }
+//23.01.08
+void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);
+	if (m_pd3dIndexBuffer)
+	{
+		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_nIndices, 1, 0, 0, 0);
+	}
+	else
+	{
+		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+	}
+}
+//
 void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nSubset)
 {
 	if (m_nSubsets > 0)
@@ -209,7 +212,7 @@ void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nSubset)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-//22.01.05
+//23.01.05
 //CMeshIlluminated::CMeshIlluminated(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList)
 //{
 //}

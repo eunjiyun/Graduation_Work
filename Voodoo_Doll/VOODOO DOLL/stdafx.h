@@ -32,7 +32,7 @@
 
 #include <vector>
 
-//22.06.08
+//23.01.03
 #ifdef UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #else
@@ -58,7 +58,7 @@ using Microsoft::WRL::ComPtr;
 #define SPOT_LIGHT				2
 #define DIRECTIONAL_LIGHT		3
 
-//22.01.05
+//23.01.05
 #define MAX_SCENE_MATERIALS		16 
 //
 
@@ -84,7 +84,7 @@ extern ID3D12Resource* CreateTexture2DResource(ID3D12Device* pd3dDevice, UINT nW
 
 extern void SynchronizeResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource* pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter);
 
-//22.01.05
+//23.01.05
 #include "Object.h"
 //#include <stdlib.h>
 extern CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects);

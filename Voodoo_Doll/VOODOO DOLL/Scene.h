@@ -91,7 +91,7 @@ protected:
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
 	MATERIAL* m_pcbMappedMaterials = NULL;
 
-	//22.01.05
+	//23.01.05
 public:
 	vector<XMFLOAT3> mpObjVec;
 	XMFLOAT3 tmp;

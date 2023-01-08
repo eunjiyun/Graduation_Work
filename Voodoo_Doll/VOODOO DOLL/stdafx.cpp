@@ -204,7 +204,7 @@ void SynchronizeResourceTransition(ID3D12GraphicsCommandList* pd3dCommandList, I
 	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 }
 
-//22.01.05
+//23.01.05
 CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects)
 {
 	FILE* pFile = NULL;
@@ -249,7 +249,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			if (!strcmp(pstrGameObjectName, ppGameObjects[j]->m_pstrName))
 			{
 				pObjectFound = ppGameObjects[j];
-				////22.06.23
+				////23.01.03
 				//ppGameObjects[j]->m_pMesh->m_xmBoundingBox.Center = ppGameObjects[j]->GetPosition();
 				////
 				pGameObject->SetMesh(ppGameObjects[j]->m_pMesh);
@@ -281,13 +281,13 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
 			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);//여기서 메쉬 생성자 씁니다
 
-			//22.06.23
+			//23.01.03
 			//pMesh->m_xmBoundingBox.Center = pGameObject->GetPosition();
 			//
 
 			pGameObject->SetMesh(pMesh);
 
-			////22.06.23
+			////23.01.03
 			//pMesh->m_xmBoundingBox.Center = pGameObject->GetPosition();
 			////
 		}

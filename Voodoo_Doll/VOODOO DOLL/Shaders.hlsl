@@ -17,6 +17,15 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint		gnMaterialID : packoffset(c8);
 };
 
+//23.01.06
+cbuffer cbConstantsInfo : register(b6)
+{
+	int			gnMaterial : packoffset(c0.x);
+	float4		gcAlbedoColor : packoffset(c1);
+	float4		gcEmissionColor : packoffset(c2);
+};
+//
+
 #include "Light.hlsl"
 
 Texture2DArray gtxtTextureArray : register(t0);
