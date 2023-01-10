@@ -199,6 +199,13 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
+constexpr short SERVER_PORT = 3500;
+constexpr int BUF_SIZE = 200;
+WSAOVERLAPPED s_over;
+SOCKET s_socket;
+WSABUF s_wsabuf[1];
+char   s_buf[BUF_SIZE];
+
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
@@ -214,6 +221,19 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	if (!InitInstance(hInstance, nCmdShow)) return(FALSE);
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
+
+	// 서버 통신 코드
+	WSADATA WSAData;
+	WSAStartup(MAKEWORD(2, 2), &WSAData);
+	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+	SOCKADDR_IN svr_addr;
+	memset(&svr_addr, 0, sizeof(svr_addr));
+	svr_addr.sin_family = AF_INET;
+	svr_addr.sin_port = htons(SERVER_PORT);
+	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+	WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+
+
 
 	while (1)
 	{
@@ -233,6 +253,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	}
 	gGameFramework.OnDestroy();
 
+	closesocket(s_socket);
+	WSACleanup();
 	return((int)msg.wParam);
 }
 

@@ -39,6 +39,12 @@
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
 #endif
 
+// 서버 통신을 위한 선언
+#include <WS2tcpip.h>
+#pragma comment(lib, "WS2_32.LIB")
+
+
+
 #include<iostream>
 using namespace std;
 //
