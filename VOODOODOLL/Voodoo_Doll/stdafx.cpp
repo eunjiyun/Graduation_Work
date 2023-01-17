@@ -107,6 +107,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	nReads = (UINT)::fread(pnGameObjects, sizeof(int), 1, pFile);
 
 	CGameObject** ppGameObjects = new CGameObject * [*pnGameObjects];
+	cout << "*pnGameObjects: " << *pnGameObjects << endl;
 
 	CGameObject* pGameObject = NULL, * pObjectFound = NULL;
 	for (int i = 0; i < *pnGameObjects; i++)
@@ -124,6 +125,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		pGameObject = new CGameObject(nMaterials);
 		strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
 
+
 		CGameObject* pObjectFound = NULL;
 		for (int j = 0; j < i; j++)
 		{
@@ -131,10 +133,12 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			{
 				pObjectFound = ppGameObjects[j];
 				pGameObject->SetMesh(ppGameObjects[j]->m_pMesh);
-				for (UINT k = 0; k < nMaterials; k++) pGameObject->SetMaterial(k, ppGameObjects[j]->m_ppMaterials[k]);
+				for (UINT k = 0; k < nMaterials; k++)
+					pGameObject->SetMaterial(k, ppGameObjects[j]->m_ppMaterials[k]);
 				break;
 			}
 		}
+
 
 		XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		for (UINT k = 0; k < nMaterials; k++)
@@ -152,13 +156,10 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 		if (!pObjectFound)
 		{
-			//23.01.16
 			strcpy_s(pstrFilePath, 64, "Models/");
-			//strcpy_s(pstrFilePath, 64, "model/");
-			//
 			strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 			strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
-			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
+			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);//여기서 메쉬 생성자 씁니다
 			pGameObject->SetMesh(pMesh);
 		}
 

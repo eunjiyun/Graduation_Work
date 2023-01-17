@@ -1,5 +1,4 @@
 ﻿
-
 // VOODOODOLL.cpp : 응용 프로그램에 대한 진입점을 정의합니다.
 //
 
@@ -71,7 +70,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hIcon = ::LoadIcon(hInstance, MAKEINTRESOURCE(IDI_VOODOODOLL));
 	wcex.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = NULL;//MAKEINTRESOURCE(IDC_LABPROJECT073);
+	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = ::LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -105,20 +104,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
+		//23.01.03
+	//p를 누르면 종료
 	case WM_CHAR:
-		if (wParam == 'N' || wParam == 'n')
+		if (wParam == 'P' || wParam == 'p')
+			PostQuitMessage(0);
+		else if (wParam == 'N' || wParam == 'n')
 		{
 			if (true == gGameFramework.wakeUp)
 				gGameFramework.wakeUp = false;
 			else
 				gGameFramework.wakeUp = true;
-
-			/*gGameFramework.pfClearColor[0] = 0.0525f;
-			gGameFramework.pfClearColor[1] =  0.0525f;
-			gGameFramework.pfClearColor[2] = 0.0525f;
-			gGameFramework.pfClearColor[3] = 1.0f ;*/
 		}
 		break;
+		//
 	case WM_SIZE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

@@ -6,6 +6,9 @@
 
 #include "Shader.h"
 #include "Player.h"
+//23.01.17
+#include "Monster.h"
+//
 
 struct LIGHT
 {
@@ -46,51 +49,69 @@ struct MATERIALS
 class CScene
 {
 public:
-    CScene();
-    ~CScene();
+	CScene();
+	~CScene();
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
-	void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseObjects();
 
 	void BuildLightsAndMaterials();
 
-	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
-	void SetGraphicsRootSignature(ID3D12GraphicsCommandList *pd3dCommandList) { pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature); }
+	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
+	ID3D12RootSignature* GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
+	void SetGraphicsRootSignature(ID3D12GraphicsCommandList* pd3dCommandList) { pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature); }
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
-	bool ProcessInput(UCHAR *pKeysBuffer);
-    void AnimateObjects(float fTimeElapsed);
-    void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+	bool ProcessInput(UCHAR* pKeysBuffer);
+	void AnimateObjects(float fTimeElapsed);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
 	void ReleaseUploadBuffers();
 
-	CPlayer						*m_pPlayer = NULL;
+	CPlayer* m_pPlayer = NULL;
 
 protected:
-	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
-	CShader						**m_ppShaders = NULL;
+	CShader** m_ppShaders = NULL;
 	int							m_nShaders = 0;
 
-	LIGHTS						*m_pLights = NULL;
+	LIGHTS* m_pLights = NULL;
 
-	ID3D12Resource				*m_pd3dcbLights = NULL;
-	LIGHTS						*m_pcbMappedLights = NULL;
+	ID3D12Resource* m_pd3dcbLights = NULL;
+	LIGHTS* m_pcbMappedLights = NULL;
+	LIGHTS* m_pcbMappedLights2 = NULL;
 
-	MATERIALS					*m_pMaterials = NULL;
+	MATERIALS* m_pMaterials = NULL;
+	MATERIALS* m_pMaterials2 = NULL;
 
-	ID3D12Resource				*m_pd3dcbMaterials = NULL;
-	MATERIAL					*m_pcbMappedMaterials = NULL;
-
+	ID3D12Resource* m_pd3dcbMaterials = NULL;
+	MATERIAL* m_pcbMappedMaterials = NULL;
+	MATERIAL* m_pcbMappedMaterials2 = NULL;
 	//23.01.03
 public:
+	bool choose = false;
+
+	//23.01.03
+	vector<XMFLOAT3> mpObjVec;
+	XMFLOAT3 tmp;
 	bool wakeUp = false;
+	//
+
+	//23.01.03
+	void CheckObjectByObjectCollisions();
+	void UpdateBoundingBox();
+	XMFLOAT4X4					m_xmf4x4World = Matrix4x4::Identity();
+	BoundingBox			m_xmOOBB = BoundingBox();
+	//
+
+	//23.01.17
+	CMonster* m_pMonster = NULL;
 	//
 };

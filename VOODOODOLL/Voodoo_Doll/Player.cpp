@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CPlayer
 
-CPlayer::CPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext) 
+CPlayer::CPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
 	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
@@ -32,7 +32,7 @@ CPlayer::~CPlayer()
 	if (m_pCamera) delete m_pCamera;
 }
 
-void CPlayer::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CPlayer::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pCamera) m_pCamera->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -44,7 +44,7 @@ void CPlayer::ReleaseShaderVariables()
 	CGameObject::ReleaseShaderVariables();
 }
 
-void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	CGameObject::UpdateShaderVariables(pd3dCommandList);
 }
@@ -159,6 +159,11 @@ void CPlayer::Update(float fTimeElapsed)
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->Update(m_xmf3Position, fTimeElapsed);
 	if (m_pCameraUpdatedContext) OnCameraUpdateCallback(fTimeElapsed);
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+	else if (nCurrentCameraMode == FIRST_PERSON_CAMERA && false == lookAround[0])
+	{
+		m_pCamera->SetLookAt(XMFLOAT3(m_xmf3Position.x, m_xmf3Position.y - 10, m_xmf3Position.z - 10));
+
+	}
 
 	m_pCamera->RegenerateViewMatrix();
 
@@ -168,20 +173,20 @@ void CPlayer::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 }
 
-CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
+CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
-	CCamera *pNewCamera = NULL;
+	CCamera* pNewCamera = NULL;
 	switch (nNewCameraMode)
 	{
-		case FIRST_PERSON_CAMERA:
-			pNewCamera = new CFirstPersonCamera(m_pCamera);
-			break;
-		case THIRD_PERSON_CAMERA:
-			pNewCamera = new CThirdPersonCamera(m_pCamera);
-			break;
-		case SPACESHIP_CAMERA:
-			pNewCamera = new CSpaceShipCamera(m_pCamera);
-			break;
+	case FIRST_PERSON_CAMERA:
+		pNewCamera = new CFirstPersonCamera(m_pCamera);
+		break;
+	case THIRD_PERSON_CAMERA:
+		pNewCamera = new CThirdPersonCamera(m_pCamera);
+		break;
+	case SPACESHIP_CAMERA:
+		pNewCamera = new CSpaceShipCamera(m_pCamera);
+		break;
 	}
 	if (nCurrentCameraMode == SPACESHIP_CAMERA)
 	{
@@ -220,7 +225,7 @@ void CPlayer::OnPrepareRender()
 	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, pCamera);
@@ -228,20 +233,19 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
-CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
+CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-	//23.01.16
 	LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/FlyerPlayershipObject.bin");
-	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "model/FlyerPlayershipObject.bin");
-	//
+	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/SpaceshipObject.bin");
 
-	CPlayerShader *pShader = new CPlayerShader();
+	CPlayerShader* pShader = new CPlayerShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
 
-	SetPosition(XMFLOAT3(-3.944041f, 7.696952f, -2.04254f));
+	SetPosition(XMFLOAT3(-3.944041f, 130, -2.04254f));
+	m_xmOOBB = BoundingBox(XMFLOAT3(-3.944041f, 130, -2.04254f), XMFLOAT3(10, 10, 10));
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -262,13 +266,17 @@ void CAirplanePlayer::ReleaseShaderVariables()
 	CPlayer::ReleaseShaderVariables();
 }
 
-CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
+CCamera* CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
 	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
 	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
 	switch (nNewCameraMode)
 	{
 	case FIRST_PERSON_CAMERA:
+		//23.01.03
+		//카메라 시점
+		m_xmf3Position.y = 130;
+		//
 		SetFriction(200.0f);
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(125.0f);
@@ -279,12 +287,17 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+		m_pCamera->Rotate(90, 0, 0);
 		break;
 	case SPACESHIP_CAMERA:
 		SetFriction(125.0f);
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(400.0f);
 		SetMaxVelocityY(400.0f);
+		//SetPosition(m_xmf3Position.x, m_xmf3Position.y-122, m_xmf3Position.z);
+		m_xmf3Position.y = 8;
+		m_pCamera->Rotate(-90, 0, 0);
+		//
 		m_pCamera = OnChangeCamera(SPACESHIP_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, 0.0f));
@@ -293,6 +306,10 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
+		//23.01.03
+		//카메라 시점
+		m_xmf3Position.y = 8;
+		//
 		SetFriction(250.0f);
 		SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetMaxVelocityXZ(125.0f);
@@ -313,3 +330,41 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 	return(m_pCamera);
 }
+
+//23.01.03
+void CPlayer::OnUpdateTransform()
+{
+	m_xmf4x4World._11 = m_xmf3Right.x; m_xmf4x4World._12 = m_xmf3Right.y; m_xmf4x4World._13 = m_xmf3Right.z;
+	m_xmf4x4World._21 = m_xmf3Up.x; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._23 = m_xmf3Up.z;
+	m_xmf4x4World._31 = m_xmf3Look.x; m_xmf4x4World._32 = m_xmf3Look.y; m_xmf4x4World._33 = m_xmf3Look.z;
+	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
+}
+void CPlayer::Animate(float fElapsedTime)
+{
+
+	OnUpdateTransform();
+	UpdateBoundingBox();
+
+	//CGameObject::Animate(fElapsedTime);
+
+	/*cout << "x : " << m_xmf3Position.x << endl;
+	cout << "y : " << m_xmf3Position.y << endl;
+	cout << "z : " << m_xmf3Position.z << endl;*/
+	//-32.37 28.6  39.14 //문 좌상단
+	//-32.37 28.6  19.64 //문 우상단
+	//-32.42  5.83 40.29 //문 좌하단 위 벽돌
+	//-32.37  1.28 42.24 //문 좌하단 아래 벽돌
+	//-32.37  5.83 18.19 //문 우하단 위 벽돌
+	//-32.37  1.28 16.24 //문 우하단 아래 벽돌
+}
+void CPlayer::UpdateBoundingBox()
+{
+	//if (m_pMesh)
+	//{
+	//	m_pMesh->m_xmBoundingBox.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+	//	//XMStoreFloat4(&m_xmOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBB.Orientation)));
+	//}
+
+	m_xmOOBB.Center = m_xmf3Position;
+}
+//

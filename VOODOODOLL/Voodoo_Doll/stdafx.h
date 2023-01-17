@@ -30,26 +30,31 @@
 
 #include <Mmsystem.h>
 
-//23.01.03
+using namespace DirectX;
+using namespace DirectX::PackedVector;
+
+//23.01.03//////////////////////////////
 #ifdef UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #else
-#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#pragma comment(linker,"/entry:WinMainCRTStartup /subsystem:console")
 #endif
+/////////////////////////////////////////////
 
-#include<iostream>
+#include <iostream>
+#include<vector>
 using namespace std;
 //
-
-using namespace DirectX;
-using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 
 #define FRAME_BUFFER_WIDTH		800
 #define FRAME_BUFFER_HEIGHT		600
 
-#define MAX_LIGHTS				8 
+//23.01.03
+//#define MAX_LIGHTS				8 
+#define MAX_LIGHTS				    7//lamp2
+//
 #define MAX_SCENE_MATERIALS		16 
 
 #define POINT_LIGHT				1

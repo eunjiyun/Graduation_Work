@@ -60,13 +60,13 @@ VS_OUTPUT VSLighting(VS_INPUT input)
 float4 PSLighting(VS_OUTPUT input) : SV_TARGET
 {
 #ifdef _WITH_VERTEX_LIGHTING
-//	return(float4(input.positionW, 1.0f));
-	return(input.color);
-#else
-	float3 normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, normalW);
-	return(cIllumination * gcAlbedoColor + gcEmissionColor);
-#endif
+	//	return(float4(input.positionW, 1.0f));
+		return(input.color);
+	#else
+		float3 normalW = normalize(input.normalW);
+		float4 cIllumination = Lighting(input.positionW, normalW);
+		return(cIllumination * gcAlbedoColor + gcEmissionColor);
+	#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,8 +86,8 @@ float4 PSPlayer(VS_OUTPUT input) : SV_TARGET
 	cIllumination = saturate(float4(0.12f, 0.12f, 0.12f, 1.0f) + gLightColor * abs(dot(normalize(input.normalW), normalize(-gDirectionalLight))));
 	return(cIllumination);
 #endif
-//	return(cIllumination + gLightColor + gcEmissionColor * 0.15f);
-//	return(color * cIllumination * gcAlbedoColor + gcEmissionColor);
+	//	return(cIllumination + gLightColor + gcEmissionColor * 0.15f);
+	//	return(color * cIllumination * gcAlbedoColor + gcEmissionColor);
 }
 
 

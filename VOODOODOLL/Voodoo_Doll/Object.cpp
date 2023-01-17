@@ -16,7 +16,7 @@ CMaterial::~CMaterial()
 {
 }
 
-void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CMaterial::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
 
@@ -33,12 +33,12 @@ void CMaterial::ReleaseUploadBuffers()
 CGameObject::CGameObject(UINT nMaterials)
 {
 	m_nMaterials = nMaterials;
-	m_ppMaterials = new CMaterial*[m_nMaterials];
+	m_ppMaterials = new CMaterial * [m_nMaterials];
 	for (UINT i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
 
 	m_xmf4x4World = Matrix4x4::Identity();
 }
- 
+
 CGameObject::~CGameObject()
 {
 	ReleaseShaderVariables();
@@ -55,14 +55,14 @@ CGameObject::~CGameObject()
 	if (m_pShader) m_pShader->Release();
 }
 
-void CGameObject::SetMesh(CMesh *pMesh)
+void CGameObject::SetMesh(CMesh* pMesh)
 {
 	if (m_pMesh) m_pMesh->Release();
 	m_pMesh = pMesh;
 	if (pMesh) pMesh->AddRef();
 }
 
-void CGameObject::SetShader(CShader *pShader)
+void CGameObject::SetShader(CShader* pShader)
 {
 	if (m_pShader) m_pShader->Release();
 	m_pShader = pShader;
@@ -95,7 +95,7 @@ void CGameObject::SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color)
 	}
 }
 
-void CGameObject::SetMaterial(UINT nIndex, CMaterial *pMaterial)
+void CGameObject::SetMaterial(UINT nIndex, CMaterial* pMaterial)
 {
 	if ((nIndex >= 0) && (nIndex < m_nMaterials))
 	{
@@ -118,12 +118,12 @@ void CGameObject::SetMaterial(UINT nIndex, UINT nReflection)
 	}
 }
 
-void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
 	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
-	m_pd3dcbGameObject->Map(0, NULL, (void **)&m_pcbMappedGameObject);
+	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
 }
 
 void CGameObject::ReleaseShaderVariables()
@@ -137,7 +137,7 @@ void CGameObject::ReleaseShaderVariables()
 	if (m_pShader) m_pShader->ReleaseShaderVariables();
 }
 
-void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
+void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
 
@@ -145,7 +145,7 @@ void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandLi
 	pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	OnPrepareRender();
 
@@ -241,15 +241,15 @@ void CGameObject::Rotate(float fPitch, float fYaw, float fRoll)
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 }
 
-void CGameObject::Rotate(XMFLOAT3 *pxmf3Axis, float fAngle)
+void CGameObject::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
 {
 	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(pxmf3Axis), XMConvertToRadians(fAngle));
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 }
 
-void CGameObject::LoadGameObjectFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName)
+void CGameObject::LoadGameObjectFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
-	FILE *pFile = NULL;
+	FILE* pFile = NULL;
 	::fopen_s(&pFile, pstrFileName, "rb");
 	::rewind(pFile);
 
@@ -287,13 +287,10 @@ void CGameObject::LoadGameObjectFromFile(ID3D12Device *pd3dDevice, ID3D12Graphic
 
 	nReads = (UINT)::fread(&m_xmf4x4World, sizeof(float), 16, pFile);
 
-	//23.01.16
 	strcpy_s(pstrFilePath, 64, "Models/");
-	//strcpy_s(pstrFilePath, 64, "model/");
-	//
 	strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 	strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
-	CMesh *pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
+	CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 	SetMesh(pMesh);
 
 	::fclose(pFile);

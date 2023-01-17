@@ -5,9 +5,10 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
-CMesh::CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName)
+CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
-	if (pstrFileName) LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName);
+	if (pstrFileName)
+		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName);
 }
 
 CMesh::~CMesh()
@@ -48,13 +49,13 @@ void CMesh::ReleaseUploadBuffers()
 	m_ppd3dIndexUploadBuffers = NULL;
 };
 
-void CMesh::OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList)
+void CMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, m_nVertexBufferViews, m_pd3dVertexBufferViews);
 }
 
-void CMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT nSubset)
+void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, UINT nSubset)
 {
 	if (m_nSubsets > 0)
 	{
@@ -67,14 +68,14 @@ void CMesh::Render(ID3D12GraphicsCommandList *pd3dCommandList, UINT nSubset)
 	}
 }
 
-void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, char *pstrFileName)
+void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
 #ifdef _WITH_TEXT_MESH
 	ifstream InFile(pstrFileName);
 
 	char pstrToken[64] = { '\0' };
 
-	for ( ; ; )
+	for (; ; )
 	{
 		InFile >> pstrToken;
 		if (!InFile) break;
@@ -99,7 +100,7 @@ void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 		}
 	}
 #else
-	FILE *pFile = NULL;
+	FILE* pFile = NULL;
 	::fopen_s(&pFile, pstrFileName, "rb");
 	::rewind(pFile);
 
@@ -144,7 +145,7 @@ void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 
 			m_pnSubSetIndices = new UINT[m_nSubsets];
 			m_pnSubSetStartIndices = new UINT[m_nSubsets];
-			m_ppnSubSetIndices = new UINT*[m_nSubsets];
+			m_ppnSubSetIndices = new UINT * [m_nSubsets];
 
 			for (UINT i = 0; i < m_nSubsets; i++)
 			{
@@ -158,7 +159,6 @@ void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 			break;
 		}
 	}
-
 	::fclose(pFile);
 #endif
 
@@ -176,8 +176,8 @@ void CMesh::LoadMeshFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 	m_pd3dVertexBufferViews[1].StrideInBytes = sizeof(XMFLOAT3);
 	m_pd3dVertexBufferViews[1].SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 
-	m_ppd3dIndexBuffers = new ID3D12Resource*[m_nSubsets];
-	m_ppd3dIndexUploadBuffers = new ID3D12Resource*[m_nSubsets];
+	m_ppd3dIndexBuffers = new ID3D12Resource * [m_nSubsets];
+	m_ppd3dIndexUploadBuffers = new ID3D12Resource * [m_nSubsets];
 	m_pd3dIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[m_nSubsets];
 
 	for (UINT i = 0; i < m_nSubsets; i++)

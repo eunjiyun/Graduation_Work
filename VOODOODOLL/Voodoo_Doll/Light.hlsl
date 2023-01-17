@@ -1,5 +1,9 @@
 //--------------------------------------------------------------------------------------
-#define MAX_LIGHTS			8 
+
+//23.01.17
+//#define MAX_LIGHTS			8 
+#define MAX_LIGHTS			7
+//
 #define MAX_MATERIALS		16 
 
 #define POINT_LIGHT			1
@@ -98,7 +102,7 @@ float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera
 #endif
 			}
 		}
-		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance*fDistance));
+		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance * fDistance));
 
 		return(((gLights[nIndex].m_cAmbient * gMaterials[gnMaterial].m_cAmbient) + (gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[gnMaterial].m_cDiffuse) + (gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[gnMaterial].m_cSpecular)) * fAttenuationFactor);
 	}
@@ -137,7 +141,7 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera)
 #else
 		float fSpotFactor = pow(max(dot(-vToLight, gLights[i].m_vDirection), 0.0f), gLights[i].m_fFalloff);
 #endif
-		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance*fDistance));
+		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance * fDistance));
 
 		return(((gLights[nIndex].m_cAmbient * gMaterials[gnMaterial].m_cAmbient) + (gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[gnMaterial].m_cDiffuse) + (gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[gnMaterial].m_cSpecular)) * fAttenuationFactor * fSpotFactor);
 	}
