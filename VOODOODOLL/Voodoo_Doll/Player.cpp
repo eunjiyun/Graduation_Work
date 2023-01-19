@@ -173,30 +173,26 @@ void CPlayer::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
 	//23.01.19
-	if (m_xmf3Position.y > 295&& m_xmf3Position.y < 600)
+	if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
 	{
-		if (m_xmf3Position.y < 300)
+		if (m_xmf3Position.y < SECOND_FLOOR)
 		{
 			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
 			xmf3PlayerVelocity.y = 0.0f;
 			SetVelocity(xmf3PlayerVelocity);
-			m_xmf3Position.y = 300;
+			m_xmf3Position.y = SECOND_FLOOR;
 			SetPosition(m_xmf3Position);
 		}
 	}
-	else if (m_xmf3Position.y<10)
+	else if (m_xmf3Position.y < FIRST_FLOOR)
 	{
 		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
 		xmf3PlayerVelocity.y = 0.0f;
 		SetVelocity(xmf3PlayerVelocity);
-		m_xmf3Position.y = 10;
+		m_xmf3Position.y = FIRST_FLOOR;
 		SetPosition(m_xmf3Position);
 	}
 	//
-
-	cout << "x : " << m_xmf3Position.x << endl;
-	cout << "y : " << m_xmf3Position.y << endl;
-	cout << "z : " << m_xmf3Position.z << endl;
 }
 
 CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -262,9 +258,7 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamer
 CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
 	LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/FlyerPlayershipObject.bin");
-	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/BOATObject.bin");
-	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/Tree07_4K.008Object.bin");
-//	LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/TreeBranchObject.bin");
+	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/SpaceshipObject.bin");
 
 	CPlayerShader* pShader = new CPlayerShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
@@ -339,7 +333,6 @@ CCamera* CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_xmf3Position.y = 8;
 		//
 		SetFriction(250.0f);
-
 		//23.01.19
 		//SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
 		SetGravity(XMFLOAT3(0.0f, -20.0f, 0.0f));

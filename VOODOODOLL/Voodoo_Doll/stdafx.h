@@ -61,6 +61,12 @@ using Microsoft::WRL::ComPtr;
 #define SPOT_LIGHT				2
 #define DIRECTIONAL_LIGHT		3
 
+//23.01.19
+#define FIRST_FLOOR				10
+#define SECOND_FLOOR			300
+#define FLOOR_SIZE				300
+//
+
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
