@@ -142,6 +142,7 @@ void process_packet(int c_id, char* packet)
 {
 	switch (packet[1]) {
 	case CS_LOGIN: {
+		cout << "Client[" << c_id << "] Accessed\n";
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		strcpy_s(clients[c_id]._name, p->name);
 		clients[c_id].send_login_info_packet();

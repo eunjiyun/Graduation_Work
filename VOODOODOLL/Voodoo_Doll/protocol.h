@@ -1,6 +1,6 @@
 // protocol.h
 
-constexpr int PORT_NUM = 3500;
+constexpr int PORT_NUM = 4000;
 constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
 

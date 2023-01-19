@@ -5,8 +5,18 @@
 #include "stdafx.h"
 #include "Voodoo_Doll.h"
 #include "GameFramework.h"
+#include "SERVER.h"
 
 #define MAX_LOADSTRING 100
+
+#pragma region S_variables
+// 서버 통신에 사용되는 변수들의 집합
+constexpr short SERVER_PORT = 3500;
+SOCKET s_socket;
+char	recv_buffer[BUF_SIZE];
+thread* recv_t;
+OVER_EXP _over;
+#pragma endregion
 
 HINSTANCE						ghAppInstance;
 TCHAR							szTitle[MAX_LOADSTRING];
@@ -18,6 +28,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+
+void RecvThread();
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -35,6 +47,41 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
+#pragma region SERVER
+
+	WSADATA WSAData;
+	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+	if (ErrorStatus != 0)
+	{
+		cout << "WSAStartup 실패\n";
+	}
+	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+	if (s_socket == INVALID_SOCKET)
+	{
+		cout << "소켓 생성 실패\n";
+	}
+
+
+	// 서버와 연결
+	SOCKADDR_IN svr_addr;
+	memset(&svr_addr, 0, sizeof(svr_addr));
+	svr_addr.sin_family = AF_INET;
+	svr_addr.sin_port = htons(SERVER_PORT);
+	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+
+	// 서버에게 자신의 정보를 패킷으로 전달
+	CS_LOGIN_PACKET p;
+	p.size = sizeof(CS_LOGIN_PACKET);
+	p.type = CS_LOGIN;
+	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+
+	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+#pragma endregion
+
+
 	while (1)
 	{
 		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -51,6 +98,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			gGameFramework.FrameAdvance();
 		}
 	}
+	recv_t->join();
 	gGameFramework.OnDestroy();
 
 	return((int)msg.wParam);
@@ -173,3 +221,61 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return((INT_PTR)FALSE);
 }
+
+void ProcessPacket(char* ptr)
+{
+	switch (ptr[1]) {
+	case SC_LOGIN_INFO: {
+		cout << "접속 완료\n" << endl;
+		break;
+	}
+	case SC_ADD_PLAYER: {
+		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
+		int id = packet->id;
+		cout << "client[" << packet->id << "] Accessed\n";
+		break;
+	}
+	case SC_REMOVE_PLAYER:
+		break;
+	case SC_MOVE_PLAYER:
+		break;
+	}
+}
+
+void ProcessData(char* packet, int io_byte)
+{
+	char* ptr = packet;
+	static size_t in_packet_size = 0;
+	static size_t saved_packet_size = 0;
+	static char packet_buffer[BUF_SIZE];
+
+	while (io_byte != 0) {
+		if (0 == in_packet_size) in_packet_size = ptr[0];
+		if (io_byte + saved_packet_size >= in_packet_size) {
+			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
+			ProcessPacket(packet_buffer);
+			ptr += in_packet_size - saved_packet_size;
+			io_byte -= in_packet_size - saved_packet_size;
+			in_packet_size = 0;
+			saved_packet_size = 0;
+		}
+		else {
+			memcpy(packet_buffer + saved_packet_size, ptr, io_byte);
+			saved_packet_size += io_byte;
+			io_byte = 0;
+		}
+	}
+}
+
+
+
+void RecvThread()
+{
+	while (true) {
+		int Length = recv(s_socket, recv_buffer, BUF_SIZE, 0);
+		if (Length == 0)
+			break;
+		ProcessData(recv_buffer, Length);
+	}
+}
+

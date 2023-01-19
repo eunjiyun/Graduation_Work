@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include <vector>
 
 class CGameFramework
 {
@@ -88,6 +89,8 @@ public:
 
 	CScene* m_pScene = NULL;
 	CPlayer* m_pPlayer = NULL;
+
+	vector<CPlayer*> Players;
 	CCamera* m_pCamera = NULL;
 
 	POINT						m_ptOldCursorPos;
