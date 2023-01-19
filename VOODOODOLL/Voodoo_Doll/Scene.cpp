@@ -409,36 +409,36 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 void CScene::CheckObjectByObjectCollisions()
 {
-	//23.01.17
-	if (m_pPlayer->GetPosition().x > -50 && m_pPlayer->GetPosition().x < -22
-		&& m_pPlayer->GetPosition().y > 1 && m_pPlayer->GetPosition().y < 30
-		&& m_pPlayer->GetPosition().z > -20 && m_pPlayer->GetPosition().z < 40)
-	{
-		return;
-	}
-	else
-	{
-		for (int i = 0; i < m_ppShaders[0]->m_nObjects - 1; i++)
-		{
-			//m_ppShaders[0]->m_ppObjects[i]->m_pMesh->m_xmBoundingBox
-			if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB))
-				//if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders[0]->m_ppObjects[i]->m_pMesh->m_xmBoundingBox))
-			{
-				//if(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center==XMFLOAT3(0,0,0))
+	////23.01.17
+	//if (m_pPlayer->GetPosition().x > -50 && m_pPlayer->GetPosition().x < -22
+	//	&& m_pPlayer->GetPosition().y > 1 && m_pPlayer->GetPosition().y < 30
+	//	&& m_pPlayer->GetPosition().z > -20 && m_pPlayer->GetPosition().z < 40)
+	//{
+	//	return;
+	//}
+	//else
+	//{
+	//	for (int i = 0; i < m_ppShaders[0]->m_nObjects - 1; i++)
+	//	{
+	//		//m_ppShaders[0]->m_ppObjects[i]->m_pMesh->m_xmBoundingBox
+	//		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB))
+	//			//if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders[0]->m_ppObjects[i]->m_pMesh->m_xmBoundingBox))
+	//		{
+	//			//if(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center==XMFLOAT3(0,0,0))
 
-				if (!(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.x == 0 && m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.y == 0 &&
-					m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.z == 0))
-				{
-					m_pPlayer->m_pObjectCollided = m_ppShaders[0]->m_ppObjects[i];
-					//m_ppShaders[i]->m_pObjectCollided = m_pPlayer;
+	//			if (!(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.x == 0 && m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.y == 0 &&
+	//				m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.z == 0))
+	//			{
+	//				m_pPlayer->m_pObjectCollided = m_ppShaders[0]->m_ppObjects[i];
+	//				//m_ppShaders[i]->m_pObjectCollided = m_pPlayer;
 
-					XMFLOAT3 xmfsub = m_ppShaders[0]->m_ppObjects[i]->GetPosition();
-					xmfsub = Vector3::Subtract(m_pPlayer->GetPosition(), xmfsub);
+	//				XMFLOAT3 xmfsub = m_ppShaders[0]->m_ppObjects[i]->GetPosition();
+	//				xmfsub = Vector3::Subtract(m_pPlayer->GetPosition(), xmfsub);
 
-					xmfsub = Vector3::Normalize(xmfsub);
-					m_pPlayer->SetPosition(XMFLOAT3(m_pPlayer->GetPosition().x + xmfsub.x, m_pPlayer->GetPosition().y + xmfsub.y, m_pPlayer->GetPosition().z + xmfsub.z));
-				}
-			}
-		}
-	}
+	//				xmfsub = Vector3::Normalize(xmfsub);
+	//				m_pPlayer->SetPosition(XMFLOAT3(m_pPlayer->GetPosition().x + xmfsub.x, m_pPlayer->GetPosition().y + xmfsub.y, m_pPlayer->GetPosition().z + xmfsub.z));
+	//			}
+	//		}
+	//	}
+	//}
 }

@@ -501,7 +501,7 @@ void CGameFramework::ProcessInput()
 			else
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 		}
-		if (dwDirection) m_pPlayer->Move(dwDirection, 50.0f * m_GameTimer.GetTimeElapsed(), true);
+		if (dwDirection) m_pPlayer->Move(dwDirection, 150.0f * m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
 	}
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
@@ -512,10 +512,8 @@ void CGameFramework::AnimateObjects()
 	if (m_pScene)
 		m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
 
-	//23.01.03
 	if (m_pPlayer)
 		m_pPlayer->Animate(m_GameTimer.GetTimeElapsed());
-	//
 }
 
 void CGameFramework::WaitForGpuComplete()
