@@ -62,6 +62,7 @@ public:
 	void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
+
 	void Rotate(float x, float y, float z);
 
 	void Update(XMFLOAT3 xmf3Shift, float fTimeElapsed);
@@ -101,6 +102,12 @@ public:
 
 	//23.01.17
 	float						mpTime = 0.f;
+	//
+
+	//23.01.19
+	LPVOID m_pPlayerUpdatedContext;
+	void SetGravity(XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
+	void SetVelocity(XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
 	//
 };
 

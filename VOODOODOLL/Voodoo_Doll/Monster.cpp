@@ -140,6 +140,28 @@ void CMonster::Rotate(float x, float y, float z)
 
 void CMonster::Update(XMFLOAT3 xmf3Shift, float fTimeElapsed)
 {
+	//23.01.19
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
+	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z *
+		m_xmf3Velocity.z);
+	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
+	if (fLength > m_fMaxVelocityXZ)
+	{
+		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
+		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
+	}
+	float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
+	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
+	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+	
+	fLength = Vector3::Length(m_xmf3Velocity);
+	float fDeceleration = (m_fFriction * fTimeElapsed);
+	if (fDeceleration > fLength) fDeceleration = fLength;
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity,
+		-fDeceleration, true));
+	//
+
+
 	//23.01.03
 	//일정한 시간이 지나면 적이 나를 향해서 오게: 델타 t
 	srand((unsigned int)time(NULL));
@@ -147,59 +169,39 @@ void CMonster::Update(XMFLOAT3 xmf3Shift, float fTimeElapsed)
 	XMFLOAT3 tmp = XMFLOAT3(xmf3Shift.x / 10, xmf3Shift.y / 10, xmf3Shift.z / 10);
 	if (mpTime > 0.5f)
 	{
-		//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
+		//몬스터를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동
 
 		m_xmf3Position = Vector3::Add(m_xmf3Position, tmp);
 		mpTime = 0.f;
 	}
 
-	//플레이어의 위치가 변경되었으므로 카메라의 위치도 xmf3Shift 벡터만큼 이동한다. 
+	//23.01.19
+	if (m_xmf3Position.y > 295 && m_xmf3Position.y < 600)
+	{
+		if (m_xmf3Position.y < 300)
+		{
+			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+			xmf3PlayerVelocity.y = 0.0f;
+			SetVelocity(xmf3PlayerVelocity);
+			m_xmf3Position.y = 300;
+			SetPosition(m_xmf3Position);
+		}
+	}
+	else if (m_xmf3Position.y < 10)
+	{
+		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+		xmf3PlayerVelocity.y = 0.0f;
+		SetVelocity(xmf3PlayerVelocity);
+		m_xmf3Position.y = 10;
+		SetPosition(m_xmf3Position);
+	}
+	//
 
+	//cout << "x : " << m_xmf3Position.x << endl;
+	//cout << "y : " << m_xmf3Position.y << endl;
+	//cout << "z : " << m_xmf3Position.z<< endl;
 }
 
-//CCamera* CMonster::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
-//{
-//	CCamera* pNewCamera = NULL;
-//	switch (nNewCameraMode)
-//	{
-//	case FIRST_PERSON_CAMERA:
-//		pNewCamera = new CFirstPersonCamera(m_pCamera);
-//		break;
-//	case THIRD_PERSON_CAMERA:
-//		pNewCamera = new CThirdPersonCamera(m_pCamera);
-//		break;
-//	case SPACESHIP_CAMERA:
-//		pNewCamera = new CSpaceShipCamera(m_pCamera);
-//		break;
-//	}
-//	if (nCurrentCameraMode == SPACESHIP_CAMERA)
-//	{
-//		m_xmf3Right = Vector3::Normalize(XMFLOAT3(m_xmf3Right.x, 0.0f, m_xmf3Right.z));
-//		m_xmf3Up = Vector3::Normalize(XMFLOAT3(0.0f, 1.0f, 0.0f));
-//		m_xmf3Look = Vector3::Normalize(XMFLOAT3(m_xmf3Look.x, 0.0f, m_xmf3Look.z));
-//
-//		m_fPitch = 0.0f;
-//		m_fRoll = 0.0f;
-//		m_fYaw = Vector3::Angle(XMFLOAT3(0.0f, 0.0f, 1.0f), m_xmf3Look);
-//		if (m_xmf3Look.x < 0.0f) m_fYaw = -m_fYaw;
-//	}
-//	else if ((nNewCameraMode == SPACESHIP_CAMERA) && m_pCamera)
-//	{
-//		m_xmf3Right = m_pCamera->GetRightVector();
-//		m_xmf3Up = m_pCamera->GetUpVector();
-//		m_xmf3Look = m_pCamera->GetLookVector();
-//	}
-//
-//	if (pNewCamera)
-//	{
-//		pNewCamera->SetMode(nNewCameraMode);
-//		pNewCamera->SetMonster(this);
-//	}
-//
-//	if (m_pCamera) delete m_pCamera;
-//
-//	return(pNewCamera);
-//}
 
 void CMonster::OnPrepareRender()
 {
@@ -222,7 +224,9 @@ CAirplaneMonster::CAirplaneMonster(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 {
 	//SpaceshipObject
 	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/SpaceshipObject.bin");
-	LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/FlyerPlayershipObject.bin");
+	LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/BOATObject.bin");
+	//LoadGameObjectFromFile(pd3dDevice, pd3dCommandList, "Models/TreeBranchObject.bin");
+	//
 
 	CMonsterShader* pShader = new CMonsterShader();
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
@@ -232,7 +236,7 @@ CAirplaneMonster::CAirplaneMonster(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	//23.01.17
 	//SetPosition(XMFLOAT3(-3.944041f, 130, -2.04254f));
-	SetPosition(XMFLOAT3(-32, 28, 39));
+	//SetPosition(XMFLOAT3(-32, 28, 39));
 
 	for (int i = 0; i < m_nMaterials; ++i)
 	{
