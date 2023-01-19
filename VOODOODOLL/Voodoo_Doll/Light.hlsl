@@ -2,7 +2,9 @@
 
 //23.01.17
 //#define MAX_LIGHTS			8 
-#define MAX_LIGHTS			7
+//#define MAX_LIGHTS			7
+//23.01.19
+#define MAX_LIGHTS			20
 //
 #define MAX_MATERIALS		16 
 

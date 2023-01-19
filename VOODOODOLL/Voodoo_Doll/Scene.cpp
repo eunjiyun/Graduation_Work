@@ -86,7 +86,7 @@ void CScene::BuildLightsAndMaterials()
 
 	//23.01.17
 	//for (int i = 5; i < 24; ++i)
-	for (int i = 5; i < 7; ++i)
+	for (int i = 5; i < 20; ++i)
 		//for (int i = 0; i < 1; ++i)
 	{
 		m_pLights->m_pLights[i].m_bEnable = false;
@@ -96,7 +96,7 @@ void CScene::BuildLightsAndMaterials()
 
 		//23.01.17
 		//m_pLights->m_pLights[i].m_fRange = 2.0f;
-		m_pLights->m_pLights[i].m_fRange = 7.0f;
+		m_pLights->m_pLights[i].m_fRange = 140.0f;
 		//
 
 		m_pLights->m_pLights[i].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 5.0f);
@@ -340,7 +340,7 @@ void CScene::AnimateObjects(float fTimeElapsed)
 		{
 			//23.01.17
 			//for (int i = 5; i < 24; ++i)
-			for (int i = 5; i < 7; ++i)
+			for (int i = 5; i < 20; ++i)
 				m_pLights->m_pLights[i].m_bEnable = wakeUp;
 			//
 		}

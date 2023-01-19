@@ -312,8 +312,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		}
 	}
 
-	//cout << "몇 개? " << num << endl;
-	//cout << "벡터는 몇 개? " << mpObjVec.size() << endl;
+	cout << "몇 개? " << num << endl;
+	cout << "벡터는 몇 개? " << mpObjVec.size() << endl;
 
 	//tmp._41 = -150.f;//고정
 	//tmp._42 = 0.0f;//고정

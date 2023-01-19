@@ -53,7 +53,7 @@ using Microsoft::WRL::ComPtr;
 
 //23.01.03
 //#define MAX_LIGHTS				8 
-#define MAX_LIGHTS				    7//lamp2
+#define MAX_LIGHTS				    20//lamp2
 //
 #define MAX_SCENE_MATERIALS		16 
 
