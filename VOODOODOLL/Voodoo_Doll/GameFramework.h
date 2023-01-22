@@ -29,9 +29,6 @@ public:
 	void BuildObjects();
 	void ReleaseObjects();
 
-	// SERVER
-	void CreateOtherPlayer(int p_id);
-
 	void ProcessInput();
 	void AnimateObjects();
 	void FrameAdvance();

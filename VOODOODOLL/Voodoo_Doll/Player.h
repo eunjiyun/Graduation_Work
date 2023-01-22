@@ -90,9 +90,6 @@ public:
 	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	CGameObject* m_pObjectCollided = NULL;
 	BoundingBox			m_xmOOBB = BoundingBox();
-
-	int c_id = -1;	// 서버에서 플레이어 식별을 위해 사용하는 ID
-
 	virtual void OnUpdateTransform();
 	virtual void Animate(float fElapsedTime);
 	//XMFLOAT3 GetPosition() { return(m_xmf3Position); }
