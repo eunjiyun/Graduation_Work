@@ -472,6 +472,7 @@ void CGameFramework::ReleaseObjects()
 	if (m_pScene) delete m_pScene;
 }
 
+//23.01.23
 void CGameFramework::CreateOtherPlayer(int p_id)
 {
 	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
@@ -480,6 +481,16 @@ void CGameFramework::CreateOtherPlayer(int p_id)
 	Players.emplace_back(pAirplanePlayer);
 
 }
+//int CGameFramework::CreateOtherPlayer(int p_id)
+//{
+//	//CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+//	//pAirplanePlayer->c_id = p_id;
+//	//pAirplanePlayer->ReleaseUploadBuffers();
+//	//Players.emplace_back(pAirplanePlayer);
+//
+//	return p_id;
+//}
+//
 
 void CGameFramework::ProcessInput()
 {
@@ -556,7 +567,7 @@ void CGameFramework::MoveToNextFrame()
 	}
 }
 
-void CGameFramework::FrameAdvance()
+void CGameFramework::FrameAdvance(bool createPl,int id)
 {
 	m_GameTimer.Tick(0.0f);
 
@@ -615,8 +626,17 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
-	for (const auto& player : Players) {
-		player->Render(m_pd3dCommandList, m_pCamera);
+
+	if (true == createPl)
+	{
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+		pAirplanePlayer->c_id = id;
+		//pAirplanePlayer->ReleaseUploadBuffers();
+		Players.emplace_back(pAirplanePlayer);
+
+		for (const auto& player : Players) {
+			player->Render(m_pd3dCommandList, m_pCamera);
+		}
 	}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;

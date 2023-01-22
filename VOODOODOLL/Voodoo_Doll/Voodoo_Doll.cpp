@@ -96,12 +96,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			gGameFramework.FrameAdvance();
+			gGameFramework.FrameAdvance(createPl,id);
 		}
 	}
 
 	//23.01.19==================
-	//recv_t->join();
+	recv_t->join();
 	//==========================
 	gGameFramework.OnDestroy();
 
@@ -235,9 +235,16 @@ void ProcessPacket(char* ptr)
 	}
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
-		int id = packet->id;
+		//23.01.23
+		//int id = packet->id;
+		id = packet->id;
+		//
 		cout << "client[" << packet->id << "] Accessed\n";
 		gGameFramework.CreateOtherPlayer(id);
+		
+		//23.01.23
+		createPl = true;
+		//
 		break;
 	}
 	case SC_REMOVE_PLAYER:
