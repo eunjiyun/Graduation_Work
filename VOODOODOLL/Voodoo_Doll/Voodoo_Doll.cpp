@@ -16,6 +16,7 @@ SOCKET s_socket;
 char	recv_buffer[BUF_SIZE];
 thread* recv_t;
 OVER_EXP _over;
+mutex m;
 #pragma endregion
 
 HINSTANCE						ghAppInstance;
@@ -96,7 +97,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			gGameFramework.FrameAdvance(createPl,id);
+			gGameFramework.FrameAdvance();
 		}
 	}
 
@@ -228,6 +229,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessPacket(char* ptr)
 {
+	m.lock();
 	switch (ptr[1]) {
 	case SC_LOGIN_INFO: {
 		cout << "접속 완료\n" << endl;
@@ -236,22 +238,34 @@ void ProcessPacket(char* ptr)
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		//23.01.23
-		//int id = packet->id;
-		id = packet->id;
+		int id = packet->id;
+		//id = packet->id;
 		//
 		cout << "client[" << packet->id << "] Accessed\n";
 		gGameFramework.CreateOtherPlayer(id);
 		
 		//23.01.23
-		createPl = true;
+		//createPl = true;
 		//
 		break;
 	}
-	case SC_REMOVE_PLAYER:
-		break;
-	case SC_MOVE_PLAYER:
+	case SC_REMOVE_PLAYER: {
+		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
+		int id = packet->id;
+		cout << "client[" << packet->id << "] Disconnected\n";
 		break;
 	}
+	case SC_MOVE_PLAYER: {
+		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
+		//int x = packet->x, int y = packet->y, int z = packet->z;
+		//cout << x << ", " << y << ", " << z << endl;
+		//XMFLOAT3 pos{ x,y,z };
+		//int id = packet->id;
+		//gGameFramework.Players[id]->SetPosition(pos);
+		break;
+	}
+	}
+	m.unlock();
 }
 
 void ProcessData(char* packet, int io_byte)

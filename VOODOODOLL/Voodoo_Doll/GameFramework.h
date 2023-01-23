@@ -34,7 +34,7 @@ public:
 
 	void ProcessInput();
 	void AnimateObjects();
-	void FrameAdvance(bool createPl,int id);
+	void FrameAdvance();
 
 	void WaitForGpuComplete();
 	void MoveToNextFrame();
