@@ -232,27 +232,29 @@ void ProcessPacket(char* ptr)
 	m.lock();
 	switch (ptr[1]) {
 	case SC_LOGIN_INFO: {
-		cout << "접속 완료\n" << endl;
+		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
+		gGameFramework.m_pPlayer->c_id = packet->id;
+		cout << gGameFramework.m_pPlayer->c_id << "플레이어 접속 완료\n" << endl;
 		break;
 	}
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		//23.01.23
 		int id = packet->id;
-		//id = packet->id;
-		//
 		cout << "client[" << packet->id << "] Accessed\n";
 		gGameFramework.CreateOtherPlayer(id);
-		
-		//23.01.23
-		//createPl = true;
-		//
 		break;
 	}
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
 		int id = packet->id;
-		cout << "client[" << packet->id << "] Disconnected\n";
+		vector<CPlayer*>::iterator ptr;
+		for (ptr = gGameFramework.Players.begin(); ptr != gGameFramework.Players.end(); ++ptr) {
+			if ((*ptr)->c_id == id) {
+				gGameFramework.Players.erase(ptr);
+				cout << "client[" << packet->id << "] Disconnected\n";
+			}
+		}
 		break;
 	}
 	case SC_MOVE_PLAYER: {
@@ -280,7 +282,8 @@ void ProcessData(char* packet, int io_byte)
 		if (io_byte + saved_packet_size >= in_packet_size) {
 			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
 			ProcessPacket(packet_buffer);
-			ptr += in_packet_size - saved_packet_size;
+			//ptr += in_packet_size - saved_packet_size;
+			ptr += in_packet_size;
 			io_byte -= in_packet_size - saved_packet_size;
 			in_packet_size = 0;
 			saved_packet_size = 0;

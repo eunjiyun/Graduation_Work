@@ -447,7 +447,11 @@ void CGameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
 
 	m_pCamera = m_pPlayer->GetCamera();
-	m_pPlayer->c_id = -1;
+
+	for (int i = 0; i < 3; i++) {
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+		Players.push_back(pAirplanePlayer);
+	}
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -475,13 +479,12 @@ void CGameFramework::ReleaseObjects()
 //23.01.23
 void CGameFramework::CreateOtherPlayer(int p_id)
 {
-	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-	pAirplanePlayer->c_id = p_id;
-	pAirplanePlayer->ReleaseUploadBuffers();
-	
-	Players.emplace_back(pAirplanePlayer);
-	cout << Players.size() << endl;
-
+	for (auto& player : Players)
+		if (player->c_id < 0) {
+			player->c_id = p_id;
+			player->SetPosition(m_pPlayer->GetPosition());
+			break;
+		}
 }
 //int CGameFramework::CreateOtherPlayer(int p_id)
 //{
@@ -535,7 +538,8 @@ void CGameFramework::ProcessInput()
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 	for (auto& player : Players) {
-		player->Update(m_GameTimer.GetTimeElapsed());
+		if (player->c_id > -1)
+			player->Update(m_GameTimer.GetTimeElapsed());
 	}
 }
 
@@ -547,7 +551,8 @@ void CGameFramework::AnimateObjects()
 	if (m_pPlayer)
 		m_pPlayer->Animate(m_GameTimer.GetTimeElapsed());
 	for (auto& player : Players)
-		player->Animate(m_GameTimer.GetTimeElapsed());
+		if (player->c_id > -1)
+			player->Animate(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -631,7 +636,9 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
 	for (const auto& player : Players) {
-		player->Render(m_pd3dCommandList, m_pCamera);
+		if (player->c_id > -1) {
+			player->Render(m_pd3dCommandList, m_pCamera);
+		}
 	}
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
