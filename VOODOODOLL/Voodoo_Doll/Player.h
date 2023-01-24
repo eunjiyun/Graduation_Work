@@ -85,6 +85,7 @@ public:
 	//23.01.03
 public:
 	bool lookAround[2] = {};
+	int c_id = -1;
 
 	//23.01.03
 	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);

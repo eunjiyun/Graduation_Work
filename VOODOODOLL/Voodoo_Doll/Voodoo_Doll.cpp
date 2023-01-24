@@ -49,39 +49,39 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
 //23.01.19========================================================================
-//#pragma region SERVER
-//
-//	WSADATA WSAData;
-//	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-//	if (ErrorStatus != 0)
-//	{
-//		cout << "WSAStartup 실패\n";
-//	}
-//	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-//	if (s_socket == INVALID_SOCKET)
-//	{
-//		cout << "소켓 생성 실패\n";
-//	}
-//
-//
-//	// 서버와 연결
-//	SOCKADDR_IN svr_addr;
-//	memset(&svr_addr, 0, sizeof(svr_addr));
-//	svr_addr.sin_family = AF_INET;
-//	svr_addr.sin_port = htons(SERVER_PORT);
-//	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
-//	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
-//	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
-//
-//	// 서버에게 자신의 정보를 패킷으로 전달
-//	CS_LOGIN_PACKET p;
-//	p.size = sizeof(CS_LOGIN_PACKET);
-//	p.type = CS_LOGIN;
-//	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-//	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-//
-//	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-//#pragma endregion
+#pragma region SERVER
+
+	WSADATA WSAData;
+	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+	if (ErrorStatus != 0)
+	{
+		cout << "WSAStartup 실패\n";
+	}
+	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+	if (s_socket == INVALID_SOCKET)
+	{
+		cout << "소켓 생성 실패\n";
+	}
+
+
+	// 서버와 연결
+	SOCKADDR_IN svr_addr;
+	memset(&svr_addr, 0, sizeof(svr_addr));
+	svr_addr.sin_family = AF_INET;
+	svr_addr.sin_port = htons(SERVER_PORT);
+	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+
+	// 서버에게 자신의 정보를 패킷으로 전달
+	CS_LOGIN_PACKET p;
+	p.size = sizeof(CS_LOGIN_PACKET);
+	p.type = CS_LOGIN;
+	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+
+	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+#pragma endregion
 //========================================================================================
 
 	while (1)
@@ -234,7 +234,7 @@ void ProcessPacket(char* ptr)
 	case SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
-		cout << gGameFramework.m_pPlayer->c_id << "플레이어 접속 완료\n" << endl;
+		cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
 		break;
 	}
 	case SC_ADD_PLAYER: {
@@ -242,18 +242,17 @@ void ProcessPacket(char* ptr)
 		//23.01.23
 		int id = packet->id;
 		cout << "client[" << packet->id << "] Accessed\n";
+		gGameFramework.CreateOtherPlayer(id);
 		break;
 	}
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
 		int id = packet->id;
-		vector<CPlayer*>::iterator ptr;
-		for (ptr = gGameFramework.Players.begin(); ptr != gGameFramework.Players.end(); ++ptr) {
-			if ((*ptr)->c_id == id) {
-				gGameFramework.Players.erase(ptr);
+		for (CPlayer*& player : gGameFramework.Players)
+			if (player->c_id == id) {
+				player->c_id = -1;
 				cout << "client[" << packet->id << "] Disconnected\n";
 			}
-		}
 		break;
 	}
 	case SC_MOVE_PLAYER: {

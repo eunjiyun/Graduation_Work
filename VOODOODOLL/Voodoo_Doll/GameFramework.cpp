@@ -449,7 +449,7 @@ void CGameFramework::BuildObjects()
 	m_pCamera = m_pPlayer->GetCamera();
 
 	for (int i = 0; i < 3; i++) {
-		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());	
 		Players.push_back(pAirplanePlayer);
 	}
 
@@ -482,10 +482,12 @@ void CGameFramework::CreateOtherPlayer(int p_id)
 	for (auto& player : Players)
 		if (player->c_id < 0) {
 			player->c_id = p_id;
+			cout << player->c_id << endl;
 			player->SetPosition(m_pPlayer->GetPosition());
 			break;
 		}
 }
+
 //int CGameFramework::CreateOtherPlayer(int p_id)
 //{
 //	//CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());

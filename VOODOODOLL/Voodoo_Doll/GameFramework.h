@@ -27,6 +27,7 @@ public:
 	void ChangeSwapChainState();
 
 	void BuildObjects();
+	void CreateOtherPlayer(int p_id);
 	void ReleaseObjects();
 
 	void ProcessInput();
