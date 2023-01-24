@@ -173,7 +173,7 @@ void CPlayer::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
 	//23.01.19
-	if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
+	/*if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
 	{
 		if (m_xmf3Position.y < SECOND_FLOOR)
 		{
@@ -191,7 +191,7 @@ void CPlayer::Update(float fTimeElapsed)
 		SetVelocity(xmf3PlayerVelocity);
 		m_xmf3Position.y = FIRST_FLOOR;
 		SetPosition(m_xmf3Position);
-	}
+	}*/
 	//
 }
 
@@ -264,7 +264,7 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommand
 	pShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	m_pCamera = ChangeCamera(FIRST_PERSON_CAMERA, 0.0f);
+	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	SetPosition(XMFLOAT3(-3.944041f, 130, -2.04254f));
 	m_xmOOBB = BoundingBox(XMFLOAT3(-3.944041f, 130, -2.04254f), XMFLOAT3(10, 10, 10));
