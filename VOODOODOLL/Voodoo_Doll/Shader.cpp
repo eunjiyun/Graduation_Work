@@ -284,12 +284,13 @@ void CObjectsShader::ReleaseShaderVariables()
 	CShader::ReleaseShaderVariables();
 }
 
-//23.01.16
+//23.01.24
 vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, void* pContext)
 //void CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, void* pContext)
 //
 {
 	int nSceneTextures = 0;
+	mpObjVec.resize(20);
 	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
 
 	int num = 0;
