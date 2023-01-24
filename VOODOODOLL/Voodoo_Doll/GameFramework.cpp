@@ -445,7 +445,13 @@ void CGameFramework::BuildObjects()
 
 	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
 	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
+
 	m_pCamera = m_pPlayer->GetCamera();
+
+	for (int i = 0; i < 3; i++) {
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+		Players.push_back(pAirplanePlayer);
+	}
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -463,9 +469,33 @@ void CGameFramework::ReleaseObjects()
 {
 	if (m_pPlayer) delete m_pPlayer;
 
+	for (auto& player : Players)
+		delete player;
+
 	if (m_pScene) m_pScene->ReleaseObjects();
 	if (m_pScene) delete m_pScene;
 }
+
+//23.01.23
+void CGameFramework::CreateOtherPlayer(int p_id)
+{
+	for (auto& player : Players)
+		if (player->c_id < 0) {
+			player->c_id = p_id;
+			player->SetPosition(m_pPlayer->GetPosition());
+			break;
+		}
+}
+//int CGameFramework::CreateOtherPlayer(int p_id)
+//{
+//	//CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
+//	//pAirplanePlayer->c_id = p_id;
+//	//pAirplanePlayer->ReleaseUploadBuffers();
+//	//Players.emplace_back(pAirplanePlayer);
+//
+//	return p_id;
+//}
+//
 
 void CGameFramework::ProcessInput()
 {
@@ -501,10 +531,16 @@ void CGameFramework::ProcessInput()
 			else
 				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 		}
-		if (dwDirection) m_pPlayer->Move(dwDirection, 150.0f * m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
+		if (dwDirection)
+			m_pPlayer->Move(dwDirection, 150.0f * m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
+
 	}
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	for (auto& player : Players) {
+		if (player->c_id > -1)
+			player->Update(m_GameTimer.GetTimeElapsed());
+	}
 }
 
 void CGameFramework::AnimateObjects()
@@ -514,6 +550,9 @@ void CGameFramework::AnimateObjects()
 
 	if (m_pPlayer)
 		m_pPlayer->Animate(m_GameTimer.GetTimeElapsed());
+	for (auto& player : Players)
+		if (player->c_id > -1)
+			player->Animate(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -596,11 +635,18 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
-
+	for (const auto& player : Players) {
+		if (player->c_id > -1) {
+			player->Render(m_pd3dCommandList, m_pCamera);
+		}
+	}
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 	if (m_pPlayer) m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
+
+
+
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
