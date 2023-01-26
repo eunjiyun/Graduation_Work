@@ -79,6 +79,8 @@ extern ID3D12Resource* CreateBufferResource(ID3D12Device* pd3dDevice, ID3D12Grap
 
 #include "Object.h"
 extern CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects);
+//23.01.25
+enum SCENEID { SCENE_ZERO, SCENE_OPEN, SCENE_LOGIN, SCENE_STAGE, SCENE_END };
 
 #define RANDOM_COLOR			XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 

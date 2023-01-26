@@ -31,8 +31,13 @@ CGameFramework::CGameFramework()
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
-	m_pScene = NULL;
+	m_pLogin = NULL;
+	m_pStage = NULL;
 	m_pCamera = NULL;
+
+	//23.01.24
+	m_ePrevScene = SCENE_LOGIN;
+	m_eCurrentScene = SCENE_STAGE;
 
 	_tcscpy_s(m_pszFrameRate, _T("VoodooDoll ("));
 }
@@ -335,10 +340,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_RETURN:
 			break;
-			//23.01.03
 		case '1':
-			m_pScene->choose = false;
-			//
 			break;
 		case VK_F1:
 		case VK_F2:
@@ -408,6 +410,28 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	return(0);
 }
 
+void CGameFramework::Scene_Change(SCENEID _eSceneid)
+{
+	switch (_eSceneid)
+	{
+		/*case SCENE_OPEN:
+			m_pScene = new CLogo;
+			break;*/
+
+	case SCENE_LOGIN:
+		m_pLogin = new CLogin;
+		break;
+
+	case SCENE_STAGE:
+		m_pStage = new CStage;
+		break;
+
+		//case SCENE_END:
+		//	m_pScene = new CMyEdit;
+		//	break;
+	}
+}
+
 void CGameFramework::OnDestroy()
 {
 	ReleaseObjects();
@@ -440,27 +464,34 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	m_pScene = new CScene();
-	if (m_pScene) m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	Scene_Change(m_eCurrentScene);
+	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	if (m_pStage)
+	{
 
-	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());
-	m_pScene->m_pPlayer = m_pPlayer = pAirplanePlayer;
+	}m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-	m_pCamera = m_pPlayer->GetCamera();
+	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature());
+	if (pAirplanePlayer)
+	{
+		m_pStage->m_pPlayer = m_pPlayer = pAirplanePlayer;
+		m_pCamera = m_pPlayer->GetCamera();
 
-	for (int i = 0; i < 3; i++) {
-		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature());	
-		Players.push_back(pAirplanePlayer);
+		for (int i = 0; i < 3; i++) {
+			CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature());
+			Players.push_back(pAirplanePlayer);
+		}
+
+		m_pd3dCommandList->Close();
+		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+
+		WaitForGpuComplete();
+
+		if (m_pStage) m_pStage->ReleaseUploadBuffers();
+		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 	}
 
-	m_pd3dCommandList->Close();
-	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-
-	WaitForGpuComplete();
-
-	if (m_pScene) m_pScene->ReleaseUploadBuffers();
-	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 
 	m_GameTimer.Reset();
 }
@@ -472,8 +503,11 @@ void CGameFramework::ReleaseObjects()
 	for (auto& player : Players)
 		delete player;
 
-	if (m_pScene) m_pScene->ReleaseObjects();
-	if (m_pScene) delete m_pScene;
+	if (m_pStage) m_pStage->ReleaseObjects();
+	if (m_pStage) delete m_pStage;
+
+	if (m_pLogin) m_pLogin->ReleaseObjects();
+	if (m_pLogin) delete m_pLogin;
 }
 
 //23.01.23
@@ -547,8 +581,8 @@ void CGameFramework::ProcessInput()
 
 void CGameFramework::AnimateObjects()
 {
-	if (m_pScene)
-		m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+	if (m_pStage)
+		m_pStage->AnimateObjects(m_GameTimer.GetTimeElapsed());
 
 	if (m_pPlayer)
 		m_pPlayer->Animate(m_GameTimer.GetTimeElapsed());
@@ -617,7 +651,7 @@ void CGameFramework::FrameAdvance()
 		pfClearColor[2] = 0.88f;
 		pfClearColor[3] = 1.0f;
 
-		m_pScene->wakeUp = false;
+		m_pStage->wakeUp = false;
 	}
 	else
 	{
@@ -626,7 +660,7 @@ void CGameFramework::FrameAdvance()
 		pfClearColor[2] = 0.1f;
 		pfClearColor[3] = 1.0f;
 
-		m_pScene->wakeUp = true;
+		m_pStage->wakeUp = true;
 	}
 	//
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
@@ -636,7 +670,7 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (m_pScene) m_pScene->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
 	for (const auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Render(m_pd3dCommandList, m_pCamera);

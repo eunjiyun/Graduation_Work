@@ -46,6 +46,15 @@
     <Filter Include="소스 파일\07.TextureLoad">
       <UniqueIdentifier>{db77af66-b99f-45d5-83f1-19eef70b5d29}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\02.Scene\00.Open">
+      <UniqueIdentifier>{b29041e1-3e69-418f-8a17-8884a934cffe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02.Scene\01.Login">
+      <UniqueIdentifier>{1870468f-7b1d-4f8d-99df-42ef77e1687c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\02.Scene\02.Stage">
+      <UniqueIdentifier>{8bfb1114-ff9e-4520-b2ca-3feb3cce9b38}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -93,8 +102,11 @@
     <ClInclude Include="stdafx.h">
       <Filter>소스 파일\99.Useless</Filter>
     </ClInclude>
-    <ClInclude Include="DDSTextureLoader12.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="Stage.h">
+      <Filter>소스 파일\02.Scene\02.Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Login.h">
+      <Filter>소스 파일\02.Scene\01.Login</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -131,8 +143,11 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일\99.Useless</Filter>
     </ClCompile>
-    <ClCompile Include="DDSTextureLoader12.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Stage.cpp">
+      <Filter>소스 파일\02.Scene\02.Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Login.cpp">
+      <Filter>소스 파일\02.Scene\01.Login</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

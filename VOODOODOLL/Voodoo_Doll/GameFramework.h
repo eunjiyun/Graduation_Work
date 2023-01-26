@@ -2,7 +2,8 @@
 
 #include "Timer.h"
 #include "Player.h"
-#include "Scene.h"
+#include "Stage.h"
+#include "Login.h"
 #include <vector>
 
 class CGameFramework
@@ -40,6 +41,11 @@ public:
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+
+	//23.01.24
+	void Scene_Change(SCENEID _eSceneid);
+	SCENEID m_eCurrentScene;
+	SCENEID m_ePrevScene;
 
 private:
 	HINSTANCE					m_hInstance;
@@ -88,7 +94,8 @@ public:
 	ID3D12Debug* m_pd3dDebugController;
 #endif
 
-	CScene* m_pScene = NULL;
+	CLogin* m_pLogin = NULL;
+	CStage* m_pStage = NULL;
 	CPlayer* m_pPlayer = NULL;
 
 	vector<CPlayer*> Players;
