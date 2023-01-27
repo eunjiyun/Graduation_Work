@@ -174,7 +174,7 @@ void CMonster::Update(XMFLOAT3 xmf3Shift, float fTimeElapsed)
 		mpTime = 0.f;
 	}
 	//23.01.19
-	/*if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE)
+	if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE)
 	{
 		if (m_xmf3Position.y < SECOND_FLOOR)
 		{
@@ -192,7 +192,7 @@ void CMonster::Update(XMFLOAT3 xmf3Shift, float fTimeElapsed)
 		SetVelocity(xmf3PlayerVelocity);
 		m_xmf3Position.y = FIRST_FLOOR;
 		SetPosition(m_xmf3Position);
-	}*/
+	}
 	//
 }
 
