@@ -621,7 +621,7 @@ void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(0.0f);
 
-	ProcessInput();
+	//ProcessInput();
 
 	AnimateObjects();
 
