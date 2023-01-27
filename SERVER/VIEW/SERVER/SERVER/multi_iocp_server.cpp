@@ -45,16 +45,20 @@ public:
 	S_STATE _state;
 	int _id;
 	SOCKET _socket;
-	short	x, y;
+	Vector3 pos;
+	//Vector3 Look;
+	//Vector3 Up;
+	//Vector3 Right;
+	DWORD direction;
 	char	_name[NAME_SIZE];
 	int		_prev_remain;
-	int		_last_move_time;
+	//int		_last_move_time;
 public:
 	SESSION()
 	{
 		_id = -1;
 		_socket = 0;
-		x = y = 0;
+		//Right.x = Up.y = Look.z = 1.f;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
@@ -83,8 +87,9 @@ public:
 		p.id = _id;
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
-		p.x = x;
-		p.y = y;
+		p.x = pos.x;
+		p.y = pos.y;
+		p.z = pos.z;
 		do_send(&p);
 	}
 	void send_move_packet(int c_id);
@@ -110,9 +115,9 @@ void SESSION::send_move_packet(int c_id)
 	p.id = c_id;
 	p.size = sizeof(SC_MOVE_PLAYER_PACKET);
 	p.type = SC_MOVE_PLAYER;
-	p.x = clients[c_id].x;
-	p.y = clients[c_id].y;
-	p.move_time = clients[c_id]._last_move_time;
+	p.direction = clients[c_id].direction;
+	
+	//p.move_time = clients[c_id]._last_move_time;
 	do_send(&p);
 }
 
@@ -123,8 +128,9 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	add_packet.x = clients[c_id].x;
-	add_packet.y = clients[c_id].y;
+	add_packet.x = clients[c_id].pos.x;
+	add_packet.y = clients[c_id].pos.y;
+	add_packet.z = clients[c_id].pos.z;
 	do_send(&add_packet);
 }
 
@@ -163,17 +169,20 @@ void process_packet(int c_id, char* packet)
 	}
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		clients[c_id]._last_move_time = p->move_time;
-		short x = clients[c_id].x;
-		short y = clients[c_id].y;
-		switch (p->direction) {
-		case 0: if (y > 0) y--; break;
-		case 1: if (y < W_HEIGHT - 1) y++; break;
-		case 2: if (x > 0) x--; break;
-		case 3: if (x < W_WIDTH - 1) x++; break;
-		}
-		clients[c_id].x = x;
-		clients[c_id].y = y;
+		clients[c_id].direction = p->direction;
+		//clients[c_id]._last_move_time = p->move_time;
+		//short x = clients[c_id].pos.x;
+		//short y = clients[c_id].pos.y;
+		//short z = clients[c_id].pos.z;
+		//switch (p->direction) {
+		//case 0: if (y > 0) y--; break;
+		//case 1: if (y < W_HEIGHT - 1) y++; break;
+		//case 2: if (x > 0) x--; break;
+		//case 3: if (x < W_WIDTH - 1) x++; break;
+		//}
+		//clients[c_id].pos.x = x;
+		//clients[c_id].pos.y = y;
+		//clients[c_id].pos.z = z;
 
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
@@ -232,8 +241,9 @@ void worker_thread(HANDLE h_iocp)
 					lock_guard<mutex> ll(clients[client_id]._s_lock);
 					clients[client_id]._state = ST_ALLOC;
 				}
-				clients[client_id].x = 0;
-				clients[client_id].y = 0;
+				clients[client_id].pos.x = 0;
+				clients[client_id].pos.y = 0;
+				clients[client_id].pos.z = 0;
 				clients[client_id]._id = client_id;
 				clients[client_id]._name[0] = 0;
 				clients[client_id]._prev_remain = 0;

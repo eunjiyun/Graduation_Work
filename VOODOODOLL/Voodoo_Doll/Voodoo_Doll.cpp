@@ -37,6 +37,7 @@ void GamePlayer_ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	DWORD dwDirection = 0;
+
 	if (::GetKeyboardState(pKeysBuffer))
 	{
 		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
@@ -60,25 +61,38 @@ void GamePlayer_ProcessInput()
 
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
+		CS_MOVE_PACKET p;
+		p.id = gGameFramework.m_pPlayer->c_id;
+		p.size = sizeof(CS_MOVE_PACKET);
+		p.type = CS_MOVE;
 		if (cxDelta || cyDelta)
 		{
-			if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
+				p.cxDelta = cyDelta;
+				p.cyDelta = 0.f;
+				p.czDelta = -cxDelta;
 				gGameFramework.m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-			else
-				gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			}
+			else {
+				p.cxDelta = cyDelta;
+				p.cyDelta = cxDelta;
+				p.czDelta = 0.f;
+				gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);				
+			}
 		}
-		if (dwDirection)
-			gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
-
+		if (dwDirection) {
+			p.direction = dwDirection;
+			//gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
+		}
+		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
+		if (ErrorStatus == SOCKET_ERROR)
+			cout << "Error\n";
 	}
-
 	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
 	for (auto& player : gGameFramework.Players) {
 		if (player->c_id > -1)
 			player->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
 	}
-
-	m_dwCurrentDirection = dwDirection;
 }
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
@@ -284,6 +298,7 @@ void ProcessPacket(char* ptr)
 	case SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
+		gGameFramework.m_pPlayer->SetPosition(XMFLOAT3(packet->x, packet->y, packet->z));
 		cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
 		break;
 	}
@@ -307,6 +322,14 @@ void ProcessPacket(char* ptr)
 	}
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
+		if (packet->id == gGameFramework.m_pPlayer->c_id)
+			gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+		else
+			for (auto& player : gGameFramework.Players)
+				if (packet->id == player->c_id) {
+					player->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+				}
+
 		//int x = packet->x, int y = packet->y, int z = packet->z;
 		//cout << x << ", " << y << ", " << z << endl;
 		//XMFLOAT3 pos{ x,y,z };
@@ -316,6 +339,8 @@ void ProcessPacket(char* ptr)
 	}
 	}
 	m.unlock();
+
+
 }
 
 void ProcessData(char* packet, int io_byte)

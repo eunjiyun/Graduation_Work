@@ -21,6 +21,11 @@ constexpr char SC_REMOVE_PLAYER = 4;
 constexpr char SC_MOVE_PLAYER = 5;
 
 
+struct Vector3 {
+	int x = 0;
+	int y = 0;
+	int z = 0;
+};
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {
@@ -33,9 +38,14 @@ constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
-	char	direction;  // 0 : UP, 1 : DOWN, 2 : LEFT, 3 : RIGHT
-	unsigned	move_time;
+	short	direction;
+	short	id;
+	float cxDelta;
+	float cyDelta;
+	float czDelta;
+	//unsigned	move_time;
 };
+
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 
 struct SC_LOGIN_INFO_PACKET {
@@ -66,8 +76,15 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short	x, y, z;
-	unsigned int move_time;
+	short	direction;
+	float cxDelta;
+	float cyDelta;
+	float czDelta;
+	//short	x, y, z;
+	//short look_x, look_y, look_z;
+	//short up_x, up_y, up_z;
+	//short right_x, right_y, right_z;
+	//unsigned int move_time;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
