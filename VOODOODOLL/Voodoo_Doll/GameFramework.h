@@ -47,6 +47,11 @@ public:
 	SCENEID m_eCurrentScene;
 	SCENEID m_ePrevScene;
 
+	//23.01.27
+	HWND Get_HWNG()					{ return m_hWnd; }
+	LONG Get_OldCursorPointX()	{ return m_ptOldCursorPos.x; }
+	LONG Get_OldCursorPointY()	{ return m_ptOldCursorPos.y; }
+
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;

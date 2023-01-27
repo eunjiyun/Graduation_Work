@@ -32,6 +32,55 @@ INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
 void RecvThread();
 
+// 23.01.27
+void GamePlayer_ProcessInput()
+{
+	static UCHAR pKeysBuffer[256];
+	DWORD dwDirection = 0;
+	if (::GetKeyboardState(pKeysBuffer))
+	{
+		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
+		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
+		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
+		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+	}
+
+	float cxDelta = 0.0f, cyDelta = 0.0f;
+	if (GetCapture() == gGameFramework.Get_HWNG())
+	{
+		::SetCursor(NULL);
+		POINT ptCursorPos;
+		::GetCursorPos(&ptCursorPos);
+		cxDelta = (float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f;
+		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+	}
+
+	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+	{
+		if (cxDelta || cyDelta)
+		{
+			if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+				gGameFramework.m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			else
+				gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+		}
+		if (dwDirection)
+			gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
+
+	}
+
+	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
+	for (auto& player : gGameFramework.Players) {
+		if (player->c_id > -1)
+			player->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
+	}
+
+	m_dwCurrentDirection = dwDirection;
+}
+
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
@@ -97,7 +146,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			gGameFramework.ProcessInput();
+			GamePlayer_ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
