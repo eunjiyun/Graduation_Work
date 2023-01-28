@@ -28,7 +28,7 @@ public:
 	void ChangeSwapChainState();
 
 	void BuildObjects();
-	void CreateOtherPlayer(int p_id);
+	void CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right);
 	void ReleaseObjects();
 
 	void ProcessInput();

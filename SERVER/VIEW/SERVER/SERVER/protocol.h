@@ -20,6 +20,7 @@ constexpr char SC_ADD_PLAYER = 3;
 constexpr char SC_REMOVE_PLAYER = 4;
 constexpr char SC_MOVE_PLAYER = 5;
 
+#include "stdafx.h"
 
 
 #pragma pack (push, 1)
@@ -33,9 +34,13 @@ constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
-	char	direction;  // 0 : UP, 1 : DOWN, 2 : LEFT, 3 : RIGHT
-	unsigned	move_time;
+	short	direction;
+	short	id;
+	float cxDelta, cyDelta, czDelta;
+	XMFLOAT3 Pos, Look, Up, Right;
+	//unsigned	move_time;
 };
+
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 
 struct SC_LOGIN_INFO_PACKET {
@@ -50,7 +55,7 @@ struct SC_ADD_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short	x, y, z;
+	XMFLOAT3 Pos, Look, Right, Up;
 	char	name[NAME_SIZE];
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);
@@ -66,8 +71,13 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short	x, y, z;
-	unsigned int move_time;
+	XMFLOAT3 Look, Up, Right;
+	short direction;
+	//short	x, y, z;
+	//short look_x, look_y, look_z;
+	//short up_x, up_y, up_z;
+	//short right_x, right_y, right_z;
+	//unsigned int move_time;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
