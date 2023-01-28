@@ -511,11 +511,12 @@ void CGameFramework::ReleaseObjects()
 }
 
 //23.01.23
-void CGameFramework::CreateOtherPlayer(int p_id)
+void CGameFramework::CreateOtherPlayer(int p_id, float x, float y, float z)
 {
 	for (auto& player : Players)
 		if (player->c_id < 0) {
 			player->c_id = p_id;
+			player->SetPosition(XMFLOAT3(x, y, z));
 			cout << player->c_id << endl;
 			break;
 		}

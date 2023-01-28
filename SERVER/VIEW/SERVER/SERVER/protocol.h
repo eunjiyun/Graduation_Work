@@ -20,12 +20,8 @@ constexpr char SC_ADD_PLAYER = 3;
 constexpr char SC_REMOVE_PLAYER = 4;
 constexpr char SC_MOVE_PLAYER = 5;
 
+#include "stdafx.h"
 
-struct Vector3 {
-	int x = 0;
-	int y = 0;
-	int z = 0;
-};
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {
@@ -76,10 +72,8 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short	direction;
-	float cxDelta;
-	float cyDelta;
-	float czDelta;
+	XMFLOAT3 Look, Up, Right;
+	short direction;
 	//short	x, y, z;
 	//short look_x, look_y, look_z;
 	//short up_x, up_y, up_z;

@@ -69,13 +69,11 @@ struct SC_REMOVE_PLAYER_PACKET {
 constexpr short SC_REMOVE_PLAYER_PACKET_SIZE = sizeof(SC_REMOVE_PLAYER_PACKET);
 
 struct SC_MOVE_PLAYER_PACKET {
-	unsigned char size;	
+	unsigned char size;
 	char	type;
 	short	id;
-	short	direction;
-	float cxDelta;
-	float cyDelta;
-	float czDelta;
+	XMFLOAT3 Look, Up, Right;
+	short direction;
 	//short	x, y, z;
 	//short look_x, look_y, look_z;
 	//short up_x, up_y, up_z;

@@ -8,9 +8,11 @@
 #include <unordered_set>
 #include "protocol.h"
 
+
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
+
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
 class OVER_EXP {
@@ -45,10 +47,8 @@ public:
 	S_STATE _state;
 	int _id;
 	SOCKET _socket;
-	Vector3 pos;
-	//Vector3 Look;
-	//Vector3 Up;
-	//Vector3 Right;
+	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity;
+	float m_fPitch, m_fYaw, m_fRoll;
 	DWORD direction;
 	char	_name[NAME_SIZE];
 	int		_prev_remain;
@@ -58,7 +58,12 @@ public:
 	{
 		_id = -1;
 		_socket = 0;
-		//Right.x = Up.y = Look.z = 1.f;
+		m_xmf3Position = { 0.f,0.f,0.f };
+		m_xmf3Velocity = { 0.f,0.f,0.f };
+		m_xmf3Look = { 0.f,0.f,1.f };
+		m_xmf3Up = { 0.f,1.f,0.f };
+		m_xmf3Right = { 1.f,0.f,0.f };
+		m_fPitch = m_fYaw = m_fRoll = 0.f;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
@@ -87,9 +92,9 @@ public:
 		p.id = _id;
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
-		p.x = pos.x;
-		p.y = pos.y;
-		p.z = pos.z;
+		p.x = m_xmf3Position.x;
+		p.y = m_xmf3Position.y;
+		p.z = m_xmf3Position.z;
 		do_send(&p);
 	}
 	void send_move_packet(int c_id);
@@ -101,6 +106,64 @@ public:
 		p.size = sizeof(p);
 		p.type = SC_REMOVE_PLAYER;
 		do_send(&p);
+	}
+	void Rotate(float x, float y, float z)
+	{
+		if (x != 0.0f)
+		{
+			m_fPitch += x;
+			if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
+			if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
+		}
+		if (y != 0.0f)
+		{
+			m_fYaw += y;
+			if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
+			if (m_fYaw < 0.0f) m_fYaw += 360.0f;
+		}
+		if (z != 0.0f)
+		{
+			m_fRoll += z;
+			if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
+			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
+		}
+		if (y != 0.0f)
+		{
+			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+		}
+		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+	}
+	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+	{
+		if (dwDirection)
+		{
+			XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
+			if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+			if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
+			if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
+			if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
+			if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
+			if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
+
+			Move(xmf3Shift, bUpdateVelocity);
+		}
+	}
+
+	void Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
+	{
+		if (bUpdateVelocity)
+		{
+			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
+		}
+		else
+		{
+			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
+			//if (m_pCamera) m_pCamera->Move(xmf3Shift);
+		}
 	}
 };
 
@@ -115,8 +178,11 @@ void SESSION::send_move_packet(int c_id)
 	p.id = c_id;
 	p.size = sizeof(SC_MOVE_PLAYER_PACKET);
 	p.type = SC_MOVE_PLAYER;
+	p.Look = clients[c_id].m_xmf3Look;
+	p.Right = clients[c_id].m_xmf3Right;
+	p.Up = clients[c_id].m_xmf3Up;
+	//p.Velocity = clients[c_id].m_xmf3Velocity;
 	p.direction = clients[c_id].direction;
-	
 	//p.move_time = clients[c_id]._last_move_time;
 	do_send(&p);
 }
@@ -128,9 +194,9 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	add_packet.x = clients[c_id].pos.x;
-	add_packet.y = clients[c_id].pos.y;
-	add_packet.z = clients[c_id].pos.z;
+	add_packet.x = clients[c_id].m_xmf3Position.x;
+	add_packet.y = clients[c_id].m_xmf3Position.y;
+	add_packet.z = clients[c_id].m_xmf3Position.z;
 	do_send(&add_packet);
 }
 
@@ -170,24 +236,10 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
-		//clients[c_id]._last_move_time = p->move_time;
-		//short x = clients[c_id].pos.x;
-		//short y = clients[c_id].pos.y;
-		//short z = clients[c_id].pos.z;
-		//switch (p->direction) {
-		//case 0: if (y > 0) y--; break;
-		//case 1: if (y < W_HEIGHT - 1) y++; break;
-		//case 2: if (x > 0) x--; break;
-		//case 3: if (x < W_WIDTH - 1) x++; break;
-		//}
-		//clients[c_id].pos.x = x;
-		//clients[c_id].pos.y = y;
-		//clients[c_id].pos.z = z;
-
+		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
 			cl.send_move_packet(c_id);
-
 		}
 	}
 	}
@@ -241,9 +293,9 @@ void worker_thread(HANDLE h_iocp)
 					lock_guard<mutex> ll(clients[client_id]._s_lock);
 					clients[client_id]._state = ST_ALLOC;
 				}
-				clients[client_id].pos.x = 0;
-				clients[client_id].pos.y = 0;
-				clients[client_id].pos.z = 0;
+				clients[client_id].m_xmf3Position.x = 0;
+				clients[client_id].m_xmf3Position.y = 0;
+				clients[client_id].m_xmf3Position.z = 0;
 				clients[client_id]._id = client_id;
 				clients[client_id]._name[0] = 0;
 				clients[client_id]._prev_remain = 0;

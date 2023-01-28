@@ -71,13 +71,13 @@ void GamePlayer_ProcessInput()
 				p.cxDelta = cyDelta;
 				p.cyDelta = 0.f;
 				p.czDelta = -cxDelta;
-				gGameFramework.m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+				//gGameFramework.m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
 			}
 			else {
 				p.cxDelta = cyDelta;
 				p.cyDelta = cxDelta;
 				p.czDelta = 0.f;
-				gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);				
+				//gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);				
 			}
 		}
 		if (dwDirection) {
@@ -86,12 +86,15 @@ void GamePlayer_ProcessInput()
 		}
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
 		if (ErrorStatus == SOCKET_ERROR)
-			cout << "Error\n";
+			cout << "Move_Packet Error\n";
 	}
 	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
+	cout << gGameFramework.m_pPlayer->GetPosition().x << ", " << gGameFramework.m_pPlayer->GetPosition().y << ", " << gGameFramework.m_pPlayer->GetPosition().z << endl;
 	for (auto& player : gGameFramework.Players) {
-		if (player->c_id > -1)
+		if (player->c_id > -1) {
 			player->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
+			cout << player->GetPosition().x << ", " << player->GetPosition().y << ", " << player->GetPosition().z << endl;
+		}
 	}
 }
 
@@ -322,19 +325,21 @@ void ProcessPacket(char* ptr)
 	}
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
-		if (packet->id == gGameFramework.m_pPlayer->c_id)
+		if (packet->id == gGameFramework.m_pPlayer->c_id) {
+			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
+			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
+			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
 			gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+		}
 		else
 			for (auto& player : gGameFramework.Players)
 				if (packet->id == player->c_id) {
+					player->SetLookVector(packet->Look);
+					player->SetUpVector(packet->Up);
+					player->SetRightVector(packet->Right);
 					player->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+					break;
 				}
-
-		//int x = packet->x, int y = packet->y, int z = packet->z;
-		//cout << x << ", " << y << ", " << z << endl;
-		//XMFLOAT3 pos{ x,y,z };
-		//int id = packet->id;
-		//gGameFramework.Players[id]->SetPosition(pos);
 		break;
 	}
 	}
