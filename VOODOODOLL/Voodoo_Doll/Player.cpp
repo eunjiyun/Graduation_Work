@@ -173,7 +173,7 @@ void CPlayer::Update(float fTimeElapsed)
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
 	//23.01.19
-	/*if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
+	if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
 	{
 		if (m_xmf3Position.y < SECOND_FLOOR)
 		{
@@ -191,7 +191,7 @@ void CPlayer::Update(float fTimeElapsed)
 		SetVelocity(xmf3PlayerVelocity);
 		m_xmf3Position.y = FIRST_FLOOR;
 		SetPosition(m_xmf3Position);
-	}*/
+	}
 	//
 }
 

@@ -84,16 +84,18 @@ void GamePlayer_ProcessInput()
 			p.direction = dwDirection;
 			//gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
 		}
+		p.Pos = gGameFramework.m_pPlayer->GetPosition();
+		p.Look = gGameFramework.m_pPlayer->GetLook();
+		p.Up = gGameFramework.m_pPlayer->GetUp();
+		p.Right = gGameFramework.m_pPlayer->GetRight();
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
 		if (ErrorStatus == SOCKET_ERROR)
 			cout << "Move_Packet Error\n";
 	}
 	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
-	cout << gGameFramework.m_pPlayer->GetPosition().x << ", " << gGameFramework.m_pPlayer->GetPosition().y << ", " << gGameFramework.m_pPlayer->GetPosition().z << endl;
 	for (auto& player : gGameFramework.Players) {
 		if (player->c_id > -1) {
 			player->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
-			cout << player->GetPosition().x << ", " << player->GetPosition().y << ", " << player->GetPosition().z << endl;
 		}
 	}
 }
@@ -310,7 +312,7 @@ void ProcessPacket(char* ptr)
 		//23.01.23
 		int id = packet->id;
 		cout << "client[" << packet->id << "] Accessed\n";
-		gGameFramework.CreateOtherPlayer(id);
+		gGameFramework.CreateOtherPlayer(id, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
 	}
 	case SC_REMOVE_PLAYER: {

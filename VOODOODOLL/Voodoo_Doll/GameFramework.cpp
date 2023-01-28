@@ -511,12 +511,15 @@ void CGameFramework::ReleaseObjects()
 }
 
 //23.01.23
-void CGameFramework::CreateOtherPlayer(int p_id, float x, float y, float z)
+void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right)
 {
 	for (auto& player : Players)
 		if (player->c_id < 0) {
 			player->c_id = p_id;
-			player->SetPosition(XMFLOAT3(x, y, z));
+			player->SetPosition(Pos);
+			player->SetLookVector(Look);
+			player->SetUpVector(Up);
+			player->SetRightVector(Right);
 			cout << player->c_id << endl;
 			break;
 		}

@@ -36,9 +36,8 @@ struct CS_MOVE_PACKET {
 	char	type;
 	short	direction;
 	short	id;
-	float cxDelta;
-	float cyDelta;
-	float czDelta;
+	float cxDelta, cyDelta, czDelta;
+	XMFLOAT3 Pos, Look, Up, Right;
 	//unsigned	move_time;
 };
 
@@ -56,7 +55,7 @@ struct SC_ADD_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short	x, y, z;
+	XMFLOAT3 Pos, Look, Right, Up;
 	char	name[NAME_SIZE];
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);

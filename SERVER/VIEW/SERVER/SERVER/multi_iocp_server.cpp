@@ -58,7 +58,7 @@ public:
 	{
 		_id = -1;
 		_socket = 0;
-		m_xmf3Position = { 0.f,0.f,0.f };
+		m_xmf3Position = { 0.f,5.f,0.f };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
@@ -194,9 +194,10 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	add_packet.x = clients[c_id].m_xmf3Position.x;
-	add_packet.y = clients[c_id].m_xmf3Position.y;
-	add_packet.z = clients[c_id].m_xmf3Position.z;
+	add_packet.Pos = clients[c_id].m_xmf3Position;
+	add_packet.Look = clients[c_id].m_xmf3Look;
+	add_packet.Right = clients[c_id].m_xmf3Right;
+	add_packet.Up = clients[c_id].m_xmf3Up;
 	do_send(&add_packet);
 }
 
@@ -236,6 +237,10 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
+		clients[c_id].m_xmf3Position = p->Pos;
+		clients[c_id].m_xmf3Right = p->Right;
+		clients[c_id].m_xmf3Up = p->Up;
+		clients[c_id].m_xmf3Look = p->Look;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
