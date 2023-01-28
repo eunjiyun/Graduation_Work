@@ -490,6 +490,10 @@ void CGameObject::SetRootParameter(ID3D12GraphicsCommandList* pd3dCommandList)
 
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
+	//23.01.28
+	OnPrepareRender(pd3dCommandList, pCamera);
+	//
+
 	//23.01.11
 	//if (m_pMesh && m_ppMaterials)
 	if (m_ppMeshes && m_ppMaterials)
@@ -506,70 +510,76 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 
 		//23.01.13
 		//player
-		//if (m_ppMaterials[0]->m_pShader)
-		//{
-		//	m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+		if (m_ppMaterials[0]->m_pShader)
+		{
+			m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
 
-		//	if (pCamera)pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-		//	if (pCamera)pCamera->UpdateShaderVariables(pd3dCommandList);
-		//	
-		//	//UpdateShaderVariables(pd3dCommandList);
+			if (pCamera)pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+			if (pCamera)pCamera->UpdateShaderVariables(pd3dCommandList);
 
-		//	//23.01.16
-		//	//SetRootParameter(pd3dCommandList);
-		//	//
-		//}
-		//
-
-		//
-		if (m_pd3dcbGameObject && m_pcbMappedGameObject)
 			UpdateShaderVariables(pd3dCommandList);
 
-		//23.01.11
-		//m_pMesh->OnPreRender(pd3dCommandList);
-		m_ppMeshes[0]->OnPreRender(pd3dCommandList);
+			//23.01.16
+			SetRootParameter(pd3dCommandList);
+			//
+
+			m_ppMeshes[0]->Render(pd3dCommandList);
+		}
 		//
 
-		//23.01.16
-		//SetRootParameter(pd3dCommandList);
-		//
-
-		for (UINT i = 0; i < m_nMaterials; i++)
+		//23.01.28
+		else
 		{
+			//
+			if (m_pd3dcbGameObject && m_pcbMappedGameObject)
+				UpdateShaderVariables(pd3dCommandList);
 
-			if (m_ppMaterials[i])
-			{
-				//23.01.06
-				/*pd3dCommandList->SetGraphicsRoot32BitConstant(4, m_ppMaterials[i]->m_nMaterial, 0);
-				pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
-				pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);*/
+			//23.01.11
+			//m_pMesh->OnPreRender(pd3dCommandList);
+			m_ppMeshes[0]->OnPreRender(pd3dCommandList);
+			//
 
-				pd3dCommandList->SetGraphicsRoot32BitConstant(8, m_ppMaterials[i]->m_nMaterial, 0);
-				pd3dCommandList->SetGraphicsRoot32BitConstants(8, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
-				pd3dCommandList->SetGraphicsRoot32BitConstants(8, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
-				//
-			}
-
-			//23.01.13
+			//23.01.16
 			//SetRootParameter(pd3dCommandList);
 			//
 
-			//23.01.11
-			//m_pMesh->Render(pd3dCommandList, i);
-
-			//23.01.13
-			m_ppMeshes[0]->Render(pd3dCommandList, i);
-			/*if (1 == m_nMaterials)
+			for (UINT i = 0; i < m_nMaterials; i++)
 			{
-				for (int i = 0; i < m_nMeshes; ++i)
-					m_ppMeshes[i]->Render(pd3dCommandList, i);
+
+				if (m_ppMaterials[i])
+				{
+					//23.01.06
+					/*pd3dCommandList->SetGraphicsRoot32BitConstant(4, m_ppMaterials[i]->m_nMaterial, 0);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);*/
+
+					pd3dCommandList->SetGraphicsRoot32BitConstant(8, m_ppMaterials[i]->m_nMaterial, 0);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(8, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(8, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
+					//
+				}
+
+				//23.01.13
+				//SetRootParameter(pd3dCommandList);
+				//
+
+				//23.01.11
+				//m_pMesh->Render(pd3dCommandList, i);
+
+				//23.01.13
+				m_ppMeshes[0]->Render(pd3dCommandList, i);
+				/*if (1 == m_nMaterials)
+				{
+					for (int i = 0; i < m_nMeshes; ++i)
+						m_ppMeshes[i]->Render(pd3dCommandList, i);
+				}
+				else
+					m_ppMeshes[0]->Render(pd3dCommandList, i);*/
+					//
 			}
-			else
-				m_ppMeshes[0]->Render(pd3dCommandList, i);*/
-			//
 		}
+		//
 	}
-	//}
 }
 
 void CGameObject::ReleaseUploadBuffers()

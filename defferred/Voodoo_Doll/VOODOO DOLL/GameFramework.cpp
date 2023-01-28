@@ -564,6 +564,13 @@ void CGameFramework::FrameAdvance()
 
 	m_pScene->OnPrepareRender(m_pd3dCommandList, m_pCamera);
 
+	//23.01.28
+	if (true == wakeUp)
+		m_pScene->wakeUp = false;
+	else
+		m_pScene->wakeUp = true;
+	//
+
 	if (m_nDrawOptions == DRAW_SCENE_COLOR)//'S'
 	{
 		m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -575,7 +582,6 @@ void CGameFramework::FrameAdvance()
 		//23.01.08
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 		//
-
 		m_pPostProcessingShader->OnPostRenderTarget(m_pd3dCommandList);
 	}
 	else

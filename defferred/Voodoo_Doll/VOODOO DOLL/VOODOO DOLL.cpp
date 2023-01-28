@@ -284,6 +284,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
+		//23.01.28
+	case WM_CHAR:
+		if (wParam == 'P' || wParam == 'p')
+			PostQuitMessage(0);
+		else if (wParam == 'B' || wParam == 'b')
+		{
+			if (true == gGameFramework.wakeUp)
+				gGameFramework.wakeUp = false;
+			else
+				gGameFramework.wakeUp = true;
+
+			/*gGameFramework.pfClearColor[0] = 0.0525f;
+			gGameFramework.pfClearColor[1] =  0.0525f;
+			gGameFramework.pfClearColor[2] = 0.0525f;
+			gGameFramework.pfClearColor[3] = 1.0f ;*/
+		}
+		break;
+		//
 	case WM_SIZE:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

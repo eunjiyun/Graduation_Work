@@ -95,5 +95,10 @@ private:
 	POINT							m_ptOldCursorPos;
 
 	_TCHAR							m_pszFrameRate[50];
+
+	//23.01.28
+public:
+	bool wakeUp = true;
+	//
 };
 

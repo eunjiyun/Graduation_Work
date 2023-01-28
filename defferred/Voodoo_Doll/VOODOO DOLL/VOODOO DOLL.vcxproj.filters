@@ -110,4 +110,7 @@
     <FxCompile Include="Light.hlsl" />
     <FxCompile Include="Shaders.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
 </Project>
