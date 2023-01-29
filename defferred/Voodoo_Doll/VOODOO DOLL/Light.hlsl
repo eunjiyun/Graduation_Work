@@ -4,7 +4,7 @@
 //#define MAX_LIGHTS			4 
 #define MAX_MATERIALS		10 
 
-#define MAX_LIGHTS			20
+#define MAX_LIGHTS			76
 //#define MAX_MATERIALS		16 
 //
 

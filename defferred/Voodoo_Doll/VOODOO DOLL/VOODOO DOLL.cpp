@@ -1,187 +1,4 @@
-﻿//// VOODOO DOLL.cpp : 애플리케이션에 대한 진입점을 정의합니다.
-////
-//
-//#include "framework.h"
-//#include "VOODOO DOLL.h"
-//
-//#define MAX_LOADSTRING 100
-//
-//// 전역 변수:
-//HINSTANCE hInst;                                // 현재 인스턴스입니다.
-//WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
-//WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-//
-//// 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
-//ATOM                MyRegisterClass(HINSTANCE hInstance);
-//BOOL                InitInstance(HINSTANCE, int);
-//LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-//INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-//
-//int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-//                     _In_opt_ HINSTANCE hPrevInstance,
-//                     _In_ LPWSTR    lpCmdLine,
-//                     _In_ int       nCmdShow)
-//{
-//    UNREFERENCED_PARAMETER(hPrevInstance);
-//    UNREFERENCED_PARAMETER(lpCmdLine);
-//
-//    // TODO: 여기에 코드를 입력합니다.
-//
-//    // 전역 문자열을 초기화합니다.
-//    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-//    LoadStringW(hInstance, IDC_VOODOODOLL, szWindowClass, MAX_LOADSTRING);
-//    MyRegisterClass(hInstance);
-//
-//    // 애플리케이션 초기화를 수행합니다:
-//    if (!InitInstance (hInstance, nCmdShow))
-//    {
-//        return FALSE;
-//    }
-//
-//    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
-//
-//    MSG msg;
-//
-//    // 기본 메시지 루프입니다:
-//    while (GetMessage(&msg, nullptr, 0, 0))
-//    {
-//        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-//        {
-//            TranslateMessage(&msg);
-//            DispatchMessage(&msg);
-//        }
-//    }
-//
-//    return (int) msg.wParam;
-//}
-//
-//
-//
-////
-////  함수: MyRegisterClass()
-////
-////  용도: 창 클래스를 등록합니다.
-////
-//ATOM MyRegisterClass(HINSTANCE hInstance)
-//{
-//    WNDCLASSEXW wcex;
-//
-//    wcex.cbSize = sizeof(WNDCLASSEX);
-//
-//    wcex.style          = CS_HREDRAW | CS_VREDRAW;
-//    wcex.lpfnWndProc    = WndProc;
-//    wcex.cbClsExtra     = 0;
-//    wcex.cbWndExtra     = 0;
-//    wcex.hInstance      = hInstance;
-//    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_VOODOODOLL));
-//    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-//    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
-//    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_VOODOODOLL);
-//    wcex.lpszClassName  = szWindowClass;
-//    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-//
-//    return RegisterClassExW(&wcex);
-//}
-//
-////
-////   함수: InitInstance(HINSTANCE, int)
-////
-////   용도: 인스턴스 핸들을 저장하고 주 창을 만듭니다.
-////
-////   주석:
-////
-////        이 함수를 통해 인스턴스 핸들을 전역 변수에 저장하고
-////        주 프로그램 창을 만든 다음 표시합니다.
-////
-//BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-//{
-//   hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
-//
-//   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-//      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-//
-//   if (!hWnd)
-//   {
-//      return FALSE;
-//   }
-//
-//   ShowWindow(hWnd, nCmdShow);
-//   UpdateWindow(hWnd);
-//
-//   return TRUE;
-//}
-//
-////
-////  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
-////
-////  용도: 주 창의 메시지를 처리합니다.
-////
-////  WM_COMMAND  - 애플리케이션 메뉴를 처리합니다.
-////  WM_PAINT    - 주 창을 그립니다.
-////  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
-////
-////
-//LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//    switch (message)
-//    {
-//    case WM_COMMAND:
-//        {
-//            int wmId = LOWORD(wParam);
-//            // 메뉴 선택을 구문 분석합니다:
-//            switch (wmId)
-//            {
-//            case IDM_ABOUT:
-//                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-//                break;
-//            case IDM_EXIT:
-//                DestroyWindow(hWnd);
-//                break;
-//            default:
-//                return DefWindowProc(hWnd, message, wParam, lParam);
-//            }
-//        }
-//        break;
-//    case WM_PAINT:
-//        {
-//            PAINTSTRUCT ps;
-//            HDC hdc = BeginPaint(hWnd, &ps);
-//            // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
-//            EndPaint(hWnd, &ps);
-//        }
-//        break;
-//    case WM_DESTROY:
-//        PostQuitMessage(0);
-//        break;
-//    default:
-//        return DefWindowProc(hWnd, message, wParam, lParam);
-//    }
-//    return 0;
-//}
-//
-//// 정보 대화 상자의 메시지 처리기입니다.
-//INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-//{
-//    UNREFERENCED_PARAMETER(lParam);
-//    switch (message)
-//    {
-//    case WM_INITDIALOG:
-//        return (INT_PTR)TRUE;
-//
-//    case WM_COMMAND:
-//        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-//        {
-//            EndDialog(hDlg, LOWORD(wParam));
-//            return (INT_PTR)TRUE;
-//        }
-//        break;
-//    }
-//    return (INT_PTR)FALSE;
-//}
-
-// LabProject08-9-1.cpp : 응용 프로그램에 대한 진입점을 정의합니다.
-//
-
+﻿
 #include "stdafx.h"
 #include "VOODOO DOLL.h"
 #include "GameFramework.h"
@@ -196,6 +13,7 @@ SOCKET s_socket;
 char	recv_buffer[BUF_SIZE];
 thread* recv_t;
 OVER_EXP _over;
+mutex m;
 #pragma endregion
 
 
@@ -211,6 +29,76 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
 void RecvThread();
+
+// 23.01.27
+void GamePlayer_ProcessInput()
+{
+	static UCHAR pKeysBuffer[256];
+	DWORD dwDirection = 0;
+
+	if (::GetKeyboardState(pKeysBuffer))
+	{
+		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
+		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
+		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
+		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+	}
+
+	float cxDelta = 0.0f, cyDelta = 0.0f;
+	if (GetCapture() == gGameFramework.Get_HWNG())
+	{
+		::SetCursor(NULL);
+		POINT ptCursorPos;
+		::GetCursorPos(&ptCursorPos);
+		cxDelta = (float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f;
+		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+	}
+
+	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+	{
+		CS_MOVE_PACKET p;
+		p.id = gGameFramework.m_pPlayer->c_id;
+		p.size = sizeof(CS_MOVE_PACKET);
+		p.type = CS_MOVE;
+		if (cxDelta || cyDelta)
+		{
+			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
+				p.cxDelta = cyDelta;
+				p.cyDelta = 0.f;
+				p.czDelta = -cxDelta;
+				//gGameFramework.m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+			}
+			else {
+				p.cxDelta = cyDelta;
+				p.cyDelta = cxDelta;
+				p.czDelta = 0.f;
+				//gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);				
+			}
+		}
+
+		if (dwDirection) {
+			p.direction = dwDirection;
+			//gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
+		}
+		p.Pos = gGameFramework.m_pPlayer->GetPosition();
+		p.Look = gGameFramework.m_pPlayer->GetLook();
+		p.Up = gGameFramework.m_pPlayer->GetUp();
+		p.Right = gGameFramework.m_pPlayer->GetRight();
+		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
+		if (ErrorStatus == SOCKET_ERROR)
+			cout << "Move_Packet Error\n";
+	}
+
+	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
+	for (auto& player : gGameFramework.Players) {
+		if (player->c_id > -1) {
+			player->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
+		}
+	}
+}
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
@@ -228,9 +116,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-//	#pragma region SERVER
+//#pragma region SERVER
 //
-//		WSADATA WSAData;
+//	WSADATA WSAData;
 //	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
 //	if (ErrorStatus != 0)
 //	{
@@ -409,22 +297,57 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessPacket(char* ptr)
 {
+	m.lock();
 	switch (ptr[1]) {
 	case SC_LOGIN_INFO: {
-		cout << "접속 완료\n" << endl;
+		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
+		gGameFramework.m_pPlayer->c_id = packet->id;
+		gGameFramework.m_pPlayer->SetPosition(XMFLOAT3(packet->x, packet->y, packet->z));
+		cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
 		break;
 	}
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
+		//23.01.23
 		int id = packet->id;
 		cout << "client[" << packet->id << "] Accessed\n";
+		gGameFramework.CreateOtherPlayer(id, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
 	}
-	case SC_REMOVE_PLAYER:
-		break;
-	case SC_MOVE_PLAYER:
+	case SC_REMOVE_PLAYER: {
+		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
+		int id = packet->id;
+		for (CPlayer*& player : gGameFramework.Players)
+			if (player->c_id == id) {
+				player->c_id = -1;
+				cout << "client[" << packet->id << "] Disconnected\n";
+			}
 		break;
 	}
+	case SC_MOVE_PLAYER: {
+		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
+
+		if (packet->id == gGameFramework.m_pPlayer->c_id) {
+			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
+			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
+			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
+			gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+		}
+		else
+			for (auto& player : gGameFramework.Players)
+				if (packet->id == player->c_id) {
+					player->SetLookVector(packet->Look);
+					player->SetUpVector(packet->Up);
+					player->SetRightVector(packet->Right);
+					player->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+					break;
+				}
+		break;
+	}
+	}
+	m.unlock();
+
+
 }
 
 void ProcessData(char* packet, int io_byte)
@@ -439,7 +362,8 @@ void ProcessData(char* packet, int io_byte)
 		if (io_byte + saved_packet_size >= in_packet_size) {
 			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
 			ProcessPacket(packet_buffer);
-			ptr += in_packet_size - saved_packet_size;
+			//ptr += in_packet_size - saved_packet_size;
+			ptr += in_packet_size;
 			io_byte -= in_packet_size - saved_packet_size;
 			in_packet_size = 0;
 			saved_packet_size = 0;

@@ -592,7 +592,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	int nSceneTextures = 0;
 
 	//23.01.29
-	mpObjVec.resize(20);
+	//mpObjVec.resize(20);
 	//
 
 	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
@@ -620,15 +620,31 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp"))
 				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_pillar"))
 				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "canale"))
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Lamp.001")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "Lamp"))
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp1")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2")
+
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp2")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp2-1")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp2-2")
+				
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1-1")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1-2")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1-3")
+
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp3")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp4")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp5")
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp6")
+
+				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2_(1)"))
 			{
 				tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(tmp);
 
 
 				++num;
-				//cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
+				cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
 			}
 
 			/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
@@ -691,9 +707,9 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	//	}
 	//}
-	/*cout << "그래서 몇 개? " << num << endl;
+	cout << "몇 개? " << num << endl;
 
-	cout << "벡터는 몇 개? " << mpObjVec2.size() << endl;*/
+	cout << "벡터는 몇 개? " << mpObjVec.size() << endl;
 
 
 	//tmp._41 = -150.f;//고정

@@ -5,7 +5,8 @@
 
 #include "Timer.h"
 #include "Player.h"
-#include "Scene.h"
+#include "Stage.h"
+#include "Login.h"
 #include <vector>
 
 #define DRAW_Scene_COLOR				'S'
@@ -37,6 +38,7 @@ public:
 	void ChangeSwapChainState();
 
 	void BuildObjects();
+	void CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right);
 	void ReleaseObjects();
 
 	void ProcessInput();
@@ -49,6 +51,10 @@ public:
 	void OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+
+	HWND Get_HWNG() { return m_hWnd; }
+	LONG Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
+	LONG Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
 
 private:
 	HINSTANCE						m_hInstance;
@@ -83,12 +89,14 @@ private:
 	UINT64							m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE							m_hFenceEvent;
 
-	CGameTimer						m_GameTimer;
-
-	CStage* m_pScene = NULL;
-	CPlayer* m_pPlayer = NULL;
 	CCamera* m_pCamera = NULL;
+
+public:
+	CPlayer* m_pPlayer = NULL;
+	CLogin* m_pLogin = NULL;
+	CStage* m_pScene = NULL;
 	vector<CPlayer*> Players;
+	CGameTimer					m_GameTimer;
 
 	CPostProcessingShader* m_pPostProcessingShader = NULL;
 

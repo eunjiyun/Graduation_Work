@@ -53,7 +53,7 @@ using Microsoft::WRL::ComPtr;
 
 //23.01.13
 //#define MAX_LIGHTS				8 
-#define MAX_LIGHTS				20//가로등19
+#define MAX_LIGHTS				76//5+72
 //
 
 #define MAX_MATERIALS			8 

@@ -49,7 +49,7 @@ struct MATERIALS
 	//
 };
 
-class CScene
+class CStage
 {
 public:
 	CStage();

@@ -429,6 +429,11 @@ void CGameFramework::BuildObjects()
 	m_pScene->m_pPlayer = m_pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL, 1);
 	m_pCamera = m_pPlayer->GetCamera();
 
+	for (int i = 0; i < 3; i++) {
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL, 1);
+		Players.push_back(pAirplanePlayer);
+	}
+
 	m_pPostProcessingShader = new CTextureToFullScreenShader();
 	m_pPostProcessingShader->CreateShader(m_pd3dDevice, m_pScene->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
 	m_pPostProcessingShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, &m_nDrawOptions);
@@ -456,14 +461,32 @@ void CGameFramework::BuildObjects()
 void CGameFramework::ReleaseObjects()
 {
 	//23.01.11
-	//if (m_pPlayer)delete m_pPlayer;
+	if (m_pPlayer)delete m_pPlayer;
 	//
+
+	for (auto& player : Players)
+		delete player;
 
 	if (m_pScene)m_pScene->ReleaseObjects();
 	if (m_pScene)delete m_pScene;
 
 	if (m_pPostProcessingShader)m_pPostProcessingShader->ReleaseObjects();
 	if (m_pPostProcessingShader)m_pPostProcessingShader->Release();
+}
+
+void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right)
+{
+	for (auto& player : Players)
+		if (player->c_id < 0) {
+			player->c_id = p_id;
+			player->SetPosition(Pos);
+			player->SetLookVector(Look);
+			player->SetUpVector(Up);
+			player->SetRightVector(Right);
+			cout << player->c_id << endl;
+			//player->SetPosition(m_pPlayer->GetPosition());
+			break;
+		}
 }
 
 void CGameFramework::ProcessInput()
@@ -514,11 +537,20 @@ void CGameFramework::ProcessInput()
 		}
 	}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+
+	for (auto& player : Players) {
+		if (player->c_id > -1)
+			player->Update(m_GameTimer.GetTimeElapsed());
+	}
 }
 
 void CGameFramework::AnimateObjects()
 {
 	if (m_pScene)m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+
+	for (auto& player : Players)
+		if (player->c_id > -1)
+			player->Animate(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -578,6 +610,12 @@ void CGameFramework::FrameAdvance()
 		m_pPostProcessingShader->OnPrepareRenderTarget(m_pd3dCommandList, 1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], &m_d3dDsvDescriptorCPUHandle);
 
 		m_pScene->Render(m_pd3dCommandList, m_pCamera);
+
+		for (const auto& player : Players) {
+			if (player->c_id > -1) {
+				player->Render(m_pd3dCommandList, m_pCamera);
+			}
+		}
 
 		//23.01.08
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);

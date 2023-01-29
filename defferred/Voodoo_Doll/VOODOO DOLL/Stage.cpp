@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------------
 
 #include "stdafx.h"
-#include "Scene.h"
+#include "Stage.h"
 
 CStage::CStage()
 {
@@ -153,7 +153,7 @@ void CStage::BuildLightsAndMaterials()
 		//m_pLights->m_pLights[i].m_bEnable =wakeUp;//
 		//m_pLights->m_pLights[5].m_nType = SPOT_LIGHT;
 		m_pLights->m_pLights[i].m_nType = POINT_LIGHT;
-		m_pLights->m_pLights[i].m_fRange = 140.0f;
+		m_pLights->m_pLights[i].m_fRange = 20.0f;
 
 		m_pLights->m_pLights[i].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 5.0f);
 		m_pLights->m_pLights[i].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 7.0f);
@@ -268,6 +268,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.x = m_ppShaders[0]->m_ppObjects[i]->GetPosition().x;
 		m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.y = m_ppShaders[0]->m_ppObjects[i]->GetPosition().y + 6;
 		m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders[0]->m_ppObjects[i]->GetPosition().z;
+
+		//cout << "m_ppObjects : "<<i <<"'"<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName<<"'" << endl;
 	}
 
 	//for (int i = 0; i < m_ppShaders[1]->m_nObjects; ++i)
@@ -279,7 +281,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//	m_ppShaders[1]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders[1]->m_ppObjects[i]->GetPosition().z;
 	//}
 
-	cout << "m_ppShaders[0]->m_ppObjects : " << m_ppShaders[0]->m_ppObjects[0]->m_pstrName << endl;
+	
 
 	//23.01.17
 	CAirplanemonster* pAirplaneMonster = new CAirplanemonster(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature(), NULL, 1);
