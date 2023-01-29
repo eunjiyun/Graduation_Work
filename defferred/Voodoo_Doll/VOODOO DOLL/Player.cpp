@@ -178,7 +178,30 @@ void CPlayer::Update(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength)fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
+	//23.01.19
+	if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
+	{
+		if (m_xmf3Position.y < SECOND_FLOOR)
+		{
+			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+			xmf3PlayerVelocity.y = 0.0f;
+			SetVelocity(xmf3PlayerVelocity);
+			m_xmf3Position.y = SECOND_FLOOR;
+			SetPosition(m_xmf3Position);
+		}
+	}
+	else if (m_xmf3Position.y < FIRST_FLOOR)
+	{
+		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+		xmf3PlayerVelocity.y = 0.0f;
+		SetVelocity(xmf3PlayerVelocity);
+		m_xmf3Position.y = FIRST_FLOOR;
+		SetPosition(m_xmf3Position);
+	}
+	//
 }
+
 
 CCamera *CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
@@ -320,7 +343,9 @@ CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 			break;
 		case THIRD_PERSON_CAMERA:
 			SetFriction(250.0f);
-			SetGravity(XMFLOAT3(0.0f, 0.0f, 0.0f));
+			//23.01.29
+			SetGravity(XMFLOAT3(0.0f, -20.0f, 0.0f));
+			//
 			SetMaxVelocityXZ(125.0f);
 			SetMaxVelocityY(400.0f);
 			m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);

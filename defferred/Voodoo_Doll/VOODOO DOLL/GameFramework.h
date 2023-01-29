@@ -6,14 +6,15 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include <vector>
 
-#define DRAW_SCENE_COLOR				'S'
+#define DRAW_Scene_COLOR				'S'
 
-#define DRAW_SCENE_TEXTURE				'T'
-#define DRAW_SCENE_LIGHTING				'L'
-#define DRAW_SCENE_NORMAL				'N'
-#define DRAW_SCENE_Z_DEPTH				'Z'
-#define DRAW_SCENE_DEPTH				'D'
+#define DRAW_Scene_TEXTURE				'T'
+#define DRAW_Scene_LIGHTING				'L'
+#define DRAW_Scene_NORMAL				'B' //'N'
+#define DRAW_Scene_Z_DEPTH				'Z'
+#define DRAW_Scene_DEPTH				'G' //'D'
 
 class CGameFramework
 {
@@ -84,13 +85,14 @@ private:
 
 	CGameTimer						m_GameTimer;
 
-	CScene* m_pScene = NULL;
+	CStage* m_pScene = NULL;
 	CPlayer* m_pPlayer = NULL;
 	CCamera* m_pCamera = NULL;
+	vector<CPlayer*> Players;
 
 	CPostProcessingShader* m_pPostProcessingShader = NULL;
 
-	int								m_nDrawOptions = DRAW_SCENE_COLOR;
+	int								m_nDrawOptions = DRAW_Scene_COLOR;
 
 	POINT							m_ptOldCursorPos;
 

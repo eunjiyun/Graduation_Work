@@ -315,12 +315,12 @@ float4 PSScreenRectSamplingTextured(VS_TEXTURED_OUTPUT input) : SV_Target
 			cColor = gtxtIlluminationTexture.Sample(gssDefaultSamplerState, input.uv);
 			break;
 		}
-		case 78: //'N'
+		case 78: //'n' b
 		{
 			cColor = gtxtNormalTexture.Sample(gssDefaultSamplerState, input.uv);
 			break;
 		}
-		case 68: //'D'
+		case 68: //'d' g
 		{
 			float fDepth = gtxtDepthTexture.Load(uint3((uint)input.position.x, (uint)input.position.y, 0));
 			cColor = fDepth;

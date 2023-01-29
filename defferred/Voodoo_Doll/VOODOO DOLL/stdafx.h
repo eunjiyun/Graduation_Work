@@ -63,7 +63,13 @@ using Microsoft::WRL::ComPtr;
 #define DIRECTIONAL_LIGHT		3
 
 //23.01.05
-#define MAX_SCENE_MATERIALS		16 
+#define MAX_Scene_MATERIALS		16 
+//
+
+//23.01.19
+#define FIRST_FLOOR				5
+#define SECOND_FLOOR			370
+#define FLOOR_SIZE				370
 //
 
 //#define _WITH_CB_GAMEOBJECT_32BIT_CONSTANTS

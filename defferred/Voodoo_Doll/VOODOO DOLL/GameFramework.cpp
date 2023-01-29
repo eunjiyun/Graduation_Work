@@ -31,7 +31,7 @@ CGameFramework::CGameFramework()
 	m_pScene = NULL;
 	m_pPlayer = NULL;
 
-	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
+	_tcscpy_s(m_pszFrameRate, _T("VoodooDoll ("));
 }
 
 CGameFramework::~CGameFramework()
@@ -341,9 +341,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case 'S': //83
 		case 'T': //84
-		case 'D': //68
+		case 'G': //68 d
 		case 'Z': //90
-		case 'N': //78
+		case 'B': //78 n
 		case 'L': //76
 		{
 			m_nDrawOptions = (int)wParam;
@@ -423,7 +423,7 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	m_pScene = new CScene();
+	m_pScene = new CStage();
 	m_pScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	m_pScene->m_pPlayer = m_pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pScene->GetGraphicsRootSignature(), NULL, 1);
@@ -510,7 +510,7 @@ void CGameFramework::ProcessInput()
 				else
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
-			if (dwDirection)m_pPlayer->Move(dwDirection, 50.0f * m_GameTimer.GetTimeElapsed(), true);
+			if (dwDirection)m_pPlayer->Move(dwDirection, 150.0f * m_GameTimer.GetTimeElapsed(), true);
 		}
 	}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
@@ -571,7 +571,7 @@ void CGameFramework::FrameAdvance()
 		m_pScene->wakeUp = true;
 	//
 
-	if (m_nDrawOptions == DRAW_SCENE_COLOR)//'S'
+	if (m_nDrawOptions == DRAW_Scene_COLOR)//'S'
 	{
 		m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 

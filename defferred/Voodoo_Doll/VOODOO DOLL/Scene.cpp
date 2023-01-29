@@ -5,15 +5,15 @@
 #include "stdafx.h"
 #include "Scene.h"
 
-CScene::CScene()
+CStage::CStage()
 {
 }
 
-CScene::~CScene()
+CStage::~CStage()
 {
 }
 
-void CScene::BuildLightsAndMaterials()
+void CStage::BuildLightsAndMaterials()
 {
 	//23.01.13
 	/*m_pLights = new LIGHTS;
@@ -227,7 +227,7 @@ void CScene::BuildLightsAndMaterials()
 	//
 }
 
-void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
@@ -281,12 +281,17 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	cout << "m_ppShaders[0]->m_ppObjects : " << m_ppShaders[0]->m_ppObjects[0]->m_pstrName << endl;
 
+	//23.01.17
+	CAirplanemonster* pAirplaneMonster = new CAirplanemonster(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature(), NULL, 1);
+	m_pMonster = pAirplaneMonster;
+	//
+
 	BuildLightsAndMaterials();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
-void CScene::ReleaseObjects()
+void CStage::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 
@@ -304,13 +309,18 @@ void CScene::ReleaseObjects()
 	}*/
 	//
 
+	//23.01.17
+	if (m_pMonster)
+		delete m_pMonster;
+	//
+
 	ReleaseShaderVariables();
 
 	if (m_pLights) delete m_pLights;
 	if (m_pMaterials) delete m_pMaterials;
 }
 
-void CScene::ReleaseUploadBuffers()
+void CStage::ReleaseUploadBuffers()
 {
 	//23.01.04
 	// 상자 지우기
@@ -318,7 +328,7 @@ void CScene::ReleaseUploadBuffers()
 	//
 }
 
-ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
+ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
@@ -457,7 +467,7 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	return(pd3dGraphicsRootSignature);
 }
 
-void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CStage::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
@@ -470,13 +480,13 @@ void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	m_pd3dcbMaterials->Map(0, NULL, (void**)&m_pcbMappedMaterials);
 }
 
-void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
+void CStage::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	::memcpy(m_pcbMappedLights, m_pLights, sizeof(LIGHTS));
 	::memcpy(m_pcbMappedMaterials, m_pMaterials, sizeof(MATERIALS));
 }
 
-void CScene::ReleaseShaderVariables()
+void CStage::ReleaseShaderVariables()
 {
 	if (m_pd3dcbLights)
 	{
@@ -490,22 +500,22 @@ void CScene::ReleaseShaderVariables()
 	}
 }
 
-bool CScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool CStage::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	return(false);
 }
 
-bool CScene::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
+bool CStage::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	return(false);
 }
 
-bool CScene::ProcessInput(UCHAR* pKeysBuffer)
+bool CStage::ProcessInput(UCHAR* pKeysBuffer)
 {
 	return(false);
 }
 
-void CScene::AnimateObjects(float fTimeElapsed)
+void CStage::AnimateObjects(float fTimeElapsed)
 {
 	//23.01.04
 	//상자 지우기
@@ -588,12 +598,18 @@ void CScene::AnimateObjects(float fTimeElapsed)
 
 	//UpdateBoundingBox();
 
+		//23.01.17
+		XMFLOAT3 xmf3Shift
+			= XMFLOAT3(m_pPlayer->GetPosition().x - m_pMonster->GetPosition().x, m_pPlayer->GetPosition().y - m_pMonster->GetPosition().y, m_pPlayer->GetPosition().z - m_pMonster->GetPosition().z);
+		m_pMonster->Update(xmf3Shift, fTimeElapsed);
+		//
+
 	CheckObjectByObjectCollisions();
 	//
 	//
 }
 
-void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
@@ -609,7 +625,7 @@ void CScene::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbMaterialsGpuVirtualAddress); //Materials
 }
 
-void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
 {
 	//23.01.04
 	//상자 지우기
@@ -642,10 +658,15 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	m_ppShaders[0]->Render(pd3dCommandList, pCamera);
 	//cout << "m_ppShaders[0]->m_ppObjects : " << m_ppShaders[0]->m_ppObjects[0]->m_pstrName << endl;
 	//
+
+	//23.01.17
+	if (m_pMonster)
+		m_pMonster->Render(pd3dCommandList, pCamera);
+	//
 }
 
 //23.01.13
-void CScene::CheckObjectByObjectCollisions()
+void CStage::CheckObjectByObjectCollisions()
 {
 	//if (false == choose)
 	//{
@@ -699,7 +720,7 @@ void CScene::CheckObjectByObjectCollisions()
 	//}
 }
 
-void CScene::UpdateBoundingBox()
+void CStage::UpdateBoundingBox()
 {
 	//if (false == choose)
 	//{

@@ -6,7 +6,7 @@
 #include "Shader.h"
 #include "DDSTextureLoader12.h"
 
-#define _WITH_SCENE_ROOT_SIGNATURE
+#define _WITH_Scene_ROOT_SIGNATURE
 
 CShader::CShader()
 {
@@ -331,6 +331,69 @@ void CPlayerShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* 
 	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
 }
 
+//23.01.29
+CmonsterShader::CmonsterShader()
+{
+}
+
+CmonsterShader::~CmonsterShader()
+{
+}
+
+D3D12_INPUT_LAYOUT_DESC CmonsterShader::CreateInputLayout()
+{
+	UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC* pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+
+	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[1] = { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_DEPTH_STENCIL_DESC CmonsterShader::CreateDepthStencilState()
+{
+	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
+	::ZeroMemory(&d3dDepthStencilDesc, sizeof(D3D12_DEPTH_STENCIL_DESC));
+	d3dDepthStencilDesc.DepthEnable = FALSE;
+	d3dDepthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	d3dDepthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	d3dDepthStencilDesc.StencilEnable = FALSE;
+	d3dDepthStencilDesc.StencilReadMask = 0x00;
+	d3dDepthStencilDesc.StencilWriteMask = 0x00;
+	d3dDepthStencilDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+	d3dDepthStencilDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	d3dDepthStencilDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_NEVER;
+
+	return(d3dDepthStencilDesc);
+}
+
+D3D12_SHADER_BYTECODE CmonsterShader::CreateVertexShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSPlayer", "vs_5_1", ppd3dShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CmonsterShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob)
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSPlayer", "ps_5_1", ppd3dShaderBlob));
+}
+
+void CmonsterShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
+{
+	CShader::Render(pd3dCommandList, pCamera, pContext);
+
+	if (pCamera) pCamera->UpdateShaderVariables(pd3dCommandList);
+}
+//
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CTexturedShader::CTexturedShader()
@@ -442,7 +505,7 @@ CObjectsShader::~CObjectsShader()
 
 void CObjectsShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-#ifdef _WITH_SCENE_ROOT_SIGNATURE
+#ifdef _WITH_Scene_ROOT_SIGNATURE
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	m_pd3dGraphicsRootSignature->AddRef();
 #else
@@ -527,6 +590,11 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 //
 {
 	int nSceneTextures = 0;
+
+	//23.01.29
+	mpObjVec.resize(20);
+	//
+
 	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
 
 	//23.01.13
@@ -817,7 +885,7 @@ D3D12_SHADER_BYTECODE CPostProcessingShader::CreatePixelShader(ID3DBlob** ppd3dS
 
 void CPostProcessingShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-#ifdef _WITH_SCENE_ROOT_SIGNATURE
+#ifdef _WITH_Scene_ROOT_SIGNATURE
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	m_pd3dGraphicsRootSignature->AddRef();
 #else
@@ -840,7 +908,7 @@ void CPostProcessingShader::CreateResourcesAndRtvsSrvs(ID3D12Device* pd3dDevice,
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, nShaderResources);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-#ifdef _WITH_SCENE_ROOT_SIGNATURE
+#ifdef _WITH_Scene_ROOT_SIGNATURE
 	CreateShaderResourceViews(pd3dDevice, m_pTexture, 0, 6);
 #else
 	CreateShaderResourceViews(pd3dDevice, m_pTexture, 0, 0);

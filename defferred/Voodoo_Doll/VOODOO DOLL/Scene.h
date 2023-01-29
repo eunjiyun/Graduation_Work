@@ -6,6 +6,9 @@
 
 #include "Shader.h"
 #include "Player.h"
+//23.01.29
+#include "Monster.h"
+//
 
 struct LIGHT
 {
@@ -42,15 +45,15 @@ struct MATERIALS
 {
 	//23.01.13
 	//MATERIAL				m_pReflections[MAX_MATERIALS];
-	MATERIAL				m_pReflections[MAX_SCENE_MATERIALS];
+	MATERIAL				m_pReflections[MAX_Scene_MATERIALS];
 	//
 };
 
-class CScene
+class CStage
 {
 public:
-	CScene();
-	~CScene();
+	CStage();
+	~CStage();
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -112,5 +115,9 @@ public:
 	XMFLOAT4X4					m_xmf4x4World = Matrix4x4::Identity();
 
 	BoundingBox			m_xmOOBB = BoundingBox();
+	//
+
+	//23.01.17
+	Cmonster* m_pMonster = NULL;
 	//
 };
