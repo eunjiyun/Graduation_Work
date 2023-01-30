@@ -332,6 +332,7 @@ void ProcessPacket(char* ptr)
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
 			gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+			gGameFramework.m_pPlayer->GetCamera()->SetLookAt(gGameFramework.m_pPlayer->GetPosition());
 		}
 		else
 			for (auto& player : gGameFramework.Players)

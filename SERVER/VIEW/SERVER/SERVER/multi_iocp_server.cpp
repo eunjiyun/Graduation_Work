@@ -71,6 +71,7 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		m_fPitch = m_fYaw = m_fRoll = 0.f;
+		direction = 0;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
