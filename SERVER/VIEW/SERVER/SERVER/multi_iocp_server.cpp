@@ -1,18 +1,25 @@
-#include <iostream>
 #include <array>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include <thread>
-#include <vector>
 #include <mutex>
 #include <unordered_set>
 #include "protocol.h"
-
+#include "MemoryPool.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
 
+class MonsterPool : public CMemoryPool<MonsterPool>
+{
+private:
+	XMFLOAT3 pos;
+	short HP;
+	short view_range;
+public:
+
+};
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
 class OVER_EXP {
@@ -181,8 +188,8 @@ void SESSION::send_move_packet(int c_id)
 	p.Look = clients[c_id].m_xmf3Look;
 	p.Right = clients[c_id].m_xmf3Right;
 	p.Up = clients[c_id].m_xmf3Up;
-	//p.Velocity = clients[c_id].m_xmf3Velocity;
 	p.direction = clients[c_id].direction;
+	//p.Velocity = clients[c_id].m_xmf3Velocity;
 	//p.move_time = clients[c_id]._last_move_time;
 	do_send(&p);
 }
