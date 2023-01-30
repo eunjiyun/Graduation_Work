@@ -40,8 +40,8 @@ using namespace DirectX::PackedVector;
 using namespace std;
 //
 
-#define FRAME_BUFFER_WIDTH		800
-#define FRAME_BUFFER_HEIGHT		600
+#define FRAME_BUFFER_WIDTH		640
+#define FRAME_BUFFER_HEIGHT		480
 
 //23.01.03
 //#define MAX_LIGHTS				8 
@@ -59,6 +59,11 @@ using namespace std;
 #define DIR_RIGHT				0x08
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
+
+//23.01.19
+#define FIRST_FLOOR				5
+#define SECOND_FLOOR			370
+#define FLOOR_SIZE				370
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")

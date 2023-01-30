@@ -484,7 +484,6 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 			player->SetUpVector(Up);
 			player->SetRightVector(Right);
 			cout << player->c_id << endl;
-			//player->SetPosition(m_pPlayer->GetPosition());
 			break;
 		}
 }
@@ -585,7 +584,7 @@ void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(0.0f);
 
-	ProcessInput();
+	//ProcessInput();
 
 	AnimateObjects();
 

@@ -4,7 +4,7 @@ constexpr int PORT_NUM = 3500;
 constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
 
-constexpr int MAX_USER = 10000;
+constexpr int MAX_USER = 4;
 
 constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
@@ -71,8 +71,8 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	XMFLOAT3 Look, Up, Right;
-	DWORD direction;
+	XMFLOAT3 Look, Up, Right, Pos;
+	//DWORD direction;
 	//short	x, y, z;
 	//short look_x, look_y, look_z;
 	//short up_x, up_y, up_z;

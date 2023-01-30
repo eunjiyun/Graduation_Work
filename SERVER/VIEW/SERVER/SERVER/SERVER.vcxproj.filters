@@ -39,6 +39,9 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>소스 파일\Client_File</Filter>
     </ClCompile>
+    <ClCompile Include="SESSION.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="protocol.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>소스 파일\Client_File</Filter>
+    </ClInclude>
+    <ClInclude Include="SESSION.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

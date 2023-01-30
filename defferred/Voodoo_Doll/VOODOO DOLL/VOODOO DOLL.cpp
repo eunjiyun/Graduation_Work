@@ -83,7 +83,7 @@ void GamePlayer_ProcessInput()
 			p.direction = dwDirection;
 			//gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
 		}
-		p.Pos = gGameFramework.m_pPlayer->GetPosition();
+		//p.Pos = gGameFramework.m_pPlayer->GetPosition();
 		p.Look = gGameFramework.m_pPlayer->GetLook();
 		p.Up = gGameFramework.m_pPlayer->GetUp();
 		p.Right = gGameFramework.m_pPlayer->GetRight();
@@ -163,11 +163,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
+			GamePlayer_ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
 
-	//recv_t->join();
+	recv_t->join();
 	gGameFramework.OnDestroy();
 
 	return((int)msg.wParam);
@@ -326,12 +327,13 @@ void ProcessPacket(char* ptr)
 	}
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
-
 		if (packet->id == gGameFramework.m_pPlayer->c_id) {
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
-			gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
+			//gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+			gGameFramework.m_pPlayer->GetCamera()->SetLookAt(gGameFramework.m_pPlayer->GetPosition());
 		}
 		else
 			for (auto& player : gGameFramework.Players)
@@ -339,7 +341,7 @@ void ProcessPacket(char* ptr)
 					player->SetLookVector(packet->Look);
 					player->SetUpVector(packet->Up);
 					player->SetRightVector(packet->Right);
-					player->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
+					player->SetPosition(packet->Pos);
 					break;
 				}
 		break;

@@ -4,8 +4,8 @@
 #include <thread>
 #include <mutex>
 #include <unordered_set>
-#include "protocol.h"
 #include "MemoryPool.h"
+#include "SESSION.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -21,164 +21,14 @@ public:
 
 };
 
-enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
-class OVER_EXP {
-public:
-	WSAOVERLAPPED _over;
-	WSABUF _wsabuf;
-	char _send_buf[BUF_SIZE];
-	COMP_TYPE _comp_type;
-	OVER_EXP()
-	{
-		_wsabuf.len = BUF_SIZE;
-		_wsabuf.buf = _send_buf;
-		_comp_type = OP_RECV;
-		ZeroMemory(&_over, sizeof(_over));
-	}
-	OVER_EXP(char* packet)
-	{
-		_wsabuf.len = packet[0];
-		_wsabuf.buf = _send_buf;
-		ZeroMemory(&_over, sizeof(_over));
-		_comp_type = OP_SEND;
-		memcpy(_send_buf, packet, packet[0]);
-	}
-};
 
-enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME };
-class SESSION {
-	OVER_EXP _recv_over;
 
-public:
-	mutex _s_lock;
-	S_STATE _state;
-	int _id;
-	SOCKET _socket;
-	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity;
-	float m_fPitch, m_fYaw, m_fRoll;
-	DWORD direction;
-	char	_name[NAME_SIZE];
-	int		_prev_remain;
-	//int		_last_move_time;
-public:
-	SESSION()
-	{
-		_id = -1;
-		_socket = 0;
-		m_xmf3Position = { 0.f,5.f,0.f };
-		m_xmf3Velocity = { 0.f,0.f,0.f };
-		m_xmf3Look = { 0.f,0.f,1.f };
-		m_xmf3Up = { 0.f,1.f,0.f };
-		m_xmf3Right = { 1.f,0.f,0.f };
-		m_fPitch = m_fYaw = m_fRoll = 0.f;
-		direction = 0;
-		_name[0] = 0;
-		_state = ST_FREE;
-		_prev_remain = 0;
-	}
-
-	~SESSION() {}
-
-	void do_recv()
-	{
-		DWORD recv_flag = 0;
-		memset(&_recv_over._over, 0, sizeof(_recv_over._over));
-		_recv_over._wsabuf.len = BUF_SIZE - _prev_remain;
-		_recv_over._wsabuf.buf = _recv_over._send_buf + _prev_remain;
-		WSARecv(_socket, &_recv_over._wsabuf, 1, 0, &recv_flag,
-			&_recv_over._over, 0);
-	}
-
-	void do_send(void* packet)
-	{
-		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
-		WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
-	}
-	void send_login_info_packet()
-	{
-		SC_LOGIN_INFO_PACKET p;
-		p.id = _id;
-		p.size = sizeof(SC_LOGIN_INFO_PACKET);
-		p.type = SC_LOGIN_INFO;
-		p.x = m_xmf3Position.x;
-		p.y = m_xmf3Position.y;
-		p.z = m_xmf3Position.z;
-		do_send(&p);
-	}
-	void send_move_packet(int c_id);
-	void send_add_player_packet(int c_id);
-	void send_remove_player_packet(int c_id)
-	{
-		SC_REMOVE_PLAYER_PACKET p;
-		p.id = c_id;
-		p.size = sizeof(p);
-		p.type = SC_REMOVE_PLAYER;
-		do_send(&p);
-	}
-	void Rotate(float x, float y, float z)
-	{
-		if (x != 0.0f)
-		{
-			m_fPitch += x;
-			if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
-			if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
-		}
-		if (y != 0.0f)
-		{
-			m_fYaw += y;
-			if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
-			if (m_fYaw < 0.0f) m_fYaw += 360.0f;
-		}
-		if (z != 0.0f)
-		{
-			m_fRoll += z;
-			if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
-			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
-	}
-	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
-	{
-		if (dwDirection)
-		{
-			XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-			if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-			if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-			if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-			if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-			if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-			if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
-
-			Move(xmf3Shift, bUpdateVelocity);
-		}
-	}
-
-	void Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
-	{
-		if (bUpdateVelocity)
-		{
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
-		}
-		else
-		{
-			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-			//if (m_pCamera) m_pCamera->Move(xmf3Shift);
-		}
-	}
-};
 
 array<SESSION, MAX_USER> clients;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
+
 
 void SESSION::send_move_packet(int c_id)
 {
@@ -186,10 +36,11 @@ void SESSION::send_move_packet(int c_id)
 	p.id = c_id;
 	p.size = sizeof(SC_MOVE_PLAYER_PACKET);
 	p.type = SC_MOVE_PLAYER;
-	p.Look = clients[c_id].m_xmf3Look;
-	p.Right = clients[c_id].m_xmf3Right;
-	p.Up = clients[c_id].m_xmf3Up;
-	p.direction = clients[c_id].direction;
+	p.Look = clients[c_id].GetLookVector();
+	p.Right = clients[c_id].GetRightVector();
+	p.Up = clients[c_id].GetUpVector();
+	p.Pos = clients[c_id].GetPosition();
+	//p.direction = clients[c_id].direction;
 	//p.Velocity = clients[c_id].m_xmf3Velocity;
 	//p.move_time = clients[c_id]._last_move_time;
 	do_send(&p);
@@ -203,12 +54,12 @@ void SESSION::send_add_player_packet(int c_id)
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
 	add_packet.Pos = clients[c_id].m_xmf3Position;
+
 	add_packet.Look = clients[c_id].m_xmf3Look;
 	add_packet.Right = clients[c_id].m_xmf3Right;
 	add_packet.Up = clients[c_id].m_xmf3Up;
 	do_send(&add_packet);
 }
-
 int get_new_client_id()
 {
 	for (int i = 0; i < MAX_USER; ++i) {
@@ -243,13 +94,12 @@ void process_packet(int c_id, char* packet)
 		break;
 	}
 	case CS_MOVE: {
+		lock_guard <mutex> ll{ clients[c_id]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
-		clients[c_id].m_xmf3Position = p->Pos;
-		clients[c_id].m_xmf3Right = p->Right;
-		clients[c_id].m_xmf3Up = p->Up;
-		clients[c_id].m_xmf3Look = p->Look;
+		//clients[c_id].m_xmf3Position = p->Pos;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		clients[c_id].Move(p->direction, 0.3, true);
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
 			cl.send_move_packet(c_id);
@@ -352,6 +202,18 @@ void worker_thread(HANDLE h_iocp)
 	}
 }
 
+void update_thread()
+{
+	while (1)
+	{
+		for (int i = 0; i < 4; i++) {
+			lock_guard <mutex> ll{ clients[i]._s_lock };
+			clients[i].Update(0.002);
+			//cout << clients[i].GetPosition().x << ", " << clients[i].GetPosition().y << ", " << clients[i].GetPosition().z << endl;
+		}
+	}
+}
+
 int main()
 {
 	HANDLE h_iocp;
@@ -375,11 +237,13 @@ int main()
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 
 	vector <thread> worker_threads;
-	int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < num_threads; ++i)
+	thread* update_t = new thread{ update_thread };
+	//int num_threads = std::thread::hardware_concurrency();
+	for (int i = 0; i < 8; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
+	update_t->join();
 	closesocket(g_s_socket);
 	WSACleanup();
 }

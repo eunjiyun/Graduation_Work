@@ -152,7 +152,7 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
+	/*m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
 	if (fLength > m_fMaxVelocityXZ)
@@ -164,7 +164,7 @@ void CPlayer::Update(float fTimeElapsed)
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY)m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
-	Move(m_xmf3Velocity, false);
+	Move(m_xmf3Velocity, false);*/
 
 	if (m_pPlayerUpdatedContext)OnPlayerUpdateCallback(fTimeElapsed);
 
@@ -174,31 +174,31 @@ void CPlayer::Update(float fTimeElapsed)
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)m_pCamera->SetLookAt(m_xmf3Position);
 	m_pCamera->RegenerateViewMatrix();
 
-	fLength = Vector3::Length(m_xmf3Velocity);
-	float fDeceleration = (m_fFriction * fTimeElapsed);
-	if (fDeceleration > fLength)fDeceleration = fLength;
-	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	//fLength = Vector3::Length(m_xmf3Velocity);
+	//float fDeceleration = (m_fFriction * fTimeElapsed);
+	//if (fDeceleration > fLength)fDeceleration = fLength;
+	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-	//23.01.19
-	if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
-	{
-		if (m_xmf3Position.y < SECOND_FLOOR)
-		{
-			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-			xmf3PlayerVelocity.y = 0.0f;
-			SetVelocity(xmf3PlayerVelocity);
-			m_xmf3Position.y = SECOND_FLOOR;
-			SetPosition(m_xmf3Position);
-		}
-	}
-	else if (m_xmf3Position.y < FIRST_FLOOR)
-	{
-		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-		xmf3PlayerVelocity.y = 0.0f;
-		SetVelocity(xmf3PlayerVelocity);
-		m_xmf3Position.y = FIRST_FLOOR;
-		SetPosition(m_xmf3Position);
-	}
+	////23.01.19
+	//if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
+	//{
+	//	if (m_xmf3Position.y < SECOND_FLOOR)
+	//	{
+	//		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+	//		xmf3PlayerVelocity.y = 0.0f;
+	//		SetVelocity(xmf3PlayerVelocity);
+	//		m_xmf3Position.y = SECOND_FLOOR;
+	//		SetPosition(m_xmf3Position);
+	//	}
+	//}
+	//else if (m_xmf3Position.y < FIRST_FLOOR)
+	//{
+	//	XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+	//	xmf3PlayerVelocity.y = 0.0f;
+	//	SetVelocity(xmf3PlayerVelocity);
+	//	m_xmf3Position.y = FIRST_FLOOR;
+	//	SetPosition(m_xmf3Position);
+	//}
 	//
 }
 

@@ -35,7 +35,7 @@ constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
-	short	direction;
+	DWORD	direction = 0;
 	short	id;
 	float cxDelta, cyDelta, czDelta;
 	XMFLOAT3 Pos, Look, Up, Right;
@@ -71,8 +71,8 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	XMFLOAT3 Look, Up, Right;
-	short direction;
+	XMFLOAT3 Look, Up, Right, Pos;
+	//DWORD direction;
 	//short	x, y, z;
 	//short look_x, look_y, look_z;
 	//short up_x, up_y, up_z;
