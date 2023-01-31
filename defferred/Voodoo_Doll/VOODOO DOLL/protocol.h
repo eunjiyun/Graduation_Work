@@ -38,7 +38,6 @@ struct CS_MOVE_PACKET {
 	DWORD	direction = 0;
 	short	id;
 	float cxDelta, cyDelta, czDelta;
-	XMFLOAT3 Pos, Look, Up, Right;
 	//unsigned	move_time;
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);

@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include "MemoryPool.h"
 #include "SESSION.h"
+#include "Timer.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -28,7 +29,7 @@ array<SESSION, MAX_USER> clients;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
-
+CGameTimer m_GameTimer;
 
 void SESSION::send_move_packet(int c_id)
 {
@@ -94,12 +95,12 @@ void process_packet(int c_id, char* packet)
 		break;
 	}
 	case CS_MOVE: {
+		cout << c_id << endl;
 		lock_guard <mutex> ll{ clients[c_id]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
-		//clients[c_id].m_xmf3Position = p->Pos;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-		clients[c_id].Move(p->direction, 0.3, true);
+		clients[c_id].Move(p->direction, 0.5, true);
 		//for (auto& cl : clients) {
 		//	if (cl._state != ST_INGAME) continue;
 		//	cl.send_move_packet(c_id);
@@ -204,18 +205,19 @@ void worker_thread(HANDLE h_iocp)
 
 void update_thread()
 {
+	m_GameTimer.Start();
 	while (1)
 	{
+		m_GameTimer.Tick(0.0f);
 		for (int i = 0; i < 4; i++) {
 			lock_guard <mutex> ll{ clients[i]._s_lock };
 			if (clients[i]._state != ST_INGAME) continue;
-			clients[i].Update(0.01);
+			clients[i].Update(m_GameTimer.GetTimeElapsed());
 			for (auto& cl : clients) {
 				cl.send_move_packet(clients[i]._id);
 			}
-			//cout << clients[i].GetPosition().x << ", " << clients[i].GetPosition().y << ", " << clients[i].GetPosition().z << endl;
 		}
-		Sleep(10);
+		Sleep(15);
 	}
 }
 

@@ -610,6 +610,13 @@ void CGameFramework::FrameAdvance()
 
 	//ProcessInput();
 
+	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	for (auto& player : Players) {
+		if (player->c_id > -1) {
+			player->Update(m_GameTimer.GetTimeElapsed());
+		}
+	}
+
 	AnimateObjects();
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -641,6 +648,7 @@ void CGameFramework::FrameAdvance()
 		}
 
 		//23.01.08
+		
 		m_pPlayer->Render(m_pd3dCommandList, m_pCamera);
 		//
 		m_pPostProcessingShader->OnPostRenderTarget(m_pd3dCommandList);

@@ -3,6 +3,9 @@
 #include "VOODOO DOLL.h"
 #include "GameFramework.h"
 #include "SERVER.h"
+#include <chrono>
+
+using namespace chrono;
 
 #define MAX_LOADSTRING 100
 
@@ -12,6 +15,7 @@ constexpr short SERVER_PORT = 3500;
 SOCKET s_socket;
 char	recv_buffer[BUF_SIZE];
 thread* recv_t;
+thread* send_t;
 OVER_EXP _over;
 mutex m;
 #pragma endregion
@@ -69,34 +73,20 @@ void GamePlayer_ProcessInput()
 				p.cxDelta = cyDelta;
 				p.cyDelta = 0.f;
 				p.czDelta = -cxDelta;
-				//gGameFramework.m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
 			}
 			else {
 				p.cxDelta = cyDelta;
 				p.cyDelta = cxDelta;
 				p.czDelta = 0.f;
-				//gGameFramework.m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);				
 			}
 		}
 
 		if (dwDirection) {
 			p.direction = dwDirection;
-			//gGameFramework.m_pPlayer->Move(dwDirection, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true); // Player Velocity 
 		}
-		//p.Pos = gGameFramework.m_pPlayer->GetPosition();
-		p.Look = gGameFramework.m_pPlayer->GetLook();
-		p.Up = gGameFramework.m_pPlayer->GetUp();
-		p.Right = gGameFramework.m_pPlayer->GetRight();
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
 		if (ErrorStatus == SOCKET_ERROR)
 			cout << "Move_Packet Error\n";
-	}
-
-	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
-	for (auto& player : gGameFramework.Players) {
-		if (player->c_id > -1) {
-			player->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
-		}
 	}
 }
 
@@ -148,6 +138,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
 
 	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+	//send_t = new thread{ GamePlayer_ProcessInput };
 #pragma endregion
 
 	while (1)
@@ -162,13 +153,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 			}
 		}
 		else
-		{
+		{			
 			GamePlayer_ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
 
 	recv_t->join();
+	//send_t->join();
 	gGameFramework.OnDestroy();
 
 	return((int)msg.wParam);
@@ -298,7 +290,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessPacket(char* ptr)
 {
-	m.lock();
 	switch (ptr[1]) {
 	case SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
@@ -332,6 +323,7 @@ void ProcessPacket(char* ptr)
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
 			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
+			//cout << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
 			//gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
 			gGameFramework.m_pPlayer->GetCamera()->SetLookAt(gGameFramework.m_pPlayer->GetPosition());
 		}
@@ -347,7 +339,6 @@ void ProcessPacket(char* ptr)
 		break;
 	}
 	}
-	m.unlock();
 
 
 }
@@ -382,10 +373,11 @@ void ProcessData(char* packet, int io_byte)
 
 void RecvThread()
 {
-	while (true) {
+	while (1)
+	{
 		int Length = recv(s_socket, recv_buffer, BUF_SIZE, 0);
 		if (Length == 0)
-			break;
+			return;
 		ProcessData(recv_buffer, Length);
 	}
 }
