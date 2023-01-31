@@ -30,6 +30,7 @@ CGameFramework::CGameFramework()
 
 	m_pScene = NULL;
 	m_pPlayer = NULL;
+	m_eCurrentScene = SCENE_STAGE;
 
 	_tcscpy_s(m_pszFrameRate, _T("VoodooDoll ("));
 }
@@ -387,6 +388,28 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 	return(0);
 }
 
+void CGameFramework::Change_Scene(SCENEID _eSceneid)
+{
+	switch (_eSceneid)
+	{
+		/*case SCENE_OPEN:
+			m_pScene = new CLogo;
+			break;*/
+
+	case SCENE_LOGIN:
+		m_pLogin = new CLogin;
+		break;
+
+	case SCENE_STAGE:
+		m_pScene = new CStage;
+		break;
+
+		//case SCENE_END:
+		//	m_pScene = new CMyEdit;
+		//	break;
+	}
+}
+
 void CGameFramework::OnDestroy()
 {
 	ReleaseObjects();
@@ -473,6 +496,7 @@ void CGameFramework::ReleaseObjects()
 	if (m_pPostProcessingShader)m_pPostProcessingShader->ReleaseObjects();
 	if (m_pPostProcessingShader)m_pPostProcessingShader->Release();
 }
+
 
 void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right)
 {

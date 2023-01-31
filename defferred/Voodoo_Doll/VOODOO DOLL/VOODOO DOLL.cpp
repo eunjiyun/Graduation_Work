@@ -47,7 +47,7 @@ void GamePlayer_ProcessInput()
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
-	if (GetCapture() == gGameFramework.Get_HWNG())
+	if (GetCapture() == gGameFramework.Get_HWND())
 	{
 		::SetCursor(NULL);
 		POINT ptCursorPos;

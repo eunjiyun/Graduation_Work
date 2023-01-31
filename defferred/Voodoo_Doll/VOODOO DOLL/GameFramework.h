@@ -52,9 +52,14 @@ public:
 	void OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK OnProcessingWindowMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 
-	HWND Get_HWNG() { return m_hWnd; }
-	LONG Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
-	LONG Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
+	HWND	Get_HWND() { return m_hWnd; }
+	void			Change_Scene(SCENEID _eSceneid);
+	LONG		Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
+	LONG		Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
+
+private:
+	SCENEID m_eCurrentScene;
+	SCENEID m_ePrevScene;
 
 private:
 	HINSTANCE						m_hInstance;
@@ -92,10 +97,10 @@ private:
 	CCamera* m_pCamera = NULL;
 
 public:
-	CPlayer* m_pPlayer = NULL;
-	CLogin* m_pLogin = NULL;
-	CStage* m_pScene = NULL;
-	vector<CPlayer*> Players;
+	CPlayer*							m_pPlayer = NULL;
+	CLogin*							m_pLogin = NULL;
+	CStage*							m_pScene = NULL;
+	vector<CPlayer*>			Players;
 	CGameTimer					m_GameTimer;
 
 	CPostProcessingShader* m_pPostProcessingShader = NULL;
@@ -104,7 +109,7 @@ public:
 
 	POINT							m_ptOldCursorPos;
 
-	_TCHAR							m_pszFrameRate[50];
+	_TCHAR						m_pszFrameRate[50];
 
 	//23.01.28
 public:
