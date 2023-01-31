@@ -100,10 +100,10 @@ void process_packet(int c_id, char* packet)
 		//clients[c_id].m_xmf3Position = p->Pos;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		clients[c_id].Move(p->direction, 0.3, true);
-		for (auto& cl : clients) {
-			if (cl._state != ST_INGAME) continue;
-			cl.send_move_packet(c_id);
-		}
+		//for (auto& cl : clients) {
+		//	if (cl._state != ST_INGAME) continue;
+		//	cl.send_move_packet(c_id);
+		//}
 	}
 	}
 }
@@ -208,9 +208,14 @@ void update_thread()
 	{
 		for (int i = 0; i < 4; i++) {
 			lock_guard <mutex> ll{ clients[i]._s_lock };
-			clients[i].Update(0.002);
+			if (clients[i]._state != ST_INGAME) continue;
+			clients[i].Update(0.01);
+			for (auto& cl : clients) {
+				cl.send_move_packet(clients[i]._id);
+			}
 			//cout << clients[i].GetPosition().x << ", " << clients[i].GetPosition().y << ", " << clients[i].GetPosition().z << endl;
 		}
+		Sleep(10);
 	}
 }
 
