@@ -95,7 +95,6 @@ void process_packet(int c_id, char* packet)
 		break;
 	}
 	case CS_MOVE: {
-		cout << c_id << endl;
 		lock_guard <mutex> ll{ clients[c_id]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
@@ -217,7 +216,7 @@ void update_thread()
 				cl.send_move_packet(clients[i]._id);
 			}
 		}
-		Sleep(15);
+		Sleep(100);
 	}
 }
 

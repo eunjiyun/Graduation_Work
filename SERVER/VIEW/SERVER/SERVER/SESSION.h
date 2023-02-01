@@ -55,7 +55,7 @@ public:
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		m_xmf3Gravity = { 0.f, -1.f, 0.f };
+		m_xmf3Gravity = { 0.f, -20.f, 0.f };
 		m_fPitch = m_fYaw = m_fRoll = 0.f;
 		m_fMaxVelocityY = 400.f;
 		m_fMaxVelocityXZ = 125.f;
