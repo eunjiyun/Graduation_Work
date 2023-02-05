@@ -499,14 +499,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pC
 	if (m_ppMeshes && m_ppMaterials)
 		//
 	{
-		//23.01.13
-		//과제4 플레이어
-		/*if (m_pShader)
-		{
-			m_pShader->Render(pd3dCommandList, pCamera);
-			m_pShader->UpdateShaderVariables(pd3dCommandList);
-		}*/
-		//
+
 
 		//23.01.13
 		//player

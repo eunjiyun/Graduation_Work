@@ -616,10 +616,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	{
 		for (int i = 0; i < m_nObjects; ++i)
 		{
-			//canale
-			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp"))
-				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_pillar"))
-				//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "canale"))
+			m_ppObjects[i]->m_xmOOBB = BoundingOrientedBox(XMFLOAT3(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().y, m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp1")
 				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2")
 
@@ -647,66 +645,12 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
 			}
 
-			/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
-			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y += m_ppObjects[i]->GetPosition().y;
-			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z += m_ppObjects[i]->GetPosition().z;
-
-			cout <<i<< "번째 m_xmBoundingBox x : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x << endl;
-			cout << i << "번째 m_xmBoundingBox y : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y << endl;
-			cout << i << "번째 m_xmBoundingBox z : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z << endl;*/
-
-			//23.01.27
-			//CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 0);
-			//SetCbvGPUDescriptorHandle(GetGPUCbvDescriptorStartHandle());
 			m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));//여기
 			//
 
 		}
 	}
-	//else
-	//{
-	//	num = 0;
-	//	for (int i = 0; i < m_nObjects; ++i)
-	//	{
-	//		//canale
-	//		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(1)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(2)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(3)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(4)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(5)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(6)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(7)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(8)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(9)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(10)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(11)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(12)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(13)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(14)")
-	//			|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_lamp_(15)"))
-	//			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "c4_pillar"))
-	//			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "canale"))
-	//		{
-	//			tmp = m_ppObjects[i]->GetPosition();
-	//			mpObjVec2.push_back(tmp);
 
-
-
-	//			++num;
-	//			cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
-	//		}
-
-	//		/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
-	//		m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y += m_ppObjects[i]->GetPosition().y;
-	//		m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z += m_ppObjects[i]->GetPosition().z;
-
-	//		cout <<i<< "번째 m_xmBoundingBox x : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x << endl;
-	//		cout << i << "번째 m_xmBoundingBox y : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y << endl;
-	//		cout << i << "번째 m_xmBoundingBox z : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z << endl;*/
-
-	//	}
-	//}
 	cout << "몇 개? " << num << endl;
 
 	cout << "벡터는 몇 개? " << mpObjVec.size() << endl;

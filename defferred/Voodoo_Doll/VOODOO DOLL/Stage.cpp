@@ -519,26 +519,16 @@ bool CStage::ProcessInput(UCHAR* pKeysBuffer)
 
 void CStage::AnimateObjects(float fTimeElapsed)
 {
-	//23.01.04
-	//상자 지우기
-	/*for (int i = 0; i < m_nShaders; i++)
-	{
-		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	}
 
-	if (m_pLights)
-	{
-		m_pLights->m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
-		m_pLights->m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
-	}*/
-	//
+	m_pPlayer->Animate(fTimeElapsed);
+	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
+	UpdateBoundingBox();
 
 	//23.01.13
 	//if (false == choose)
 	//{
 		/*for (int i = 0; i < m_nShaders; i++)
 		{*/
-	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
 	//}
 //}
 //else

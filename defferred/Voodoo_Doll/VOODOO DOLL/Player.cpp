@@ -276,6 +276,25 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 	if (nCameraMode == THIRD_PERSON_CAMERA)CGameObject::Render(pd3dCommandList, pCamera);
 }
 
+void CPlayer::OnUpdateTransform()
+{
+	m_xmf4x4World._11 = m_xmf3Right.x; m_xmf4x4World._12 = m_xmf3Right.y; m_xmf4x4World._13 = m_xmf3Right.z;
+	m_xmf4x4World._21 = m_xmf3Up.x; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._23 = m_xmf3Up.z;
+	m_xmf4x4World._31 = m_xmf3Look.x; m_xmf4x4World._32 = m_xmf3Look.y; m_xmf4x4World._33 = m_xmf3Look.z;
+	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
+}
+
+void CPlayer::UpdateBoundingBox()
+{
+	m_xmOOBB.Center = m_xmf3Position;
+}
+
+void CPlayer::Animate(float fElapsedTime)
+{
+	OnUpdateTransform();
+	UpdateBoundingBox();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CAirplanePlayer
 
@@ -298,6 +317,11 @@ CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	pShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	pShader->CreateCbvSrvDescriptorHeaps(pd3dDevice, 1, 0);
 	pShader->CreateConstantBufferViews(pd3dDevice, 1, m_pd3dcbPlayer, ncbElementBytes);
+
+	//230205
+	SetPosition(XMFLOAT3(-3.944041f, 130, -2.04254f));
+	m_xmOOBB = BoundingOrientedBox(XMFLOAT3(-3.944041f, 130, -2.04254f), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+
 
 	SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());
 

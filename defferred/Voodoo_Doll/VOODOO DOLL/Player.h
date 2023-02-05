@@ -99,6 +99,11 @@ public:
 	virtual void SetRootParameter(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
+	//230205
+	void		OnUpdateTransform();
+	void		UpdateBoundingBox();
+	void		Animate(float fElapsedTime);
+
 protected:
 	ID3D12Resource* m_pd3dcbPlayer = NULL;
 	CB_PLAYER_INFO* m_pcbMappedPlayer = NULL;
