@@ -501,12 +501,6 @@ void CGameFramework::AnimateObjects()
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
-
-	//23.02.05
-	//m_pPlayer->SetPosition(XMFLOAT3(-193.0f, 259, -89.0f));
-	//m_pPlayer->SetPosition(XMFLOAT3(267.0f, 430,1563.0f));
-	//m_pPlayer->SetPosition(XMFLOAT3(267.0f, 66, 3486.0f));
-	//
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -561,7 +555,11 @@ void CGameFramework::FrameAdvance()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * ::gnRtvDescriptorIncrementSize);
 
-	float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	//23.02.11
+	//float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };
+	float pfClearColor[4] = { 0.31f, 0.74f, 0.88f, 1.0f };// ÇÏ´Ã »ö±ò
+	//
+
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -570,10 +568,6 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
-
-	//23.02.08
-	//m_pPlayer->SetPosition(XMFLOAT3(-193.0f, 259, -89.0f));
-	//
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

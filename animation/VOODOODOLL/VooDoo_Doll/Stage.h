@@ -195,4 +195,8 @@ public:
 	vector<XMFLOAT3> mpObjVec;
 	XMFLOAT3 tmp;
 	//
+
+	//23.01.17
+	float						mpTime = 0.f;
+	//
 };

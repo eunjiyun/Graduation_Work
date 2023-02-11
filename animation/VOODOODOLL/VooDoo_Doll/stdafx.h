@@ -77,7 +77,7 @@ extern HINSTANCE						ghAppInstance;
 //
 
 //23.01.19
-#define FIRST_FLOOR				5
+#define FIRST_FLOOR				0
 #define SECOND_FLOOR			370
 #define FLOOR_SIZE				370
 //

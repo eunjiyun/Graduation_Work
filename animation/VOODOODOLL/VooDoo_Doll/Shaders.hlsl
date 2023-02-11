@@ -25,7 +25,8 @@ cbuffer cbGameObjectsInfo : register(b6)
 {
 	matrix		gmtxxGameObject : packoffset(c0);
 	uint		gnObjectID : packoffset(c4);
-	uint		gnMaterials : packoffset(c8);
+	//uint		gnMaterials : packoffset(c8);
+	//MATERIAL				gMaterial : packoffset(c8);
 };
 //
 

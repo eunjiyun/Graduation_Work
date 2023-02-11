@@ -281,15 +281,6 @@ void CShader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstan
 
 	m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
 	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
-
-	cout << "shader create heap" << endl;
-	cout << "descriptor heap : " << m_pd3dCbvSrvDescriptorHeap << endl;//사실 힙 주소는 필요없네 핸들에 다 있다
-	cout << "CPUDescriptorNextHandle ptr: " << m_d3dSrvCPUDescriptorNextHandle.ptr << endl;
-	cout << "GPUDescriptorNextHandle ptr: " << m_d3dSrvGPUDescriptorNextHandle.ptr << endl << endl << endl;
-
-	//원래 있는 값을 참조해서 쓰나?
-	//아니면 프로그램에서 자동 생성인가
-	//m_pd3dCbvSrvDescriptorHeap 이것만 생성하면 여기서부터 알아서 다른 변수들 값을 셋하니까
 }
 
 void CShader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
@@ -913,7 +904,6 @@ void CObjectsShader::ReleaseShaderVariables()
 	}
 
 	//23.01.13
-	//CIlluminatedTexturedShader::ReleaseShaderVariables();
 	CShader::ReleaseShaderVariables();
 	//
 }
@@ -926,57 +916,11 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
 
-	//23.02.08
-	//m_d3dCbvGPUDescriptorStartHandle = m_d3dCbvGPUDescriptorHandle;
-	//m_pd3dCbvSrvDescriptorHeap = heap;
-
-	
-
-	/*m_ppObjects[0]-> m_d3dCbvGPUDescriptorHandle =m_d3dCbvGPUDescriptorHandle;
-	m_ppObjects[0]->m_pd3dCbvSrvDescriptorHeap = heap;*/
-	//
-
 	//23.01.13
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-
-	
-
-	//23.02.09
-	//m_d3dCbvGPUDescriptorHandle.ptr = 9223373419818686205 + 152;
-	//
-
-	//23.02.09
-	//m_d3dCbvGPUDescriptorStartHandle
-	//m_ppObjects[0]-> m_d3dCbvGPUDescriptorHandle = m_d3dSrvGPUDescriptorNextHandle;
-	//m_ppObjects[0]->m_d3dCbvGPUDescriptorHandle = m_d3dCbvGPUDescriptorStartHandle;
-
-
-	
-	
-
-
-	//cout << "유니티 맵의 디스크립터 핸들 ptr : " << m_ppObjects[0]->m_d3dCbvGPUDescriptorHandle.ptr << endl;
-	//
-
-	//23.02.08
-	//SetCbvGPUDescriptorHandle(m_d3dCbvGPUDescriptorStartHandle);
-
-	//m_ppObjects[0]->m_d3dCbvGPUDescriptorHandle = m_d3dCbvGPUDescriptorStartHandle;
-	//m_ppObjects[0]->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
-	//
-
-	//CreateShaderResourceViews(pd3dDevice, pTexture, 0, 5);
-
-
-	/*CTexture* pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0, 1);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"Image/StonesArray.dds", RESOURCE_TEXTURE2DARRAY, 0);
-	CreateShaderResourceViews(pd3dDevice, pTexture, 0, 5);*/
-	//
-
-	
 
 	int num = 0;
 
@@ -1013,76 +957,11 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			{
 				tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(tmp);
-
-
-			/*	++num;
-				cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;*/
 			}
 
-			/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
-			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y += m_ppObjects[i]->GetPosition().y;
-			m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z += m_ppObjects[i]->GetPosition().z;
-
-			cout <<i<< "번째 m_xmBoundingBox x : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x << endl;
-			cout << i << "번째 m_xmBoundingBox y : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y << endl;
-			cout << i << "번째 m_xmBoundingBox z : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z << endl;*/
-
-			//23.01.27
-			//CreateCbvSrvDescriptorHeaps(pd3dDevice, 2, 0);
-			//SetCbvGPUDescriptorHandle(GetGPUCbvDescriptorStartHandle());
-			//m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));//여기
-			//m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
-			//m_ppObjects[i]->SetCbvCPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));//여기
-
-
-			m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));//여기
-			//여기서 애니메이션 핸들값을 넘겨주나?
-
-
-			//m_d3dCbvGPUDescriptorHandle m_d3dSrvGPUDescriptorNextHandle
-			//m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dSrvGPUDescriptorNextHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));//여기
-			//
-
-			//SetCbvGPUDescriptorHandle(pShader->GetGPUCbvDescriptorStartHandle());//0207
-
-			//cout << "obj file name : " << i << " " << m_ppObjects[i]->m_pstrName << endl;
-
+			m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		}
 	}
-	
-
-	//			++num;
-	//			cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
-	//		}
-
-	//		/*m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x += m_ppObjects[i]->GetPosition().x;
-	//		m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y += m_ppObjects[i]->GetPosition().y;
-	//		m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z += m_ppObjects[i]->GetPosition().z;
-
-	//		cout <<i<< "번째 m_xmBoundingBox x : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.x << endl;
-	//		cout << i << "번째 m_xmBoundingBox y : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.y << endl;
-	//		cout << i << "번째 m_xmBoundingBox z : " << m_ppObjects[i]->m_pMesh->m_xmBoundingBox.Center.z << endl;*/
-
-	//	}
-	//}
-	//cout << "몇 개? " << num << endl;
-
-	//cout << "벡터는 몇 개? " << mpObjVec.size() << endl;
-
-
-	//tmp._41 = -150.f;//고정
-	//tmp._42 = 0.0f;//고정
-	//tmp._43 = m_pPlayer->GetPosition().z + 160;
-
-
-	//m_d3dSrvGPUDescriptorNextHandle
-	cout << "유니티 맵의 디스크립터 힙 : " << m_ppObjects[0]->m_pd3dCbvSrvDescriptorHeap << endl;
-	cout << "유니티 맵의 디스크립터 힙 : " << m_ppObjects[1]->m_pd3dCbvSrvDescriptorHeap << endl;
-	cout << "유니티 맵의 디스크립터 힙 : " << m_ppObjects[2]->m_pd3dCbvSrvDescriptorHeap << endl;
-	cout << "유니티 맵 스타트 핸들 : " << m_ppObjects[0]->m_d3dCbvGPUDescriptorHandle.ptr << endl;
-	cout<< "유니티 맵 스타트 핸들2 : " << m_d3dCbvGPUDescriptorStartHandle.ptr << endl;
-
-
 
 	return mpObjVec;
 }
@@ -1122,17 +1001,6 @@ void CObjectsShader::ReleaseUploadBuffers()
 
 void CObjectsShader::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, D3D12_GPU_DESCRIPTOR_HANDLE handle)// , void* pContext)
 {
-	//23.01.11
-	/*CIlluminatedTexturedShader::Render(pd3dCommandList, pCamera, pContext);
-
-#ifdef _WITH_BATCH_MATERIAL
-	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
-#endif
-
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-	}*/
 
 	CShader::Render(pd3dCommandList, pCamera,true);
 
@@ -1146,60 +1014,15 @@ void CObjectsShader::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 	if (m_pd3dPipelineState)
 		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
 
-	cout << "셋할 디스크립터힙 주소 : " << m_pd3dCbvSrvDescriptorHeap << endl;
-
-	//m_d3dCbvGPUDescriptorHandle
 	if (m_pd3dCbvSrvDescriptorHeap)
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);//23.02.06 오류 //중단점 무시
-	//pd3dCommandList->SetDescriptorHeaps(1, handle);//23.02.06 오류
-
-//D3D12_GPU_DESCRIPTOR_HANDLE tmp = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-//cout << "디스크립터 힙 핸들스타트 : " <<tmp<< endl;
-
-	//cout << "set descriptorheap : " << m_pd3dCbvSrvDescriptorHeap << endl;
-	//
-
-
-	//D3D12_GPU_DESCRIPTOR_HANDLE desHandle=m_pd
+	
 	for (int j = 0; j < m_nObjects; j++)
 	{
-		//23.02.09
-		//pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, m_ppObjects[j]->m_d3dCbvGPUDescriptorHandle);//주석치면
-		//
-		//cout << "디스크립터 핸들 ptr : " << m_ppObjects[j]->m_d3dCbvGPUDescriptorHandle.ptr << endl << endl << endl;
-
-
-		//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * j));
 		pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, m_ppObjects[j]->m_d3dCbvGPUDescriptorHandle);
-		//애니메이션 핸들이 아닌데
 		
-
-
-		//pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, handle);//
-		//if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
-
-		//23.02.01
-		/*cbuffer cbGameObjectInfo : register(b2)
-		{
-			matrix					gmtxGameObject : packoffset(c0);
-			MATERIAL				gMaterial : packoffset(c4);
-			uint					gnTexturesMask : packoffset(c8);
-		};
-
-		pd3dCommandList->SetGraphicsRoot32BitConstant(ROOT_PARAMETER_OBJECT, m_ppMaterials[i]->m_nMaterial, 0);
-		pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_OBJECT, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
-		pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_OBJECT, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
-
-		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);*/
-		//
-
-		//m_ppObjects[j]->m_pcbMappedGameObject = (CB_GAMEOBJECT_INFO*)((UINT8*)m_pcbMappedGameObjects + (j * ncbGameObjectBytes));
-
 		if (m_ppObjects[j]) 
 			m_ppObjects[j]->Render(pd3dCommandList,  m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera,false);//
 	}
-
-	cout << "과연 애니메이션 핸들? " << m_ppObjects[0]->m_d3dCbvGPUDescriptorHandle.ptr << endl << endl;
-	//
 }
 //

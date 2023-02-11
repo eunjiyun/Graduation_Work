@@ -367,9 +367,6 @@ public:
 public:
 	CGameObject();
 	CGameObject(int nMaterials);
-	////23.01.31
-	//CGameObject(int* ptr,int nMeshes = 1);
-	////
     virtual ~CGameObject();
 
 public:

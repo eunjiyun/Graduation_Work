@@ -1,5 +1,5 @@
 // stdafx.cpp : 표준 포함 파일만 들어 있는 소스 파일입니다.
-// LabProject03-1.pch는 미리 컴파일된 헤더가 됩니다.
+// VooDoo_Doll.pch는 미리 컴파일된 헤더가 됩니다.
 // stdafx.obj에는 미리 컴파일된 형식 정보가 포함됩니다.
 
 #include "stdafx.h"
@@ -323,7 +323,6 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	nReads = (UINT)::fread(pnGameObjects, sizeof(int), 1, pFile);
 
 	CGameObject** ppGameObjects = new CGameObject * [*pnGameObjects];
-	cout << "*pnGameObjects: " << *pnGameObjects << endl;
 
 	CGameObject* pGameObject = NULL, * pObjectFound = NULL;
 	for (int i = 0; i < *pnGameObjects; i++)
@@ -348,14 +347,9 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			if (!strcmp(pstrGameObjectName, ppGameObjects[j]->m_pstrName))
 			{
 				pObjectFound = ppGameObjects[j];
-				////23.01.03
-				//ppGameObjects[j]->m_pMesh->m_xmBoundingBox.Center = ppGameObjects[j]->GetPosition();
-				////
 
-				//23.01.11
-				//pGameObject->SetMesh(ppGameObjects[j]->m_pMesh);
-				pGameObject->SetMesh(0, ppGameObjects[j]->m_ppMeshes[0]);//여기
-				//
+				pGameObject->SetMesh(0, ppGameObjects[j]->m_ppMeshes[0]);
+				
 				for (UINT k = 0; k < nMaterials; k++)
 				{
 					pGameObject->SetMaterial(k, ppGameObjects[j]->m_ppMaterials[k]);
@@ -385,20 +379,9 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			strcpy_s(pstrFilePath, 64, "Models/");
 			strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 			strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
-			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);//여기서 메쉬 생성자 씁니다
+			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 
-			//23.01.03
-			//pMesh->m_xmBoundingBox.Center = pGameObject->GetPosition();
-			//
-
-			//23.01.11
-			//pGameObject->SetMesh(pMesh);
 			pGameObject->SetMesh(0, pMesh);
-			//
-
-			////23.01.03
-			//pMesh->m_xmBoundingBox.Center = pGameObject->GetPosition();
-			////
 		}
 
 		ppGameObjects[i] = pGameObject;
@@ -408,5 +391,5 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	return(ppGameObjects);
 }
-//
+
 

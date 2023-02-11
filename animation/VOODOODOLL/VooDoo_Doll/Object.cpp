@@ -74,14 +74,14 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 			//cout << "스카이 박스 핸들 ptr : " << m_pd3dSrvGpuDescriptorHandles[i].ptr << endl << endl << endl;
 
 			//23.02.10
-			//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);//0208오류
+			//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);//0211오류
 			//
 		}
 	}
 	else
 	{
 		//23.02.10
-		//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);//0208오류  //중단점 적용x
+		pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[0], m_pd3dSrvGpuDescriptorHandles[0]);//0208오류  //중단점 적용x
 		//
 	}
 }
@@ -89,7 +89,7 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 void CTexture::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nParameterIndex, int nTextureIndex)//중단점 적용x
 {
 	//23.02.10
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[nParameterIndex], m_pd3dSrvGpuDescriptorHandles[nTextureIndex]);//0208오류
+	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[nParameterIndex], m_pd3dSrvGpuDescriptorHandles[nTextureIndex]);//0208오류
 	//
 }
 
@@ -262,7 +262,9 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 
 	for (int i = 0; i < m_nTextures; i++)
 	{
-		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
+		if (m_ppTextures[i]) 
+			m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
+
 		//		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0, 0);
 	}
 }
@@ -936,24 +938,14 @@ void CGameObject::Animate(float fTimeElapsed)
 //23.02.08
 void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState)
 {
-
 	if (m_pd3dGraphicsRootSignature)
 			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);//23.02.06 오류
 
 	if(m_pd3dPipelineState)
 		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
 
-	//cout << "셋할 디스크립터힙 주소 : " << m_pd3dCbvSrvDescriptorHeap << endl;
-
-	//m_d3dCbvGPUDescriptorHandle
 	if (m_pd3dCbvSrvDescriptorHeap)
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);//23.02.06 오류 //중단점 무시
-		//pd3dCommandList->SetDescriptorHeaps(1, handle);//23.02.06 오류
-
-	//D3D12_GPU_DESCRIPTOR_HANDLE tmp = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	//cout << "디스크립터 힙 핸들스타트 : " <<tmp<< endl;
-
-	cout << "set descriptorheap : " << m_pd3dCbvSrvDescriptorHeap << endl << endl << endl;
 }
 //
 
@@ -976,7 +968,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera,false);
+					if (m_ppMaterials[i]->m_pShader) 
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera,false);
+
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 
@@ -993,19 +987,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
 	CCamera* pCamera, bool choose)
 {
-	//23.02.08
-	//onPrepareRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState);//주석치면
-	//
-	
-	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dcbGameObjectGpuVirtualAddress + (ncbGameObjectBytes * j));
-
-	//cout << "유니티 맵 : " << endl;
-	//cout << "SetGraphicsRootDescriptorTable m_d3dCbvGPUDescriptorHandle ptr :" << m_d3dCbvGPUDescriptorHandle.ptr << endl << endl << endl;
-
-	//m_d3dCbvGPUDescriptorHandle.ptr = 9223373419818686205 + 152;
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, m_d3dCbvGPUDescriptorHandle);//주석치면
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, handle);//
-	
 	//23.01.28
 	//OnPrepareRender(pd3dCommandList, pCamera);
 	//
@@ -1015,22 +996,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 		//
 	{
 		//23.01.13
-		//player
+		//player32BIT
 		if (m_ppMaterials[0]->m_pShader)
 		{
-			//m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
-
-			//if (pCamera)pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-			//if (pCamera)pCamera->UpdateShaderVariables(pd3dCommandList);
-
-			//UpdateShaderVariables(pd3dCommandList);
-
-			////23.01.16
-			////SetRootParameter(pd3dCommandList);
-			//pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, m_d3dCbvGPUDescriptorHandle);//수정
-			////
-
-			//m_ppMeshes[0]->Render(pd3dCommandList);
 		}
 		//
 
@@ -1049,26 +1017,16 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 				if (m_ppMaterials[i])
 				{
 					//23.01.06
-					/*pd3dCommandList->SetGraphicsRoot32BitConstant(4, m_ppMaterials[i]->m_nMaterial, 0);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(4, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);*/
-
 					pd3dCommandList->SetGraphicsRoot32BitConstant(ROOT_PARAMETER_CONSTANT, m_ppMaterials[i]->m_nMaterial, 0);
 					pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_CONSTANT, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
 					pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_CONSTANT, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
 					//
+
+					//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 
 				//23.01.13
 				m_ppMeshes[0]->Render2(pd3dCommandList, i);
-				/*if (1 == m_nMaterials)
-				{
-					for (int i = 0; i < m_nMeshes; ++i)
-						m_ppMeshes[i]->Render(pd3dCommandList, i);
-				}
-				else
-					m_ppMeshes[0]->Render(pd3dCommandList, i);*/
-					//
 			}
 		}
 		//

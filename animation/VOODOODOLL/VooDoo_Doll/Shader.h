@@ -278,7 +278,6 @@ public:
 //float						mpTime = 0.f;
 	vector<XMFLOAT3> mpObjVec;
 	XMFLOAT3 tmp;
-	//vector<XMFLOAT3> mpObjVec2;
 	//
 
 	//23.02.07
@@ -286,11 +285,6 @@ public:
 	//
 
 protected:
-	//23.01.27
-	/*CGameObject** m_ppObjects = 0;
-	int								m_nObjects = 0;*/
-	//
-
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
 

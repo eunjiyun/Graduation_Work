@@ -171,6 +171,11 @@ void CShader::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstan
 
 	m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
 	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
+
+	cout << "shader create heap" << endl;
+	cout << "descriptor heap : " << m_pd3dCbvSrvDescriptorHeap << endl;
+	cout << "CPUDescriptorNextHandle ptr: " << m_d3dSrvCPUDescriptorNextHandle.ptr << endl;
+	cout << "GPUDescriptorNextHandle ptr: " << m_d3dSrvGPUDescriptorNextHandle.ptr << endl << endl << endl;
 }
 
 void CShader::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
@@ -259,6 +264,8 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 	//
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 	//
+
+	cout << "set descriptorheap : " << m_pd3dCbvSrvDescriptorHeap << endl << endl << endl;
 }
 
 void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
@@ -641,8 +648,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				mpObjVec.push_back(tmp);
 
 
-				++num;
-				cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;
+				/*++num;
+				cout << "여기 가로등 들어있어요m_ppObjects[i] : " << i << endl;*/
 			}
 
 			m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));//여기
