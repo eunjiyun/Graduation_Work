@@ -567,6 +567,13 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
+	//23.01.28
+	if (true == wakeUp)
+		m_pStage->wakeUp = false;
+	else
+		m_pStage->wakeUp = true;
+	//
+
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
 #ifdef _WITH_PLAYER_TOP

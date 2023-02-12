@@ -259,6 +259,27 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSigna
 	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, m_pd3dGraphicsRootSignature,m_pd3dPipelineState, pCamera);
 }
 
+void CPlayer::OnUpdateTransform()
+{
+	m_xmf4x4World._11 = m_xmf3Right.x; m_xmf4x4World._12 = m_xmf3Right.y; m_xmf4x4World._13 = m_xmf3Right.z;
+	m_xmf4x4World._21 = m_xmf3Up.x; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._23 = m_xmf3Up.z;
+	m_xmf4x4World._31 = m_xmf3Look.x; m_xmf4x4World._32 = m_xmf3Look.y; m_xmf4x4World._33 = m_xmf3Look.z;
+	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
+}
+
+void CPlayer::UpdateBoundingBox()
+{
+	m_xmOOBB.Center = m_xmf3Position;
+}
+
+void CPlayer::boundingAnimate(float fElapsedTime)
+{
+	OnUpdateTransform();
+	UpdateBoundingBox();
+}
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 CAirplanePlayer::CAirplanePlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
@@ -305,6 +326,7 @@ void CAirplanePlayer::OnPrepareRender()
 {
 	CPlayer::OnPrepareRender();
 }
+
 
 CCamera *CAirplanePlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 {
@@ -410,7 +432,10 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 
 	//23.02.11
 	//SetPosition(XMFLOAT3(310.0f, pTerrain->GetHeight(310.0f, 590.0f), 590.0f));
-	SetPosition(XMFLOAT3(310.0f, 0.0f, 590.0f));
+	//SetPosition(XMFLOAT3(310.0f, 0.0f, 590.0f));
+
+	SetPosition(XMFLOAT3(-3.944041f, 0, -2.04254f));
+	m_xmOOBB = BoundingOrientedBox(XMFLOAT3(-3.944041f, 0, -2.04254f), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	//
 
 	SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
@@ -510,40 +535,6 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 			p3rdPersonCamera->SetLookAt(GetPosition());
 		}
 	}*/
-
-	//23.01.19
-	/*if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
-	{
-		if (m_xmf3Position.y < SECOND_FLOOR)
-		{
-			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-			xmf3PlayerVelocity.y = 0.0f;
-			SetVelocity(xmf3PlayerVelocity);
-			m_xmf3Position.y = SECOND_FLOOR;
-			SetPosition(m_xmf3Position);
-		}
-	}
-	else if (m_xmf3Position.y < FIRST_FLOOR)
-	{
-		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-		xmf3PlayerVelocity.y = 0.0f;
-		SetVelocity(xmf3PlayerVelocity);
-		m_xmf3Position.y = FIRST_FLOOR;
-		SetPosition(m_xmf3Position);
-	}*/
-
-	/*float fHeight = xmf3CameraPosition.y + 5.0f;
-	if (xmf3CameraPosition.y <= fHeight)
-	{
-		xmf3CameraPosition.y = fHeight;
-		m_pCamera->SetPosition(xmf3CameraPosition);
-		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
-		{
-			CThirdPersonCamera* p3rdPersonCamera = (CThirdPersonCamera*)m_pCamera;
-			p3rdPersonCamera->SetLookAt(GetPosition());
-		}
-	}*/
-	//
 }
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)

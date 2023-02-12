@@ -83,6 +83,14 @@ public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed) { return(NULL); }
 	virtual void OnPrepareRender();
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera *pCamera = NULL);
+
+
+	//230205
+	void		OnUpdateTransform();
+	void		UpdateBoundingBox();
+	void		boundingAnimate(float fElapsedTime);
+
+	CGameObject* m_pObjectCollided = NULL;
 };
 
 class CAirplanePlayer : public CPlayer
@@ -101,6 +109,11 @@ private:
 public:
 	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
 	virtual void OnPrepareRender();
+
+	//230205
+	void		OnUpdateTransform();
+	void		UpdateBoundingBox();
+	//void		Animate(float fElapsedTime);
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler

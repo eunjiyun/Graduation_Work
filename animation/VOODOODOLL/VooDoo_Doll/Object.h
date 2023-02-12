@@ -385,10 +385,6 @@ public:
 	
 	char							m_pstrFrameName[64];
 
-	//23.01.31
-	//CMesh							*m_pMesh = NULL;
-	//
-
 	int								m_nMaterials = 0;
 	CMaterial						**m_ppMaterials = NULL;
 
@@ -408,6 +404,10 @@ public:
 
 	//23.02.08
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
+	//
+
+	//23.01.05
+	BoundingOrientedBox			m_xmOOBB = BoundingOrientedBox();
 	//
 
 	//23.01.05

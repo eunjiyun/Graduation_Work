@@ -933,7 +933,9 @@ void CGameObject::Animate(float fTimeElapsed)
 
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
+
 }
+
 
 //23.02.08
 void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState)
@@ -1016,13 +1018,14 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 
 				if (m_ppMaterials[i])
 				{
+					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+
+
 					//23.01.06
 					pd3dCommandList->SetGraphicsRoot32BitConstant(ROOT_PARAMETER_CONSTANT, m_ppMaterials[i]->m_nMaterial, 0);
 					pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_CONSTANT, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
 					pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_CONSTANT, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
 					//
-
-					//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 
 				//23.01.13
@@ -1055,17 +1058,6 @@ void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLi
 {
 	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World,
 		XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-
-	//23.01.11
-	/*if (m_pMaterial)
-		m_pcbMappedGameObject->m_nMaterialID = m_pMaterial->m_nReflection;*/
-
-	//if (m_ppMaterials)
-	//{
-	//	//for(int i=0;i<m_nMaterials;++i)
-	//	m_pcbMappedGameObject->m_nMaterialID = m_ppMaterials[0]->m_nReflection;
-	//}
-	//
 
 	//23.01.05
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress =

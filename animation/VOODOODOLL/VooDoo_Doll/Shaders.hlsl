@@ -1,3 +1,6 @@
+#define MAX_MATERIALS		10 
+
+
 struct MATERIAL
 {
 	float4					m_cAmbient;
@@ -16,6 +19,7 @@ cbuffer cbCameraInfo : register(b1)
 cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix					gmtxGameObject : packoffset(c0);
+	//MATERIAL				gMaterial[MAX_MATERIALS] : packoffset(c4);
 	MATERIAL				gMaterial : packoffset(c4);
 	uint					gnTexturesMask : packoffset(c8);
 };

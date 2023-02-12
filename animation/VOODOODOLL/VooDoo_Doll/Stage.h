@@ -108,6 +108,9 @@ public:
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	//
 
+	void UpdateBoundingBox();
+	void CheckObjectByObjectCollisions();
+
 	CPlayer								*m_pPlayer = NULL;
 
 protected:
@@ -199,4 +202,11 @@ public:
 	//23.01.17
 	float						mpTime = 0.f;
 	//
+
+	//23.02.12
+	bool wakeUp = false;
+	//
+
+	BoundingBox			m_xmOOBB = BoundingBox();
+	XMFLOAT4X4					m_xmf4x4World = Matrix4x4::Identity();
 };

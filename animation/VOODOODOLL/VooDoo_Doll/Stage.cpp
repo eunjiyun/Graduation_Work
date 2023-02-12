@@ -27,7 +27,10 @@ CStage::~CStage()
 
 void CStage::BuildDefaultLightsAndMaterials()
 {
-	m_nLights = 5;
+	//23.02.12
+	//m_nLights = 5;
+	m_nLights = MAX_LIGHTSS;
+	//
 	m_pLights = new LIGHT[m_nLights];
 	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
 
@@ -79,6 +82,28 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[4].m_xmf4Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
 	m_pLights[4].m_xmf3Position = XMFLOAT3(600.0f, 250.0f, 700.0f);
 	m_pLights[4].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
+
+	for (int i = 5; i < MAX_LIGHTSS; ++i)
+	{
+		m_pLights[i].m_bEnable = false;
+		//m_pLights->m_pLights[i].m_bEnable =wakeUp;//
+		//m_pLights->m_pLights[5].m_nType = SPOT_LIGHT;
+		m_pLights[i].m_nType = POINT_LIGHT;
+		m_pLights[i].m_fRange = 120.0f;
+
+		m_pLights[i].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 5.0f);
+		m_pLights[i].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 7.0f);
+		m_pLights[i].m_xmf4Specular = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.0f);
+		//m_pLights->m_pLights[5].m_xmf3Position = XMFLOAT3(0.0f, 0.0f, -5.0f);
+		m_pLights[i].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
+		m_pLights[i].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+		m_pLights[i].m_fFalloff = 8.0f;
+		m_pLights[i].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
+		m_pLights[i].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
+
+		m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i - 5].x, mpObjVec[i - 5].y + 5, mpObjVec[i - 5].z);
+		//m_pLights->m_pLights[5].m_xmf3Position = pos;
+	}
 }
 
 
@@ -94,7 +119,7 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature , 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
-	BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
+	//BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 
 	//23.02.11
 	//m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);//스테이지 핸들에 엑세스
@@ -326,6 +351,7 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppShaders2[0] = pObjectShader;
 
+	BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 	//BuildLightsAndMaterials();
 	//
 
@@ -738,6 +764,10 @@ void CStage::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
+	m_pPlayer->boundingAnimate(fTimeElapsed);
+	m_ppShaders2[0]->AnimateObjects(fTimeElapsed);
+	UpdateBoundingBox();
+
 	//for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed);
 	//for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 
@@ -745,6 +775,11 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
+
+		//23.02.12
+		for (int i = 5; i < MAX_LIGHTSS; ++i)
+			m_pLights[i].m_bEnable = wakeUp;
+		//
 	}
 
 //**/
@@ -780,18 +815,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		mpTime = 0.f;
 	}
 
-	cout << "플레이어 위치 x : " << m_pPlayer->m_xmf4x4World._41 << endl;
-	cout << "플레이어 위치 y : " << m_pPlayer->m_xmf4x4World._42 << endl;
-	cout << "플레이어 위치 z : " << m_pPlayer->m_xmf4x4World._43 << endl << endl << endl;
-
-	cout << "몬스터 위치 x : " << m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41 << endl;
-	cout << "몬스터 위치 y : " << m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42 << endl;
-	cout << "몬스터 위치 z : " << m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43 << endl;
-
-	//플레이어 겟포지션에 문제있네 아왜
-
-	//m_ppHierarchicalGameObjects[5]
-	//
+	CheckObjectByObjectCollisions();
 }
 
 void CStage::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
@@ -816,6 +840,10 @@ void CStage::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
+
+	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbLightsGpuVirtualAddress); //Materials
+
+
 
 	
 	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList,m_pd3dGraphicsRootSignature,  m_pd3dPipelineState, pCamera);
@@ -962,3 +990,48 @@ void CStage::BuildLightsAndMaterials()
 	m_pMaterials->m_pReflections[15] = { XMFLOAT4(0.7f, 0.5f, 0.7f, 1.0f), XMFLOAT4(0.5f, 0.0f, 0.5f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 }
 //
+
+void CStage::UpdateBoundingBox()
+{
+	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
+	{
+		if (m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0])
+		{
+			m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));//(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+			//XMStoreFloat4(&m_xmOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBB.Orientation)));
+		}
+	}
+	
+}
+
+//23.01.13
+void CStage::CheckObjectByObjectCollisions()
+{
+	for (int i = 0; i < m_ppShaders2[0]->m_nObjects - 1; i++)
+	{
+		//m_ppShaders[0]->m_ppObjects[i]->m_pMesh->m_xmBoundingBox
+		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB))
+			//if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders[0]->m_ppObjects[i]->m_pMesh->m_xmBoundingBox))
+		{
+			//if(m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center==XMFLOAT3(0,0,0))
+			if (!(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x == 0 && m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y == 0 &&
+				m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z == 0))
+			{
+				m_pPlayer->m_pObjectCollided = m_ppShaders2[0]->m_ppObjects[i];
+				//m_ppShaders[i]->m_pObjectCollided = m_pPlayer;
+
+				XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
+				xmfsub = Vector3::Subtract(m_pPlayer->GetPosition(), xmfsub);
+
+				xmfsub = Vector3::Normalize(xmfsub);
+
+				xmfsub.x *= 2;
+				xmfsub.y *= 2;
+				xmfsub.z *= 2;
+
+				m_pPlayer->SetPosition(XMFLOAT3(m_pPlayer->GetPosition().x + xmfsub.x, m_pPlayer->GetPosition().y + xmfsub.y, m_pPlayer->GetPosition().z + xmfsub.z));
+			}
+		}
+	}
+}
+

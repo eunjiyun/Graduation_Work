@@ -31,12 +31,12 @@ struct LIGHT
 	float					padding;
 };
 
-//23.02.01
-cbuffer cbMaterial : register(b5)
-{
-	MATERIAL			gMaterials[MAX_MATERIALS];
-};
-//
+////23.02.01
+//cbuffer cbMaterial : register(b5)
+//{
+//	MATERIAL			gMaterials[MAX_MATERIALS];
+//};
+////
 
 cbuffer cbLights : register(b4)
 {
