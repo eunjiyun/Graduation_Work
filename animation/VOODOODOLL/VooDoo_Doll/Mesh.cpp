@@ -813,10 +813,15 @@ void CSkinnedMesh::ReleaseUploadBuffers()
 
 void CSkinnedMesh::PrepareSkinning(CGameObject *pModelRootObject)
 {
-	for (int j = 0; j < m_nSkinningBones; j++)
-	{
-		m_ppSkinningBoneFrameCaches[j] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[j]);
-	}
+	//23.02.13
+	//if (m_ppstrSkinningBoneNames)
+	//{
+		for (int j = 0; j < m_nSkinningBones; j++)
+		{
+			m_ppSkinningBoneFrameCaches[j] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[j]);
+		}
+	//}
+	//
 }
 
 void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, FILE *pInFile)

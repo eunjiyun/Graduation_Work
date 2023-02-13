@@ -139,7 +139,7 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	//23.02.11
 	//m_nHierarchicalGameObjects = 20;
-	m_nHierarchicalGameObjects = 6;
+	m_nHierarchicalGameObjects = 7;
 	//
 
 	m_ppHierarchicalGameObjects = new CGameObject*[m_nHierarchicalGameObjects];
@@ -230,7 +230,7 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	//23.02.11
 	//m_ppHierarchicalGameObjects[1]->SetPosition(310.0f, m_pTerrain->GetHeight(310.0f, 700.0f), 700.0f);//
-	m_ppHierarchicalGameObjects[1]->SetPosition(310.0f, 0.0f, 700.0f);//
+	m_ppHierarchicalGameObjects[1]->SetPosition(210.0f, 0.0f, 550.0f);//
 	//
 	m_ppHierarchicalGameObjects[1]->SetScale(0.51f, 0.51f, 0.51f);
 	if (pZebraModel2) delete pZebraModel2;
@@ -242,7 +242,12 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppHierarchicalGameObjects[2]->SetPosition(237.0f, m_pTerrain->GetHeight(237.0f, 667.0f), 667.0f);//
 	m_ppHierarchicalGameObjects[2]->SetPosition(237.0f, 0.0f, 667.0f);//
 	//
+
+	//23.02.13
 	m_ppHierarchicalGameObjects[2]->SetScale(0.31f, 0.31f, 0.31f);
+	//m_ppHierarchicalGameObjects[2]->SetScale(10.1f, 10.1f, 10.1f);
+	//
+
 	if (pZebraModel3) delete pZebraModel3;
 
 	CLoadedModelInfo* pZebraModel4 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo4.bin", NULL);//
@@ -250,9 +255,9 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	//23.02.11
 	//m_ppHierarchicalGameObjects[3]->SetPosition(226.0f, m_pTerrain->GetHeight(226.0f, 662.0f)-150, 662.0f);//
-	m_ppHierarchicalGameObjects[3]->SetPosition(226.0f,0.0f, 662.0f);//
+	m_ppHierarchicalGameObjects[3]->SetPosition(76.0f,0.0f, 192.0f);//
 	//
-	m_ppHierarchicalGameObjects[3]->SetScale(2.1f, 2.1f, 2.1f);
+	m_ppHierarchicalGameObjects[3]->SetScale(0.51f, 0.51f, 0.51f);
 	if (pZebraModel4) delete pZebraModel4;
 
 	CLoadedModelInfo* pZebraModel5 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL);
@@ -260,7 +265,7 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	//23.02.11
 	//m_ppHierarchicalGameObjects[4]->SetPosition(361.0f, m_pTerrain->GetHeight(361.0f, 641.0f), 641.0f);//
-	m_ppHierarchicalGameObjects[4]->SetPosition(361.0f, 0.0f, 641.0f);//
+	m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
 	//
 	m_ppHierarchicalGameObjects[4]->SetScale(0.51f, 0.51f, 0.51f);
 	if (pZebraModel5) delete pZebraModel5;
@@ -270,11 +275,21 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	//23.02.11
 	//m_ppHierarchicalGameObjects[5]->SetPosition(251.0f, m_pTerrain->GetHeight(251.0f, 698.0f)-150, 398.0f);//머리에 바늘있는 비실한 애
-	m_ppHierarchicalGameObjects[5]->SetPosition(251.0f, 0.0f, 398.0f);//머리에 바늘있는 비실한 애
+	m_ppHierarchicalGameObjects[5]->SetPosition(251.0f, 0.0f, 500.0f);//머리에 바늘있는 비실한 애
 	//
 	m_ppHierarchicalGameObjects[5]->SetScale(2.1f, 2.1f, 2.1f);
 	if (pZebraModel6) delete pZebraModel6;
 	//
+
+	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body.bin", NULL);//
+	m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
+	m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//23.02.11
+	//m_ppHierarchicalGameObjects[5]->SetPosition(251.0f, m_pTerrain->GetHeight(251.0f, 698.0f)-150, 398.0f);//캐릭터body
+	m_ppHierarchicalGameObjects[6]->SetPosition(37.0f, 0.0f, 300.0f);//캐릭터body
+	//
+	m_ppHierarchicalGameObjects[6]->SetScale(20.1f, 20.1f, 20.1f);
+	if (pZebraModel7) delete pZebraModel7;
 
 
 	//23.02.11
