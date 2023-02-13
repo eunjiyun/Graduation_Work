@@ -97,6 +97,8 @@ public:
 public:
 	CGameObject* m_pObjectCollided = NULL;
 	int c_id = -1;
+	bool recved_packet = false;
+	float cxDelta, cyDelta, czDelta = 0.0f;
 };
 
 class CAirplanePlayer : public CPlayer

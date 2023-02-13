@@ -183,6 +183,11 @@ void CPlayer::Update(float fTimeElapsed)
 	}
 	//
 
+	if (!recved_packet) {
+		Rotate(cxDelta, cyDelta, czDelta);
+		Move(m_xmf3Velocity, false);
+	}
+
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) 
 		m_pCamera->Update(m_xmf3Position, fTimeElapsed);

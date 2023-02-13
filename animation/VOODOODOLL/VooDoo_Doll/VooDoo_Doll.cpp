@@ -50,6 +50,7 @@ void GamePlayer_ProcessInput()
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
+	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
 	if (GetCapture() == gGameFramework.Get_HWNG())
 	{
 		::SetCursor(NULL);
@@ -70,20 +71,21 @@ void GamePlayer_ProcessInput()
 		if (cxDelta || cyDelta)
 		{
 			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
-				p.cxDelta = cyDelta;
-				p.cyDelta = 0.f;
-				p.czDelta = -cxDelta;
+				gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
+				gGameFramework.m_pPlayer->cyDelta = p.cyDelta = 0.f;
+				gGameFramework.m_pPlayer->czDelta = p.czDelta = -cxDelta;
 			}
 			else {
-				p.cxDelta = cyDelta;
-				p.cyDelta = cxDelta;
-				p.czDelta = 0.f;
+				gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
+				gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
+				gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
 			}
 			
 		}
 		
 		if (dwDirection) {
 			p.direction = dwDirection;
+			gGameFramework.m_pPlayer->Move(dwDirection, 0.5, true);
 		}
 
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
@@ -309,7 +311,6 @@ void ProcessPacket(char* ptr)
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		int id = packet->id;
 		//id = packet->id;
-		int id = packet->id;
 		cout << "client[" << packet->id << "] Accessed\n";
 		gGameFramework.CreateOtherPlayer(id, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
@@ -325,6 +326,7 @@ void ProcessPacket(char* ptr)
 		break;
 	}
 	case SC_MOVE_PLAYER: {
+		gGameFramework.m_pPlayer->recved_packet = true;
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
 		if (packet->id == gGameFramework.m_pPlayer->c_id) {
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
@@ -344,6 +346,7 @@ void ProcessPacket(char* ptr)
 					player->SetPosition(packet->Pos);
 					break;
 				}
+		gGameFramework.m_pPlayer->recved_packet = false;
 		break;
 	}
 	}
