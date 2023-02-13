@@ -473,51 +473,51 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 
 void CGameFramework::ProcessInput()
 {
-	//static UCHAR pKeysBuffer[256];
-	//bool bProcessedByStage = false;
-	//if (GetKeyboardState(pKeysBuffer) && m_pStage) bProcessedByStage = m_pStage->ProcessInput(pKeysBuffer);
-	//if (!bProcessedByStage)
-	//{
-	//	float cxDelta = 0.0f, cyDelta = 0.0f;
-	//	POINT ptCursorPos;
-	//	if (GetCapture() == m_hWnd)
-	//	{
-	//		SetCursor(NULL);
-	//		GetCursorPos(&ptCursorPos);
-	//		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-	//		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-	//		SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-	//	}
+	static UCHAR pKeysBuffer[256];
+	bool bProcessedByStage = false;
+	if (GetKeyboardState(pKeysBuffer) && m_pStage) bProcessedByStage = m_pStage->ProcessInput(pKeysBuffer);
+	if (!bProcessedByStage)
+	{
+		float cxDelta = 0.0f, cyDelta = 0.0f;
+		POINT ptCursorPos;
+		if (GetCapture() == m_hWnd)
+		{
+			SetCursor(NULL);
+			GetCursorPos(&ptCursorPos);
+			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		}
 
-	//	DWORD dwDirection = 0;
+		DWORD dwDirection = 0;
 
-	//	
-	//	if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
-	//	if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
-	//	if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
-	//	if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-	//	if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
-	//	if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
-	//	//
+		
+		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
+		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
+		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
+		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+		//
 
-	//	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-	//	{
-	//		if (cxDelta || cyDelta)
-	//		{
-	//			if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-	//				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-	//			else
-	//				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-	//		}
-	//		if (dwDirection) 
-	//			m_pPlayer->Move(dwDirection, 12.25f, true);
-	//	}
-	//}
-	//m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
-	//for (auto& player : Players) {
-	//	if (player->c_id > -1)
-	//		player->Update(m_GameTimer.GetTimeElapsed());
-	//}
+		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		{
+			if (cxDelta || cyDelta)
+			{
+				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+				else
+					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+			}
+			if (dwDirection) 
+				m_pPlayer->Move(dwDirection, 12.25f, true);
+		}
+	}
+	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	for (auto& player : Players) {
+		if (player->c_id > -1)
+			player->Update(m_GameTimer.GetTimeElapsed());
+	}
 }
 
 void CGameFramework::AnimateObjects()
