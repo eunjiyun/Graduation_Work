@@ -428,7 +428,9 @@ void CGameFramework::BuildObjects()
 	m_pCamera = m_pPlayer->GetCamera();
 	
 	for (int i = 0; i < 3; i++) {
-		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature());
+		//CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature());//0213 assertion failed
+		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), m_pStage->m_pTerrain);
+		
 		Players.push_back(pAirplanePlayer);
 	}
 
