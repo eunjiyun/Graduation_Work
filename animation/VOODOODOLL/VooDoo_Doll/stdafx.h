@@ -35,6 +35,9 @@
 
 using namespace std;
 
+#include <WS2tcpip.h>
+#pragma comment(lib, "WS2_32.LIB")
+
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>

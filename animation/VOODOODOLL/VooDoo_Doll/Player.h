@@ -90,7 +90,13 @@ public:
 	void		UpdateBoundingBox();
 	void		boundingAnimate(float fElapsedTime);
 
+	void SetLookVector(const XMFLOAT3& xmf3Look) { m_xmf3Look = xmf3Look; }
+	void SetUpVector(const XMFLOAT3& xmf3Up) { m_xmf3Up = xmf3Up; }
+	void SetRightVector(const XMFLOAT3& xmf3Right) { m_xmf3Right = xmf3Right; }
+
+public:
 	CGameObject* m_pObjectCollided = NULL;
+	int c_id = -1;
 };
 
 class CAirplanePlayer : public CPlayer

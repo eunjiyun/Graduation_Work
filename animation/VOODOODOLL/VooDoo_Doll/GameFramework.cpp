@@ -426,6 +426,11 @@ void CGameFramework::BuildObjects()
 	//
 
 	m_pCamera = m_pPlayer->GetCamera();
+	
+	for (int i = 0; i < 3; i++) {
+		CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature());
+		Players.push_back(pAirplanePlayer);
+	}
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -443,52 +448,74 @@ void CGameFramework::ReleaseObjects()
 {
 	if (m_pPlayer) m_pPlayer->Release();
 
+	for (auto& player : Players)
+		delete player;
+
 	if (m_pStage) m_pStage->ReleaseObjects();
 	if (m_pStage) delete m_pStage;
 }
 
+void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right)
+{
+	for (auto& player : Players)
+		if (player->c_id < 0) {
+			player->c_id = p_id;
+			player->SetPosition(Pos);
+			player->SetLookVector(Look);
+			player->SetUpVector(Up);
+			player->SetRightVector(Right);
+			cout << player->c_id << endl;
+			break;
+		}
+}
+
 void CGameFramework::ProcessInput()
 {
-	static UCHAR pKeysBuffer[256];
-	bool bProcessedByStage = false;
-	if (GetKeyboardState(pKeysBuffer) && m_pStage) bProcessedByStage = m_pStage->ProcessInput(pKeysBuffer);
-	if (!bProcessedByStage)
-	{
-		float cxDelta = 0.0f, cyDelta = 0.0f;
-		POINT ptCursorPos;
-		if (GetCapture() == m_hWnd)
-		{
-			SetCursor(NULL);
-			GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		}
+	//static UCHAR pKeysBuffer[256];
+	//bool bProcessedByStage = false;
+	//if (GetKeyboardState(pKeysBuffer) && m_pStage) bProcessedByStage = m_pStage->ProcessInput(pKeysBuffer);
+	//if (!bProcessedByStage)
+	//{
+	//	float cxDelta = 0.0f, cyDelta = 0.0f;
+	//	POINT ptCursorPos;
+	//	if (GetCapture() == m_hWnd)
+	//	{
+	//		SetCursor(NULL);
+	//		GetCursorPos(&ptCursorPos);
+	//		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+	//		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+	//		SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+	//	}
 
-		DWORD dwDirection = 0;
+	//	DWORD dwDirection = 0;
 
-		
-		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
-		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
-		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
-		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
-		//
+	//	
+	//	if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
+	//	if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
+	//	if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
+	//	if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+	//	if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
+	//	if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+	//	//
 
-		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-		{
-			if (cxDelta || cyDelta)
-			{
-				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
-					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-				else
-					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
-			}
-			if (dwDirection) m_pPlayer->Move(dwDirection, 12.25f, true);
-		}
-	}
-	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	//	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+	//	{
+	//		if (cxDelta || cyDelta)
+	//		{
+	//			if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+	//				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+	//			else
+	//				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+	//		}
+	//		if (dwDirection) 
+	//			m_pPlayer->Move(dwDirection, 12.25f, true);
+	//	}
+	//}
+	//m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	//for (auto& player : Players) {
+	//	if (player->c_id > -1)
+	//		player->Update(m_GameTimer.GetTimeElapsed());
+	//}
 }
 
 void CGameFramework::AnimateObjects()
@@ -498,6 +525,9 @@ void CGameFramework::AnimateObjects()
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
+	for (auto& player : Players)
+		if (player->c_id > -1)
+			player->Animate(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -532,7 +562,14 @@ void CGameFramework::FrameAdvance()
 {    
 	m_GameTimer.Tick(30.0f);
 	
-	ProcessInput();
+	//ProcessInput();
+
+	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	for (auto& player : Players) {
+		if (player->c_id > -1) {
+			player->Update(m_GameTimer.GetTimeElapsed());
+		}
+	}
 
     AnimateObjects();
 
@@ -572,6 +609,12 @@ void CGameFramework::FrameAdvance()
 	//
 
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
+
+	for (const auto& player : Players) {
+		if (player->c_id > -1) {
+			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		}
+	}
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

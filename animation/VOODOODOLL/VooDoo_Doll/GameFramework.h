@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Stage.h"
+#include <vector>
 
 class CGameFramework
 {
@@ -29,6 +30,12 @@ public:
 
     void BuildObjects();
     void ReleaseObjects();
+
+	// SERVER
+	void CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right);
+	HWND Get_HWNG() { return m_hWnd; }
+	LONG Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
+	LONG Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
 
     void ProcessInput();
     void AnimateObjects();
@@ -85,6 +92,7 @@ public:
 
 	CStage						*m_pStage = NULL;
 	CPlayer						*m_pPlayer = NULL;
+	vector<CPlayer*> Players;
 	CCamera						*m_pCamera = NULL;
 
 	POINT						m_ptOldCursorPos;
