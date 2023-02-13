@@ -353,7 +353,6 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//23.01.30
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];
-
 	CObjectsShader* pObjectShader = new CObjectsShader();
 
 
@@ -366,6 +365,16 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	m_ppShaders2[0] = pObjectShader;
 
+	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
+	{
+		//m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center = m_ppShaders[0]->m_ppObjects[i]->GetPosition();
+
+		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x;
+		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y + 6;
+		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z;
+
+		cout << "m_ppObjects : "<<i<<"번째'"<< m_ppShaders2[0]->m_ppObjects[i]->m_pstrName<<"			( "<< m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x << ",	"<< m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z<<"	)" << endl;
+	}
 	BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 	//BuildLightsAndMaterials();
 	//

@@ -148,7 +148,7 @@ public:
 	float								m_fElapsedTime = 0.0f;
 
 	int									m_nGameObjects = 0;
-	CGameObject							**m_ppGameObjects = NULL;
+	CGameObject				**m_ppGameObjects = NULL;
 
 	int									m_nHierarchicalGameObjects = 0;
 	CGameObject							**m_ppHierarchicalGameObjects = NULL;
@@ -159,21 +159,21 @@ public:
 	CShader								**m_ppShaders = NULL;
 
 	CSkyBox								*m_pSkyBox = NULL;
-	CHeightMapTerrain					*m_pTerrain = NULL;
+	CHeightMapTerrain		*m_pTerrain = NULL;
 
 	LIGHT								*m_pLights = NULL;
 	int									m_nLights = 0;
 
 	//23.01.30
-	LIGHTSS* m_pLights2 = NULL;
-	MATERIALS* m_pMaterials = NULL;
+	LIGHTSS*				m_pLights2 = NULL;
+	MATERIALS*			m_pMaterials = NULL;
 	//
 	//23.02.01
-	ID3D12Resource* m_pd3dcbMaterials = NULL;
-	MATERIAL* m_pcbMappedMaterials = NULL;
+	ID3D12Resource*		m_pd3dcbMaterials = NULL;
+	MATERIAL*				m_pcbMappedMaterials = NULL;
 
-	CShader** m_ppShaders2 = NULL;
-	int							m_nShaders2 = 0;
+	CShader**					m_ppShaders2 = NULL;
+	int								m_nShaders2 = 0;
 
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;
 	//

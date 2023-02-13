@@ -467,13 +467,6 @@ void CGameFramework::ProcessInput()
 
 		DWORD dwDirection = 0;
 
-		//23.01.27
-		/*if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeysBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeysBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;*/
 		
 		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s

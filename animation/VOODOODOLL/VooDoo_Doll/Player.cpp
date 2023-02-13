@@ -434,8 +434,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandLi
 	//SetPosition(XMFLOAT3(310.0f, pTerrain->GetHeight(310.0f, 590.0f), 590.0f));
 	//SetPosition(XMFLOAT3(310.0f, 0.0f, 590.0f));
 
-	SetPosition(XMFLOAT3(-3.944041f, 0, -2.04254f));
-	m_xmOOBB = BoundingOrientedBox(XMFLOAT3(-3.944041f, 0, -2.04254f), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	SetPosition(XMFLOAT3(0.f,0.f,0.f));
+	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 10, 10));
 	//
 
 	SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));

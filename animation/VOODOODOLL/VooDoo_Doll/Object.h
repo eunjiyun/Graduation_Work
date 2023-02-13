@@ -407,7 +407,7 @@ public:
 	//
 
 	//23.01.05
-	BoundingOrientedBox			m_xmOOBB = BoundingOrientedBox();
+	BoundingBox			m_xmOOBB = BoundingBox();
 	//
 
 	//23.01.05

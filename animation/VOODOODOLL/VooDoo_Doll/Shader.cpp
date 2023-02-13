@@ -889,6 +889,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
 
+	mpObjVec.resize(1000);
+
 	//23.01.13
 	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, m_nObjects, 1);
@@ -905,9 +907,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			m_ppObjects[i]->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 			//
 
-			m_ppObjects[i]->m_xmOOBB = BoundingOrientedBox(XMFLOAT3(
-				m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().y, m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
-
+		
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp1")
 				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2")
 
