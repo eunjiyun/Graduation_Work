@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="00.GameFramework">
+      <UniqueIdentifier>{a1515e85-50f9-4301-b048-cfd9e0bbdeeb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.GameObject">
+      <UniqueIdentifier>{b48756a7-3bb0-474e-b32b-0a83dee71ddc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.GameObject\00.Player">
+      <UniqueIdentifier>{96772ce5-75e4-46f9-83e5-25fcaac70788}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.GameObject\01.Monster">
+      <UniqueIdentifier>{725cd814-b910-467b-82dd-464e420979d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.Mesh">
+      <UniqueIdentifier>{acc34275-07e3-42aa-b26f-38b04d008c95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Scene">
+      <UniqueIdentifier>{327bb4a1-71a6-4357-be85-647e0ea0e3d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Scene\00.Login">
+      <UniqueIdentifier>{51e8af4c-e822-490e-8781-2403622c7680}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Scene\01.Stage">
+      <UniqueIdentifier>{5306254e-67b5-4470-91d7-91c51092232c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Shader">
+      <UniqueIdentifier>{a285c6fc-5a5f-4226-91c4-9da0ff184e17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="05.Texture">
+      <UniqueIdentifier>{86e564cb-d76b-4c7d-9177-575b008f724a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06.Camera">
+      <UniqueIdentifier>{cf726f47-733c-4109-8ba9-ac67b86ceeff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="07.Timer">
+      <UniqueIdentifier>{5459aabc-aff8-4931-93cb-40161daa6013}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="VooDoo_Doll.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SERVER.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>00.GameFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>01.GameObject\00.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>02.Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Login.h">
+      <Filter>03.Scene\00.Login</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage.h">
+      <Filter>03.Scene\01.Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>04.Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>05.Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader12.h">
+      <Filter>05.Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>06.Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>07.Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>01.GameObject\01.Monster</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VooDoo_Doll.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>00.GameFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>01.GameObject\00.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>02.Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Login.cpp">
+      <Filter>03.Scene\00.Login</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage.cpp">
+      <Filter>03.Scene\01.Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>04.Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>05.Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader12.cpp">
+      <Filter>05.Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>06.Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>07.Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>01.GameObject\01.Monster</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VooDoo_Doll.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="VooDoo_Doll.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Light.hlsl" />
+    <FxCompile Include="Shaders.hlsl" />
+  </ItemGroup>
+</Project>
