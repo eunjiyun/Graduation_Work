@@ -64,10 +64,6 @@ extern HINSTANCE						ghAppInstance;
 #define FRAME_BUFFER_WIDTH				640
 #define FRAME_BUFFER_HEIGHT				480
 
-//23.01.13
-//#define MAX_LIGHTS				8 
-#define MAX_LIGHTSS				76//5+72
-//
 
 #define MAX_MATERIALS			8 
 

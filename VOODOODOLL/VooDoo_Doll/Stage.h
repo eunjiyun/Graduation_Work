@@ -10,7 +10,7 @@
 #define MAX_LIGHTS						16 
 
 //23.02.06
-#define MAX_LIGHTSS						76
+//#define MAX_LIGHTSS						76
 //
 
 #define POINT_LIGHT						1
@@ -41,13 +41,13 @@ struct LIGHTS
 	int									m_nLights;
 };
 
-//23.02.02
-struct LIGHTSS
-{
-	LIGHT					m_pLights[MAX_LIGHTSS];
-	XMFLOAT4				m_xmf4GlobalAmbient;
-};
-//
+////23.02.02
+//struct LIGHTSS
+//{
+//	LIGHT					m_pLights[MAX_LIGHTSS];
+//	XMFLOAT4				m_xmf4GlobalAmbient;
+//};
+////
 
 //23.01.30
 struct MATERIAL
@@ -165,7 +165,7 @@ public:
 	int									m_nLights = 0;
 
 	//23.01.30
-	LIGHTSS*				m_pLights2 = NULL;
+	//LIGHTSS*				m_pLights2 = NULL;
 	MATERIALS*			m_pMaterials = NULL;
 	//
 	//23.02.01
