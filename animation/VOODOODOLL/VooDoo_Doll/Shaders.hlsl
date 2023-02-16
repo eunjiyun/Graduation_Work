@@ -19,30 +19,9 @@ cbuffer cbCameraInfo : register(b1)
 cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix					gmtxGameObject : packoffset(c0);
-	//MATERIAL				gMaterial[MAX_MATERIALS] : packoffset(c4);
 	MATERIAL				gMaterial : packoffset(c4);
 	uint					gnTexturesMask : packoffset(c8);
 };
-
-//23.02.01
-cbuffer cbGameObjectsInfo : register(b6)
-{
-	matrix		gmtxxGameObject : packoffset(c0);
-	uint		gnObjectID : packoffset(c4);
-	//uint		gnMaterials : packoffset(c8);
-	//MATERIAL				gMaterial : packoffset(c8);
-};
-//
-
-//23.01.06
-cbuffer cbConstantsInfo : register(b3)
-{
-	int			gnMaterial : packoffset(c0.x);
-	float4		gcAlbedoColor : packoffset(c1);
-	float4		gcEmissionColor : packoffset(c2);
-};
-//
-
 
 #include "Light.hlsl"
 
@@ -239,80 +218,34 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-struct VS_SKYBOX_CUBEMAP_INPUT
-{
-	float3 position : POSITION;
-};
-
-struct VS_SKYBOX_CUBEMAP_OUTPUT
-{
-	float3	positionL : POSITION;
-	float4	position : SV_POSITION;
-};
-
-VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
-{
-	VS_SKYBOX_CUBEMAP_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	output.positionL = input.position;
-
-	return(output);
-}
-
-TextureCube gtxtSkyCubeTexture : register(t13);
-SamplerState gssClamp : register(s1);
-
-float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
-{
-	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
-
-	return(cColor);
-}
-
-//23.01.13
-struct VS_INPUT
-{
-	float3 position : POSITION;
-	float3 normal : NORMAL;
-};
-
-struct VS_OUTPUT
-{
-	float4 positionH : SV_POSITION;
-	float3 positionW : POSITION;
-	float3 normalW : NORMAL;
-#ifdef _WITH_VERTEX_LIGHTING
-	float4 color : COLOR;
-#endif
-};
-
-VS_OUTPUT VSLighting(VS_INPUT input)
-{
-	VS_OUTPUT output;
-
-	output.positionW = mul(float4(input.position, 1.0f), gmtxxGameObject).xyz;
-	output.positionH = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	float3 normalW = mul(input.normal, (float3x3)gmtxxGameObject);
-#ifdef _WITH_VERTEX_LIGHTING
-	output.color = Lighting(output.positionW, normalize(normalW));
-	output.color = float4(0.5f * normalize(gvCameraPosition - output.positionW) + 0.5f, 1.0f);
-#else
-	output.normalW = normalW;
-#endif
-
-	return(output);
-}
-
-float4 PSLighting(VS_OUTPUT input) : SV_TARGET
-{
-#ifdef _WITH_VERTEX_LIGHTING
-	//	return(float4(input.positionW, 1.0f));
-		return(input.color);
-	#else
-		float3 normalW = normalize(input.normalW);
-		float4 cIllumination = Lighting(input.positionW, normalW);
-		return(cIllumination * gcAlbedoColor + gcEmissionColor);
-	#endif
-}
+//struct VS_SKYBOX_CUBEMAP_INPUT
+//{
+//	float3 position : POSITION;
+//};
 //
+//struct VS_SKYBOX_CUBEMAP_OUTPUT
+//{
+//	float3	positionL : POSITION;
+//	float4	position : SV_POSITION;
+//};
+//
+//VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
+//{
+//	VS_SKYBOX_CUBEMAP_OUTPUT output;
+//
+//	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+//	output.positionL = input.position;
+//
+//	return(output);
+//}
+//
+//TextureCube gtxtSkyCubeTexture : register(t13);
+//SamplerState gssClamp : register(s1);
+//
+//float4 PSSkyBox(VS_SKYBOX_CUBEMAP_OUTPUT input) : SV_TARGET
+//{
+//	float4 cColor = gtxtSkyCubeTexture.Sample(gssClamp, input.positionL);
+//
+//	return(cColor);
+//}
+

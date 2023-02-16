@@ -71,10 +71,8 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	{
 		for (int i = 0; i < m_nRootParameters; i++)
 		{
-			//cout << "스카이 박스 핸들 ptr : " << m_pd3dSrvGpuDescriptorHandles[i].ptr << endl << endl << endl;
-
 			//23.02.10
-			//pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);//0211오류
+			pd3dCommandList->SetGraphicsRootDescriptorTable(m_pnRootParameterIndices[i], m_pd3dSrvGpuDescriptorHandles[i]);//0211오류
 			//
 		}
 	}
@@ -276,12 +274,36 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 
 void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader)
 {
+
+	
+
 	char pstrTextureName[64] = { '\0' };
 
 	BYTE nStrLength = 64;
 	UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 	nReads = (UINT)::fread(pstrTextureName, sizeof(char), nStrLength, pInFile);
 	pstrTextureName[nStrLength] = '\0';
+
+	//23.02.16
+	//Model/Textures/
+	//CString strString = _T("");
+	//if (pstrTextureName!="default_body")
+	/*	pwstrTextureName = (_TCHAR*)(LPCTSTR)_T("Model/Textures/default_body.dds");
+		pstrTextureName[0]='d';
+		pstrTextureName[1] = 'e';
+		pstrTextureName[2] = 'f';
+		pstrTextureName[3] = 'a';
+		pstrTextureName[4] = 'u';
+		pstrTextureName[5] = 'l';
+		pstrTextureName[6] = 't';
+		pstrTextureName[7] = '_';
+		pstrTextureName[8] = 'b';
+		pstrTextureName[9] = 'o';
+		pstrTextureName[10] = 'd';
+		pstrTextureName[11] = 'y';*/
+		//pwstrTextureName[64] = { '\0' };
+		//strcpy_s(pwstrTextureName, 64, _T("Model/Textures/"));
+	//
 
 	bool bDuplicated = false;
 	if (strcmp(pstrTextureName, "null"))
@@ -729,29 +751,6 @@ CGameObject::CGameObject(int nMaterials) : CGameObject()
 	//
 }
 
-////23.01.31
-//CGameObject::CGameObject(int* ptr,int nMeshes)
-//{
-//	m_xmf4x4World = Matrix4x4::Identity();
-//
-//	m_nMeshes = nMeshes;
-//	m_ppMeshes = NULL;
-//	if (m_nMeshes > 0)
-//	{
-//		m_ppMeshes = new CMesh * [m_nMeshes];
-//		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
-//	}
-//
-//	//23.01.05
-//	m_nMaterials = nMeshes;
-//	m_ppMaterials = new CMaterial * [m_nMaterials];
-//	for (UINT i = 0; i < m_nMaterials; i++) m_ppMaterials[i] = NULL;
-//
-//	//m_xmf4x4World = Matrix4x4::Identity();
-//	//
-//}
-////
-
 CGameObject::~CGameObject()
 {
 	//23.01.31
@@ -968,15 +967,11 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
 	CCamera* pCamera)
 {
-	//23.02.08
-	//onPrepareRender( pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState);
-	//
-
 	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
 	if (m_ppMeshes)
 	{
-		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);//0216 여기서 행렬값 변경
 
 		if (m_nMaterials > 0)
 		{
@@ -1003,10 +998,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
 	CCamera* pCamera, bool choose)
 {
-	//23.01.28
-	//OnPrepareRender(pd3dCommandList, pCamera);
-	//
-
 	//23.01.11
 	if (m_ppMeshes && m_ppMaterials)
 		//
@@ -1027,19 +1018,24 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 
 			m_ppMeshes[0]->OnPreRender(pd3dCommandList);
 
+			//UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);//0216 여기서 행렬값 변경
+			XMFLOAT4X4 xmf4x4World;
+			XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+
 			for (UINT i = 0; i < m_nMaterials; i++)
 			{
 
 				if (m_ppMaterials[i])
 				{
-					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+					//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 
+					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4AmbientColor, 16);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 20);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4SpecularColor, 24);
+					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4EmissiveColor, 28);
 
-					//23.01.06
-					pd3dCommandList->SetGraphicsRoot32BitConstant(ROOT_PARAMETER_CONSTANT, m_ppMaterials[i]->m_nMaterial, 0);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_CONSTANT, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 4);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(ROOT_PARAMETER_CONSTANT, 4, &m_ppMaterials[i]->m_xmf4EmissionColor, 8);
-					//
+					//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1,&m_ppMaterials[i]->m_nType, 32);
 				}
 
 				//23.01.13
@@ -1060,7 +1056,7 @@ void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLi
 	
 }
 
-void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
+void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)//0216 여기서 행렬값 변경
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
@@ -1076,13 +1072,6 @@ void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandLi
 	//23.01.05
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress =
 		m_pd3dcbGameObject->GetGPUVirtualAddress();
-	//23.01.27
-	//pd3dCommandList->SetGraphicsRootConstantBufferView(1, d3dGpuVirtualAddress);
-	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_OBJECT, d3dGpuVirtualAddress);//gameObject
-
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(ROOT_PARAMETER_OBJECT, m_d3dCbvGPUDescriptorHandle);
-	//
-	//
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, CMaterial* pMaterial)
@@ -1333,6 +1322,8 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		}
 		else if (!strcmp(pstrToken, "<AlbedoMap>:"))
 		{
+			//const TCHAR* arMajor[] = { TEXT("경영학과"), TEXT("국문학과"),TEXT("영문학과") ,TEXT("법학과") };
+			//pMaterial->m_ppstrTextureNames[0] = _T("Model/Textures/default_body.dds");
 			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader);
 		}
 		else if (!strcmp(pstrToken, "<SpecularMap>:"))

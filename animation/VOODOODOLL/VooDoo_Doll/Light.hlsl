@@ -31,12 +31,6 @@ struct LIGHT
 	float					padding;
 };
 
-////23.02.01
-//cbuffer cbMaterial : register(b5)
-//{
-//	MATERIAL			gMaterials[MAX_MATERIALS];
-//};
-////
 
 cbuffer cbLights : register(b4)
 {
@@ -45,13 +39,6 @@ cbuffer cbLights : register(b4)
 	int						gnLights;
 };
 
-////23.02.06
-//cbuffer cbLightss : register(b9)
-//{
-//	LIGHT				gLightss[MAX_LIGHTSS];
-//	float4				gcGlobalAmbientLights;
-//};
-////
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera)
 {

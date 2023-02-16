@@ -169,7 +169,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 	}
 
-	recv_t->join();
+	//recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 

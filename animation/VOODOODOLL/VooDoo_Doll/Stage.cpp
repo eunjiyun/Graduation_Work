@@ -28,7 +28,6 @@ CStage::~CStage()
 void CStage::BuildDefaultLightsAndMaterials()
 {
 	//23.02.12
-	//m_nLights = 5;
 	m_nLights = MAX_LIGHTSS;
 	//
 	m_pLights = new LIGHT[m_nLights];
@@ -267,7 +266,8 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//m_ppHierarchicalGameObjects[4]->SetPosition(361.0f, m_pTerrain->GetHeight(361.0f, 641.0f), 641.0f);//
 	m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
 	//
-	m_ppHierarchicalGameObjects[4]->SetScale(0.51f, 0.51f, 0.51f);
+	//m_ppHierarchicalGameObjects[4]->SetScale(0.51f, 0.51f, 0.51f);
+	m_ppHierarchicalGameObjects[4]->SetScale(50.f, 50.1f,50.f);
 	if (pZebraModel5) delete pZebraModel5;
 
 	CLoadedModelInfo* pZebraModel6 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL);//
@@ -286,7 +286,9 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	//23.02.11
 	//m_ppHierarchicalGameObjects[5]->SetPosition(251.0f, m_pTerrain->GetHeight(251.0f, 698.0f)-150, 398.0f);//캐릭터body
-	m_ppHierarchicalGameObjects[6]->SetPosition(37.0f, 0.0f, 300.0f);//캐릭터body
+	//m_ppHierarchicalGameObjects[6]->SetPosition(37.0f, 0.0f, 300.0f);//캐릭터body
+	//m_ppHierarchicalGameObjects[6]->SetPosition(237.0f, 0.0f, 500.0f);//캐릭터body
+	m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
 	//
 	m_ppHierarchicalGameObjects[6]->SetScale(20.1f, 20.1f, 20.1f);
 	if (pZebraModel7) delete pZebraModel7;
@@ -330,10 +332,10 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	//if (pEagleModel) delete pEagleModel;
 	//
 
-	//23.02.08
-	m_ppHierarchicalGameObjects[0]->m_d3dCbvGPUDescriptorHandle = m_d3dCbvGPUDescriptorStartHandle;
-	m_ppHierarchicalGameObjects[0]->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;//여기서 디스크립터힙 주소 넘겨줍니다
-	//
+	////23.02.08
+	//m_ppHierarchicalGameObjects[0]->m_d3dCbvGPUDescriptorHandle = m_d3dCbvGPUDescriptorStartHandle;
+	//m_ppHierarchicalGameObjects[0]->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;//여기서 디스크립터힙 주소 넘겨줍니다
+	////
 
 ///*
 	//23.02.11
@@ -367,18 +369,13 @@ void CStage::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
-		//m_ppShaders[0]->m_ppObjects[i]->m_xmOOBB.Center = m_ppShaders[0]->m_ppObjects[i]->GetPosition();
-
 		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x;
 		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y + 6;
 		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z;
-
-		//cout << "m_ppObjects : "<<i<<"번째'"<< m_ppShaders2[0]->m_ppObjects[i]->m_pstrName<<"			( "<< m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x << ",	"<< m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z<<"	)" << endl;
 	}
 	BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 	//BuildLightsAndMaterials();
 	//
-
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -414,6 +411,19 @@ void CStage::ReleaseObjects()
 		delete[] m_ppHierarchicalGameObjects;
 	}
 
+	//23.02.16
+	if (m_ppShaders2)
+	{
+		for (int i = 0; i < m_nShaders2; i++)
+		{
+			m_ppShaders2[i]->ReleaseShaderVariables();
+			m_ppShaders2[i]->ReleaseObjects();
+			m_ppShaders2[i]->Release();
+		}
+		delete[] m_ppShaders2;
+	}
+	//
+
 	ReleaseShaderVariables();
 
 	if (m_pLights) delete[] m_pLights;
@@ -423,7 +433,7 @@ ID3D12RootSignature *CStage::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[8];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -485,15 +495,7 @@ ID3D12RootSignature *CStage::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	//pd3dDescriptorRanges[9].RegisterSpace = 0;
 	//pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//23.02.01
-	pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	pd3dDescriptorRanges[8].NumDescriptors = 1;
-	pd3dDescriptorRanges[8].BaseShaderRegister = 6; //b6: Game Objects2//수정
-	pd3dDescriptorRanges[8].RegisterSpace = 0;
-	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-	//
-
-	D3D12_ROOT_PARAMETER pd3dRootParameters[16];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[13];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -574,37 +576,6 @@ ID3D12RootSignature *CStage::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[9]);
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;*/
 
-	//23.02.01
-	pd3dRootParameters[13].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[13].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[13].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[8]; //Game Objects
-	pd3dRootParameters[13].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	
-
-	pd3dRootParameters[14].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[14].Descriptor.ShaderRegister = 5; //Materials
-	pd3dRootParameters[14].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	//
-	
-
-	//23.01.06
-	pd3dRootParameters[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[15].Constants.Num32BitValues = 12;
-	pd3dRootParameters[15].Constants.ShaderRegister = 3; //Constants
-	pd3dRootParameters[15].Constants.RegisterSpace = 0;
-	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	//
-
-
-	//23.02.06
-	//pd3dRootParameters[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	//pd3dRootParameters[15].Descriptor.ShaderRegister = 9; //Lights2
-	//pd3dRootParameters[15].Descriptor.RegisterSpace = 0;
-	//pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	//
-
-
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -658,20 +629,6 @@ void CStage::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsComma
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbLights->Map(0, NULL, (void **)&m_pcbMappedLights);
-
-	//23.02.01
-	UINT ncbMaterialBytes = ((sizeof(MATERIALS) + 255) & ~255); //256의 배수
-	m_pd3dcbMaterials = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbMaterialBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
-	m_pd3dcbMaterials->Map(0, NULL, (void**)&m_pcbMappedMaterials); 
-	//
-
-	////23.02.06
-	//UINT ncbElementBytes2 = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
-	//m_pd3dcbLights2 = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes2, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
-	//m_pd3dcbLights2->Map(0, NULL, (void**)&m_pcbMappedLights2);
-	////
 }
 
 void CStage::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
@@ -688,14 +645,6 @@ void CStage::ReleaseShaderVariables()
 		m_pd3dcbLights->Unmap(0, NULL);
 		m_pd3dcbLights->Release();
 	}
-
-	////23.02.06
-	//if (m_pd3dcbLights2)
-	//{
-	//	m_pd3dcbLights2->Unmap(0, NULL);
-	//	m_pd3dcbLights2->Release();
-	//}
-	////
 }
 
 void CStage::ReleaseUploadBuffers()
@@ -706,6 +655,10 @@ void CStage::ReleaseUploadBuffers()
 	//for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	//for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nHierarchicalGameObjects; i++) m_ppHierarchicalGameObjects[i]->ReleaseUploadBuffers();
+
+	//23.02.16
+	for (int i = 0; i < m_nShaders2; i++) m_ppShaders2[i]->ReleaseUploadBuffers();
+	//
 }
 
 void CStage::CreateCbvSrvDescriptorHeaps(ID3D12Device *pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
@@ -847,10 +800,10 @@ void CStage::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 	if (m_pd3dGraphicsRootSignature) 
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-	//23.02.02
-	if (m_pd3dPipelineState) 
-		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
-	//
+	////23.02.02
+	//if (m_pd3dPipelineState) 
+	//	pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+	////
 
 	//23.02.07
 	if (m_pd3dCbvSrvDescriptorHeap) 
@@ -864,10 +817,6 @@ void CStage::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
-
-	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbLightsGpuVirtualAddress); //Materials
-
-
 
 	
 	//if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList,m_pd3dGraphicsRootSignature,  m_pd3dPipelineState, pCamera);
@@ -888,19 +837,6 @@ void CStage::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 			m_ppHierarchicalGameObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature,  m_pd3dPipelineState, pCamera);
 		}
 	}
-
-	//23.01.06
-
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();//
-	//23.01.08
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbMaterialsGpuVirtualAddress); //Materials//
-	//
-
-	//D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress2 = m_pd3dcbLights2->GetGPUVirtualAddress();
-	////23.01.08
-	////pd3dCommandList->SetGraphicsRootConstantBufferView(3, d3dcbLightsGpuVirtualAddress); //Lights
-	//pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress2); //Lights
-	////
 
 	m_ppShaders2[0]->Render2(pd3dCommandList, pCamera, m_d3dCbvGPUDescriptorHandle);//
 }

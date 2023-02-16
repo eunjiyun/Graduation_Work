@@ -91,10 +91,10 @@ extern HINSTANCE						ghAppInstance;
 #define ROOT_PARAMETER_LIGHT			2
 #define ROOT_PARAMETER_BONEOFFSET       11
 #define ROOT_PARAMETER_BONETRANSFORM    12
-#define ROOT_PARAMETER_OBJECT			13
-#define ROOT_PARAMETER_MATERIAL			14
-#define ROOT_PARAMETER_CONSTANT         15
-#define ROOT_PARAMETER_LIGHTS			16
+//#define ROOT_PARAMETER_OBJECT			13
+#define ROOT_PARAMETER_MATERIAL			13
+//#define ROOT_PARAMETER_CONSTANT         15
+//#define ROOT_PARAMETER_LIGHTS			16
 //
 
 #pragma comment(lib, "d3dcompiler.lib")
