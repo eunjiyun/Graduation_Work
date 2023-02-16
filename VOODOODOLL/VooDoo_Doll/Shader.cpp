@@ -211,7 +211,7 @@ void CShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGr
 }
 
 
-void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList,bool choose, int nPipelineState)
+void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)
 {
 	//if(true==choose)
 	//	if (m_pd3dGraphicsRootSignature) 
@@ -226,10 +226,10 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList,bool ch
 
 //23.02.06
 //void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
-void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, bool choose,void* pContext)
+void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
 //
 {
-	OnPrepareRender(pd3dCommandList,choose);
+	OnPrepareRender(pd3dCommandList);
 	//23.02.06
 	UpdateShaderVariables(pd3dCommandList, pContext);
 	//
@@ -966,14 +966,14 @@ void CObjectsShader::ReleaseUploadBuffers()
 #endif
 }
 
-void CObjectsShader::Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, D3D12_GPU_DESCRIPTOR_HANDLE handle)// , void* pContext)
+void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)// , D3D12_GPU_DESCRIPTOR_HANDLE handle)// , void* pContext)
 {
-	CShader::Render(pd3dCommandList, pCamera,true);
+	CShader::Render(pd3dCommandList, pCamera);
 
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		if (m_ppObjects[j]) 
-			m_ppObjects[j]->Render(pd3dCommandList,  m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera,false);//
+			m_ppObjects[j]->Render(pd3dCommandList,  m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);//
 	}
 }
 //

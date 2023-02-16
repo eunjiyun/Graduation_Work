@@ -838,7 +838,7 @@ void CStage::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera
 		}
 	}
 
-	m_ppShaders2[0]->Render2(pd3dCommandList, pCamera, m_d3dCbvGPUDescriptorHandle);//
+	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);// , m_d3dCbvGPUDescriptorHandle);//
 }
 
 //23.01.30

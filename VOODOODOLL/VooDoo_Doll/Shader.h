@@ -52,11 +52,11 @@ public:
 
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World) { }
 
-	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList,bool choose,  int nPipelineState=0);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState=0);
 
 	//23.02.06
 	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,bool choose, void* pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,void* pContext = NULL);
 	//
 
 	virtual void ReleaseUploadBuffers() { }
@@ -271,7 +271,7 @@ public:
 
 	virtual void ReleaseUploadBuffers();
 
-	virtual void Render2(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, D3D12_GPU_DESCRIPTOR_HANDLE handle);// , void* pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext = NULL);// , D3D12_GPU_DESCRIPTOR_HANDLE handle);// , void* pContext = NULL);
 
 public:
 	//23.01.05

@@ -138,7 +138,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 
 	//23.02.13
 	//if(pShaderResource)
-		d3dResourceDesc = pShaderResource->GetDesc();
+	d3dResourceDesc = pShaderResource->GetDesc();
 	//
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc;
@@ -250,7 +250,7 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_pSkinnedAnimationShader = new CSkinnedAnimationStandardShader();
-	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature , nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -265,7 +265,7 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 
 	for (int i = 0; i < m_nTextures; i++)
 	{
-		if (m_ppTextures[i]) 
+		if (m_ppTextures[i])
 			m_ppTextures[i]->UpdateShaderVariables(pd3dCommandList);
 
 		//		if (m_ppTextures[i]) m_ppTextures[i]->UpdateShaderVariable(pd3dCommandList, 0, 0);
@@ -275,7 +275,7 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter, _TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader)
 {
 
-	
+
 
 	char pstrTextureName[64] = { '\0' };
 
@@ -568,10 +568,10 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
 	{
 		m_ppd3dcbSkinningBoneTransforms[i] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-		
+
 		//23.02.13
 		//if(m_ppcbxmf4x4MappedSkinningBoneTransforms[0])
-			m_ppd3dcbSkinningBoneTransforms[i]->Map(0, NULL, (void**)&m_ppcbxmf4x4MappedSkinningBoneTransforms[i]);
+		m_ppd3dcbSkinningBoneTransforms[i]->Map(0, NULL, (void**)&m_ppcbxmf4x4MappedSkinningBoneTransforms[i]);
 		//
 	}
 }
@@ -910,8 +910,8 @@ CGameObject* CGameObject::FindFrame(char* pstrFrameName)
 
 	//23.02.13
 	//if (pstrFrameName)
-		if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName)))
-			return(this);
+	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName)))
+		return(this);
 	//
 
 	if (m_pSibling) if (pFrameObject = m_pSibling->FindFrame(pstrFrameName)) return(pFrameObject);
@@ -954,9 +954,9 @@ void CGameObject::Animate(float fTimeElapsed)
 void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState)
 {
 	if (m_pd3dGraphicsRootSignature)
-			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);//23.02.06 오류
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);//23.02.06 오류
 
-	if(m_pd3dPipelineState)
+	if (m_pd3dPipelineState)
 		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
 
 	if (m_pd3dCbvSrvDescriptorHeap)
@@ -967,7 +967,8 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
 	CCamera* pCamera)
 {
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
+	if (m_pSkinnedAnimationController)
+		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
 	if (m_ppMeshes)
 	{
@@ -979,73 +980,22 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 			{
 				if (m_ppMaterials[i])
 				{
-					if (m_ppMaterials[i]->m_pShader) 
-						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera,false);
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, false);
 
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
 				}
 
-				m_ppMeshes[0]->Render(pd3dCommandList, i);
+				m_ppMeshes[0]->Render(pd3dCommandList, i, i);
 			}
 		}
 	}
 
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	if (m_pSibling) 
+		m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	if (m_pChild) 
+		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
-
-//23.02.02
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
-	CCamera* pCamera, bool choose)
-{
-	//23.01.11
-	if (m_ppMeshes && m_ppMaterials)
-		//
-	{
-		//23.01.13
-		//player32BIT
-		if (m_ppMaterials[0]->m_pShader)
-		{
-		}
-		//
-
-		//23.01.28
-		else
-		{
-			if (m_pd3dcbGameObject && m_pcbMappedGameObject)
-				UpdateShaderVariables(pd3dCommandList,0);
-
-
-			m_ppMeshes[0]->OnPreRender(pd3dCommandList);
-
-			//UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);//0216 여기서 행렬값 변경
-			XMFLOAT4X4 xmf4x4World;
-			XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-			pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
-
-			for (UINT i = 0; i < m_nMaterials; i++)
-			{
-
-				if (m_ppMaterials[i])
-				{
-					//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
-
-					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4AmbientColor, 16);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4AlbedoColor, 20);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4SpecularColor, 24);
-					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_ppMaterials[i]->m_xmf4EmissiveColor, 28);
-
-					//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1,&m_ppMaterials[i]->m_nType, 32);
-				}
-
-				//23.01.13
-				m_ppMeshes[0]->Render2(pd3dCommandList, i);
-			}
-		}
-		//
-	}
-}
-//
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -1053,7 +1003,7 @@ void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Graphics
 
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	
+
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)//0216 여기서 행렬값 변경
@@ -1532,8 +1482,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			break;
 		}
-	}
-}
+				}
+			}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader)
 {
@@ -1592,8 +1542,8 @@ void CGameObject::SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color)
 			m_ppMaterials[nIndex]->AddRef();
 		}
 		m_ppMaterials[nIndex]->SetAlbedoColor(xmf4Color);
+		}
 	}
-}
 
 void CGameObject::SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color)
 {
@@ -1661,7 +1611,7 @@ CHeightMapTerrain::~CHeightMapTerrain(void)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 CSkyBox::CSkyBox(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature//) : CGameObject(1)
-,UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat) : CGameObject(1)
+	, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat) : CGameObject(1)
 {
 	CSkyBoxMesh* pSkyBoxMesh = new CSkyBoxMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 2.0f);
 
@@ -1692,7 +1642,7 @@ CSkyBox::~CSkyBox()
 {
 }
 
-void CSkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList,  ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
+void CSkyBox::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
 {
 	XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
 	SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
@@ -1943,7 +1893,7 @@ CLionObject::~CLionObject()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CZebraObject::CZebraObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, 
+CZebraObject::CZebraObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel,
 	int nAnimationTracks, bool choose)
 {
 	CLoadedModelInfo* pZebraModel = pModel;
@@ -1975,7 +1925,7 @@ CZebraObject::CZebraObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		break;
 	}
 	//
-	
+
 
 	SetChild(pZebraModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pZebraModel);

@@ -109,13 +109,12 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, int nSubSet, UINT nSubset);
 	virtual void OnPostRender(ID3D12GraphicsCommandList *pd3dCommandList, void *pContext);
 
 	//23.01.05
 	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
 	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render2(ID3D12GraphicsCommandList* pd3dCommandList, UINT nSubset);
 	//
 };
 
