@@ -924,7 +924,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				mpObjVec.push_back(tmp);
 			}
 
-			cout << "objName " << i << " : " << m_ppObjects[i]->m_pstrName << endl;
+			/*cout << "objName " << i << " : " << m_ppObjects[i]->m_pstrName << endl;*/
 		}
 	}
 
