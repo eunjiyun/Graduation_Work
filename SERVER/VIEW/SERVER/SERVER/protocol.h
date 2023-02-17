@@ -4,7 +4,7 @@ constexpr int PORT_NUM = 3500;
 constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
 
-constexpr int MAX_USER = 4;
+constexpr int MAX_USER = 10000;
 
 constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
@@ -37,7 +37,6 @@ struct CS_MOVE_PACKET {
 	DWORD	direction = 0;
 	short	id;
 	float cxDelta, cyDelta, czDelta;
-	//unsigned	move_time;
 };
 
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
@@ -71,12 +70,6 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	XMFLOAT3 Look, Up, Right, Pos;
-	//DWORD direction;
-	//short	x, y, z;
-	//short look_x, look_y, look_z;
-	//short up_x, up_y, up_z;
-	//short right_x, right_y, right_z;
-	//unsigned int move_time;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 

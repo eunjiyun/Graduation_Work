@@ -15,7 +15,7 @@ using namespace std;
 class MonsterPool : public CMemoryPool<MonsterPool>
 {
 private:
-	XMFLOAT3 pos;
+	XMFLOAT3 Look, Up, Right, Pos;
 	short HP;
 	short view_range;
 public:
@@ -25,11 +25,14 @@ public:
 
 
 
+
 array<SESSION, MAX_USER> clients;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
 CGameTimer m_GameTimer;
+MapObject** m_ppObjects = 0;
+int m_nObjects = 0;
 
 void SESSION::send_move_packet(int c_id)
 {
@@ -41,9 +44,6 @@ void SESSION::send_move_packet(int c_id)
 	p.Right = clients[c_id].GetRightVector();
 	p.Up = clients[c_id].GetUpVector();
 	p.Pos = clients[c_id].GetPosition();
-	//p.direction = clients[c_id].direction;
-	//p.Velocity = clients[c_id].m_xmf3Velocity;
-	//p.move_time = clients[c_id]._last_move_time;
 	do_send(&p);
 }
 
@@ -54,13 +54,25 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	add_packet.Pos = clients[c_id].m_xmf3Position;
 
 	add_packet.Look = clients[c_id].m_xmf3Look;
 	add_packet.Right = clients[c_id].m_xmf3Right;
 	add_packet.Up = clients[c_id].m_xmf3Up;
 	do_send(&add_packet);
 }
+
+void SESSION::CheckCollisionByMap()
+{
+	for (int i = 0; i < m_nObjects; ++i)
+	{
+		if (m_xmOOBB.Intersects(m_ppObjects[i]->m_xmOOBB)) {
+			XMFLOAT3 xmfsub = m_ppObjects[i]->GetPosition();
+			xmfsub = Vector3::Subtract(m_xmf3Position, xmfsub);
+			SetPosition(XMFLOAT3(m_xmf3Position.x + xmfsub.x, m_xmf3Position.y + xmfsub.y, m_xmf3Position.z + xmfsub.z));
+		}
+	}
+}
+
 int get_new_client_id()
 {
 	for (int i = 0; i < MAX_USER; ++i) {
@@ -99,11 +111,7 @@ void process_packet(int c_id, char* packet)
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-		clients[c_id].Move(p->direction, 12.25, true);
-		//for (auto& cl : clients) {
-		//	if (cl._state != ST_INGAME) continue;
-		//	cl.send_move_packet(c_id);
-		//}
+		clients[c_id].Move(p->direction, 7.0f, true);
 	}
 	}
 }
@@ -212,6 +220,7 @@ void update_thread()
 			lock_guard <mutex> ll{ clients[i]._s_lock };
 			if (clients[i]._state != ST_INGAME) continue;
 			clients[i].Update(m_GameTimer.GetTimeElapsed());
+
 			for (auto& cl : clients) {
 				cl.send_move_packet(clients[i]._id);
 			}
@@ -222,6 +231,7 @@ void update_thread()
 
 int main()
 {
+	m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
 	HANDLE h_iocp;
 
 	WSADATA WSAData;

@@ -4,6 +4,8 @@
 #include <cassert>
 #include <memory>
 #include <vector>
+#include "stdafx.h"
+
 
 using namespace std;
 typedef unsigned char UCHAR;
@@ -73,3 +75,170 @@ UCHAR* CMemoryPool<T, MEMORY_DEFAULT_SIZE>::mPoolPointer = nullptr;
 
 template <class T, size_t MEMORY_DEFAULT_SIZE>
 vector<UCHAR*> CMemoryPool<T, MEMORY_DEFAULT_SIZE>::m_pointerForRelease;
+
+
+class MapObject : public CMemoryPool<MapObject>
+{
+public:
+    XMFLOAT4X4 m_xmf4x4World;
+    char						m_pstrName[64] = { '\0' };
+    BoundingOrientedBox			m_xmOOBB = BoundingOrientedBox();
+
+    MapObject(int nMaterials) { m_xmf4x4World = Matrix4x4::Identity(); }
+    XMFLOAT3 GetPosition()
+    {
+        return(XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43));
+    }
+    XMFLOAT3 GetLook()
+    {
+        return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._31, m_xmf4x4World._32, m_xmf4x4World._33)));
+    }
+    XMFLOAT3 GetUp()
+    {
+        return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._21, m_xmf4x4World._22, m_xmf4x4World._23)));
+    }
+    XMFLOAT3 GetRight()
+    {
+        return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
+    }
+    void SetMaterial(UINT nIndex, UINT nReflection)
+    {
+
+    }
+    void SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color)
+    {
+
+    }
+    void SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color)
+    {
+
+    }
+};
+
+
+void LoadMeshFromFile(MapObject& obj, char* pstrFileName)
+{
+    FILE* pFile = NULL;
+    ::fopen_s(&pFile, pstrFileName, "rb");
+    ::rewind(pFile);
+
+    char pstrToken[64] = { '\0' };
+
+    BYTE nStrLength = 0;
+    UINT nReads = 0;
+
+    while (!::feof(pFile))
+    {
+        nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+        if (nReads == 0) break;
+        nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile);
+        pstrToken[nStrLength] = '\0';
+
+        if (!strcmp(pstrToken, "<BoundingBox>:"))
+        {
+            nReads = (UINT)::fread(&obj.m_xmOOBB.Center, sizeof(float), 3, pFile);
+            nReads = (UINT)::fread(&obj.m_xmOOBB.Extents, sizeof(float), 3, pFile);
+            break;
+        }
+    }
+
+
+    ::fclose(pFile);
+}
+MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
+{
+    FILE* pFile = NULL;
+    ::fopen_s(&pFile, pstrFileName, "rb");
+    ::rewind(pFile);
+
+    char pstrToken[64] = { '\0' };
+    char pstrGameObjectName[64] = { '\0' };
+    char pstrFilePath[64] = { '\0' };
+
+    BYTE nStrLength = 0, nObjectNameLength = 0;
+    UINT nReads = 0, nMaterials = 0;
+    size_t nConverted = 0;
+
+    nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+    nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile); //"<GameObjects>:"
+    nReads = (UINT)::fread(pnGameObjects, sizeof(int), 1, pFile);
+
+    MapObject** ppGameObjects = new MapObject * [*pnGameObjects];
+
+    MapObject* pGameObject = NULL, * pObjectFound = NULL;
+    for (int i = 0; i < *pnGameObjects; i++)
+    {
+        nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+        nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile); //"<GameObject>:"
+        nReads = (UINT)::fread(&nObjectNameLength, sizeof(BYTE), 1, pFile);
+        nReads = (UINT)::fread(pstrGameObjectName, sizeof(char), nObjectNameLength, pFile);
+        pstrGameObjectName[nObjectNameLength] = '\0';
+
+        nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+        nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile); //"<Materials>:"
+        nReads = (UINT)::fread(&nMaterials, sizeof(int), 1, pFile);
+
+
+        pGameObject = new MapObject(nMaterials);
+        strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
+
+        //MapObject* pObjectFound = NULL;
+        //for (int j = 0; j < i; j++)
+        //{
+        //	if (!strcmp(pstrGameObjectName, ppGameObjects[j]->m_pstrName))
+        //	{
+        //		pObjectFound = ppGameObjects[j];
+        //		////23.01.03
+        //		//ppGameObjects[j]->m_pMesh->m_xmBoundingBox.Center = ppGameObjects[j]->GetPosition();
+        //		////
+
+        //		//23.01.11
+        //		//pGameObject->SetMesh(ppGameObjects[j]->m_pMesh);
+        //		pGameObject->SetMesh(0, ppGameObjects[j]->m_ppMeshes[0]);
+        //		//
+        //		for (UINT k = 0; k < nMaterials; k++)
+        //		{
+        //			pGameObject->SetMaterial(k, ppGameObjects[j]->m_ppMaterials[k]);
+        //		}
+
+        //		break;
+        //	}
+        //}
+
+
+        XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+        XMFLOAT4 xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+        for (UINT k = 0; k < nMaterials; k++)
+        {
+           // if (!pObjectFound) pGameObject->SetMaterial(k, rand() % MAX_Scene_MATERIALS);
+
+            nReads = (UINT)::fread(&xmf4AlbedoColor, sizeof(float), 4, pFile);
+
+            //if (!pObjectFound) pGameObject->SetAlbedoColor(k, xmf4AlbedoColor);
+
+            nReads = (UINT)::fread(&xmf4EmissionColor, sizeof(float), 4, pFile);
+           // if (!pObjectFound) pGameObject->SetEmissionColor(k, xmf4EmissionColor);
+        }
+
+        nReads = (UINT)::fread(&pGameObject->m_xmf4x4World, sizeof(float), 16, pFile);
+
+        if (!pObjectFound)
+        {
+            strcpy_s(pstrFilePath, 64, "Models/");
+            strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
+            strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
+
+            LoadMeshFromFile(*pGameObject, pstrFilePath);
+            pGameObject->m_xmOOBB.Center.x = pGameObject->GetPosition().x;
+            pGameObject->m_xmOOBB.Center.y = pGameObject->GetPosition().y;
+            pGameObject->m_xmOOBB.Center.z = pGameObject->GetPosition().z;
+        }
+
+        
+        ppGameObjects[i] = pGameObject;
+    }
+
+    ::fclose(pFile);
+
+    return(ppGameObjects);
+}

@@ -53,6 +53,8 @@ using namespace std;
 #define SPOT_LIGHT				2
 #define DIRECTIONAL_LIGHT		3
 
+#define MAX_Scene_MATERIALS		16 
+
 #define DIR_FORWARD				0x01
 #define DIR_BACKWARD			0x02
 #define DIR_LEFT				0x04
@@ -61,9 +63,16 @@ using namespace std;
 #define DIR_DOWN				0x20
 
 //23.01.19
-#define FIRST_FLOOR				5
+#define FIRST_FLOOR				0
 #define SECOND_FLOOR			370
 #define FLOOR_SIZE				370
+
+
+#define ANIMATION_TYPE_ONCE				0
+#define ANIMATION_TYPE_LOOP				1
+#define ANIMATION_TYPE_PINGPONG			2
+
+#define ANIMATION_CALLBACK_EPSILON		0.00165f
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -187,74 +196,74 @@ namespace Vector3
 	}
 }
 
-//namespace Vector4
-//{
-//	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
-//	{
-//		XMFLOAT4 xmf4Result;
-//		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
-//		return(xmf4Result);
-//	}
-//}
-//
-//namespace Matrix4x4
-//{
-//	inline XMFLOAT4X4 Identity()
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixIdentity());
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMMATRIX& xmmtxMatrix2)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * xmmtxMatrix2);
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 Multiply(XMMATRIX& xmmtxMatrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 Inverse(XMFLOAT4X4& xmmtx4x4Matrix)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixInverse(NULL, XMLoadFloat4x4(&xmmtx4x4Matrix)));
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 Transpose(XMFLOAT4X4& xmmtx4x4Matrix)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixTranspose(XMLoadFloat4x4(&xmmtx4x4Matrix)));
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 PerspectiveFovLH(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ));
-//		return(xmmtx4x4Result);
-//	}
-//
-//	inline XMFLOAT4X4 LookAtLH(XMFLOAT3& xmf3EyePosition, XMFLOAT3& xmf3LookAtPosition, XMFLOAT3& xmf3UpDirection)
-//	{
-//		XMFLOAT4X4 xmmtx4x4Result;
-//		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
-//		return(xmmtx4x4Result);
-//	}
-//}
+namespace Vector4
+{
+	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
+		return(xmf4Result);
+	}
+}
+
+namespace Matrix4x4
+{
+	inline XMFLOAT4X4 Identity()
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixIdentity());
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMMATRIX& xmmtxMatrix2)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * xmmtxMatrix2);
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Multiply(XMMATRIX& xmmtxMatrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Inverse(XMFLOAT4X4& xmmtx4x4Matrix)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixInverse(NULL, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Transpose(XMFLOAT4X4& xmmtx4x4Matrix)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixTranspose(XMLoadFloat4x4(&xmmtx4x4Matrix)));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 PerspectiveFovLH(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 LookAtLH(XMFLOAT3& xmf3EyePosition, XMFLOAT3& xmf3LookAtPosition, XMFLOAT3& xmf3UpDirection)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
+		return(xmmtx4x4Result);
+	}
+}
 //
 //namespace Triangle
 //{

@@ -44,6 +44,7 @@ public:
 	DWORD direction;
 	char	_name[NAME_SIZE];
 	int		_prev_remain;
+	BoundingOrientedBox m_xmOOBB;
 	//int		_last_move_time;
 public:
 	SESSION()
@@ -64,6 +65,7 @@ public:
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
+		m_xmOOBB = BoundingOrientedBox(m_xmf3Position, XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	~SESSION() {}
@@ -163,6 +165,11 @@ public:
 		}
 	}
 
+	void UpdateBoundingBox()
+	{
+		m_xmOOBB.Center = m_xmf3Position;
+	}
+
 	void Update(float fTimeElapsed)
 	{
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
@@ -204,6 +211,9 @@ public:
 			m_xmf3Position.y = FIRST_FLOOR;
 			SetPosition(m_xmf3Position);
 		}
+
+		UpdateBoundingBox();
+		CheckCollisionByMap();
 	}
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
@@ -213,6 +223,8 @@ public:
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+
+	void CheckCollisionByMap();
 	
 };
 
