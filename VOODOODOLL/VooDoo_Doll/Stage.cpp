@@ -187,7 +187,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		//바운딩박스 중심값과 익스텐츠 값 확인하는 주석
 		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z << endl;
 		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z << endl;
-		
+
 	}
 	BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 	//BuildLightsAndMaterials();
@@ -616,20 +616,10 @@ void CStage::UpdateBoundingBox()
 	{
 		if (m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes)
 		{
-<<<<<<< Updated upstream
 			m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Transform(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));//(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
 			//XMStoreFloat4(&m_xmOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBB.Orientation)));
-
-
-
 		}
 	}
-=======
-			m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));//(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
-		}
-	}
-
->>>>>>> Stashed changes
 }
 
 void CStage::CheckObjectByObjectCollisions()
@@ -638,27 +628,9 @@ void CStage::CheckObjectByObjectCollisions()
 	{
 		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB))
 		{
-<<<<<<< Updated upstream
 			cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌해따요" << endl;
-=======
-			if (!(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x == 0 && m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y == 0 &&
-				m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z == 0))
-			{
-				m_pPlayer->m_pObjectCollided = m_ppShaders2[0]->m_ppObjects[i];
-
-				XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
-				xmfsub = Vector3::Subtract(m_pPlayer->GetPosition(), xmfsub);
-
-				xmfsub = Vector3::Normalize(xmfsub);
-
-				xmfsub.x *= 2;
-				xmfsub.y *= 2;
-				xmfsub.z *= 2;
-
-				m_pPlayer->SetPosition(XMFLOAT3(m_pPlayer->GetPosition().x + xmfsub.x, m_pPlayer->GetPosition().y + xmfsub.y, m_pPlayer->GetPosition().z + xmfsub.z));
-			}
->>>>>>> Stashed changes
 		}
 	}
 }
+
 
