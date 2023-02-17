@@ -349,7 +349,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 				pObjectFound = ppGameObjects[j];
 
 				pGameObject->SetMesh(0, ppGameObjects[j]->m_ppMeshes[0]);
-				
+
 				for (UINT k = 0; k < nMaterials; k++)
 				{
 					pGameObject->SetMaterial(k, ppGameObjects[j]->m_ppMaterials[k]);
@@ -363,7 +363,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		for (UINT k = 0; k < nMaterials; k++)
 		{
-			if (!pObjectFound) pGameObject->SetMaterial(k, rand() % MAX_Scene_MATERIALS); 
+			if (!pObjectFound) pGameObject->SetMaterial(k, rand() % MAX_Scene_MATERIALS);
 
 			nReads = (UINT)::fread(&xmf4AlbedoColor, sizeof(float), 4, pFile);
 			if (!pObjectFound) pGameObject->SetAlbedoColor(k, xmf4AlbedoColor);

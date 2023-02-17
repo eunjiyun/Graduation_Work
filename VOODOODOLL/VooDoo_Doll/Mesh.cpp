@@ -9,13 +9,11 @@
 CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
-//23.01.05
 CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
 	if (pstrFileName)
 		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName);
 }
-//
 
 CMesh::~CMesh()
 {
@@ -98,7 +96,6 @@ void CMesh::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pCont
 {
 }
 
-//23.01.05
 void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
 #ifdef _WITH_TEXT_MESH
@@ -223,9 +220,7 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_pd3dIndexBufferViews[i].SizeInBytes = sizeof(UINT) * m_pnSubSetIndices2[i];
 	}
 }
-//
 
-//23.02.02
 void CMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);
@@ -817,15 +812,10 @@ void CSkinnedMesh::ReleaseUploadBuffers()
 
 void CSkinnedMesh::PrepareSkinning(CGameObject* pModelRootObject)
 {
-	//23.02.13
-	//if (m_ppstrSkinningBoneNames)
-	//{
 	for (int j = 0; j < m_nSkinningBones; j++)
 	{
 		m_ppSkinningBoneFrameCaches[j] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[j]);
 	}
-	//}
-	//
 }
 
 void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* pInFile)
