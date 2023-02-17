@@ -151,12 +151,17 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
+
 	float fMaxVelocityY = m_fMaxVelocityY;
 	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
+
+	//if (!recved_packet) {
+		Rotate(cxDelta, cyDelta, czDelta);
+		Move(xmf3Velocity, false);
+	//}
 
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
@@ -180,10 +185,10 @@ void CPlayer::Update(float fTimeElapsed)
 		SetPosition(m_xmf3Position);
 	}
 
-	if (!recved_packet) {
-		Rotate(cxDelta, cyDelta, czDelta);
-		Move(m_xmf3Velocity, false);
-	}
+	//if (!recved_packet) {
+	//	Rotate(cxDelta, cyDelta, czDelta);
+	//	Move(m_xmf3Velocity, false);
+	//}
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)
@@ -200,7 +205,7 @@ void CPlayer::Update(float fTimeElapsed)
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-	cout << m_xmf3Velocity.x << ", " << m_xmf3Velocity.y << ", " << m_xmf3Velocity.z << endl;
+	
 }
 
 CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
@@ -478,13 +483,13 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
-		SetFriction(250.0f);
+		SetFriction(20.0f);
 		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
-		SetMaxVelocityXZ(300.0f);
-		SetMaxVelocityY(400.0f);
+		SetMaxVelocityXZ(10.0f);
+		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, -50.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, -50.0f));
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);

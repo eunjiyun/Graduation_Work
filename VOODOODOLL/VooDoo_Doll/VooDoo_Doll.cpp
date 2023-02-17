@@ -86,7 +86,7 @@ void GamePlayer_ProcessInput()
 
 		if (dwDirection) {
 			p.direction = dwDirection;
-			gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
+			gGameFramework.m_pPlayer->Move(dwDirection, 1.0, true);
 		}
 
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);

@@ -58,14 +58,14 @@ public:
 		m_xmf3Right = { 1.f,0.f,0.f };
 		m_xmf3Gravity = { 0.f, -250.f, 0.f };
 		m_fPitch = m_fYaw = m_fRoll = 0.f;
-		m_fMaxVelocityY = 400.f;
-		m_fMaxVelocityXZ = 300.f;
-		m_fFriction = 250.f;
+		m_fMaxVelocityY = 100.f;
+		m_fMaxVelocityXZ = 10.f;
+		m_fFriction = 20.f;
 		direction = 0;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingOrientedBox(m_xmf3Position, XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+		m_xmOOBB = BoundingOrientedBox(m_xmf3Position, XMFLOAT3(1, 1, 1), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 	}
 
 	~SESSION() {}
@@ -217,7 +217,6 @@ public:
 		if (fDeceleration > fLength)fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-		cout << m_xmf3Velocity.x << ", " << m_xmf3Velocity.y << ", " << m_xmf3Velocity.z << endl;
 		UpdateBoundingBox();
 		CheckCollisionByMap();
 	}

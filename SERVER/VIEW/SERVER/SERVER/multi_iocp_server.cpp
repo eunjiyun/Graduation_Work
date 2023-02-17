@@ -111,7 +111,7 @@ void process_packet(int c_id, char* packet)
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id].direction = p->direction;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-		clients[c_id].Move(p->direction, 7.0f, true);
+		clients[c_id].Move(p->direction, 1.0f, true);
 	}
 	}
 }
