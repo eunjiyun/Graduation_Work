@@ -51,15 +51,15 @@ public:
 	{
 		_id = -1;
 		_socket = 0;
-		m_xmf3Position = { 0.f,5.f,0.f };
+		m_xmf3Position = { 0.f,0.f,0.f };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		m_xmf3Gravity = { 0.f, -20.f, 0.f };
+		m_xmf3Gravity = { 0.f, -250.f, 0.f };
 		m_fPitch = m_fYaw = m_fRoll = 0.f;
 		m_fMaxVelocityY = 400.f;
-		m_fMaxVelocityXZ = 125.f;
+		m_fMaxVelocityXZ = 300.f;
 		m_fFriction = 250.f;
 		direction = 0;
 		_name[0] = 0;
@@ -135,6 +135,7 @@ public:
 		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+
 	}
 	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	{
@@ -172,27 +173,25 @@ public:
 
 	void Update(float fTimeElapsed)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity, fTimeElapsed, false));
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		float fMaxVelocityXZ = m_fMaxVelocityXZ * fTimeElapsed;
+		float fMaxVelocityXZ = m_fMaxVelocityXZ;
 		if (fLength > m_fMaxVelocityXZ)
 		{
 			m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
 			m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 		}
-		float fMaxVelocityY = m_fMaxVelocityY * fTimeElapsed;
+		float fMaxVelocityY = m_fMaxVelocityY;
 		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
 		if (fLength > m_fMaxVelocityY)m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
-		Move(m_xmf3Velocity, false);
+		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+		Move(xmf3Velocity, false);
 
-		fLength = Vector3::Length(m_xmf3Velocity);
-		float fDeceleration = (m_fFriction * fTimeElapsed);
-		if (fDeceleration > fLength)fDeceleration = fLength;
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
 
 		//23.01.19
-		if (m_xmf3Position.y > SECOND_FLOOR - 5 && m_xmf3Position.y < FLOOR_SIZE * 2)
+		if (m_xmf3Position.y > SECOND_FLOOR && m_xmf3Position.y < FLOOR_SIZE * 2)
 		{
 			if (m_xmf3Position.y < SECOND_FLOOR)
 			{
@@ -212,6 +211,13 @@ public:
 			SetPosition(m_xmf3Position);
 		}
 
+		Move(m_xmf3Velocity, false);
+		fLength = Vector3::Length(m_xmf3Velocity);
+		float fDeceleration = (m_fFriction * fTimeElapsed);
+		if (fDeceleration > fLength)fDeceleration = fLength;
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+
+		cout << m_xmf3Velocity.x << ", " << m_xmf3Velocity.y << ", " << m_xmf3Velocity.z << endl;
 		UpdateBoundingBox();
 		CheckCollisionByMap();
 	}

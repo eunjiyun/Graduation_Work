@@ -86,7 +86,7 @@ void GamePlayer_ProcessInput()
 
 		if (dwDirection) {
 			p.direction = dwDirection;
-			gGameFramework.m_pPlayer->Move(dwDirection, 12.25, true);
+			gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 		}
 
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
@@ -94,7 +94,6 @@ void GamePlayer_ProcessInput()
 			cout << "Move_Packet Error\n";
 	}
 
-	gGameFramework.m_pPlayer->Update(gGameFramework.m_GameTimer.GetTimeElapsed());
 
 }
 
@@ -170,7 +169,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 	}
 
-	//recv_t->join();
+	recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 
