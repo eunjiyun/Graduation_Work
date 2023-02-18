@@ -211,14 +211,14 @@ public:
 			SetPosition(m_xmf3Position);
 		}
 
-		Move(m_xmf3Velocity, false);
+
 		fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength)fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
 		UpdateBoundingBox();
-		CheckCollisionByMap();
+
 	}
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }

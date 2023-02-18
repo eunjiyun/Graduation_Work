@@ -159,8 +159,9 @@ void CPlayer::Update(float fTimeElapsed)
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
 	//if (!recved_packet) {
-		Rotate(cxDelta, cyDelta, czDelta);
-		Move(xmf3Velocity, false);
+	Rotate(cxDelta, cyDelta, czDelta);
+	Move(xmf3Velocity, false);
+
 	//}
 
 	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
@@ -185,10 +186,7 @@ void CPlayer::Update(float fTimeElapsed)
 		SetPosition(m_xmf3Position);
 	}
 
-	//if (!recved_packet) {
-	//	Rotate(cxDelta, cyDelta, czDelta);
-	//	Move(m_xmf3Velocity, false);
-	//}
+
 
 	DWORD nCurrentCameraMode = m_pCamera->GetMode();
 	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)
@@ -451,7 +449,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 
 	SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
-	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 10, 10));
+	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(5, 5, 5));
 
 	SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 

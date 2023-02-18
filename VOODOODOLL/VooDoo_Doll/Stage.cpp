@@ -1,4 +1,3 @@
-//-----------------------------------------------------------------------------
 // File: CStage.cpp
 //-----------------------------------------------------------------------------
 
@@ -628,9 +627,37 @@ void CStage::CheckObjectByObjectCollisions()
 	{
 		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB))
 		{
+			XMFLOAT3 ReflectVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i]);
+			m_pPlayer->Move(ReflectVec, false);
+			//XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
+			//XMFLOAT3 Xmf3Position = m_pPlayer->GetPosition();
+			//xmfsub = Vector3::Subtract(Xmf3Position, xmfsub);
+			//m_pPlayer->SetPosition(XMFLOAT3(Xmf3Position.x + xmfsub.x, Xmf3Position.y + xmfsub.y, Xmf3Position.z + xmfsub.z));
 			cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌해따요" << endl;
+			break;
 		}
 	}
+}
+
+XMFLOAT3 CStage::GetReflectVec(CGameObject* obj)
+{
+	XMFLOAT3 ReflectVec{ 0,0,0 };
+	BoundingBox PlayerBB = m_pPlayer->m_xmOOBB, ObjBB = obj->m_xmOOBB;
+	if (PlayerBB.Center.x > ObjBB.Center.x)
+		ReflectVec.x = (PlayerBB.Extents.x + ObjBB.Extents.x) - (PlayerBB.Center.x - ObjBB.Center.x);
+	else
+		ReflectVec.x = (ObjBB.Center.x - PlayerBB.Center.x) - (PlayerBB.Extents.x + ObjBB.Extents.x);
+
+	//if (PlayerBB.Center.x > ObjBB.Center.x)
+	//	ReflectVec.x = (PlayerBB.Extents.x + ObjBB.Extents.x) - (PlayerBB.Center.x - ObjBB.Center.x);
+	//else
+	//	ReflectVec.x = (ObjBB.Center.x - PlayerBB.Center.x) - (PlayerBB.Extents.x + ObjBB.Extents.x);
+
+	if (PlayerBB.Center.z > ObjBB.Center.z)
+		ReflectVec.z = (PlayerBB.Extents.z + ObjBB.Extents.z) - (PlayerBB.Center.z - ObjBB.Center.z);
+	else
+		ReflectVec.z = (ObjBB.Center.z - PlayerBB.Center.z) - (PlayerBB.Extents.z + ObjBB.Extents.z);
+	return ReflectVec;
 }
 
 

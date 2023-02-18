@@ -68,7 +68,7 @@ void GamePlayer_ProcessInput()
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
-
+		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		if (cxDelta || cyDelta)
 		{
 			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
@@ -114,40 +114,40 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
 
-	//#pragma region SERVER
-	//
-	//	WSADATA WSAData;
-	//	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-	//	if (ErrorStatus != 0)
-	//	{
-	//		cout << "WSAStartup 실패\n";
-	//	}
-	//	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-	//	if (s_socket == INVALID_SOCKET)
-	//	{
-	//		cout << "소켓 생성 실패\n";
-	//	}
-	//
-	//
-	//	// 서버와 연결
-	//	SOCKADDR_IN svr_addr;
-	//	memset(&svr_addr, 0, sizeof(svr_addr));
-	//	svr_addr.sin_family = AF_INET;
-	//	svr_addr.sin_port = htons(SERVER_PORT);
-	//	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
-	//	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
-	//	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
-	//
-	//	// 서버에게 자신의 정보를 패킷으로 전달
-	//	CS_LOGIN_PACKET p;
-	//	p.size = sizeof(CS_LOGIN_PACKET);
-	//	p.type = CS_LOGIN;
-	//	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-	//	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-	//
-	//	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-	//	//send_t = new thread{ GamePlayer_ProcessInput };
-	//#pragma endregion 
+	#pragma region SERVER
+	
+		WSADATA WSAData;
+		int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+		if (ErrorStatus != 0)
+		{
+			cout << "WSAStartup 실패\n";
+		}
+		s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+		if (s_socket == INVALID_SOCKET)
+		{
+			cout << "소켓 생성 실패\n";
+		}
+	
+	
+		// 서버와 연결
+		SOCKADDR_IN svr_addr;
+		memset(&svr_addr, 0, sizeof(svr_addr));
+		svr_addr.sin_family = AF_INET;
+		svr_addr.sin_port = htons(SERVER_PORT);
+		inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+		ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+		if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+	
+		// 서버에게 자신의 정보를 패킷으로 전달
+		CS_LOGIN_PACKET p;
+		p.size = sizeof(CS_LOGIN_PACKET);
+		p.type = CS_LOGIN;
+		ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+	
+		recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+		//send_t = new thread{ GamePlayer_ProcessInput };
+	#pragma endregion 
 
 
 	while (1)
@@ -163,13 +163,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			//GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
+			GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
+			//gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
 
-	//recv_t->join();
+	recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 
@@ -327,16 +327,13 @@ void ProcessPacket(char* ptr)
 		break;
 	}
 	case SC_MOVE_PLAYER: {
-		gGameFramework.m_pPlayer->recved_packet = true;
+		//gGameFramework.m_pPlayer->recved_packet = true;
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
 		if (packet->id == gGameFramework.m_pPlayer->c_id) {
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
 			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
-			//cout << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
-			//gGameFramework.m_pPlayer->Move(packet->direction, 150.0f * gGameFramework.m_GameTimer.GetTimeElapsed(), true);
-			//gGameFramework.m_pPlayer->GetCamera()->SetLookAt(gGameFramework.m_pPlayer->GetPosition());
 		}
 		else
 			for (auto& player : gGameFramework.Players)
@@ -344,10 +341,10 @@ void ProcessPacket(char* ptr)
 					player->SetLookVector(packet->Look);
 					player->SetUpVector(packet->Up);
 					player->SetRightVector(packet->Right);
-					player->SetPosition(packet->Pos);
+					player->SetPosition(packet->Pos);				
 					break;
 				}
-		gGameFramework.m_pPlayer->recved_packet = false;
+		//gGameFramework.m_pPlayer->recved_packet = false;
 		break;
 	}
 	}

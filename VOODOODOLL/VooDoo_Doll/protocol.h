@@ -38,6 +38,7 @@ struct CS_MOVE_PACKET {
 	DWORD	direction = 0;
 	short	id;
 	float cxDelta, cyDelta, czDelta;
+	XMFLOAT3 pos;
 	//unsigned	move_time;
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
@@ -71,7 +72,6 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	XMFLOAT3 Look, Up, Right, Pos;
-	//DWORD direction;
 	//short	x, y, z;
 	//short look_x, look_y, look_z;
 	//short up_x, up_y, up_z;
