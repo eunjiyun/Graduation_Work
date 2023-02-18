@@ -337,7 +337,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 			}
 		}
-		else if (3 == whatTexture)//metallic
+		else if (3 == whatTexture)//metallic 투명도 손상
 		{
 			switch (choose)
 			{
