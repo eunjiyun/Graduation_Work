@@ -258,7 +258,7 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter,
-	_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose)
+	_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose,int whatTexture)
 {
 	char pstrTextureName[64] = { '\0' };
 
@@ -267,38 +267,133 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	nReads = (UINT)::fread(pstrTextureName, sizeof(char), nStrLength, pInFile);
 	pstrTextureName[nStrLength] = '\0';
 
+	if (0 == choose)
+	{
+		strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+		nStrLength = 12;
+		nReads = 12;
+	}
+
 	if (!strcmp(pstrTextureName, "null"))
 	{
-		nStrLength = 7;
-		nReads = 7;
+		nStrLength = 15;
+		nReads = 15;
 
-		switch (choose)
+		if (1 == whatTexture)//albedo
 		{
-		case 0:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-			nStrLength = 12;
-			nReads = 12;
-			break;
-		case 1:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1");//부두1
-			break;
-		case 2:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2");//부두2
-			break;
-		case 3:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3");//부두3
-			break;
-		case 4:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4");//부두4
-			break;
-		case 5:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5_1001_AlbedoTransparency");//부두5
-			nStrLength = 31;
-			nReads = 31;
-			break;
-		case 6:
-			strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6");//부두6
-			break;
+			switch (choose)
+			{
+			case 0:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+				nStrLength = 12;
+				nReads = 12;
+				break;
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albedooo");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albedooo");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albedooo");//부두3 귀신
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albedooo");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albedooo");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albedooo");//부두6 머리에바늘있는비실한애
+				break;
+			}
+		}
+		else if (2 == whatTexture)//normal
+		{
+			switch (choose)
+			{
+			case 0:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+				nStrLength = 12;
+				nReads = 12;
+				break;
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Normalll");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Normalll");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Normalll");//부두3 귀신
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Normalll");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Normalll");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Normalll");//부두6 머리에바늘있는비실한애
+				break;
+			}
+		}
+		else if (3 == whatTexture)//metallic
+		{
+			switch (choose)
+			{
+			case 0:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+				nStrLength = 12;
+				nReads = 12;
+				break;
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metallic");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metallic");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metallic");//부두3 귀신
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metallic");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metallic");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metallic");//부두6 머리에바늘있는비실한애
+				break;
+			}
+		}
+		else if (4 == whatTexture)//emission
+		{
+			switch (choose)
+			{
+			case 0:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+				nStrLength = 12;
+				nReads = 12;
+				break;
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emission");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emission");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emission");//부두3 귀신 emission x
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emission");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emission");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emission");//부두6 머리에바늘있는비실한애 emission x
+				break;
+			}
 		}
 	}
 
@@ -328,7 +423,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		if (!bDuplicated)
 		{
 			*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
-			(*ppTexture)->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+ 			(*ppTexture)->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
 			CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
@@ -676,6 +771,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
 		for (int k = 0; k < m_nAnimationTracks; k++)
+		//for (int k = 0; k < 1; k++)
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
@@ -713,7 +809,7 @@ void CLoadedModelInfo::PrepareSkinning()
 	m_pModelRootObject->FindAndSetSkinnedMesh(m_ppSkinnedMeshes, &nSkinnedMesh);
 
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
-		m_ppSkinnedMeshes[i]->PrepareSkinning(m_pModelRootObject);
+		m_ppSkinnedMeshes[i]->PrepareSkinning(m_pModelRootObject);//0218
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -887,7 +983,7 @@ CGameObject* CGameObject::FindFrame(char* pstrFrameName)
 {
 	CGameObject* pFrameObject = NULL;
 
-	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName)))
+	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName)))//0218
 		return(this);
 
 	if (m_pSibling) if (pFrameObject = m_pSibling->FindFrame(pstrFrameName)) return(pFrameObject);
@@ -1233,33 +1329,33 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fGlossyReflection), sizeof(float), 1, pInFile);
 		}
-		else if (!strcmp(pstrToken, "<AlbedoMap>:"))
+		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1
 		{
-			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose);
+			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose,1);
 		}
 		else if (!strcmp(pstrToken, "<SpecularMap>:"))
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_SPECULAR_MAP, 4, pMaterial->m_ppstrTextureNames[1], &(pMaterial->m_ppTextures[1]), pParent, pInFile, pShader, choose);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_SPECULAR_MAP, 4, pMaterial->m_ppstrTextureNames[1], &(pMaterial->m_ppTextures[1]), pParent, pInFile, pShader, choose,0);
 		}
-		else if (!strcmp(pstrToken, "<NormalMap>:"))
+		else if (!strcmp(pstrToken, "<NormalMap>:"))//1
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_NORMAL_MAP, 5, pMaterial->m_ppstrTextureNames[2], &(pMaterial->m_ppTextures[2]), pParent, pInFile, pShader, choose);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_NORMAL_MAP, 5, pMaterial->m_ppstrTextureNames[2], &(pMaterial->m_ppTextures[2]), pParent, pInFile, pShader, choose,2);
 		}
-		else if (!strcmp(pstrToken, "<MetallicMap>:"))
+		else if (!strcmp(pstrToken, "<MetallicMap>:"))//1
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_METALLIC_MAP, 6, pMaterial->m_ppstrTextureNames[3], &(pMaterial->m_ppTextures[3]), pParent, pInFile, pShader, choose);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_METALLIC_MAP, 6, pMaterial->m_ppstrTextureNames[3], &(pMaterial->m_ppTextures[3]), pParent, pInFile, pShader, choose,3);
 		}
-		else if (!strcmp(pstrToken, "<EmissionMap>:"))
+		else if (!strcmp(pstrToken, "<EmissionMap>:"))//1
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_EMISSION_MAP, 7, pMaterial->m_ppstrTextureNames[4], &(pMaterial->m_ppTextures[4]), pParent, pInFile, pShader, choose);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_EMISSION_MAP, 7, pMaterial->m_ppstrTextureNames[4], &(pMaterial->m_ppTextures[4]), pParent, pInFile, pShader, choose,4);
 		}
-		else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))
+		else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))//2
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[5], &(pMaterial->m_ppTextures[5]), pParent, pInFile, pShader, choose);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[5], &(pMaterial->m_ppTextures[5]), pParent, pInFile, pShader, choose,1);
 		}
-		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))
+		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))//2
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 9, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, pInFile, pShader, choose);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 9, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, pInFile, pShader, choose,2);
 		}
 		else if (!strcmp(pstrToken, "</Materials>"))
 		{
@@ -1313,7 +1409,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 
 			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->LoadSkinInfoFromFile(pd3dDevice, pd3dCommandList, pInFile);
-			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);//1
 
 			::ReadStringFromFile(pInFile, pstrToken); //<Mesh>:
 			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
@@ -1330,7 +1426,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, choose);
+					CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, choose);//1
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
@@ -1456,7 +1552,7 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd
 		{
 			if (!strcmp(pstrToken, "<Hierarchy>:"))
 			{
-				pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, choose);
+				pLoadedModel->m_pModelRootObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, pInFile, pShader, &pLoadedModel->m_nSkinnedMeshes, choose);//1
 				::ReadStringFromFile(pInFile, pstrToken); //"</Hierarchy>"
 			}
 			else if (!strcmp(pstrToken, "<Animation>:"))
@@ -1871,7 +1967,7 @@ CZebraObject::CZebraObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL, 6);
 		break;
 	case 7:
-		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
+		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);
 		break;
 	}
 	//

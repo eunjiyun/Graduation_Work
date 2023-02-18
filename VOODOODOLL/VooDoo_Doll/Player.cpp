@@ -412,7 +412,17 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);
+	//CLoadedModelInfo* pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
+	////m_ppHierarchicalGameObjects[0] = new CZebraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pZebraModel, 1, 7);//Ä®µç ¾Ö
+	////if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);
+	//SetChild(pZebraModel->m_pModelRootObject, true);
+	//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 1, pZebraModel);
+	//m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
+	//SetScale(XMFLOAT3(1.1f, 1.1f, 1.1f));
+	//if (pZebraModel) delete pZebraModel;
+
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);//1
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);

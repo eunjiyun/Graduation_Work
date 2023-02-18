@@ -147,7 +147,7 @@ public:
 	int								m_nMaterial = 1; //Material Index, CScene::m_pReflections[]
 
 	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter,
-		_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose);
+		_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose,int whatTexture);
 
 public:
 	static CShader* m_pStandardShader;

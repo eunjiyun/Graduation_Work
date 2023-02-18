@@ -157,11 +157,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CLoadedModelInfo* pZebraModel6 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL, 6);//
 	m_ppHierarchicalGameObjects[5] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel6, 1, 6);
 	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppHierarchicalGameObjects[5]->SetPosition(251.0f, 0.0f, 500.0f);//머리에 바늘있는 비실한 애
-	m_ppHierarchicalGameObjects[5]->SetScale(2.1f, 2.1f, 2.1f);
+	m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
+	m_ppHierarchicalGameObjects[5]->SetScale(0.5f, 0.5f, 0.5f);
 	if (pZebraModel6) delete pZebraModel6;
 
-	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);//
+	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);//
 	m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
 	m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
@@ -562,21 +562,21 @@ void CStage::AnimateObjects(float fTimeElapsed)
 			//23.02.11
 			//23.01.03
 			//일정한 시간이 지나면 적이 나를 향해서 오게: 델타 t
-	XMFLOAT3 xmf3Shift = XMFLOAT3(m_pPlayer->m_xmf4x4World._41 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41,
-		m_pPlayer->m_xmf4x4World._42 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42,
-		m_pPlayer->m_xmf4x4World._43 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43);
+	//XMFLOAT3 xmf3Shift = XMFLOAT3(m_pPlayer->m_xmf4x4World._41 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41,
+	//	m_pPlayer->m_xmf4x4World._42 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42,
+	//	m_pPlayer->m_xmf4x4World._43 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43);
 
-	srand((unsigned int)time(NULL));
-	mpTime += fTimeElapsed;
-	XMFLOAT3 tmp = XMFLOAT3(xmf3Shift.x / 5, xmf3Shift.y / 5, xmf3Shift.z / 5);
-	if (mpTime > 0.25f)
-	{
-		//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
+	//srand((unsigned int)time(NULL));
+	//mpTime += fTimeElapsed;
+	//XMFLOAT3 tmp = XMFLOAT3(xmf3Shift.x / 5, xmf3Shift.y / 5, xmf3Shift.z / 5);
+	//if (mpTime > 0.25f)
+	//{
+	//	//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
 
-		m_ppHierarchicalGameObjects[5]->SetPosition(Vector3::Add(XMFLOAT3(
-			m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43), tmp));
-		mpTime = 0.f;
-	}
+	//	m_ppHierarchicalGameObjects[5]->SetPosition(Vector3::Add(XMFLOAT3(
+	//		m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43), tmp));
+	//	mpTime = 0.f;
+	//}
 
 	CheckObjectByObjectCollisions();
 }

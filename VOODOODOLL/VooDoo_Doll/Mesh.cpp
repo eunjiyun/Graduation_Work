@@ -814,11 +814,11 @@ void CSkinnedMesh::PrepareSkinning(CGameObject* pModelRootObject)
 {
 	for (int j = 0; j < m_nSkinningBones; j++)
 	{
-		m_ppSkinningBoneFrameCaches[j] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[j]);
+		m_ppSkinningBoneFrameCaches[j] = pModelRootObject->FindFrame(m_ppstrSkinningBoneNames[j]);//본네임에 ???값이 들어있음 0218오류
 	}
 }
 
-void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* pInFile)
+void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, FILE* pInFile)//여기서 본네임 초기화 0218
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -837,7 +837,7 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 			nReads = (UINT)::fread(&m_xmf3AABBCenter, sizeof(XMFLOAT3), 1, pInFile);
 			nReads = (UINT)::fread(&m_xmf3AABBExtents, sizeof(XMFLOAT3), 1, pInFile);
 		}
-		else if (!strcmp(pstrToken, "<BoneNames>:"))
+		else if (!strcmp(pstrToken, "<BoneNames>:"))//본네임 0218
 		{
 			m_nSkinningBones = ::ReadIntegerFromFile(pInFile);
 			if (m_nSkinningBones > 0)
@@ -848,6 +848,10 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 				{
 					::ReadStringFromFile(pInFile, m_ppstrSkinningBoneNames[i]);
 					m_ppSkinningBoneFrameCaches[i] = NULL;
+
+					//if (m_ppstrSkinningBoneNames[0] == NULL)
+					
+						cout << i<<"번째 본 : "<<m_ppstrSkinningBoneNames[i] << endl;
 				}
 			}
 		}
