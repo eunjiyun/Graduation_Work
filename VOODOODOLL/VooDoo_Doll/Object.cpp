@@ -774,8 +774,8 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 	{
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
-		for (int k = 0; k < m_nAnimationTracks; k++)
-		//for (int k = 0; k < 1; k++)
+		//for (int k = 0; k < m_nAnimationTracks; k++)
+		for (int k = 0; k < 1; k++)
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{

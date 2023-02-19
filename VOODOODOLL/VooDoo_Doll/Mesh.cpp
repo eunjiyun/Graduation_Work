@@ -850,8 +850,7 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 					m_ppSkinningBoneFrameCaches[i] = NULL;
 
 					//if (m_ppstrSkinningBoneNames[0] == NULL)
-					
-						cout << i<<"번째 본 : "<<m_ppstrSkinningBoneNames[i] << endl;
+					//cout << i<<"번째 본 : "<<m_ppstrSkinningBoneNames[i] << endl;
 				}
 			}
 		}
