@@ -274,7 +274,7 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 		
 
 		XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
-		//XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(m_pPlayer->GetPosition().x + 30, m_pPlayer->GetPosition().y, m_pPlayer->GetPosition().z + 30), xmf3Offset);//0219
+		//XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(m_pPlayer->GetPosition().x , m_pPlayer->GetPosition().y+10, m_pPlayer->GetPosition().z ), xmf3Offset);//0219
 
 
 		XMFLOAT3 xmf3Direction = Vector3::Subtract(xmf3Position, m_xmf3Position);
@@ -286,7 +286,7 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 		if (fLength < 0.01f) fDistance = fLength;
 		if (fDistance > 0)
 		{
-			m_xmf3Position = Vector3::Add(XMFLOAT3(m_xmf3Position.x, m_xmf3Position.y + 6, m_xmf3Position.z), xmf3Direction, fDistance);//9
+			m_xmf3Position = Vector3::Add(XMFLOAT3(m_xmf3Position.x, m_xmf3Position.y + 6, m_xmf3Position.z), xmf3Direction, fDistance);
 			SetLookAt(xmf3LookAt);
 		}
 	}
