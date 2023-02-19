@@ -420,7 +420,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//SetScale(XMFLOAT3(1.1f, 1.1f, 1.1f));
 	//if (pZebraModel) delete pZebraModel;
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);//1
+	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);//1
+	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);//1
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL, 0);//1
 	SetChild(pAngrybotModel->m_pModelRootObject, true);
 
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);
@@ -451,7 +453,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
 	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(5, 5, 5));
 
-	SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+	//SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
+	SetScale(XMFLOAT3(20.0f, 20.0f, 20.0f));
 
 	if (pAngrybotModel) delete pAngrybotModel;
 }

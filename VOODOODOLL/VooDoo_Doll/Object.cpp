@@ -266,140 +266,144 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
 	nReads = (UINT)::fread(pstrTextureName, sizeof(char), nStrLength, pInFile);
 	pstrTextureName[nStrLength] = '\0';
-
-	if (0 == choose)
-	{
-		strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-		nStrLength = 12;
-		nReads = 12;
-	}
+	bool bDuplicated = false;
 
 	if (!strcmp(pstrTextureName, "null"))
 	{
-		nStrLength = 15;
-		nReads = 15;
+		nStrLength = 12;
+		nReads = 12;
 
-		if (1 == whatTexture)//albedo
+		//if (7== choose )
+		//{
+		//	strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+		//}
+		//else
 		{
-			switch (choose)
+			if (1 == whatTexture)//albedo
 			{
-			case 0:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-				nStrLength = 12;
-				nReads = 12;
-				break;
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albedooo");//부두1 칼든애
-				break;
-			case 2:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albedooo");//부두2 뼈다귀다리
-				break;
-			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albedooo");//부두3 귀신
-				break;
-			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albedooo");//부두4 펜싱칼든애
-				break;
-			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albedooo");//부두5 마법사
-				break;
-			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albedooo");//부두6 머리에바늘있는비실한애
-				break;
+				switch (choose)
+				{
+				case 0:
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
+					break;
+				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
+					break;
+				case 2:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albed");//부두2 뼈다귀다리
+					break;
+				case 3:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두3 귀신
+					break;
+				case 4:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//부두4 펜싱칼든애
+					break;
+				case 5:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
+					break;
+				case 6:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albed");//부두6 머리에바늘있는비실한애
+					break;
+				}
 			}
-		}
-		else if (2 == whatTexture)//normal
-		{
-			switch (choose)
+			else if (2 == whatTexture)//normal
 			{
-			case 0:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-				nStrLength = 12;
-				nReads = 12;
-				break;
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Normalll");//부두1 칼든애
-				break;
-			case 2:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Normalll");//부두2 뼈다귀다리
-				break;
-			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Normalll");//부두3 귀신
-				break;
-			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Normalll");//부두4 펜싱칼든애
-				break;
-			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Normalll");//부두5 마법사
-				break;
-			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Normalll");//부두6 머리에바늘있는비실한애
-				break;
+				switch (choose)
+				{
+				case 0:
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
+					break;
+				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//부두1 칼든애
+					break;
+				case 2:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두2 뼈다귀다리
+					break;
+				case 3:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두3 귀신
+					break;
+				case 4:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//부두4 펜싱칼든애
+					break;
+				case 5:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
+					break;
+				case 6:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Norma");//부두6 머리에바늘있는비실한애
+					break;
+				}
 			}
-		}
-		else if (3 == whatTexture)//metallic 투명도 손상
-		{
-			switch (choose)
+			else if (3 == whatTexture)//metallic 투명도 손상
 			{
-			case 0:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-				nStrLength = 12;
-				nReads = 12;
-				break;
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metallic");//부두1 칼든애
-				break;
-			case 2:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metallic");//부두2 뼈다귀다리
-				break;
-			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metallic");//부두3 귀신
-				break;
-			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metallic");//부두4 펜싱칼든애
-				break;
-			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metallic");//부두5 마법사
-				break;
-			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metallic");//부두6 머리에바늘있는비실한애
-				break;
+				switch (choose)
+				{
+				case 0:
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
+					break;
+				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//부두1 칼든애
+					break;
+				case 2:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metal");//부두2 뼈다귀다리
+					break;
+				case 3:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두3 귀신
+					break;
+				case 4:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//부두4 펜싱칼든애
+					break;
+				case 5:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
+					break;
+				case 6:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metal");//부두6 머리에바늘있는비실한애
+					break;
+				}
 			}
-		}
-		else if (4 == whatTexture)//emission
-		{
-			switch (choose)
+			else if (4 == whatTexture)//emission
 			{
-			case 0:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-				nStrLength = 12;
-				nReads = 12;
-				break;
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emission");//부두1 칼든애
-				break;
-			case 2:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emission");//부두2 뼈다귀다리
-				break;
-			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emission");//부두3 귀신 emission x
-				break;
-			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emission");//부두4 펜싱칼든애
-				break;
-			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emission");//부두5 마법사
-				break;
-			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emission");//부두6 머리에바늘있는비실한애 emission x
-				break;
+				switch (choose)
+				{
+				case 0:
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
+					break;
+				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//부두1 칼든애
+					break;
+				case 2:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두2 뼈다귀다리
+					break;
+				case 3:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
+					break;
+				case 4:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두4 펜싱칼든애
+					break;
+				case 5:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
+					break;
+				case 6:
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두6 머리에바늘있는비실한애 emission x
+					break;
+				}
 			}
 		}
 	}
 
-	bool bDuplicated = false;
 	if (strcmp(pstrTextureName, "null"))
 	{
+		//if (0== choose)
+		//{
+		//	strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
+		//	nStrLength = 12;
+		//	nReads = 12;
+		//}
+		
+
 		SetMaterialType(nType);
 
 		char pstrFilePath[64] = { '\0' };
@@ -1455,7 +1459,7 @@ void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 	if (pGameObject->m_pChild) CGameObject::PrintFrameInfo(pGameObject->m_pChild, pGameObject);
 }
 
-void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel)
+void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoadedModel)//0219
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;

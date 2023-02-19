@@ -114,7 +114,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	m_nHierarchicalGameObjects = 7;
+	m_nHierarchicalGameObjects = 6;
 	m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
 
 
@@ -146,25 +146,40 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[3]->SetScale(0.51f, 0.51f, 0.51f);
 	if (pZebraModel4) delete pZebraModel4;
 
-	CLoadedModelInfo* pZebraModel5 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL, 5);
-	m_ppHierarchicalGameObjects[4] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel5, 1, 5);//무릎 꿇는 마법사
-	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
-	m_ppHierarchicalGameObjects[4]->SetScale(50.f, 50.1f, 50.f);
-	if (pZebraModel5) delete pZebraModel5;
+	//CLoadedModelInfo* pZebraModel5 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL, 5);
+	//m_ppHierarchicalGameObjects[4] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel5, 1, 5);//무릎 꿇는 마법사
+	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
+	//m_ppHierarchicalGameObjects[4]->SetScale(50.f, 50.1f, 50.f);
+	//if (pZebraModel5) delete pZebraModel5;
+
+	//CLoadedModelInfo* pZebraModel6 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL, 6);//
+	//m_ppHierarchicalGameObjects[5] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel6, 1, 6);
+	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
+	//m_ppHierarchicalGameObjects[5]->SetScale(0.5f, 0.5f, 0.5f);
+	//if (pZebraModel6) delete pZebraModel6;
+
+	//CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);//
+	//m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
+	//m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
+	//m_ppHierarchicalGameObjects[6]->SetScale(20.1f, 20.1f, 20.1f);
+	//if (pZebraModel7) delete pZebraModel7;
+
 
 	CLoadedModelInfo* pZebraModel6 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL, 6);//
-	m_ppHierarchicalGameObjects[5] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel6, 1, 6);
-	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
-	m_ppHierarchicalGameObjects[5]->SetScale(0.5f, 0.5f, 0.5f);
+	m_ppHierarchicalGameObjects[4] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel6, 1, 6);
+	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppHierarchicalGameObjects[4]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
+	m_ppHierarchicalGameObjects[4]->SetScale(0.5f, 0.5f, 0.5f);
 	if (pZebraModel6) delete pZebraModel6;
 
 	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);//
-	m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
-	m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
-	m_ppHierarchicalGameObjects[6]->SetScale(20.1f, 20.1f, 20.1f);
+	m_ppHierarchicalGameObjects[5] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
+	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppHierarchicalGameObjects[5]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
+	m_ppHierarchicalGameObjects[5]->SetScale(20.1f, 20.1f, 20.1f);
 	if (pZebraModel7) delete pZebraModel7;
 
 	m_nShaders2 = 1;
