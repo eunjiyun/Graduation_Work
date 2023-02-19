@@ -113,7 +113,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-	//client test
+	//clienttest
 #pragma region SERVER
 
 	WSADATA WSAData;
@@ -163,14 +163,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			//client test
+			//clienttest
 			GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			//gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
+			gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
 
-	//client test
+	//clienttest
 	recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
