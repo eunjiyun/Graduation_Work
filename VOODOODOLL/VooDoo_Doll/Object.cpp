@@ -284,8 +284,9 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				switch (choose)
 				{
 				case 0:
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "warrior_capp");//캐릭터  warrior_capp
+					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터  warrior_capp
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
 					break;
 				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
 					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
@@ -312,8 +313,9 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				switch (choose)
 				{
 				case 0:
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "warrior_capp");//캐릭터  warrior_capp
 					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
 					break;
 				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
 					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//부두1 칼든애
@@ -340,8 +342,9 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				switch (choose)
 				{
 				case 0:
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "warriorSword");//캐릭터 warriorSword
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터 
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
 					break;
 				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
 					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//부두1 칼든애
@@ -369,7 +372,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				{
 				case 0:
 					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
+					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
 					break;
 				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
 					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//부두1 칼든애
