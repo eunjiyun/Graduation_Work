@@ -45,8 +45,12 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+		//if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
+		//if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+		//23.02.20
+		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z archerAttack
+		if (pKeysBuffer[0x51] & 0xF0) dwDirection |= DIR_CHANGE;//q playerChange
+		//
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -87,6 +91,10 @@ void GamePlayer_ProcessInput()
 		if (dwDirection) {
 			p.direction = dwDirection;
 			gGameFramework.m_pPlayer->Move(dwDirection, 1.0, true);
+			//23.02.20
+			//gGameFramework.m_pPlayer->archerAttack(dwDirection);
+			gGameFramework.m_pPlayer->changePlayerMode(dwDirection);
+			//
 		}
 
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
@@ -114,40 +122,40 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
 	//clienttest
-#pragma region SERVER
-
-	WSADATA WSAData;
-	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-	if (ErrorStatus != 0)
-	{
-		cout << "WSAStartup 실패\n";
-	}
-	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-	if (s_socket == INVALID_SOCKET)
-	{
-		cout << "소켓 생성 실패\n";
-	}
-
-
-	// 서버와 연결
-	SOCKADDR_IN svr_addr;
-	memset(&svr_addr, 0, sizeof(svr_addr));
-	svr_addr.sin_family = AF_INET;
-	svr_addr.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
-	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
-	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
-
-	// 서버에게 자신의 정보를 패킷으로 전달
-	CS_LOGIN_PACKET p;
-	p.size = sizeof(CS_LOGIN_PACKET);
-	p.type = CS_LOGIN;
-	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-
-	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-	//send_t = new thread{ GamePlayer_ProcessInput };
-#pragma endregion 
+//#pragma region SERVER
+//
+//	WSADATA WSAData;
+//	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+//	if (ErrorStatus != 0)
+//	{
+//		cout << "WSAStartup 실패\n";
+//	}
+//	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+//	if (s_socket == INVALID_SOCKET)
+//	{
+//		cout << "소켓 생성 실패\n";
+//	}
+//
+//
+//	// 서버와 연결
+//	SOCKADDR_IN svr_addr;
+//	memset(&svr_addr, 0, sizeof(svr_addr));
+//	svr_addr.sin_family = AF_INET;
+//	svr_addr.sin_port = htons(SERVER_PORT);
+//	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+//	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+//	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+//
+//	// 서버에게 자신의 정보를 패킷으로 전달
+//	CS_LOGIN_PACKET p;
+//	p.size = sizeof(CS_LOGIN_PACKET);
+//	p.type = CS_LOGIN;
+//	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+//	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+//
+//	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+//	//send_t = new thread{ GamePlayer_ProcessInput };
+//#pragma endregion 
 
 
 	while (1)
@@ -164,14 +172,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			//gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
+			//GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
+			gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
 
 	//clienttest
-	recv_t->join();
+	//recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 
@@ -240,6 +248,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				gGameFramework.wakeUp = false;
 			else
 				gGameFramework.wakeUp = true;
+		}
+		else if (wParam == 'Q' || wParam == 'q')
+		{
+			if (1 == gGameFramework.changePl)
+				gGameFramework.changePl = 2;
+			else
+				gGameFramework.changePl = 1;
 		}
 		break;
 		//

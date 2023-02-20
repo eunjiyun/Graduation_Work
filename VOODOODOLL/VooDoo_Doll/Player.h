@@ -4,8 +4,8 @@
 #define DIR_BACKWARD			0x02
 #define DIR_LEFT				0x04
 #define DIR_RIGHT				0x08
-#define DIR_UP					0x10
-#define DIR_DOWN				0x20
+#define DIR_ATTACK				0x10
+#define DIR_CHANGE				0x20
 
 #include "Object.h"
 #include "Camera.h"
@@ -65,6 +65,10 @@ public:
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
+	//23.02.20
+	virtual void archerAttack(DWORD dwDirection){}
+	virtual void changePlayerMode(DWORD dwDirection) {}
+	//
 
 	virtual void Update(float fTimeElapsed);
 
@@ -99,6 +103,10 @@ public:
 	int c_id = -1;
 	bool recved_packet = false;
 	float cxDelta, cyDelta, czDelta = 0.0f;
+
+	//23.02.20
+	int playerMode = 1;
+	//
 };
 
 class CAirplanePlayer : public CPlayer
@@ -132,7 +140,7 @@ public:
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL);
+	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,int choosePl, void* pContext = NULL);
 	virtual ~CTerrainPlayer();
 
 public:
@@ -144,5 +152,10 @@ public:
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Update(float fTimeElapsed);
+
+	//23.02.20
+	virtual void archerAttack(DWORD dwDirection);
+	virtual void changePlayerMode(DWORD dwDirection);
+	//
 };
 
