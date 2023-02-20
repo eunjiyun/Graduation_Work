@@ -57,6 +57,9 @@ public:
 	SCENEID m_eCurrentScene;
 	SCENEID m_ePrevScene;
 
+	//23.02.20
+	void changePlayerForm(CPlayer**,CPlayer**,CTerrainPlayer*, CTerrainPlayer*);
+
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;
@@ -90,7 +93,9 @@ private:
 
 public:
 	bool wakeUp = true;
-	int changePl = 1;
+	int whatPlayer = 1;
+	bool changePlayerMode = false;
+
 	CTerrainPlayer* pPlayer;
 	CTerrainPlayer* pPlayer2;
 

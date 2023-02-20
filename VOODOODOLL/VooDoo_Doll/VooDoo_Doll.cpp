@@ -92,8 +92,8 @@ void GamePlayer_ProcessInput()
 			p.direction = dwDirection;
 			gGameFramework.m_pPlayer->Move(dwDirection, 1.0, true);
 			//23.02.20
-			//gGameFramework.m_pPlayer->archerAttack(dwDirection);
-			gGameFramework.m_pPlayer->changePlayerMode(dwDirection);
+			gGameFramework.m_pPlayer->archerAttack(dwDirection);
+			//gGameFramework.m_pPlayer->changePlayerMode(dwDirection);
 			//
 		}
 
@@ -179,7 +179,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	}
 
 	//clienttest
-	//recv_t->join();
+	recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 
@@ -251,10 +251,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		else if (wParam == 'Q' || wParam == 'q')
 		{
-			if (1 == gGameFramework.changePl)
-				gGameFramework.changePl = 2;
-			else
-				gGameFramework.changePl = 1;
+			gGameFramework.changePlayerMode = true;
+
+			if (1 == gGameFramework.whatPlayer)
+			{
+				gGameFramework.whatPlayer = 2;
+			}
+			else if (2 == gGameFramework.whatPlayer)
+			{
+				gGameFramework.whatPlayer = 1;
+				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+			}
 		}
 		break;
 		//

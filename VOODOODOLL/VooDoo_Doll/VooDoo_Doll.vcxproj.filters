@@ -164,4 +164,7 @@
     <FxCompile Include="Light.hlsl" />
     <FxCompile Include="Shaders.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="readMe.txt" />
+  </ItemGroup>
 </Project>

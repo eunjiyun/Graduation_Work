@@ -67,7 +67,6 @@ public:
 	void Rotate(float x, float y, float z);
 	//23.02.20
 	virtual void archerAttack(DWORD dwDirection){}
-	virtual void changePlayerMode(DWORD dwDirection) {}
 	//
 
 	virtual void Update(float fTimeElapsed);
@@ -155,7 +154,6 @@ public:
 
 	//23.02.20
 	virtual void archerAttack(DWORD dwDirection);
-	virtual void changePlayerMode(DWORD dwDirection);
 	//
 };
 

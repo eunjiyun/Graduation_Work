@@ -410,26 +410,18 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
-	//if (1 == choosePl)
-	//{
-	//	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);//1
-	//	pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);//1
-	//	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL, 0);//1
-	//	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/GameObject.bin", NULL, 0);//1
-	//}
-	//else if(2==choosePl)
-	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body2.bin", NULL, 0);//1
+	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body2.bin", NULL, 0);
 	
-	if(1==choosePl)
+	if (1 == choosePl)
+	{
 		SetChild(pAngrybotModel->m_pModelRootObject, true);
-	else
-		SetChild(pAngrybotModel2->m_pModelRootObject, true);
-
-	//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);
-	if(1==choosePl)
 		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, pAngrybotModel);
-	else
+	}
+	else if (2 == choosePl)
+	{
+		SetChild(pAngrybotModel2->m_pModelRootObject, true);
 		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, pAngrybotModel2);
+	}
 
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -569,7 +561,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection&& dwDirection!=DIR_ATTACK)
+	if (dwDirection&& dwDirection!=DIR_ATTACK && dwDirection != DIR_CHANGE)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		//23.02.20
@@ -588,16 +580,6 @@ void CTerrainPlayer::archerAttack(DWORD dwDirection)
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		m_pSkinnedAnimationController->SetTrackEnable(1, false);
 		m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	}
-}
-void CTerrainPlayer::changePlayerMode(DWORD dwDirection)
-{
-	if (dwDirection && dwDirection == DIR_ATTACK)
-	{
-		if (1 == playerMode)
-			playerMode = 2;
-		else if (2 == playerMode)
-			playerMode = 1;
 	}
 }
 //

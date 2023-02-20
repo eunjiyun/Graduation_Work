@@ -459,7 +459,7 @@ void CGameFramework::BuildObjects()
 
 
 #ifdef _WITH_TERRAIN_PLAYER
-	pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(),1, m_pStage->m_pTerrain);
+	pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
 	pPlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2, m_pStage->m_pTerrain);
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
@@ -472,8 +472,11 @@ void CGameFramework::BuildObjects()
 		m_pCamera = m_pPlayer->GetCamera();
 
 		for (int i = 0; i < 3; i++) {
-			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(),1, m_pStage->m_pTerrain);
+			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
 			Players.push_back(pAirplanePlayer);
+
+			/*CTerrainPlayer* pAirplanePlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2, m_pStage->m_pTerrain);
+			Players.push_back(pAirplanePlayer2);*/
 		}
 
 		m_pd3dCommandList->Close();
@@ -484,10 +487,10 @@ void CGameFramework::BuildObjects()
 
 		if (m_pStage) m_pStage->ReleaseUploadBuffers();
 		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
-		}
+	}
 
 	m_GameTimer.Reset();
-	}
+}
 
 void CGameFramework::ReleaseObjects()
 {
@@ -563,7 +566,7 @@ void CGameFramework::ProcessInput()
 				m_pPlayer->Move(dwDirection, 7.0f, true);
 				//23.02.20
 				m_pPlayer->archerAttack(dwDirection);
-				m_pPlayer->changePlayerMode(dwDirection);
+				//m_pPlayer->changePlayerMode(dwDirection);
 				//
 			}
 		}
@@ -661,17 +664,15 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
-	if (1 == changePl)
-	{
-		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
-	}
-	else
-	{
-		m_pStage->m_pPlayer = m_pPlayer = pPlayer2;
-	}
+	//23.02.20
+	changePlayerForm(&m_pStage->m_pPlayer,&m_pPlayer,pPlayer,pPlayer2);
+	//changePlayerForm(m_pStage->m_pPlayer, m_pPlayer, pPlayer, pPlayer2);
+	//
 
 	for (const auto& player : Players) {
 		if (player->c_id > -1) {
+
+			//changePlayerForm(m_pStage->m_pPlayer, player, pPlayer, pPlayer2);
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
@@ -679,7 +680,7 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
-	if (m_pPlayer) 
+	if (m_pPlayer)
 		m_pPlayer->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
@@ -716,5 +717,75 @@ void CGameFramework::FrameAdvance()
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
+}
+
+void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPlayer, CTerrainPlayer* newPlayer, CTerrainPlayer* newPlayer2)//받을 플레이어, 할당할 플레이어
+{
+	if (1 == whatPlayer)
+	{
+		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
+
+		if (true == changePlayerMode)
+		{
+			m_pPlayer->SetPosition(pPlayer2->GetPosition());
+
+			m_pPlayer->SetLookVector(pPlayer2->GetLookVector());
+			m_pPlayer->SetUpVector(pPlayer2->GetUpVector());
+			m_pPlayer->SetRightVector(pPlayer2->GetRightVector());
+
+			changePlayerMode = false;
+		}
+	}
+	else if (2 == whatPlayer)
+	{
+		m_pStage->m_pPlayer = m_pPlayer = pPlayer2;
+
+		if (true == changePlayerMode)
+		{
+			m_pPlayer->SetPosition(pPlayer->GetPosition());
+
+			m_pPlayer->SetLookVector(pPlayer->GetLookVector());
+			m_pPlayer->SetUpVector(pPlayer->GetUpVector());
+			m_pPlayer->SetRightVector(pPlayer->GetRightVector());
+
+			changePlayerMode = false;
+		}
+	}
+
+	m_pCamera = m_pPlayer->GetCamera();
+
+	//if (1 == whatPlayer)
+	//{
+	//	*sceneOldPlayer = *oldPlayer = newPlayer;
+
+	//	//if(changePlayerMode)
+	//	if (changePlayerMode)
+	//	{
+	//		oldPlayer[0]->SetPosition(newPlayer2->GetPosition());
+
+	//		oldPlayer[0]->SetLookVector(newPlayer2->GetLookVector());
+	//		oldPlayer[0]->SetUpVector(newPlayer2->GetUpVector());
+	//		oldPlayer[0]->SetRightVector(newPlayer2->GetRightVector());
+
+	//		changePlayerMode = false;
+	//	}
+	//}
+	//else if (2 == whatPlayer)
+	//{
+	//	*sceneOldPlayer=* oldPlayer = newPlayer2;
+
+	//	if (changePlayerMode)
+	//	{
+	//		oldPlayer[0]->SetPosition(newPlayer->GetPosition());
+
+	//		oldPlayer[0]->SetLookVector(newPlayer->GetLookVector());
+	//		oldPlayer[0]->SetUpVector(newPlayer->GetUpVector());
+	//		oldPlayer[0]->SetRightVector(newPlayer->GetRightVector());
+
+	//		changePlayerMode = false;
+	//	}
+	//}
+
+	//m_pCamera = oldPlayer[0]->GetCamera();
 }
 
