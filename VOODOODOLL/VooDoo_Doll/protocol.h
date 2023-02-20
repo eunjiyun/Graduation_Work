@@ -72,11 +72,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	XMFLOAT3 Look, Up, Right, Pos;
-	//short	x, y, z;
-	//short look_x, look_y, look_z;
-	//short up_x, up_y, up_z;
-	//short right_x, right_y, right_z;
-	//unsigned int move_time;
+	DWORD direction;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 

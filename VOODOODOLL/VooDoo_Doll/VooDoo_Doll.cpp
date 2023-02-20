@@ -335,7 +335,6 @@ void ProcessPacket(char* ptr)
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
-			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
 		}
 		else
 			for (auto& player : gGameFramework.Players)
@@ -343,7 +342,17 @@ void ProcessPacket(char* ptr)
 					player->SetLookVector(packet->Look);
 					player->SetUpVector(packet->Up);
 					player->SetRightVector(packet->Right);
-					player->SetPosition(packet->Pos);
+					XMFLOAT3 Cmp = Vector3::Subtract(player->GetPosition(), packet->Pos);
+					if (Vector3::IsZero(Cmp)) {
+						player->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+						player->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+						player->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+					}
+					else {
+						player->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+						player->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+						player->SetPosition(packet->Pos);
+					}
 					break;
 				}
 		//gGameFramework.m_pPlayer->recved_packet = false;

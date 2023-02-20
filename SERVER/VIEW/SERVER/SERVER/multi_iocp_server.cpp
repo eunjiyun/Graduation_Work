@@ -44,6 +44,7 @@ void SESSION::send_move_packet(int c_id)
 	p.Right = clients[c_id].GetRightVector();
 	p.Up = clients[c_id].GetUpVector();
 	p.Pos = clients[c_id].GetPosition();
+	p.direction = clients[c_id].direction;
 	do_send(&p);
 }
 

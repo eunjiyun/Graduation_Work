@@ -612,11 +612,11 @@ void CGameFramework::FrameAdvance()
 	//ProcessInput();
 
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
-	for (auto& player : Players) {
-		if (player->c_id > -1) {
-			player->Update(m_GameTimer.GetTimeElapsed());
-		}
-	}
+	//for (auto& player : Players) {
+	//	if (player->c_id > -1) {
+	//		player->Update(m_GameTimer.GetTimeElapsed());
+	//	}
+	//}
 
 	AnimateObjects();
 
