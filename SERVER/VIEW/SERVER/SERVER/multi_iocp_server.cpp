@@ -55,10 +55,10 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-
 	add_packet.Look = clients[c_id].m_xmf3Look;
 	add_packet.Right = clients[c_id].m_xmf3Right;
 	add_packet.Up = clients[c_id].m_xmf3Up;
+	add_packet.Pos = clients[c_id].GetPosition();
 	do_send(&add_packet);
 }
 

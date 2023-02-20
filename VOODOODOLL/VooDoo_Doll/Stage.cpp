@@ -641,7 +641,7 @@ void CStage::CheckObjectByObjectCollisions()
 			//XMFLOAT3 Xmf3Position = m_pPlayer->GetPosition();
 			//xmfsub = Vector3::Subtract(Xmf3Position, xmfsub);
 			//m_pPlayer->SetPosition(XMFLOAT3(Xmf3Position.x + xmfsub.x, Xmf3Position.y + xmfsub.y, Xmf3Position.z + xmfsub.z));
-			cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌해따요" << endl;
+			//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌해따요" << endl;
 			break;
 		}
 	}
