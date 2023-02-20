@@ -11,8 +11,8 @@
 #define DIR_BACKWARD				0x02
 #define DIR_LEFT					0x04
 #define DIR_RIGHT					0x08
-#define DIR_UP						0x10
-#define DIR_DOWN					0x20
+#define DIR_ATTACK					0x10
+#define DIR_CHANGE					0x20
 
 class CShader;
 class CStandardShader;
@@ -407,9 +407,9 @@ public:
 	void SetShader(int nMaterial, CShader* pShader);
 	void SetMaterial(int nMaterial, CMaterial* pMaterial);
 	//23.01.30
-	void SetMaterial(UINT nIndex, UINT nReflection);
-	void SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color);
-	void SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color);
+	void SetMaterial(int nIndex, int nReflection);
+	void SetAlbedoColor(int nIndex, XMFLOAT4 xmf4Color);
+	void SetEmissionColor(int nIndex, XMFLOAT4 xmf4Color);
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
 	//
 

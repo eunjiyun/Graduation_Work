@@ -459,7 +459,8 @@ void CGameFramework::BuildObjects()
 
 
 #ifdef _WITH_TERRAIN_PLAYER
-	CTerrainPlayer* pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), m_pStage->m_pTerrain);
+	pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(),1, m_pStage->m_pTerrain);
+	pPlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2, m_pStage->m_pTerrain);
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
@@ -471,7 +472,7 @@ void CGameFramework::BuildObjects()
 		m_pCamera = m_pPlayer->GetCamera();
 
 		for (int i = 0; i < 3; i++) {
-			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), m_pStage->m_pTerrain);
+			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(),1, m_pStage->m_pTerrain);
 			Players.push_back(pAirplanePlayer);
 		}
 
@@ -541,8 +542,11 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+		//if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
+		//if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+		//23.02.20
+		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z archerAttack
+		if (pKeysBuffer[0x51] & 0xF0) dwDirection |= DIR_CHANGE;//q playerChange
 		//
 
 		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -555,7 +559,13 @@ void CGameFramework::ProcessInput()
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 			if (dwDirection)
+			{
 				m_pPlayer->Move(dwDirection, 7.0f, true);
+				//23.02.20
+				m_pPlayer->archerAttack(dwDirection);
+				m_pPlayer->changePlayerMode(dwDirection);
+				//
+			}
 		}
 	}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
@@ -650,6 +660,15 @@ void CGameFramework::FrameAdvance()
 		m_pStage->wakeUp = true;
 
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
+
+	if (1 == changePl)
+	{
+		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
+	}
+	else
+	{
+		m_pStage->m_pPlayer = m_pPlayer = pPlayer2;
+	}
 
 	for (const auto& player : Players) {
 		if (player->c_id > -1) {

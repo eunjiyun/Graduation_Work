@@ -62,8 +62,8 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
 		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
-		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
+		//if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
+		//if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 
 		Move(xmf3Shift, bUpdateVelocity);
 	}
@@ -405,31 +405,41 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosi
 #endif
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,int choosePl, void* pContext)
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	//CLoadedModelInfo* pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
-	////m_ppHierarchicalGameObjects[0] = new CZebraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pZebraModel, 1, 7);//Ä®µç ¾Ö
-	////if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);
-	//SetChild(pZebraModel->m_pModelRootObject, true);
-	//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 1, pZebraModel);
-	//m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
-	//SetScale(XMFLOAT3(1.1f, 1.1f, 1.1f));
-	//if (pZebraModel) delete pZebraModel;
-
-	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);//1
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);//1
-	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL, 0);//1
-	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/GameObject.bin", NULL, 0);//1
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
+	//if (1 == choosePl)
+	//{
+	//	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Angrybot.bin", NULL, 7);//1
+	//	pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);//1
+	//	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo5.bin", NULL, 0);//1
+	//	//CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/GameObject.bin", NULL, 0);//1
+	//}
+	//else if(2==choosePl)
+	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body2.bin", NULL, 0);//1
 	
-	SetChild(pAngrybotModel->m_pModelRootObject, true);
+	if(1==choosePl)
+		SetChild(pAngrybotModel->m_pModelRootObject, true);
+	else
+		SetChild(pAngrybotModel2->m_pModelRootObject, true);
 
-	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);
+	//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 2, pAngrybotModel);
+	if(1==choosePl)
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, pAngrybotModel);
+	else
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, pAngrybotModel2);
+
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	//23.02.20
+	m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	//
 	m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	//23.02.20
+	m_pSkinnedAnimationController->SetTrackEnable(2, false);
+	//
 
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 2);
 #ifdef _WITH_SOUND_RESOURCE
@@ -460,6 +470,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//SetScale(XMFLOAT3(5.0f, 5.0f, 5.0f));
 
 	if (pAngrybotModel) delete pAngrybotModel;
+	if (pAngrybotModel2) delete pAngrybotModel2;
 }
 
 CTerrainPlayer::~CTerrainPlayer()
@@ -558,14 +569,38 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection)
+	if (dwDirection&& dwDirection!=DIR_ATTACK)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		//23.02.20
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		//
+		m_pSkinnedAnimationController->SetTrackEnable(1, true);	
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
+//23.02.20
+void CTerrainPlayer::archerAttack(DWORD dwDirection)
+{
+	if (dwDirection && dwDirection == DIR_ATTACK)
+	{
+		m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	}
+}
+void CTerrainPlayer::changePlayerMode(DWORD dwDirection)
+{
+	if (dwDirection && dwDirection == DIR_ATTACK)
+	{
+		if (1 == playerMode)
+			playerMode = 2;
+		else if (2 == playerMode)
+			playerMode = 1;
+	}
+}
+//
 
 void CTerrainPlayer::Update(float fTimeElapsed)
 {

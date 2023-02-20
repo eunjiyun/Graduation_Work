@@ -775,9 +775,11 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
 	{
-		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
+		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) 
+			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
 		for (int k = 0; k < m_nAnimationTracks; k++)
+		//for (int k = 0; k <3; k++)
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
@@ -945,7 +947,7 @@ void CGameObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 		m_ppMaterials[nMaterial]->AddRef();
 }
 
-void CGameObject::SetMaterial(UINT nIndex, UINT nReflection)
+void CGameObject::SetMaterial(int nIndex, int nReflection)
 {
 	if ((nIndex >= 0) && (nIndex < m_nMaterials))
 	{
@@ -1588,7 +1590,7 @@ CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd
 	return(pLoadedModel);
 }
 
-void CGameObject::SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color)
+void CGameObject::SetAlbedoColor(int nIndex, XMFLOAT4 xmf4Color)
 {
 	if ((nIndex >= 0) && (nIndex < m_nMaterials))
 	{
@@ -1601,7 +1603,7 @@ void CGameObject::SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color)
 	}
 }
 
-void CGameObject::SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color)
+void CGameObject::SetEmissionColor(int nIndex, XMFLOAT4 xmf4Color)
 {
 	if ((nIndex >= 0) && (nIndex < m_nMaterials))
 	{

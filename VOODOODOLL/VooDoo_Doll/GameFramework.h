@@ -90,6 +90,9 @@ private:
 
 public:
 	bool wakeUp = true;
+	int changePl = 1;
+	CTerrainPlayer* pPlayer;
+	CTerrainPlayer* pPlayer2;
 
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
