@@ -77,8 +77,8 @@ public:
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 
 	void UpdateBoundingBox();
-	void CheckObjectByObjectCollisions();
-	XMFLOAT3 GetReflectVec(CGameObject* obj);
+	void CheckObjectByObjectCollisions(float fTimeElapsed);
+	XMFLOAT3 GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec);
 
 	CPlayer* m_pPlayer = NULL;
 

@@ -187,10 +187,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 		m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->Transform_Boundingbox(&(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox), m_ppShaders2[0]->m_ppObjects[i]->m_xmf4x4World);
 
-		cout << "바운딩 박스" << endl;
-		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.z << endl;
-		cout << "오브젝트 중심값" << endl;
-		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << endl << endl;
+		//cout << "바운딩 박스" << endl;
+		//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.z << endl;
+		//cout << "오브젝트 중심값" << endl;
+		//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << endl << endl;
 	}
 
 
@@ -584,7 +584,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	//	mpTime = 0.f;
 	//}
 
-	CheckObjectByObjectCollisions();
+	CheckObjectByObjectCollisions(fTimeElapsed);
 }
 
 void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -628,43 +628,73 @@ void CStage::UpdateBoundingBox()
 	}
 }
 
-void CStage::CheckObjectByObjectCollisions()
+void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects - 1; i++)
 	{
-		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB))
+		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16))
+			break;
+
+		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox))
 		{
-			XMFLOAT3 ReflectVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i]);
+			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
+			//cout << "현재 플레이어 속도: " << Vel.x << ", " << Vel.y << ", " << Vel.z << endl;
+			//cout << "반사된 플레이어 속도: " << Vector3::ScalarProduct(Vel, -fTimeElapsed, false).x << ", " << Vector3::ScalarProduct(Vel, -fTimeElapsed, false).y
+			//	<< ", " << Vector3::ScalarProduct(Vel, -fTimeElapsed, false).z << endl;
+			//m_pPlayer->Move(Vector3::ScalarProduct(Vel, -fTimeElapsed, false), false);
+			
+			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
+			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(Vel, -fTimeElapsed, false);
+
 			m_pPlayer->Move(ReflectVec, false);
+
+			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], MovVec);
+			m_pPlayer->Move(SlidingVec, false);
 			//XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
 			//XMFLOAT3 Xmf3Position = m_pPlayer->GetPosition();
 			//xmfsub = Vector3::Subtract(Xmf3Position, xmfsub);
 			//m_pPlayer->SetPosition(XMFLOAT3(Xmf3Position.x + xmfsub.x, Xmf3Position.y + xmfsub.y, Xmf3Position.z + xmfsub.z));
-			//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌해따요" << endl;
+			//cout << "Collided: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl << "Pos: " << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ", " << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ", " <<
+			//	m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << "\nExtents: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.x << ", " <<
+			//	m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.y << ", " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.z << endl;
 			break;
 		}
 	}
 }
 
-XMFLOAT3 CStage::GetReflectVec(CGameObject* obj)
+XMFLOAT3 CStage::GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec)
 {
-	XMFLOAT3 ReflectVec{ 0,0,0 };
-	BoundingBox PlayerBB = m_pPlayer->m_xmOOBB, ObjBB = obj->m_xmOOBB;
-	if (PlayerBB.Center.x > ObjBB.Center.x)
-		ReflectVec.x = (PlayerBB.Extents.x + ObjBB.Extents.x) - (PlayerBB.Center.x - ObjBB.Center.x);
-	else
-		ReflectVec.x = (ObjBB.Center.x - PlayerBB.Center.x) - (PlayerBB.Extents.x + ObjBB.Extents.x);
+	//cout << "부딪힌 물체의 Normal: " << obj->GetLook().x << ", " << obj->GetLook().y << ", " << obj->GetLook().z << endl;
+	XMFLOAT3 los = { -1,0,0 };
+	cout << "현재 속도: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << endl;
+	float Dot = Vector3::DotProduct(MovVec,los );
+	XMFLOAT3 Nor = Vector3::ScalarProduct(los, Dot);
+	cout << "반사각: " << Nor.x << ", " << Nor.y << ", " << Nor.z << endl;
+	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 
-	//if (PlayerBB.Center.x > ObjBB.Center.x)
-	//	ReflectVec.x = (PlayerBB.Extents.x + ObjBB.Extents.x) - (PlayerBB.Center.x - ObjBB.Center.x);
+	cout << "SlidingVector: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
+	return SlidingVec;
+
+
+
+	//XMFLOAT3 ReflectVec{ 0,0,0 };
+	//BoundingBox PlayerBB = m_pPlayer->m_xmOOBB;
+
+	//if (PlayerBB.Center.x > box.Center.x)
+	//	ReflectVec.x = (PlayerBB.Extents.x + box.Extents.x) - (PlayerBB.Center.x - box.Center.x);
 	//else
-	//	ReflectVec.x = (ObjBB.Center.x - PlayerBB.Center.x) - (PlayerBB.Extents.x + ObjBB.Extents.x);
+	//	ReflectVec.x = (box.Center.x - PlayerBB.Center.x) - (PlayerBB.Extents.x + box.Extents.x);
 
-	if (PlayerBB.Center.z > ObjBB.Center.z)
-		ReflectVec.z = (PlayerBB.Extents.z + ObjBB.Extents.z) - (PlayerBB.Center.z - ObjBB.Center.z);
-	else
-		ReflectVec.z = (ObjBB.Center.z - PlayerBB.Center.z) - (PlayerBB.Extents.z + ObjBB.Extents.z);
-	return ReflectVec;
+	//if (PlayerBB.Center.y > box.Center.y)
+	//	ReflectVec.y = (PlayerBB.Extents.y + box.Extents.y) - (PlayerBB.Center.y - box.Center.y);
+	//else
+	//	ReflectVec.y = (box.Center.y - PlayerBB.Center.y) - (PlayerBB.Extents.y + box.Extents.y);
+
+	//if (PlayerBB.Center.z > box.Center.z)
+	//	ReflectVec.z = (PlayerBB.Extents.z + box.Extents.z) - (PlayerBB.Center.z - box.Center.z);
+	//else
+	//	ReflectVec.z = (box.Center.z - PlayerBB.Center.z) - (PlayerBB.Extents.z + box.Extents.z);
+	//return ReflectVec;
 }
 
 
