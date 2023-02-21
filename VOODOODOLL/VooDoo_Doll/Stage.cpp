@@ -184,18 +184,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
-		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x;
-		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y;
-		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z = m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z;
-		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.x;
-		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.y;
-		m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.z;
 
-		//바운딩박스 중심값과 익스텐츠 값 확인하는 주석
-		//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z << endl;
-		//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z << endl;
+		m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->Transform_Boundingbox(&(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox), m_ppShaders2[0]->m_ppObjects[i]->m_xmf4x4World);
 
+		cout << "바운딩 박스" << endl;
+		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.z << endl;
+		cout << "오브젝트 중심값" << endl;
+		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << endl << endl;
 	}
+
+
+
 	BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 	//BuildLightsAndMaterials();
 	//
