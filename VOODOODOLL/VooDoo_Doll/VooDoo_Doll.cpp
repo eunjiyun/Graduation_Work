@@ -120,7 +120,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-	//clienttest
 #pragma region SERVER
 
 	WSADATA WSAData;

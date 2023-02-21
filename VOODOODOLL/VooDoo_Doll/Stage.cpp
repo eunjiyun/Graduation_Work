@@ -638,17 +638,13 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox))
 		{
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
-			//cout << "현재 플레이어 속도: " << Vel.x << ", " << Vel.y << ", " << Vel.z << endl;
-			//cout << "반사된 플레이어 속도: " << Vector3::ScalarProduct(Vel, -fTimeElapsed, false).x << ", " << Vector3::ScalarProduct(Vel, -fTimeElapsed, false).y
-			//	<< ", " << Vector3::ScalarProduct(Vel, -fTimeElapsed, false).z << endl;
-			//m_pPlayer->Move(Vector3::ScalarProduct(Vel, -fTimeElapsed, false), false);
 			
-			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(Vel, -fTimeElapsed, false);
+			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed);
+			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(Vel, -1, false);
 
 			m_pPlayer->Move(ReflectVec, false);
 
-			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], MovVec);
+			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], Vel);
 			m_pPlayer->Move(SlidingVec, false);
 			//XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
 			//XMFLOAT3 Xmf3Position = m_pPlayer->GetPosition();
@@ -664,15 +660,10 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 XMFLOAT3 CStage::GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec)
 {
-	//cout << "부딪힌 물체의 Normal: " << obj->GetLook().x << ", " << obj->GetLook().y << ", " << obj->GetLook().z << endl;
-	XMFLOAT3 los = { -1,0,0 };
-	cout << "현재 속도: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << endl;
-	float Dot = Vector3::DotProduct(MovVec,los );
-	XMFLOAT3 Nor = Vector3::ScalarProduct(los, Dot);
-	cout << "반사각: " << Nor.x << ", " << Nor.y << ", " << Nor.z << endl;
+	float Dot = Vector3::DotProduct(MovVec,obj->GetLook());
+	XMFLOAT3 Nor = Vector3::ScalarProduct(obj->GetLook(), Dot);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
-
-	cout << "SlidingVector: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
+	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 	return SlidingVec;
 
 

@@ -463,7 +463,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 
 	SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
-	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(5, 5, 5));
+	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 5, 5));
 
 	//SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
