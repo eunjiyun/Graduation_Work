@@ -66,7 +66,7 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 	//23.02.20
-	virtual void archerAttack(DWORD dwDirection){}
+	virtual void playerAttack(){}
 	//
 
 	virtual void Update(float fTimeElapsed);
@@ -104,7 +104,7 @@ public:
 	float cxDelta, cyDelta, czDelta = 0.0f;
 
 	//23.02.20
-	int playerMode = 1;
+	bool onAttack = false;
 	//
 };
 
@@ -153,7 +153,7 @@ public:
 	virtual void Update(float fTimeElapsed);
 
 	//23.02.20
-	virtual void archerAttack(DWORD dwDirection);
+	virtual void playerAttack();
 	//
 };
 

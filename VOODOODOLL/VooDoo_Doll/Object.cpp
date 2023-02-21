@@ -1265,7 +1265,7 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 	return(nStrLength);
 }
 
-void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose)
+void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose)//0220
 {
 	char pstrToken[64] = { '\0' };
 	int nMaterial = 0;
@@ -1596,10 +1596,10 @@ void CGameObject::SetAlbedoColor(int nIndex, XMFLOAT4 xmf4Color)
 	{
 		if (!m_ppMaterials[nIndex])
 		{
-			m_ppMaterials[nIndex] = new CMaterial(0);
+			//m_ppMaterials[nIndex] = new CMaterial(0);
 			m_ppMaterials[nIndex]->AddRef();
 		}
-		m_ppMaterials[nIndex]->SetAlbedoColor(xmf4Color);
+		//m_ppMaterials[nIndex]->SetAlbedoColor(xmf4Color);
 	}
 }
 
@@ -1612,7 +1612,7 @@ void CGameObject::SetEmissionColor(int nIndex, XMFLOAT4 xmf4Color)
 			m_ppMaterials[nIndex] = new CMaterial(0);
 			m_ppMaterials[nIndex]->AddRef();
 		}
-		m_ppMaterials[nIndex]->SetEmissionColor(xmf4Color);
+		//m_ppMaterials[nIndex]->SetEmissionColor(xmf4Color);
 	}
 }
 //

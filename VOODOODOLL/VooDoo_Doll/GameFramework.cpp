@@ -565,13 +565,13 @@ void CGameFramework::ProcessInput()
 			{
 				m_pPlayer->Move(dwDirection, 7.0f, true);
 				//23.02.20
-				m_pPlayer->archerAttack(dwDirection);
-				//m_pPlayer->changePlayerMode(dwDirection);
+				m_pPlayer->playerAttack();
 				//
 			}
 		}
 	}
 	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+
 	for (auto& player : Players) {
 		if (player->c_id > -1)
 			player->Update(m_GameTimer.GetTimeElapsed());
@@ -665,7 +665,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
 	//23.02.20
-	changePlayerForm(&m_pStage->m_pPlayer,&m_pPlayer,pPlayer,pPlayer2);
+	changePlayerForm(&m_pStage->m_pPlayer, &m_pPlayer, pPlayer, pPlayer2);
 	//changePlayerForm(m_pStage->m_pPlayer, m_pPlayer, pPlayer, pPlayer2);
 	//
 

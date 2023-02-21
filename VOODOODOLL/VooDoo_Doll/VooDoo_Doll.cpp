@@ -92,8 +92,7 @@ void GamePlayer_ProcessInput()
 			p.direction = dwDirection;
 			gGameFramework.m_pPlayer->Move(dwDirection, 1.0, true);
 			//23.02.20
-			gGameFramework.m_pPlayer->archerAttack(dwDirection);
-			//gGameFramework.m_pPlayer->changePlayerMode(dwDirection);
+			gGameFramework.m_pPlayer->playerAttack();
 			//
 		}
 
@@ -265,14 +264,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 		//
-	case WM_SIZE:
+
+	case WM_KEYDOWN:
+		if (wParam == 'Z' || wParam == 'z')
+			gGameFramework.m_pPlayer->onAttack = true;
+		break;
+	case WM_KEYUP:
+		if (wParam == 'Z' || wParam == 'z')
+			gGameFramework.m_pPlayer->onAttack = false;
+		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
+	case WM_SIZE:
 	case WM_RBUTTONDOWN:
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
-	case WM_KEYDOWN:
-	case WM_KEYUP:
 		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 		break;
 	case WM_COMMAND:

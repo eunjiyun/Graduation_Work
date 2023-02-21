@@ -114,7 +114,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	m_nHierarchicalGameObjects = 6;
+	m_nHierarchicalGameObjects = 7;
 	m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
 
 
@@ -168,12 +168,12 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//m_ppHierarchicalGameObjects[4]->SetScale(0.5f, 0.5f, 0.5f);
 	//if (pZebraModel6) delete pZebraModel6;
 
-	//CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body.bin", NULL, 7);//
-	//m_ppHierarchicalGameObjects[5] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[5]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
-	//m_ppHierarchicalGameObjects[5]->SetScale(20.1f, 20.1f, 20.1f);
-	//if (pZebraModel7) delete pZebraModel7;
+	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body02213.bin", NULL, 7);//
+	m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
+	m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
+	m_ppHierarchicalGameObjects[6]->SetScale(1.1f, 1.1f, 1.1f);
+	if (pZebraModel7) delete pZebraModel7;
 
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];

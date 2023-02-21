@@ -58,10 +58,19 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
+
+		if (dwDirection & DIR_FORWARD) 
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+
+		if (dwDirection & DIR_BACKWARD) 
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
+
+		if (dwDirection & DIR_RIGHT) 
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
+
+		if (dwDirection & DIR_LEFT) 
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
+
 		//if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
 		//if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 
@@ -565,17 +574,17 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		//23.02.20
-		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		//
-		m_pSkinnedAnimationController->SetTrackEnable(1, true);	
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);	
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
 //23.02.20
-void CTerrainPlayer::archerAttack(DWORD dwDirection)
+void CTerrainPlayer::playerAttack()
 {
-	if (dwDirection && dwDirection == DIR_ATTACK)
+	if(true==onAttack)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		m_pSkinnedAnimationController->SetTrackEnable(1, false);
@@ -591,11 +600,17 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 	if (m_pSkinnedAnimationController)
 	{
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		if (::IsZero(fLength))
+		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
 		{
-			m_pSkinnedAnimationController->SetTrackEnable(0, true);
-			m_pSkinnedAnimationController->SetTrackEnable(1, false);
-			m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+			if (!onAttack)//플레이어가 공격 모드가 아닐 때
+			{
+				m_pSkinnedAnimationController->SetTrackEnable(0, true);
+				m_pSkinnedAnimationController->SetTrackEnable(1, false);
+				//23.02.21
+				m_pSkinnedAnimationController->SetTrackEnable(2, false);
+				//
+				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+			}
 		}
 	}
 
