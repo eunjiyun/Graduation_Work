@@ -418,28 +418,30 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
-	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body7.bin", NULL, 0);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body10.bin", NULL, 0);
+	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body8.bin", NULL, 0);
 
 	if (1 == choosePl)
 	{
 		SetChild(pAngrybotModel->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, pAngrybotModel);
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 4, pAngrybotModel);
 	}
 	else if (2 == choosePl)
 	{
 		SetChild(pAngrybotModel2->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 3, pAngrybotModel2);
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 4, pAngrybotModel2);
 	}
 
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 	//23.02.20
 	m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 	//
 	m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	//23.02.20
 	m_pSkinnedAnimationController->SetTrackEnable(2, false);
+	m_pSkinnedAnimationController->SetTrackEnable(3, false);
 	//
 
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 2);
@@ -466,10 +468,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 5, 5));
 
-	//SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
-	//SetScale(XMFLOAT3(20.0f, 20.0f, 20.0f));
-	//SetScale(XMFLOAT3(5.0f, 5.0f, 5.0f));
 
 	if (pAngrybotModel) delete pAngrybotModel;
 	if (pAngrybotModel2) delete pAngrybotModel2;
@@ -560,13 +559,14 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_CHANGE)
+	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		//23.02.20
 		m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		//
 		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
@@ -582,9 +582,11 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		m_pSkinnedAnimationController->SetTrackEnable(1, false);
 		m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
 		if (2 == whatPlayer)
 		{
+			
 			//for (int i = 0; i < BULLETS; i++)
 			for (int i = 0; i < 1; i++)
 			{
@@ -616,6 +618,16 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 
 	return NULL;
 }
+void CTerrainPlayer::playerRun(int whatPlayer)
+{
+	if (true == onRun)
+	{
+		m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		m_pSkinnedAnimationController->SetTrackEnable(3, true);
+	}
+}
 //
 
 void CTerrainPlayer::Update(float fTimeElapsed)
@@ -627,12 +639,13 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
 		{
-			if (!onAttack)//플레이어가 공격 모드가 아닐 때
+			if (!onAttack && !onRun)//플레이어가 공격 모드가 아닐 때
 			{
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
 				//23.02.21
 				m_pSkinnedAnimationController->SetTrackEnable(2, false);
+				m_pSkinnedAnimationController->SetTrackEnable(3, false);
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 			}

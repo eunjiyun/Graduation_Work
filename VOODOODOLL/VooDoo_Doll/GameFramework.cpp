@@ -557,8 +557,8 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 
 		//23.02.20
-		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z archerAttack
-		if (pKeysBuffer[0x51] & 0xF0) dwDirection |= DIR_CHANGE;//q playerChange
+		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		//
 
 		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -576,6 +576,8 @@ void CGameFramework::ProcessInput()
 
 				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL);
 				m_pLockedObject = NULL;
+
+				m_pPlayer->playerRun(whatPlayer);
 			}
 		}
 	}

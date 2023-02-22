@@ -48,8 +48,8 @@ void GamePlayer_ProcessInput()
 		//if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
 		//if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
 		//23.02.20
-		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z archerAttack
-		if (pKeysBuffer[0x51] & 0xF0) dwDirection |= DIR_CHANGE;//q playerChange
+		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		//
 	}
 
@@ -94,6 +94,8 @@ void GamePlayer_ProcessInput()
 			//23.02.20
 			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets), NULL, NULL, NULL);
 			gGameFramework.m_pLockedObject = NULL;
+
+			gGameFramework.m_pPlayer->playerRun(gGameFramework.whatPlayer);
 			//
 		}
 
@@ -268,10 +270,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == 'Z' || wParam == 'z')
 			gGameFramework.m_pPlayer->onAttack = true;
+		else if (wParam == 'X' || wParam == 'x')
+			gGameFramework.m_pPlayer->onRun = true;
 		break;
 	case WM_KEYUP:
 		if (wParam == 'Z' || wParam == 'z')
 			gGameFramework.m_pPlayer->onAttack = false;
+		else if (wParam == 'X' || wParam == 'x')
+			gGameFramework.m_pPlayer->onRun = false;
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -405,7 +411,7 @@ void ProcessData(char* packet, int io_byte)
 
 			//ptr += in_packet_size - saved_packet_size;
 			ptr += in_packet_size;
-			io_byte -= in_packet_size - saved_packet_size;
+			io_byte -= in_packet_size - saved_packet_size;//'-=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 			in_packet_size = 0;
 			saved_packet_size = 0;
 		}
