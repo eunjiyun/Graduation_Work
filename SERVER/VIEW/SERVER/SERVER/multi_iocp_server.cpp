@@ -110,7 +110,7 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		lock_guard <mutex> ll{ clients[c_id]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		//if (Collide_Check(p->pos))
+		
 		clients[c_id].SetPosition(p->pos);
 		clients[c_id].direction = p->direction;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);

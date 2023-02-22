@@ -871,7 +871,7 @@ void CSkinnedMesh::LoadSkinInfoFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 					//if (m_ppstrSkinningBoneNames[0] == NULL)
 					//cout << i<<"¹øÂ° º» : "<<m_ppstrSkinningBoneNames[i] << endl;
 				}
-			}
+			} 
 		}
 		else if (!strcmp(pstrToken, "<BoneOffsets>:"))
 		{

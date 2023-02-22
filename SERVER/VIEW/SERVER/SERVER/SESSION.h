@@ -230,6 +230,5 @@ public:
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
 	void CheckCollisionByMap();
-	
 };
 

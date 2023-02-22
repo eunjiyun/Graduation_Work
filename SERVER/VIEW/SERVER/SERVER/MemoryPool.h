@@ -82,7 +82,7 @@ class MapObject : public CMemoryPool<MapObject>
 public:
     XMFLOAT4X4 m_xmf4x4World;
     char						m_pstrName[64] = { '\0' };
-    BoundingOrientedBox			m_xmOOBB = BoundingOrientedBox();
+    BoundingBox			m_xmOOBB = BoundingBox();
 
     MapObject(int nMaterials) { m_xmf4x4World = Matrix4x4::Identity(); }
     XMFLOAT3 GetPosition()
@@ -113,8 +113,28 @@ public:
     {
 
     }
+    
 };
 
+void Transform_BoundingBox(BoundingBox* _BoundingBox, XMFLOAT4X4 _xmfWorld)
+{
+    XMVECTOR	xmvCenter = XMLoadFloat3(&_BoundingBox->Center);
+    XMVECTOR	xmvExtents = XMLoadFloat3(&_BoundingBox->Extents);
+
+    XMMATRIX xmMatrix = XMMatrixSet(
+        _xmfWorld._11, _xmfWorld._12, _xmfWorld._13, _xmfWorld._14,
+        _xmfWorld._21, _xmfWorld._22, _xmfWorld._23, _xmfWorld._24,
+        _xmfWorld._31, _xmfWorld._32, _xmfWorld._33, _xmfWorld._34,
+        _xmfWorld._41, _xmfWorld._42, _xmfWorld._43, _xmfWorld._44
+    );
+
+
+    xmvCenter = XMVector3Transform(xmvCenter, xmMatrix);
+    xmvExtents = XMVector3TransformNormal(xmvExtents, xmMatrix);
+    XMStoreFloat3(&_BoundingBox->Center, xmvCenter);
+    XMStoreFloat3(&_BoundingBox->Extents, xmvExtents);
+   
+}
 
 void LoadMeshFromFile(MapObject& obj, char* pstrFileName)
 {
@@ -138,6 +158,10 @@ void LoadMeshFromFile(MapObject& obj, char* pstrFileName)
         {
             nReads = (UINT)::fread(&obj.m_xmOOBB.Center, sizeof(float), 3, pFile);
             nReads = (UINT)::fread(&obj.m_xmOOBB.Extents, sizeof(float), 3, pFile);
+            Transform_BoundingBox(&(obj.m_xmOOBB), obj.m_xmf4x4World);
+            cout << "Name: " << obj.m_pstrName << "\nCenter: " << obj.m_xmOOBB.Center.x << ", " << obj.m_xmOOBB.Center.y << ", " <<
+                obj.m_xmOOBB.Center.z << "\nExtents: " << obj.m_xmOOBB.Extents.x << ", " << obj.m_xmOOBB.Extents.y << ", " <<
+                obj.m_xmOOBB.Extents.z << endl;
             break;
         }
     }
