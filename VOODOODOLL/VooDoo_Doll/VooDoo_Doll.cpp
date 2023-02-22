@@ -85,14 +85,15 @@ void GamePlayer_ProcessInput()
 				gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
 				gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
 			}
-			 
+
 		}
 
 		if (dwDirection) {
 			p.direction = dwDirection;
 			gGameFramework.m_pPlayer->Move(dwDirection, 1.0, true);
 			//23.02.20
-			gGameFramework.m_pPlayer->playerAttack();
+			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets), NULL, NULL, NULL);
+			gGameFramework.m_pLockedObject = NULL;
 			//
 		}
 

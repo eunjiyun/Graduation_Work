@@ -7,6 +7,10 @@
 #define DIR_ATTACK				0x10
 #define DIR_CHANGE				0x20
 
+//23.02.21
+#define BULLETS					50
+//
+
 #include "Object.h"
 #include "Camera.h"
 
@@ -34,6 +38,11 @@ protected:
 	LPVOID						m_pCameraUpdatedContext = NULL;
 
 	CCamera* m_pCamera = NULL;
+
+public:
+	//23.02.21
+	CGameObject** m_ppBullets;
+	//
 
 public:
 	CPlayer();
@@ -66,7 +75,7 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 	//23.02.20
-	virtual void playerAttack(){}
+	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*) { return NULL; }
 	//
 
 	virtual void Update(float fTimeElapsed);
@@ -139,7 +148,7 @@ public:
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,int choosePl, void* pContext = NULL);
+	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl, void* pContext = NULL);
 	virtual ~CTerrainPlayer();
 
 public:
@@ -153,7 +162,7 @@ public:
 	virtual void Update(float fTimeElapsed);
 
 	//23.02.20
-	virtual void playerAttack();
+	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*);
 	//
 };
 

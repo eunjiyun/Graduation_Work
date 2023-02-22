@@ -402,6 +402,8 @@ public:
 	BoundingBox			m_xmOOBB = BoundingBox();
 	//
 
+	bool						m_bActive = false;
+
 	void SetMesh(int nIndex, CMesh* pMesh);
 	void SetShader(CShader* pShader);
 	void SetShader(int nMaterial, CShader* pShader);
@@ -485,6 +487,20 @@ public:
 	static CLoadedModelInfo* LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName, CShader* pShader, int choose);
 
 	static void PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent);
+
+public:
+	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3					m_xmf3FirePosition = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	CGameObject* m_pLockedObject = NULL;
+	float						m_fMovingSpeed = 0.0f;
+	float						m_fRotationSpeed = 0.0f;
+	void SetMovingDirection(XMFLOAT3& xmf3MovingDirection);
+	void SetActive(bool bActive) { m_bActive = bActive; }
+	void SetFirePosition(XMFLOAT3 xmf3FirePosition) 
+	{
+		m_xmf3FirePosition = xmf3FirePosition;
+		SetPosition(xmf3FirePosition);
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -681,3 +697,27 @@ public:
 	virtual ~CEagleObject();
 };
 
+//23.02.21
+class CBulletObject : public CGameObject
+{
+public:
+	CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
+	virtual ~CBulletObject(){}
+
+public:
+	virtual void Animate(float fElapsedTime);
+
+	float						m_fBulletEffectiveRange = 50.0f;
+	float						m_fMovingDistance = 0.0f;
+	float						m_fRotationAngle = 0.0f;
+	XMFLOAT3					m_xmf3FirePosition = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+	float						m_fElapsedTimeAfterFire = 0.0f;
+	float						m_fLockingDelayTime = 0.3f;
+	float						m_fLockingTime = 4.0f;
+	CGameObject* m_pLockedObject = NULL;
+
+	void SetFirePosition(XMFLOAT3 xmf3FirePosition);
+	void Reset();
+};
+//

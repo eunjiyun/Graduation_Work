@@ -466,6 +466,7 @@ void CGameFramework::BuildObjects()
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
 #endif
 
+
 	if (pPlayer)
 	{
 		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
@@ -474,10 +475,17 @@ void CGameFramework::BuildObjects()
 		for (int i = 0; i < 3; i++) {
 			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
 			Players.push_back(pAirplanePlayer);
-
-			/*CTerrainPlayer* pAirplanePlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2, m_pStage->m_pTerrain);
-			Players.push_back(pAirplanePlayer2);*/
 		}
+
+		//23.02.22
+		m_ppBullets = new CGameObject * [BULLETS];
+
+		CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon.bin", NULL, 7);//
+		m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1);
+		m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
+		if (arrow) delete arrow;
+		//
 
 		m_pd3dCommandList->Close();
 		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -488,6 +496,8 @@ void CGameFramework::BuildObjects()
 		if (m_pStage) m_pStage->ReleaseUploadBuffers();
 		if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 	}
+
+
 
 	m_GameTimer.Reset();
 }
@@ -545,8 +555,7 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		//if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
-		//if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
+
 		//23.02.20
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z archerAttack
 		if (pKeysBuffer[0x51] & 0xF0) dwDirection |= DIR_CHANGE;//q playerChange
@@ -564,9 +573,9 @@ void CGameFramework::ProcessInput()
 			if (dwDirection)
 			{
 				m_pPlayer->Move(dwDirection, 7.0f, true);
-				//23.02.20
-				m_pPlayer->playerAttack();
-				//
+
+				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL);
+				m_pLockedObject = NULL;
 			}
 		}
 	}
@@ -631,6 +640,8 @@ void CGameFramework::FrameAdvance()
 	//	}
 	//}
 
+	m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
+
 	AnimateObjects();
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
@@ -664,10 +675,9 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
-	//23.02.20
-	changePlayerForm(&m_pStage->m_pPlayer, &m_pPlayer, pPlayer, pPlayer2);
-	//changePlayerForm(m_pStage->m_pPlayer, m_pPlayer, pPlayer, pPlayer2);
-	//
+	m_pStage->whatPlayer = whatPlayer;
+
+	changePlayerForm(&m_pStage->m_pPlayer, &m_pPlayer, pPlayer, pPlayer2);//ÇÃ·¹ÀÌ¾î ¸ðµå º¯°æ
 
 	for (const auto& player : Players) {
 		if (player->c_id > -1) {
@@ -681,7 +691,21 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 	if (m_pPlayer)
+	{
 		m_pPlayer->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+
+		if (2 == whatPlayer)//±Ã¼ö ¸ðµåÀÏ ¶§ ÃÑ¾Ë ·»´õ
+		{
+			//for (int i = 0; i < BULLETS; ++i)
+			for (int i = 0; i < 1; ++i)
+			{
+				if (m_ppBullets[i]->m_bActive)
+				{
+					m_ppBullets[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+				}
+			}
+		}
+	}
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
@@ -753,39 +777,5 @@ void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPla
 	}
 
 	m_pCamera = m_pPlayer->GetCamera();
-
-	//if (1 == whatPlayer)
-	//{
-	//	*sceneOldPlayer = *oldPlayer = newPlayer;
-
-	//	//if(changePlayerMode)
-	//	if (changePlayerMode)
-	//	{
-	//		oldPlayer[0]->SetPosition(newPlayer2->GetPosition());
-
-	//		oldPlayer[0]->SetLookVector(newPlayer2->GetLookVector());
-	//		oldPlayer[0]->SetUpVector(newPlayer2->GetUpVector());
-	//		oldPlayer[0]->SetRightVector(newPlayer2->GetRightVector());
-
-	//		changePlayerMode = false;
-	//	}
-	//}
-	//else if (2 == whatPlayer)
-	//{
-	//	*sceneOldPlayer=* oldPlayer = newPlayer2;
-
-	//	if (changePlayerMode)
-	//	{
-	//		oldPlayer[0]->SetPosition(newPlayer->GetPosition());
-
-	//		oldPlayer[0]->SetLookVector(newPlayer->GetLookVector());
-	//		oldPlayer[0]->SetUpVector(newPlayer->GetUpVector());
-	//		oldPlayer[0]->SetRightVector(newPlayer->GetRightVector());
-
-	//		changePlayerMode = false;
-	//	}
-	//}
-
-	//m_pCamera = oldPlayer[0]->GetCamera();
 }
 

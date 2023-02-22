@@ -59,16 +59,16 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
-		if (dwDirection & DIR_FORWARD) 
+		if (dwDirection & DIR_FORWARD)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
 
-		if (dwDirection & DIR_BACKWARD) 
+		if (dwDirection & DIR_BACKWARD)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 
-		if (dwDirection & DIR_RIGHT) 
+		if (dwDirection & DIR_RIGHT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
 
-		if (dwDirection & DIR_LEFT) 
+		if (dwDirection & DIR_LEFT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
 		//if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
@@ -414,13 +414,13 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosi
 #endif
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,int choosePl, void* pContext)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl, void* pContext)
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body.bin", NULL, 0);
-	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body2.bin", NULL, 0);
-	
+	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body7.bin", NULL, 0);
+
 	if (1 == choosePl)
 	{
 		SetChild(pAngrybotModel->m_pModelRootObject, true);
@@ -462,7 +462,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	CHeightMapTerrain* pTerrain = (CHeightMapTerrain*)pContext;
 
-	SetPosition(XMFLOAT3(0.f, 0.f, 0.f));
+	//SetPosition(XMFLOAT3(0.f, 0.f, 0.f));//플레이어 포지션
+
 	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 5, 5));
 
 	//SetScale(XMFLOAT3(10.0f, 10.0f, 10.0f));
@@ -555,41 +556,65 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 	XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
 	int z = (int)(xmf3CameraPosition.z / xmf3Scale.z);
 	bool bReverseQuad = ((z % 2) != 0);
-	/*float fHeight = pTerrain->GetHeight(xmf3CameraPosition.x, xmf3CameraPosition.z, bReverseQuad) + 5.0f;
-	if (xmf3CameraPosition.y <= fHeight)
-	{
-		xmf3CameraPosition.y = fHeight;
-		m_pCamera->SetPosition(xmf3CameraPosition);
-		if (m_pCamera->GetMode() == THIRD_PERSON_CAMERA)
-		{
-			CThirdPersonCamera *p3rdPersonCamera = (CThirdPersonCamera *)m_pCamera;
-			p3rdPersonCamera->SetLookAt(GetPosition());
-		}
-	}*/
 }
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection&& dwDirection!=DIR_ATTACK && dwDirection != DIR_CHANGE)
+	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_CHANGE)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		//23.02.20
 		m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		//
-		m_pSkinnedAnimationController->SetTrackEnable(2, false);	
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
 //23.02.20
-void CTerrainPlayer::playerAttack()
+CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLockedObject, CGameObject*** bulletTmp,
+	ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	if(true==onAttack)
+	CGameObject* pBulletObject = NULL;
+
+	if (true == onAttack)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		m_pSkinnedAnimationController->SetTrackEnable(1, false);
 		m_pSkinnedAnimationController->SetTrackEnable(2, true);
+
+		if (2 == whatPlayer)
+		{
+			//for (int i = 0; i < BULLETS; i++)
+			for (int i = 0; i < 1; i++)
+			{
+				if (!(*bulletTmp)[i]->m_bActive)//0222
+				{
+					pBulletObject = (*bulletTmp)[i];
+					break;
+				}
+			}
+
+			if (pBulletObject)
+			{
+				XMFLOAT3 xmf3Position = GetPosition();
+				XMFLOAT3 xmf3Direction = GetUp();
+				XMFLOAT3 xmf3FirePosition = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Direction, 6.0f, false));
+
+				pBulletObject->m_xmf4x4World = m_xmf4x4World;
+				pBulletObject->SetFirePosition(xmf3FirePosition);
+				pBulletObject->SetMovingDirection(xmf3Direction);
+				pBulletObject->SetActive(true);
+
+				if (pLockedObject)
+				{
+					pBulletObject->m_pLockedObject = pLockedObject;
+				}
+			}
+		}
 	}
+
+	return NULL;
 }
 //
 

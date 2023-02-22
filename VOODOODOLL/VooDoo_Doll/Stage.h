@@ -154,4 +154,6 @@ public:
 	bool wakeUp = false;
 	BoundingBox			m_xmOOBB = BoundingBox();
 	XMFLOAT4X4					m_xmf4x4World = Matrix4x4::Identity();
+
+	int whatPlayer = 1;
 };

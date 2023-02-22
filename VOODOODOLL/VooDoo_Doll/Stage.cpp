@@ -160,15 +160,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[5]->SetScale(0.5f, 0.5f, 0.5f);
 	if (pZebraModel6) delete pZebraModel6;
 
-
-	//CLoadedModelInfo* pZebraModel6 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL, 6);//
-	//m_ppHierarchicalGameObjects[4] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel6, 1, 6);
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[4]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
-	//m_ppHierarchicalGameObjects[4]->SetScale(0.5f, 0.5f, 0.5f);
-	//if (pZebraModel6) delete pZebraModel6;
-
-	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body02213.bin", NULL, 7);//
+	CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body7.bin", NULL, 0);//
 	m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
 	m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//캐릭터body
@@ -551,38 +543,29 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		//
 	}
 
-	//**/
 	static float fAngle = 0.0f;
 	fAngle += 1.50f;
-	//	XMFLOAT3 xmf3Position = XMFLOAT3(50.0f, 0.0f, 0.0f);
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Rotate(0.0f, -fAngle, 0.0f);
 	XMFLOAT3 xmf3Position = Vector3::TransformCoord(XMFLOAT3(50.0f, 0.0f, 0.0f), xmf4x4Rotate);
-	//	m_ppHierarchicalGameObjects[11]->m_xmf4x4ToParent._41 = m_xmf3RotatePosition.x + xmf3Position.x;
-	//	m_ppHierarchicalGameObjects[11]->m_xmf4x4ToParent._42 = m_xmf3RotatePosition.y + xmf3Position.y;
-	//	m_ppHierarchicalGameObjects[11]->m_xmf4x4ToParent._43 = m_xmf3RotatePosition.z + xmf3Position.z;
 
-		/*m_ppHierarchicalGameObjects[11]->m_xmf4x4ToParent = Matrix4x4::AffineTransformation(XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, -fAngle, 0.0f), Vector3::Add(m_xmf3RotatePosition, xmf3Position));
-		m_ppHierarchicalGameObjects[11]->Rotate(0.0f, -1.5f, 0.0f);*/
-		//**/
+	//23.02.11
+	//23.01.03
+	//일정한 시간이 지나면 적이 나를 향해서 오게: 델타 t
+//XMFLOAT3 xmf3Shift = XMFLOAT3(m_pPlayer->m_xmf4x4World._41 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41,
+//	m_pPlayer->m_xmf4x4World._42 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42,
+//	m_pPlayer->m_xmf4x4World._43 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43);
 
-			//23.02.11
-			//23.01.03
-			//일정한 시간이 지나면 적이 나를 향해서 오게: 델타 t
-	//XMFLOAT3 xmf3Shift = XMFLOAT3(m_pPlayer->m_xmf4x4World._41 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41,
-	//	m_pPlayer->m_xmf4x4World._42 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42,
-	//	m_pPlayer->m_xmf4x4World._43 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43);
+//srand((unsigned int)time(NULL));
+//mpTime += fTimeElapsed;
+//XMFLOAT3 tmp = XMFLOAT3(xmf3Shift.x / 5, xmf3Shift.y / 5, xmf3Shift.z / 5);
+//if (mpTime > 0.25f)
+//{
+//	//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
 
-	//srand((unsigned int)time(NULL));
-	//mpTime += fTimeElapsed;
-	//XMFLOAT3 tmp = XMFLOAT3(xmf3Shift.x / 5, xmf3Shift.y / 5, xmf3Shift.z / 5);
-	//if (mpTime > 0.25f)
-	//{
-	//	//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
-
-	//	m_ppHierarchicalGameObjects[5]->SetPosition(Vector3::Add(XMFLOAT3(
-	//		m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43), tmp));
-	//	mpTime = 0.f;
-	//}
+//	m_ppHierarchicalGameObjects[5]->SetPosition(Vector3::Add(XMFLOAT3(
+//		m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43), tmp));
+//	mpTime = 0.f;
+//}
 
 	CheckObjectByObjectCollisions(fTimeElapsed);
 }
@@ -638,7 +621,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox))
 		{
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
-			
+
 			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed);
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(Vel, -1, false);
 
@@ -660,7 +643,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 XMFLOAT3 CStage::GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec)
 {
-	float Dot = Vector3::DotProduct(MovVec,obj->GetLook());
+	float Dot = Vector3::DotProduct(MovVec, obj->GetLook());
 	XMFLOAT3 Nor = Vector3::ScalarProduct(obj->GetLook(), Dot);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;

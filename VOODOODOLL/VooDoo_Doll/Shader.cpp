@@ -689,7 +689,7 @@ void CAngrybotObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Graphi
 		//if (!pAngrybotModel) pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/GameObject.bin", NULL, 0);
 	}
 	else if(2==choosePl)
-		if (!pAngrybotModel) pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body2.bin", NULL, 0);
+		if (!pAngrybotModel) pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body7.bin", NULL, 0);
 
 	int nObjects = 0;
 	for (int x = -xObjects; x <= xObjects; x++)
@@ -854,8 +854,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	int num = 0;
-
-
 
 	if (0 == strcmp("Models/Scene.bin", pstrFileName))
 	{

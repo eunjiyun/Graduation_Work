@@ -58,7 +58,7 @@ public:
 	SCENEID m_ePrevScene;
 
 	//23.02.20
-	void changePlayerForm(CPlayer**,CPlayer**,CTerrainPlayer*, CTerrainPlayer*);
+	void changePlayerForm(CPlayer**, CPlayer**, CTerrainPlayer*, CTerrainPlayer*);
 
 private:
 	HINSTANCE					m_hInstance;
@@ -95,6 +95,8 @@ public:
 	bool wakeUp = true;
 	int whatPlayer = 1;
 	bool changePlayerMode = false;
+	CGameObject* m_pLockedObject = NULL;
+	CGameObject** bulletTmp = NULL;
 
 	CTerrainPlayer* pPlayer;
 	CTerrainPlayer* pPlayer2;
@@ -116,5 +118,7 @@ public:
 	POINT						m_ptOldCursorPos;
 
 	_TCHAR						m_pszFrameRate[70];
+
+	CGameObject** m_ppBullets = NULL;//ÃÑ¾Ë
 };
 
