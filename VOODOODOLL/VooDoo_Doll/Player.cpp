@@ -418,18 +418,18 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body10.bin", NULL, 0);
-	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body8.bin", NULL, 0);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body15.bin", NULL, 0);
+	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body14.bin", NULL, 0);
 
 	if (1 == choosePl)
 	{
 		SetChild(pAngrybotModel->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 4, pAngrybotModel);
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 5, pAngrybotModel);
 	}
 	else if (2 == choosePl)
 	{
 		SetChild(pAngrybotModel2->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 4, pAngrybotModel2);
+		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 5, pAngrybotModel2);
 	}
 
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -437,11 +437,13 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	//23.02.20
 	m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+	m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
 	//
 	m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	//23.02.20
 	m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	m_pSkinnedAnimationController->SetTrackEnable(3, false);
+	m_pSkinnedAnimationController->SetTrackEnable(4, false);
 	//
 
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 2);
@@ -567,6 +569,7 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 		//
 		m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
+		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
@@ -583,6 +586,7 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 		m_pSkinnedAnimationController->SetTrackEnable(1, false);
 		m_pSkinnedAnimationController->SetTrackEnable(2, true);
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
+		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 
 		if (2 == whatPlayer)
 		{
@@ -626,6 +630,18 @@ void CTerrainPlayer::playerRun(int whatPlayer)
 		m_pSkinnedAnimationController->SetTrackEnable(1, false);
 		m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		m_pSkinnedAnimationController->SetTrackEnable(3, true);
+		m_pSkinnedAnimationController->SetTrackEnable(4, false);
+	}
+}
+void CTerrainPlayer::playerDie()
+{
+	if (true == onDie)
+	{
+		m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		m_pSkinnedAnimationController->SetTrackEnable(3, false);
+		m_pSkinnedAnimationController->SetTrackEnable(4, true);
 	}
 }
 //
@@ -639,13 +655,14 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
 		{
-			if (!onAttack && !onRun)//플레이어가 공격 모드가 아닐 때
+			if (!onAttack && !onRun&& !onDie)//플레이어가 공격 모드가 아닐 때
 			{
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
 				//23.02.21
 				m_pSkinnedAnimationController->SetTrackEnable(2, false);
 				m_pSkinnedAnimationController->SetTrackEnable(3, false);
+				m_pSkinnedAnimationController->SetTrackEnable(4, false);
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 			}

@@ -12,7 +12,8 @@
 #define DIR_LEFT					0x04
 #define DIR_RIGHT					0x08
 #define DIR_ATTACK					0x10
-#define DIR_RUN					0x20
+#define DIR_RUN						0x20
+#define DIR_DIE						0x30
 
 class CShader;
 class CStandardShader;

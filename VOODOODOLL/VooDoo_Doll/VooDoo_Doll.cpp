@@ -50,6 +50,7 @@ void GamePlayer_ProcessInput()
 		//23.02.20
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
+		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
 		//
 	}
 
@@ -96,6 +97,7 @@ void GamePlayer_ProcessInput()
 			gGameFramework.m_pLockedObject = NULL;
 
 			gGameFramework.m_pPlayer->playerRun(gGameFramework.whatPlayer);
+			gGameFramework.m_pPlayer->playerDie();
 			//
 		}
 
@@ -272,12 +274,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.m_pPlayer->onAttack = true;
 		else if (wParam == 'X' || wParam == 'x')
 			gGameFramework.m_pPlayer->onRun = true;
+		else if (wParam == 'K' || wParam == 'k')
+			gGameFramework.m_pPlayer->onDie = true;
 		break;
 	case WM_KEYUP:
 		if (wParam == 'Z' || wParam == 'z')
 			gGameFramework.m_pPlayer->onAttack = false;
 		else if (wParam == 'X' || wParam == 'x')
 			gGameFramework.m_pPlayer->onRun = false;
+		else if (wParam == 'K' || wParam == 'k')
+			gGameFramework.m_pPlayer->onDie = false;
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

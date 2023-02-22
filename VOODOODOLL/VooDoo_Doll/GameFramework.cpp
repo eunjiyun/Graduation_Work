@@ -559,6 +559,7 @@ void CGameFramework::ProcessInput()
 		//23.02.20
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
+		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
 		//
 
 		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -578,6 +579,7 @@ void CGameFramework::ProcessInput()
 				m_pLockedObject = NULL;
 
 				m_pPlayer->playerRun(whatPlayer);
+				m_pPlayer->playerDie();
 			}
 		}
 	}

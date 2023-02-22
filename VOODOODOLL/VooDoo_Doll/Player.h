@@ -6,6 +6,7 @@
 #define DIR_RIGHT				0x08
 #define DIR_ATTACK				0x10
 #define DIR_RUN				0x20
+#define DIR_DIE				0x30
 
 //23.02.21
 #define BULLETS					50
@@ -77,6 +78,7 @@ public:
 	//23.02.20
 	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*) { return NULL; }
 	virtual void playerRun(int){}
+	virtual void playerDie(){}
 	//
 
 	virtual void Update(float fTimeElapsed);
@@ -116,6 +118,7 @@ public:
 	//23.02.20
 	bool onAttack = false;
 	bool onRun = false;
+	bool onDie = false;
 	//
 };
 
@@ -166,6 +169,7 @@ public:
 	//23.02.20
 	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*);
 	virtual void playerRun(int);
+	virtual void playerDie();
 	//
 };
 
