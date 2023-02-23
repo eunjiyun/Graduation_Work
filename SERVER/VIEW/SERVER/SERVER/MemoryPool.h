@@ -159,9 +159,7 @@ void LoadMeshFromFile(MapObject& obj, char* pstrFileName)
             nReads = (UINT)::fread(&obj.m_xmOOBB.Center, sizeof(float), 3, pFile);
             nReads = (UINT)::fread(&obj.m_xmOOBB.Extents, sizeof(float), 3, pFile);
             Transform_BoundingBox(&(obj.m_xmOOBB), obj.m_xmf4x4World);
-            cout << "Name: " << obj.m_pstrName << "\nCenter: " << obj.m_xmOOBB.Center.x << ", " << obj.m_xmOOBB.Center.y << ", " <<
-                obj.m_xmOOBB.Center.z << "\nExtents: " << obj.m_xmOOBB.Extents.x << ", " << obj.m_xmOOBB.Extents.y << ", " <<
-                obj.m_xmOOBB.Extents.z << endl;
+       
             break;
         }
     }
@@ -257,7 +255,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
             pGameObject->m_xmOOBB.Center.y = pGameObject->GetPosition().y;
             pGameObject->m_xmOOBB.Center.z = pGameObject->GetPosition().z;
         }
-
+        
         
         ppGameObjects[i] = pGameObject;
     }

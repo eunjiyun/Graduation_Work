@@ -32,6 +32,7 @@ SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
 CGameTimer m_GameTimer;
 MapObject** m_ppObjects = 0;
+vector<MapObject*> Objects[6] = {};
 int m_nObjects = 0;
 
 void SESSION::send_move_packet(int c_id)
@@ -64,12 +65,15 @@ void SESSION::send_add_player_packet(int c_id)
 
 void SESSION::CheckCollisionByMap()
 {
-	for (int i = 0; i < m_nObjects; ++i)
-	{
-		if (m_xmOOBB.Intersects(m_ppObjects[i]->m_xmOOBB)) {
-			XMFLOAT3 xmfsub = m_ppObjects[i]->GetPosition();
-			xmfsub = Vector3::Subtract(m_xmf3Position, xmfsub);
-			SetPosition(XMFLOAT3(m_xmf3Position.x + xmfsub.x, m_xmf3Position.y + xmfsub.y, m_xmf3Position.z + xmfsub.z));
+	short collide_range = (int)GetPosition().z / 600;
+	for (MapObject*& object : Objects[collide_range]) {
+		if (m_xmOOBB.Intersects(object->m_xmOOBB)) {
+			error_stack++;
+			cout << "에러 포인트 감지\n";
+			if (error_stack > 50) {
+				disconnect(_id);
+				cout << "에러 스택 50 초과 플레이어 추방\n";
+			}
 		}
 	}
 }
@@ -112,6 +116,8 @@ void process_packet(int c_id, char* packet)
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		
 		clients[c_id].SetPosition(p->pos);
+		clients[c_id].UpdateBoundingBox();
+		clients[c_id].CheckCollisionByMap();
 		clients[c_id].direction = p->direction;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		clients[c_id].Move(p->direction, 1.0f, true);
@@ -235,6 +241,18 @@ void update_thread()
 int main()
 {
 	m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
+	for (int i = 0; i < m_nObjects; i++) {
+		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16))
+			break;
+		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
+		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
+		for (int j = collide_range_min; j <= collide_range_max; j++) {
+			Objects[j].push_back(m_ppObjects[i]);
+		}
+		/*int collide_range = (int)m_ppObjects[i]->m_xmOOBB.Center.z / 600;
+		Objects[collide_range].push_back(m_ppObjects[i]);*/
+	}
+	delete m_ppObjects;
 	HANDLE h_iocp;
 
 	WSADATA WSAData;
