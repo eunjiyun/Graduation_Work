@@ -492,11 +492,16 @@ public:
 public:
 	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	XMFLOAT3					m_xmf3FirePosition = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3					m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	CGameObject* m_pLockedObject = NULL;
 	float						m_fMovingSpeed = 0.0f;
 	float						m_fRotationSpeed = 0.0f;
 	void SetMovingDirection(XMFLOAT3& xmf3MovingDirection);
 	void SetActive(bool bActive) { m_bActive = bActive; }
+	void SetRotationAxis(XMFLOAT3& xmf3RotationAxis); 
+	void SetRotationSpeed(float fSpeed) { m_fRotationSpeed = fSpeed; }
+	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
+
 	void SetFirePosition(XMFLOAT3 xmf3FirePosition) 
 	{
 		m_xmf3FirePosition = xmf3FirePosition;

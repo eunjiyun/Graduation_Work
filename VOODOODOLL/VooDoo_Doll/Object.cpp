@@ -258,7 +258,7 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter,
-	_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose,int whatTexture)
+	_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose, int whatTexture)
 {
 	char pstrTextureName[64] = { '\0' };
 
@@ -273,140 +273,106 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		nStrLength = 12;
 		nReads = 12;
 
-		//if (7== choose )
-		//{
-		//	strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-		//}
-		//else
+		if (1 == whatTexture)//albedo
 		{
-			if (1 == whatTexture)//albedo
+			switch (choose)
 			{
-				switch (choose)
-				{
-				case 0:
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "warrior_capp");//캐릭터  warrior_capp
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터  warrior_capp
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
-					break;
-				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
-					break;
-				case 2:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albed");//부두2 뼈다귀다리
-					break;
-				case 3:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두3 귀신
-					break;
-				case 4:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//부두4 펜싱칼든애
-					break;
-				case 5:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
-					break;
-				case 6:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albed");//부두6 머리에바늘있는비실한애
-					break;
-				}
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albed");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두3 귀신
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albed");//부두6 머리에바늘있는비실한애
+				break;
 			}
-			else if (2 == whatTexture)//normal
+		}
+		else if (2 == whatTexture)//normal
+		{
+			switch (choose)
 			{
-				switch (choose)
-				{
-				case 0:
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "warrior_capp");//캐릭터  warrior_capp
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
-					break;
-				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//부두1 칼든애
-					break;
-				case 2:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두2 뼈다귀다리
-					break;
-				case 3:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두3 귀신
-					break;
-				case 4:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//부두4 펜싱칼든애
-					break;
-				case 5:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
-					break;
-				case 6:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Norma");//부두6 머리에바늘있는비실한애
-					break;
-				}
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두3 귀신
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Norma");//부두6 머리에바늘있는비실한애
+				break;
 			}
-			else if (3 == whatTexture)//metallic 투명도 손상
+		}
+		else if (3 == whatTexture)//metallic 투명도 손상
+		{
+			switch (choose)
 			{
-				switch (choose)
-				{
-				case 0:
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "warriorSword");//캐릭터 warriorSword
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터 
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
-					break;
-				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//부두1 칼든애
-					break;
-				case 2:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metal");//부두2 뼈다귀다리
-					break;
-				case 3:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두3 귀신
-					break;
-				case 4:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//부두4 펜싱칼든애
-					break;
-				case 5:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
-					break;
-				case 6:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metal");//부두6 머리에바늘있는비실한애
-					break;
-				}
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metal");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두3 귀신
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metal");//부두6 머리에바늘있는비실한애
+				break;
 			}
-			else if (4 == whatTexture)//emission
+		}
+		else if (4 == whatTexture)//emission
+		{
+			switch (choose)
 			{
-				switch (choose)
-				{
-				case 0:
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-					//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
-					break;
-				case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//부두1 칼든애
-					break;
-				case 2:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두2 뼈다귀다리
-					break;
-				case 3:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
-					break;
-				case 4:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두4 펜싱칼든애
-					break;
-				case 5:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
-					break;
-				case 6:
-					strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두6 머리에바늘있는비실한애 emission x
-					break;
-				}
+			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//부두1 칼든애
+				break;
+			case 2:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두2 뼈다귀다리
+				break;
+			case 3:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
+				break;
+			case 4:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두4 펜싱칼든애
+				break;
+			case 5:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
+				break;
+			case 6:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두6 머리에바늘있는비실한애 emission x
+				break;
 			}
 		}
 	}
 
 	if (strcmp(pstrTextureName, "null"))
 	{
-		//if (0== choose)
-		//{
-		//	strcpy_s(pstrTextureName, sizeof(pstrTextureName), "default_body");//캐릭터
-		//	nStrLength = 12;
-		//	nReads = 12;
-		//}
-		
-
 		SetMaterialType(nType);
 
 		char pstrFilePath[64] = { '\0' };
@@ -430,7 +396,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		if (!bDuplicated)
 		{
 			*ppTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0, 1);
- 			(*ppTexture)->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+			(*ppTexture)->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
 			CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
@@ -775,11 +741,11 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
 	{
-		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++) 
+		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
 		for (int k = 0; k < m_nAnimationTracks; k++)
-		//for (int k = 0; k <4; k++)
+			//for (int k = 0; k <4; k++)
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
@@ -1218,7 +1184,7 @@ void CGameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 
 //23.02.22
 void CGameObject::SetMovingDirection(XMFLOAT3& xmf3MovingDirection)
-{ 
+{
 	m_xmf3MovingDirection = Vector3::Normalize(xmf3MovingDirection);
 }
 //
@@ -1346,31 +1312,31 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		}
 		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1
 		{
-			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose,1);
+			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose, 1);
 		}
 		else if (!strcmp(pstrToken, "<SpecularMap>:"))
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_SPECULAR_MAP, 4, pMaterial->m_ppstrTextureNames[1], &(pMaterial->m_ppTextures[1]), pParent, pInFile, pShader, choose,0);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_SPECULAR_MAP, 4, pMaterial->m_ppstrTextureNames[1], &(pMaterial->m_ppTextures[1]), pParent, pInFile, pShader, choose, 0);
 		}
 		else if (!strcmp(pstrToken, "<NormalMap>:"))//1
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_NORMAL_MAP, 5, pMaterial->m_ppstrTextureNames[2], &(pMaterial->m_ppTextures[2]), pParent, pInFile, pShader, choose,2);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_NORMAL_MAP, 5, pMaterial->m_ppstrTextureNames[2], &(pMaterial->m_ppTextures[2]), pParent, pInFile, pShader, choose, 2);
 		}
 		else if (!strcmp(pstrToken, "<MetallicMap>:"))//1
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_METALLIC_MAP, 6, pMaterial->m_ppstrTextureNames[3], &(pMaterial->m_ppTextures[3]), pParent, pInFile, pShader, choose,3);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_METALLIC_MAP, 6, pMaterial->m_ppstrTextureNames[3], &(pMaterial->m_ppTextures[3]), pParent, pInFile, pShader, choose, 3);
 		}
 		else if (!strcmp(pstrToken, "<EmissionMap>:"))//1
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_EMISSION_MAP, 7, pMaterial->m_ppstrTextureNames[4], &(pMaterial->m_ppTextures[4]), pParent, pInFile, pShader, choose,4);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_EMISSION_MAP, 7, pMaterial->m_ppstrTextureNames[4], &(pMaterial->m_ppTextures[4]), pParent, pInFile, pShader, choose, 4);
 		}
 		else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))//2
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[5], &(pMaterial->m_ppTextures[5]), pParent, pInFile, pShader, choose,1);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[5], &(pMaterial->m_ppTextures[5]), pParent, pInFile, pShader, choose, 1);
 		}
 		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))//2
 		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 9, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, pInFile, pShader, choose,2);
+			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 9, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, pInFile, pShader, choose, 2);
 		}
 		else if (!strcmp(pstrToken, "</Materials>"))
 		{
@@ -1621,6 +1587,11 @@ void CGameObject::SetEmissionColor(int nIndex, XMFLOAT4 xmf4Color)
 		}
 		//m_ppMaterials[nIndex]->SetEmissionColor(xmf4Color);
 	}
+}
+
+void CGameObject::SetRotationAxis(XMFLOAT3& xmf3RotationAxis)
+{
+	m_xmf3RotationAxis = Vector3::Normalize(xmf3RotationAxis);
 }
 //
 
@@ -1982,7 +1953,7 @@ CZebraObject::CZebraObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo6.bin", NULL, 6);
 		break;
 	case 7:
-		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body15.bin", NULL, 7);
+		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body17.bin", NULL, 7);
 		break;
 	}
 	//
@@ -2031,7 +2002,7 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	CLoadedModelInfo* arrowModel = pModel;
 
-	if (!arrowModel) 
+	if (!arrowModel)
 		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Lion.bin", NULL, 7);
 
 	SetChild(arrowModel->m_pModelRootObject, true);
@@ -2083,8 +2054,8 @@ void CBulletObject::Animate(float fElapsedTime)//총알 업데이트
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
 	SetPosition(xmf3Position);
 #else
-	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+	//XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
+	//m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 	XMFLOAT3 xmf3Movement = Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, false);
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);

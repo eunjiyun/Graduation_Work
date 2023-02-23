@@ -484,6 +484,18 @@ void CGameFramework::BuildObjects()
 		m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1);
 		m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
+
+		//for (int i = 0; i < BULLETS; i++)
+		for (int i = 0; i < 1; i++)
+		{
+			//m_ppBullets[i] = new CBulletObject(m_fBulletEffectiveRange);
+			//m_ppBullets[i]->SetMesh(pBulletMesh);
+			m_ppBullets[i]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+			m_ppBullets[i]->SetRotationSpeed(360.0f);
+			m_ppBullets[i]->SetMovingSpeed(120.0f);
+			m_ppBullets[i]->SetActive(false);
+		}
+
 		if (arrow) delete arrow;
 		//
 
@@ -578,7 +590,7 @@ void CGameFramework::ProcessInput()
 				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL);
 				m_pLockedObject = NULL;
 
-				m_pPlayer->playerRun(whatPlayer);
+				m_pPlayer->playerRun(whatPlayer, dwDirection);
 				m_pPlayer->playerDie();
 			}
 		}
@@ -598,6 +610,7 @@ void CGameFramework::AnimateObjects()
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
+
 	for (auto& player : Players)
 		if (player->c_id > -1)
 			player->Animate(m_GameTimer.GetTimeElapsed());
@@ -644,7 +657,8 @@ void CGameFramework::FrameAdvance()
 	//	}
 	//}
 
-	m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
+	if(2==whatPlayer&&true== m_pPlayer->onAttack)
+		m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
 
 	AnimateObjects();
 

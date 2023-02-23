@@ -96,7 +96,7 @@ void GamePlayer_ProcessInput()
 			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets), NULL, NULL, NULL);
 			gGameFramework.m_pLockedObject = NULL;
 
-			gGameFramework.m_pPlayer->playerRun(gGameFramework.whatPlayer);
+			gGameFramework.m_pPlayer->playerRun(gGameFramework.whatPlayer, dwDirection);
 			gGameFramework.m_pPlayer->playerDie();
 			//
 		}
@@ -125,40 +125,40 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-#pragma region SERVER
-
-	WSADATA WSAData;
-	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-	if (ErrorStatus != 0)
-	{
-		cout << "WSAStartup 실패\n";
-	}
-	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-	if (s_socket == INVALID_SOCKET)
-	{
-		cout << "소켓 생성 실패\n";
-	}
-
-
-	// 서버와 연결
-	SOCKADDR_IN svr_addr;
-	memset(&svr_addr, 0, sizeof(svr_addr));
-	svr_addr.sin_family = AF_INET;
-	svr_addr.sin_port = htons(SERVER_PORT);
-	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
-	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
-	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
-
-	// 서버에게 자신의 정보를 패킷으로 전달
-	CS_LOGIN_PACKET p;
-	p.size = sizeof(CS_LOGIN_PACKET);
-	p.type = CS_LOGIN;
-	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-
-	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-	//send_t = new thread{ GamePlayer_ProcessInput };
-#pragma endregion 
+//#pragma region SERVER
+//
+//	WSADATA WSAData;
+//	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+//	if (ErrorStatus != 0)
+//	{
+//		cout << "WSAStartup 실패\n";
+//	}
+//	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+//	if (s_socket == INVALID_SOCKET)
+//	{
+//		cout << "소켓 생성 실패\n";
+//	}
+//
+//
+//	// 서버와 연결
+//	SOCKADDR_IN svr_addr;
+//	memset(&svr_addr, 0, sizeof(svr_addr));
+//	svr_addr.sin_family = AF_INET;
+//	svr_addr.sin_port = htons(SERVER_PORT);
+//	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+//	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+//	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+//
+//	// 서버에게 자신의 정보를 패킷으로 전달
+//	CS_LOGIN_PACKET p;
+//	p.size = sizeof(CS_LOGIN_PACKET);
+//	p.type = CS_LOGIN;
+//	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+//	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+//
+//	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+//	//send_t = new thread{ GamePlayer_ProcessInput };
+//#pragma endregion 
 
 
 	while (1)
@@ -175,14 +175,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			//gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
+			//GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
+			gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
 
 	//clienttest
-	recv_t->join();
+	//recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 
@@ -273,7 +273,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam == 'Z' || wParam == 'z')
 			gGameFramework.m_pPlayer->onAttack = true;
 		else if (wParam == 'X' || wParam == 'x')
+		{
 			gGameFramework.m_pPlayer->onRun = true;
+			gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
+		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = true;
 		break;
@@ -281,7 +284,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam == 'Z' || wParam == 'z')
 			gGameFramework.m_pPlayer->onAttack = false;
 		else if (wParam == 'X' || wParam == 'x')
+		{
 			gGameFramework.m_pPlayer->onRun = false;
+			gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
+		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = false;
 		break;

@@ -77,7 +77,7 @@ public:
 	void Rotate(float x, float y, float z);
 	//23.02.20
 	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*) { return NULL; }
-	virtual void playerRun(int){}
+	virtual void playerRun(int, DWORD ){}
 	virtual void playerDie(){}
 	//
 
@@ -168,7 +168,7 @@ public:
 
 	//23.02.20
 	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*);
-	virtual void playerRun(int);
+	virtual void playerRun(int, DWORD );
 	virtual void playerDie();
 	//
 };

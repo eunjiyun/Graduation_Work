@@ -418,8 +418,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body15.bin", NULL, 0);
-	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body14.bin", NULL, 0);
+	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body17.bin", NULL, 0);
+	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body18.bin", NULL, 0);
 
 	if (1 == choosePl)
 	{
@@ -561,7 +561,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN)
+	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN&& dwDirection != DIR_DIE)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		//23.02.20
@@ -604,7 +604,7 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 			if (pBulletObject)
 			{
 				XMFLOAT3 xmf3Position = GetPosition();
-				XMFLOAT3 xmf3Direction = GetUp();
+				XMFLOAT3 xmf3Direction = GetUp();//0223
 				XMFLOAT3 xmf3FirePosition = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Direction, 6.0f, false));
 
 				pBulletObject->m_xmf4x4World = m_xmf4x4World;
@@ -622,7 +622,7 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 
 	return NULL;
 }
-void CTerrainPlayer::playerRun(int whatPlayer)
+void CTerrainPlayer::playerRun(int whatPlayer,DWORD dwDirection)
 {
 	if (true == onRun)
 	{
