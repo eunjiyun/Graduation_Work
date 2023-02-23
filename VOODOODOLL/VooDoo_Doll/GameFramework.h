@@ -97,7 +97,7 @@ public:
 	bool changePlayerMode = false;
 	CGameObject* m_pLockedObject = NULL;
 	CGameObject** bulletTmp = NULL;
-
+	
 	CTerrainPlayer* pPlayer;
 	CTerrainPlayer* pPlayer2;
 

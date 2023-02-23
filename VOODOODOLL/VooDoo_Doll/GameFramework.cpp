@@ -480,7 +480,7 @@ void CGameFramework::BuildObjects()
 		//23.02.22
 		m_ppBullets = new CGameObject * [BULLETS];
 
-		CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon.bin", NULL, 7);//
+		CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);//
 		m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1);
 		m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
@@ -488,8 +488,6 @@ void CGameFramework::BuildObjects()
 		//for (int i = 0; i < BULLETS; i++)
 		for (int i = 0; i < 1; i++)
 		{
-			//m_ppBullets[i] = new CBulletObject(m_fBulletEffectiveRange);
-			//m_ppBullets[i]->SetMesh(pBulletMesh);
 			m_ppBullets[i]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
 			m_ppBullets[i]->SetRotationSpeed(360.0f);
 			m_ppBullets[i]->SetMovingSpeed(120.0f);
@@ -587,9 +585,9 @@ void CGameFramework::ProcessInput()
 			{
 				m_pPlayer->Move(dwDirection, 7.0f, true);
 
-				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL);
+				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL, m_GameTimer.GetTimeElapsed());
 				m_pLockedObject = NULL;
-
+			
 				m_pPlayer->playerRun(whatPlayer, dwDirection);
 				m_pPlayer->playerDie();
 			}
@@ -657,8 +655,8 @@ void CGameFramework::FrameAdvance()
 	//	}
 	//}
 
-	if(2==whatPlayer&&true== m_pPlayer->onAttack)
-		m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
+	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
+	m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
 
 	AnimateObjects();
 

@@ -2054,8 +2054,8 @@ void CBulletObject::Animate(float fElapsedTime)//총알 업데이트
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
 	SetPosition(xmf3Position);
 #else
-	//XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
-	//m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
+	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 	XMFLOAT3 xmf3Movement = Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, false);
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
@@ -2065,7 +2065,13 @@ void CBulletObject::Animate(float fElapsedTime)//총알 업데이트
 
 	//UpdateBoundingBox();
 
-	if ((m_fMovingDistance > m_fBulletEffectiveRange) || (m_fElapsedTimeAfterFire > m_fLockingTime)) Reset();
+	/*cout << "bullet animate 호출 : " << num << endl;
+	cout << "이동거리 : " << m_fMovingDistance << endl;
+	cout << "이동범위 : " << m_fBulletEffectiveRange << endl << endl << endl << endl;
+	++num;*/
+
+	if ((m_fMovingDistance > m_fBulletEffectiveRange) || (m_fElapsedTimeAfterFire > m_fLockingTime))
+		Reset();
 }
 
 void CBulletObject::Reset()

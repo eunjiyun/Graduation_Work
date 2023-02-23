@@ -76,9 +76,9 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 	//23.02.20
-	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*) { return NULL; }
-	virtual void playerRun(int, DWORD ){}
-	virtual void playerDie(){}
+	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*, float) { return NULL; }
+	virtual void playerRun(int, DWORD) {}
+	virtual void playerDie() {}
 	//
 
 	virtual void Update(float fTimeElapsed);
@@ -167,8 +167,8 @@ public:
 	virtual void Update(float fTimeElapsed);
 
 	//23.02.20
-	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*);
-	virtual void playerRun(int, DWORD );
+	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*, float);
+	virtual void playerRun(int, DWORD);
 	virtual void playerDie();
 	//
 };

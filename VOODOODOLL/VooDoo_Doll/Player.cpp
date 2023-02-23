@@ -561,7 +561,7 @@ void CTerrainPlayer::OnCameraUpdateCallback(float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN&& dwDirection != DIR_DIE)
+	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN && dwDirection != DIR_DIE)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		//23.02.20
@@ -576,7 +576,7 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 }
 //23.02.20
 CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLockedObject, CGameObject*** bulletTmp,
-	ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+	ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, float fTimeElapsed)
 {
 	CGameObject* pBulletObject = NULL;
 
@@ -590,11 +590,11 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 
 		if (2 == whatPlayer)
 		{
-			
+
 			//for (int i = 0; i < BULLETS; i++)
 			for (int i = 0; i < 1; i++)
 			{
-				if (!(*bulletTmp)[i]->m_bActive)//0222
+				if (!(*bulletTmp)[i]->m_bActive)
 				{
 					pBulletObject = (*bulletTmp)[i];
 					break;
@@ -604,11 +604,13 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 			if (pBulletObject)
 			{
 				XMFLOAT3 xmf3Position = GetPosition();
-				XMFLOAT3 xmf3Direction = GetUp();//0223
+				XMFLOAT3 xmf3Direction = GetUp();
+
+				xmf3Direction = XMFLOAT3(0.0f, 0.f, 1.f);//플레이어 노멀값이 이상해서 임시로 셋
 				XMFLOAT3 xmf3FirePosition = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Direction, 6.0f, false));
 
 				pBulletObject->m_xmf4x4World = m_xmf4x4World;
-				pBulletObject->SetFirePosition(xmf3FirePosition);
+				pBulletObject->SetFirePosition(XMFLOAT3(xmf3FirePosition.x + 10, xmf3FirePosition.y + 15, xmf3FirePosition.z));
 				pBulletObject->SetMovingDirection(xmf3Direction);
 				pBulletObject->SetActive(true);
 
@@ -622,7 +624,7 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 
 	return NULL;
 }
-void CTerrainPlayer::playerRun(int whatPlayer,DWORD dwDirection)
+void CTerrainPlayer::playerRun(int whatPlayer, DWORD dwDirection)
 {
 	if (true == onRun)
 	{
@@ -655,7 +657,7 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
 		{
-			if (!onAttack && !onRun&& !onDie)//플레이어가 공격 모드가 아닐 때
+			if (!onAttack && !onRun && !onDie)//플레이어가 공격 모드가 아닐 때
 			{
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
@@ -668,5 +670,4 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 			}
 		}
 	}
-
 }

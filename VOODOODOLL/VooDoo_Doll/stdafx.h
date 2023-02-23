@@ -31,9 +31,8 @@
 #endif
 
 #include<iostream>
-//
-
 using namespace std;
+//
 
 #include <WS2tcpip.h>
 #pragma comment(lib, "WS2_32.LIB")

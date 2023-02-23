@@ -148,7 +148,7 @@ public:
 	int								m_nMaterial = 1; //Material Index, CScene::m_pReflections[]
 
 	void LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nType, UINT nRootParameter,
-		_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose,int whatTexture);
+		_TCHAR* pwstrTextureName, CTexture** ppTexture, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose, int whatTexture);
 
 public:
 	static CShader* m_pStandardShader;
@@ -498,11 +498,12 @@ public:
 	float						m_fRotationSpeed = 0.0f;
 	void SetMovingDirection(XMFLOAT3& xmf3MovingDirection);
 	void SetActive(bool bActive) { m_bActive = bActive; }
-	void SetRotationAxis(XMFLOAT3& xmf3RotationAxis); 
+	void SetRotationAxis(XMFLOAT3& xmf3RotationAxis);
 	void SetRotationSpeed(float fSpeed) { m_fRotationSpeed = fSpeed; }
 	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
+	virtual void Reset() {}
 
-	void SetFirePosition(XMFLOAT3 xmf3FirePosition) 
+	void SetFirePosition(XMFLOAT3 xmf3FirePosition)
 	{
 		m_xmf3FirePosition = xmf3FirePosition;
 		SetPosition(xmf3FirePosition);
@@ -708,13 +709,14 @@ class CBulletObject : public CGameObject
 {
 public:
 	CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
-	virtual ~CBulletObject(){}
+	virtual ~CBulletObject() {}
 
 public:
 	virtual void Animate(float fElapsedTime);
 
-	float						m_fBulletEffectiveRange = 50.0f;
+	float						m_fBulletEffectiveRange = 150.0f;
 	float						m_fMovingDistance = 0.0f;
+	int num = 0;
 	float						m_fRotationAngle = 0.0f;
 	XMFLOAT3					m_xmf3FirePosition = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
@@ -724,6 +726,6 @@ public:
 	CGameObject* m_pLockedObject = NULL;
 
 	void SetFirePosition(XMFLOAT3 xmf3FirePosition);
-	void Reset();
+	virtual void Reset();
 };
 //
