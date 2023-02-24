@@ -96,10 +96,10 @@ public:
 	int whatPlayer = 1;
 	bool changePlayerMode = false;
 	CGameObject* m_pLockedObject = NULL;
-	CGameObject** bulletTmp = NULL;
 	
 	CTerrainPlayer* pPlayer;
 	CTerrainPlayer* pPlayer2;
+	CTerrainPlayer* pPlayer3;
 
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
@@ -120,5 +120,6 @@ public:
 	_TCHAR						m_pszFrameRate[70];
 
 	CGameObject** m_ppBullets = NULL;//ÃÑ¾Ë
+	//bool onRotate = false;
 };
 

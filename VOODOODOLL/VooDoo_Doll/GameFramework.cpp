@@ -461,6 +461,7 @@ void CGameFramework::BuildObjects()
 #ifdef _WITH_TERRAIN_PLAYER
 	pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
 	pPlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2, m_pStage->m_pTerrain);
+	pPlayer3 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 3, m_pStage->m_pTerrain);
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
@@ -570,6 +571,7 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c jump
 		//
 
 		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -577,9 +579,22 @@ void CGameFramework::ProcessInput()
 			if (cxDelta || cyDelta)
 			{
 				if (pKeysBuffer[VK_RBUTTON] & 0xF0)
+				{
 					m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
+
+					//if (true == onRotate)
+					//{
+						//m_ppBullets[0]->Rotate(cyDelta , 0.0f, -cxDelta );
+						//onRotate = false;
+					//}
+				}
 				else
+				{
 					m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+
+					//if(true)
+					//m_ppBullets[0]->Rotate(cyDelta*3, cxDelta*3, 0.0f);
+				}
 			}
 			if (dwDirection)
 			{
@@ -590,6 +605,7 @@ void CGameFramework::ProcessInput()
 			
 				m_pPlayer->playerRun(whatPlayer, dwDirection);
 				m_pPlayer->playerDie();
+				m_pPlayer->playerCollect();
 			}
 		}
 	}
@@ -767,11 +783,11 @@ void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPla
 
 		if (true == changePlayerMode)
 		{
-			m_pPlayer->SetPosition(pPlayer2->GetPosition());
+			m_pPlayer->SetPosition(pPlayer3->GetPosition());
 
-			m_pPlayer->SetLookVector(pPlayer2->GetLookVector());
-			m_pPlayer->SetUpVector(pPlayer2->GetUpVector());
-			m_pPlayer->SetRightVector(pPlayer2->GetRightVector());
+			m_pPlayer->SetLookVector(pPlayer3->GetLookVector());
+			m_pPlayer->SetUpVector(pPlayer3->GetUpVector());
+			m_pPlayer->SetRightVector(pPlayer3->GetRightVector());
 
 			changePlayerMode = false;
 		}
@@ -787,6 +803,21 @@ void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPla
 			m_pPlayer->SetLookVector(pPlayer->GetLookVector());
 			m_pPlayer->SetUpVector(pPlayer->GetUpVector());
 			m_pPlayer->SetRightVector(pPlayer->GetRightVector());
+
+			changePlayerMode = false;
+		}
+	}
+	else if (3 == whatPlayer)
+	{
+		m_pStage->m_pPlayer = m_pPlayer = pPlayer3;
+
+		if (true == changePlayerMode)
+		{
+			m_pPlayer->SetPosition(pPlayer2->GetPosition());
+
+			m_pPlayer->SetLookVector(pPlayer2->GetLookVector());
+			m_pPlayer->SetUpVector(pPlayer2->GetUpVector());
+			m_pPlayer->SetRightVector(pPlayer2->GetRightVector());
 
 			changePlayerMode = false;
 		}

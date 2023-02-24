@@ -14,6 +14,7 @@
 #define DIR_ATTACK					0x10
 #define DIR_RUN						0x20
 #define DIR_DIE						0x30
+#define DIR_COLLECT					0x40
 
 class CShader;
 class CStandardShader;

@@ -51,6 +51,7 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c jump
 		//
 	}
 
@@ -98,6 +99,7 @@ void GamePlayer_ProcessInput()
 
 			gGameFramework.m_pPlayer->playerRun(gGameFramework.whatPlayer, dwDirection);
 			gGameFramework.m_pPlayer->playerDie();
+			gGameFramework.m_pPlayer->playerCollect();
 			//
 		}
 
@@ -262,6 +264,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else if (2 == gGameFramework.whatPlayer)
 			{
+				gGameFramework.whatPlayer = 3;
+				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+			}
+			else if (3 == gGameFramework.whatPlayer)
+			{
 				gGameFramework.whatPlayer = 1;
 				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
 			}
@@ -279,6 +286,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = true;
+		else if (wParam == 'C' || wParam == 'c')
+			gGameFramework.m_pPlayer->onCollect = true;
 		break;
 	case WM_KEYUP:
 		if (wParam == 'Z' || wParam == 'z')
@@ -290,6 +299,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = false;
+		else if (wParam == 'C' || wParam == 'c')
+			gGameFramework.m_pPlayer->onCollect = false;
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

@@ -2003,7 +2003,7 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CLoadedModelInfo* arrowModel = pModel;
 
 	if (!arrowModel)
-		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Lion.bin", NULL, 7);
+		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
 
 	SetChild(arrowModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, arrowModel);
@@ -2054,15 +2054,19 @@ void CBulletObject::Animate(float fElapsedTime)//총알 업데이트
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
 	SetPosition(xmf3Position);
 #else
-	XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
-	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
+	//XMFLOAT4X4 mtxRotate = Matrix4x4::RotationYawPitchRoll(0.0f, m_fRotationSpeed * fElapsedTime, 0.0f);
+	//m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 	XMFLOAT3 xmf3Movement = Vector3::ScalarProduct(m_xmf3MovingDirection, fDistance, false);
 	XMFLOAT3 xmf3Position = GetPosition();
 	xmf3Position = Vector3::Add(xmf3Position, xmf3Movement);
 	SetPosition(xmf3Position);
 	m_fMovingDistance += fDistance;
 #endif
-
+	
+	m_xmf4x4World._31 = m_xmf3MovingDirection.x;
+	m_xmf4x4World._32 = m_xmf3MovingDirection.y;
+	m_xmf4x4World._33 = m_xmf3MovingDirection.z;
+	
 	//UpdateBoundingBox();
 
 	/*cout << "bullet animate 호출 : " << num << endl;
