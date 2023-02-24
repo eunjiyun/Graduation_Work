@@ -35,6 +35,22 @@ MapObject** m_ppObjects = 0;
 vector<MapObject*> Objects[6] = {};
 int m_nObjects = 0;
 
+void disconnect(int c_id)
+{
+	for (auto& pl : clients) {
+		{
+			lock_guard<mutex> ll(pl._s_lock);
+			if (ST_INGAME != pl._state) continue;
+		}
+		if (pl._id == c_id) continue;
+		pl.send_remove_player_packet(c_id);
+	}
+	closesocket(clients[c_id]._socket);
+
+	lock_guard<mutex> ll(clients[c_id]._s_lock);
+	clients[c_id]._state = ST_FREE;
+}
+
 void SESSION::send_move_packet(int c_id)
 {
 	SC_MOVE_PLAYER_PACKET p;
@@ -46,6 +62,9 @@ void SESSION::send_move_packet(int c_id)
 	p.Up = clients[c_id].GetUpVector();
 	p.Pos = clients[c_id].GetPosition();
 	p.direction = clients[c_id].direction;
+	p.run = clients[c_id].isRun;
+	p.attack = clients[c_id].isAttack;
+	p.collect = clients[c_id].isCollect;
 	do_send(&p);
 }
 
@@ -69,7 +88,7 @@ void SESSION::CheckCollisionByMap()
 	for (MapObject*& object : Objects[collide_range]) {
 		if (m_xmOOBB.Intersects(object->m_xmOOBB)) {
 			error_stack++;
-			cout << "에러 포인트 감지\n";
+			cout << "client[" << _id << "] 에러 포인트 감지\n";
 			if (error_stack > 50) {
 				disconnect(_id);
 				cout << "에러 스택 50 초과 플레이어 추방\n";
@@ -117,29 +136,14 @@ void process_packet(int c_id, char* packet)
 		
 		clients[c_id].SetPosition(p->pos);
 		clients[c_id].UpdateBoundingBox();
-		clients[c_id].CheckCollisionByMap();
+		//clients[c_id].CheckCollisionByMap();
 		clients[c_id].direction = p->direction;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-		clients[c_id].Move(p->direction, 1.0f, true);
+		clients[c_id].Move(p->direction, 7.0f, true);
 	}
 	}
 }
 
-void disconnect(int c_id)
-{
-	for (auto& pl : clients) {
-		{
-			lock_guard<mutex> ll(pl._s_lock);
-			if (ST_INGAME != pl._state) continue;
-		}
-		if (pl._id == c_id) continue;
-		pl.send_remove_player_packet(c_id);
-	}
-	closesocket(clients[c_id]._socket);
-
-	lock_guard<mutex> ll(clients[c_id]._s_lock);
-	clients[c_id]._state = ST_FREE;
-}
 
 void worker_thread(HANDLE h_iocp)
 {

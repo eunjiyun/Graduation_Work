@@ -617,17 +617,15 @@ void CGameFramework::ProcessInput()
 	}
 }
 
-void CGameFramework::AnimateObjects()
+void CGameFramework::AnimateObjects(float fTimeElapsed)
 {
-	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
-
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
 	m_pPlayer->Animate(fTimeElapsed);
 
 	for (auto& player : Players)
 		if (player->c_id > -1)
-			player->Animate(m_GameTimer.GetTimeElapsed());
+			player->Animate(fTimeElapsed);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -674,7 +672,7 @@ void CGameFramework::FrameAdvance()
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
 	m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
 
-	AnimateObjects();
+	AnimateObjects(m_GameTimer.GetTimeElapsed());
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);

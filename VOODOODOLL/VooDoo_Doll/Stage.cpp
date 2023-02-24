@@ -623,11 +623,11 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 
 			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed);
-			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(Vel, -1, false);
+			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
 
-			m_pPlayer->Move(ReflectVec, false);
+			//m_pPlayer->Move(ReflectVec, false);
 
-			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], Vel);
+			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], MovVec);
 			m_pPlayer->Move(SlidingVec, false);
 			//XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
 			//XMFLOAT3 Xmf3Position = m_pPlayer->GetPosition();
@@ -643,8 +643,9 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 XMFLOAT3 CStage::GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec)
 {
-	float Dot = Vector3::DotProduct(MovVec, obj->GetLook());
-	XMFLOAT3 Nor = Vector3::ScalarProduct(obj->GetLook(), Dot);
+	XMFLOAT3 Vec{ -1,0,0 };
+	float Dot = Vector3::DotProduct(MovVec, Vec);
+	XMFLOAT3 Nor = Vector3::ScalarProduct(Vec, Dot, false);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 	return SlidingVec;

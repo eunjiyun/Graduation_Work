@@ -59,8 +59,10 @@ using namespace std;
 #define DIR_BACKWARD			0x02
 #define DIR_LEFT				0x04
 #define DIR_RIGHT				0x08
-#define DIR_UP					0x10
-#define DIR_DOWN				0x20
+#define DIR_ATTACK				0x10
+#define DIR_RUN					0x20
+#define DIR_DIE					0x30
+#define DIR_COLLECT				0x40
 
 //23.01.19
 #define FIRST_FLOOR				0

@@ -679,6 +679,7 @@ void CAnimationController::SetTrackAnimationSet(int nAnimationTrack, int nAnimat
 
 void CAnimationController::SetTrackEnable(int nAnimationTrack, bool bEnable)
 {
+	Cur_Animation_Track = nAnimationTrack;
 	if (m_pAnimationTracks) m_pAnimationTracks[nAnimationTrack].SetEnable(bEnable);
 }
 

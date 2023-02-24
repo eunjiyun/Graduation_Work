@@ -307,6 +307,8 @@ public:
 public:
 	float 							m_fTime = 0.0f;
 
+	short Cur_Animation_Track = 0;
+
 	int 							m_nAnimationTracks = 0;
 	CAnimationTrack* m_pAnimationTracks = NULL;
 
@@ -402,6 +404,7 @@ public:
 
 	//23.01.05
 	BoundingBox			m_xmOOBB = BoundingBox();
+	
 	//
 
 	bool						m_bActive = false;

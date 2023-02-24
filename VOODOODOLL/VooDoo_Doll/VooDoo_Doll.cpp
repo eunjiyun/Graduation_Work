@@ -92,7 +92,7 @@ void GamePlayer_ProcessInput()
 
 		if (dwDirection) {
 			p.direction = dwDirection;
-			gGameFramework.m_pPlayer->Move(dwDirection, 1.0, true);
+			gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 			//23.02.20
 			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets), NULL, NULL, NULL, 0.0f);
 			gGameFramework.m_pLockedObject = NULL;
@@ -127,40 +127,40 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-	//#pragma region SERVER
-	//
-	//	WSADATA WSAData;
-	//	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-	//	if (ErrorStatus != 0)
-	//	{
-	//		cout << "WSAStartup 실패\n";
-	//	}
-	//	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-	//	if (s_socket == INVALID_SOCKET)
-	//	{
-	//		cout << "소켓 생성 실패\n";
-	//	}
-	//
-	//
-	//	// 서버와 연결
-	//	SOCKADDR_IN svr_addr;
-	//	memset(&svr_addr, 0, sizeof(svr_addr));
-	//	svr_addr.sin_family = AF_INET;
-	//	svr_addr.sin_port = htons(SERVER_PORT);
-	//	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
-	//	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
-	//	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
-	//
-	//	// 서버에게 자신의 정보를 패킷으로 전달
-	//	CS_LOGIN_PACKET p;
-	//	p.size = sizeof(CS_LOGIN_PACKET);
-	//	p.type = CS_LOGIN;
-	//	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-	//	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-	//
-	//	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-	//	//send_t = new thread{ GamePlayer_ProcessInput };
-	//#pragma endregion 
+	#pragma region SERVER
+	
+		WSADATA WSAData;
+		int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+		if (ErrorStatus != 0)
+		{
+			cout << "WSAStartup 실패\n";
+		}
+		s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+		if (s_socket == INVALID_SOCKET)
+		{
+			cout << "소켓 생성 실패\n";
+		}
+	
+	
+		// 서버와 연결
+		SOCKADDR_IN svr_addr;
+		memset(&svr_addr, 0, sizeof(svr_addr));
+		svr_addr.sin_family = AF_INET;
+		svr_addr.sin_port = htons(SERVER_PORT);
+		inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+		ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+		if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+	
+		// 서버에게 자신의 정보를 패킷으로 전달
+		CS_LOGIN_PACKET p;
+		p.size = sizeof(CS_LOGIN_PACKET);
+		p.type = CS_LOGIN;
+		ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+	
+		recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+		//send_t = new thread{ GamePlayer_ProcessInput };
+	#pragma endregion 
 
 
 	while (1)
@@ -177,14 +177,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			//GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
+			GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
+			//gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
 
 	//clienttest
-	//recv_t->join();
+	recv_t->join();
 	//send_t->join();
 	gGameFramework.OnDestroy();
 
@@ -356,6 +356,35 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
+void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
+{
+	if (p->attack) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		return;
+	}
+	if (p->run) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+		return;
+	}
+	if (p->collect) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+		return;
+	}
+	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
+	if (Vector3::IsZero(Cmp)) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+	}
+	else {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	}
+
+}
 
 void ProcessPacket(char* ptr)
 {
@@ -399,18 +428,9 @@ void ProcessPacket(char* ptr)
 				if (packet->id == player->c_id) {
 					player->SetLookVector(packet->Look);
 					player->SetUpVector(packet->Up);
-					player->SetRightVector(packet->Right);
-					XMFLOAT3 Cmp = Vector3::Subtract(player->GetPosition(), packet->Pos);
-					if (Vector3::IsZero(Cmp)) {
-						player->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-						player->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-						player->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-					}
-					else {
-						player->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-						player->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-						player->SetPosition(packet->Pos);
-					}
+					player->SetRightVector(packet->Right);				
+					ProcessAnimation(player, packet);
+					player->SetPosition(packet->Pos);				
 					break;
 				}
 		//gGameFramework.m_pPlayer->recved_packet = false;

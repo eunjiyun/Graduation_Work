@@ -72,6 +72,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	short	id;
 	XMFLOAT3 Look, Up, Right, Pos;
 	DWORD direction;
+	bool attack, run, collect = false;		
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
