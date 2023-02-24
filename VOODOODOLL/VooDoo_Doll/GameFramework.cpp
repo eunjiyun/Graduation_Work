@@ -473,7 +473,7 @@ void CGameFramework::BuildObjects()
 		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
 		m_pCamera = m_pPlayer->GetCamera();
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 2; i++) {
 			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
 			Players.push_back(pAirplanePlayer);
 		}
@@ -571,7 +571,7 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c jump
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c collect
 		//
 
 		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))

@@ -277,6 +277,9 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		{
 			switch (choose)
 			{
+			case 0:
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "defaultbody2");//플레이어 body
+				break;
 			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
 				break;

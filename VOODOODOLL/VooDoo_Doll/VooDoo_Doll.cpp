@@ -51,7 +51,7 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c jump
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c collect
 		//
 	}
 
