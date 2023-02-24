@@ -82,19 +82,32 @@ void SESSION::send_add_player_packet(int c_id)
 	do_send(&add_packet);
 }
 
-void SESSION::CheckCollisionByMap()
+void SESSION::CheckCollisionByMap(XMFLOAT3 newPos)
 {
-	short collide_range = (int)GetPosition().z / 600;
-	for (MapObject*& object : Objects[collide_range]) {
-		if (m_xmOOBB.Intersects(object->m_xmOOBB)) {
-			error_stack++;
-			cout << "client[" << _id << "] 에러 포인트 감지\n";
-			if (error_stack > 50) {
-				disconnect(_id);
-				cout << "에러 스택 50 초과 플레이어 추방\n";
-			}
-		}
+	// 이동속도가 말도 안되게 빠른 경우 체크
+	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
+	if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
+		error_stack++;
+		cout << "client[" << _id << "] 에러 포인트 감지\n";
 	}
+
+	SetPosition(newPos);
+	UpdateBoundingBox();
+
+	// 장애물과 겹쳐 있는 경우 체크
+	//int collide_range = (int)GetPosition().z / 600;
+	//for (MapObject*& object : Objects[collide_range]) {
+	//	if (m_xmOOBB.Intersects(object->m_xmOOBB)) {
+	//		error_stack++;
+	//		cout << "client[" << _id << "] 에러 포인트 감지\n";
+	//	}
+	//}
+
+	if (error_stack > 50) {
+		disconnect(_id);
+		cout << "에러 스택 50 초과 플레이어 추방\n";
+	}
+
 }
 
 int get_new_client_id()
@@ -134,9 +147,7 @@ void process_packet(int c_id, char* packet)
 		lock_guard <mutex> ll{ clients[c_id]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		
-		clients[c_id].SetPosition(p->pos);
-		clients[c_id].UpdateBoundingBox();
-		//clients[c_id].CheckCollisionByMap();
+		clients[c_id].CheckCollisionByMap(p->pos);
 		clients[c_id].direction = p->direction;
 		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		clients[c_id].Move(p->direction, 7.0f, true);
@@ -232,8 +243,7 @@ void update_thread()
 		for (int i = 0; i < 4; i++) {
 			lock_guard <mutex> ll{ clients[i]._s_lock };
 			if (clients[i]._state != ST_INGAME) continue;
-			clients[i].Update(m_GameTimer.GetTimeElapsed());
-
+			//clients[i].Update(m_GameTimer.GetTimeElapsed());
 			for (auto& cl : clients) {
 				cl.send_move_packet(clients[i]._id);
 			}

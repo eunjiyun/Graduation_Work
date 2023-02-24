@@ -179,10 +179,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 		m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->Transform_Boundingbox(&(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox), m_ppShaders2[0]->m_ppObjects[i]->m_xmf4x4World);
 
-		//cout << "바운딩 박스" << endl;
-		//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.z << endl;
-		//cout << "오브젝트 중심값" << endl;
-		//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << endl << endl;
+
+		/*cout << "바운딩 박스" << endl;
+		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.z << endl;
+		cout << "오브젝트 중심값" << endl;
+		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << endl << endl;*/
 	}
 
 
@@ -620,22 +621,19 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox))
 		{
+
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
-
-			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed);
+			
+			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
+			//cout << "MovVec IN CheckCollisions: " << Vel.x << ", " << Vel.y << ", " << Vel.z << endl;
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
-
-			//m_pPlayer->Move(ReflectVec, false);
+			
+			
+			m_pPlayer->Move(ReflectVec, false);
 
 			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], MovVec);
 			m_pPlayer->Move(SlidingVec, false);
-			//XMFLOAT3 xmfsub = m_ppShaders2[0]->m_ppObjects[i]->GetPosition();
-			//XMFLOAT3 Xmf3Position = m_pPlayer->GetPosition();
-			//xmfsub = Vector3::Subtract(Xmf3Position, xmfsub);
-			//m_pPlayer->SetPosition(XMFLOAT3(Xmf3Position.x + xmfsub.x, Xmf3Position.y + xmfsub.y, Xmf3Position.z + xmfsub.z));
-			//cout << "Collided: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl << "Pos: " << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ", " << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ", " <<
-			//	m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << "\nExtents: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.x << ", " <<
-			//	m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.y << ", " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Extents.z << endl;
+			
 			break;
 		}
 	}
@@ -643,9 +641,9 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 XMFLOAT3 CStage::GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec)
 {
-	XMFLOAT3 Vec{ -1,0,0 };
-	float Dot = Vector3::DotProduct(MovVec, Vec);
-	XMFLOAT3 Nor = Vector3::ScalarProduct(Vec, Dot, false);
+	float Dot = Vector3::DotProduct(MovVec, obj->GetLook());
+	//cout << "MovVec: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << "\nObjLook: " << obj->GetLook().x << ", " << obj->GetLook().y << ", " << obj->GetLook().z << "\nDot: " << Dot << endl;
+	XMFLOAT3 Nor = Vector3::ScalarProduct(obj->GetLook(), Dot, false);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 	return SlidingVec;

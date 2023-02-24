@@ -240,6 +240,6 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void CheckCollisionByMap();
+	void CheckCollisionByMap(XMFLOAT3 newPos);
 };
 

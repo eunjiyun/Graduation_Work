@@ -661,8 +661,9 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.Tick(30.0f);
 
 	//ProcessInput();
+	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	m_pPlayer->Update(fTimeElapsed);
 	//for (auto& player : Players) {
 	//	if (player->c_id > -1) {
 	//		player->Update(m_GameTimer.GetTimeElapsed());
@@ -670,9 +671,9 @@ void CGameFramework::FrameAdvance()
 	//}
 
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
-	m_ppBullets[0]->Animate(m_GameTimer.GetTimeElapsed());//ÃÑ¾Ë ¾÷µ«
+	m_ppBullets[0]->Animate(fTimeElapsed);//ÃÑ¾Ë ¾÷µ«
 
-	AnimateObjects(m_GameTimer.GetTimeElapsed());
+	AnimateObjects(fTimeElapsed);
 
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
