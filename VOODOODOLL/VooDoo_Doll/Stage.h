@@ -78,7 +78,7 @@ public:
 
 	void UpdateBoundingBox();
 	void CheckObjectByObjectCollisions(float fTimeElapsed);
-	XMFLOAT3 GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec);
+	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec);
 
 	CPlayer* m_pPlayer = NULL;
 

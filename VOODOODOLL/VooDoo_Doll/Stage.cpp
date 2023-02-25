@@ -603,13 +603,24 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects - 1; i++)
 	{
-		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16))
-			break;
+		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16)) 
+			continue;
 
-		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB))
+		BoundingBox pBox = m_pPlayer->m_xmOOBB;
+		BoundingBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
+
+		if (pBox.Intersects(oBox))
 		{
 
-		/*	cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌함" << endl;*/
+			cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌함" << endl;
+
+			XMFLOAT3 ObjLook = { 0,0,0 };
+			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
+				if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+				else ObjLook = { 0, 0, -1 };
+			}
+			else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+			else ObjLook = { -1, 0, 0 };
 
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 			
@@ -617,10 +628,10 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			//cout << "MovVec IN CheckCollisions: " << Vel.x << ", " << Vel.y << ", " << Vel.z << endl;
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
 			
-			
 			m_pPlayer->Move(ReflectVec, false);
 
-			XMFLOAT3 SlidingVec = GetReflectVec(m_ppShaders2[0]->m_ppObjects[i], MovVec);
+
+			XMFLOAT3 SlidingVec = GetReflectVec(ObjLook, MovVec);
 			m_pPlayer->Move(SlidingVec, false);
 			
 			break;
@@ -628,11 +639,11 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 	}
 }
 
-XMFLOAT3 CStage::GetReflectVec(CGameObject* obj, XMFLOAT3 MovVec)
+XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
-	float Dot = Vector3::DotProduct(MovVec, obj->GetLook());
-	//cout << "MovVec: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << "\nObjLook: " << obj->GetLook().x << ", " << obj->GetLook().y << ", " << obj->GetLook().z << "\nDot: " << Dot << endl;
-	XMFLOAT3 Nor = Vector3::ScalarProduct(obj->GetLook(), Dot, false);
+	float Dot = Vector3::DotProduct(MovVec, ObjLook);
+	//cout << "MovVec: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << "\nObjLook: " << ObjLook.x << ", " << ObjLook.y << ", " << ObjLook.z << "\nDot: " << Dot << endl;
+	XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 	return SlidingVec;
