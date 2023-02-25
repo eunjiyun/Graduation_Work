@@ -177,13 +177,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
 
-		m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->Transform_Boundingbox(&(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox), m_ppShaders2[0]->m_ppObjects[i]->m_xmf4x4World);
-
-
-		/*cout << "바운딩 박스" << endl;
-		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox.Center.z << endl;
-		cout << "오브젝트 중심값" << endl;
-		cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "		:	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().x << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().y << ",	" << m_ppShaders2[0]->m_ppObjects[i]->GetPosition().z << endl << endl;*/
+		m_ppShaders2[0]->m_ppObjects[i]->Boundingbox_Transform();
 	}
 
 
@@ -531,7 +525,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 	m_pPlayer->boundingAnimate(fTimeElapsed);
 	m_ppShaders2[0]->AnimateObjects(fTimeElapsed);
-	UpdateBoundingBox();
 
 	if (m_pLights)
 	{
@@ -603,14 +596,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 void CStage::UpdateBoundingBox()
 {
-	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
-	{
-		if (m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes)
-		{
-			m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Transform(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));//(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
-			//XMStoreFloat4(&m_xmOOBB.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBB.Orientation)));
-		}
-	}
+
 }
 
 void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
@@ -620,8 +606,10 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16))
 			break;
 
-		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->m_xmBoundingBox))
+		if (m_pPlayer->m_xmOOBB.Intersects(m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB))
 		{
+
+		/*	cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌함" << endl;*/
 
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 			

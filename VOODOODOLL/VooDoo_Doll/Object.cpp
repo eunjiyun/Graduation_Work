@@ -1113,6 +1113,7 @@ void CGameObject::SetScale(float x, float y, float z)
 	UpdateTransform(NULL);
 }
 
+
 XMFLOAT3 CGameObject::GetPosition()
 {
 	return(XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43));
@@ -1176,6 +1177,14 @@ void CGameObject::Rotate(XMFLOAT3* pxmf3Axis, float fAngle)
 	m_xmf4x4ToParent = Matrix4x4::Multiply(mtxRotate, m_xmf4x4ToParent);
 
 	UpdateTransform(NULL);
+}
+
+void CGameObject::Boundingbox_Transform()
+{
+	if (m_ppMeshes[0])
+	{
+		m_ppMeshes[0]->m_xmBoundingBox.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+	}
 }
 
 void CGameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
@@ -2066,11 +2075,11 @@ void CBulletObject::Animate(float fElapsedTime)//총알 업데이트
 	SetPosition(xmf3Position);
 	m_fMovingDistance += fDistance;
 #endif
-	
+
 	m_xmf4x4World._31 = m_xmf3MovingDirection.x;
 	m_xmf4x4World._32 = m_xmf3MovingDirection.y;
 	m_xmf4x4World._33 = m_xmf3MovingDirection.z;
-	
+
 	//UpdateBoundingBox();
 
 	/*cout << "bullet animate 호출 : " << num << endl;

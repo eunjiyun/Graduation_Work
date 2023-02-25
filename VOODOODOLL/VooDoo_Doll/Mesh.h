@@ -71,7 +71,6 @@ public:
 	//
 	int* m_pnSubSetIndices = NULL;
 
-	void		Transform_Boundingbox(BoundingBox* _BoundingBox, XMFLOAT4X4 _xmfWorld);
 
 protected:
 	UINT							m_nType = 0x00;

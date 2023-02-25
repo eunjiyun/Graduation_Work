@@ -221,24 +221,7 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	}
 }
 
-void CMesh::Transform_Boundingbox(BoundingBox* _BoundingBox, XMFLOAT4X4 _xmfWorld)
-{
-	XMVECTOR	xmvCenter = XMLoadFloat3(&_BoundingBox->Center);
-	XMVECTOR	xmvExtents = XMLoadFloat3(&_BoundingBox->Extents);
 
-	XMMATRIX xmMatrix = XMMatrixSet(
-		_xmfWorld._11, _xmfWorld._12, _xmfWorld._13, _xmfWorld._14,
-		_xmfWorld._21, _xmfWorld._22, _xmfWorld._23, _xmfWorld._24,
-		_xmfWorld._31, _xmfWorld._32, _xmfWorld._33, _xmfWorld._34,
-		_xmfWorld._41, _xmfWorld._42, _xmfWorld._43, _xmfWorld._44
-	);
-
-
-	xmvCenter = XMVector3Transform(xmvCenter, xmMatrix);
-	xmvExtents = XMVector3TransformNormal(xmvExtents, xmMatrix);
-	XMStoreFloat3(&_BoundingBox->Center, xmvCenter);
-	XMStoreFloat3(&_BoundingBox->Extents, xmvExtents);
-}
 
 void CMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
