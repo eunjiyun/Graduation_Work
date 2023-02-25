@@ -116,13 +116,6 @@ public:
 	int c_id = -1;
 	bool recved_packet = false;
 	float cxDelta, cyDelta, czDelta = 0.0f;
-
-	//23.02.20
-	bool onAttack = false;
-	bool onRun = false;
-	bool onDie = false;
-	bool onCollect = false;
-	//
 };
 
 class CAirplanePlayer : public CPlayer

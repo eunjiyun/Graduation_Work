@@ -278,7 +278,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_KEYDOWN:
 		if (wParam == 'Z' || wParam == 'z')
-			gGameFramework.m_pPlayer->onAttack = true;
+		{
+			if (false == gGameFramework.m_pPlayer->attackOnce)
+			{
+				gGameFramework.m_pPlayer->onAttack = true;
+				gGameFramework.m_pPlayer->attackOnce = true;
+			}
+		}
 		else if (wParam == 'X' || wParam == 'x')
 		{
 			gGameFramework.m_pPlayer->onRun = true;
@@ -291,7 +297,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_KEYUP:
 		if (wParam == 'Z' || wParam == 'z')
-			gGameFramework.m_pPlayer->onAttack = false;
+		{
+			//gGameFramework.m_pPlayer->onAttack = false;
+			gGameFramework.m_pPlayer->attackOnce = false;
+		}
 		else if (wParam == 'X' || wParam == 'x')
 		{
 			gGameFramework.m_pPlayer->onRun = false;

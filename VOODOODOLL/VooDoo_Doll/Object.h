@@ -272,7 +272,7 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
-	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength);
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength,bool* onAttack);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);
@@ -334,7 +334,7 @@ public:
 	void SetCallbackKey(int nAnimationTrack, int nKeyIndex, float fTime, void* pData);
 	void SetAnimationCallbackHandler(int nAnimationTrack, CAnimationCallbackHandler* pCallbackHandler);
 
-	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject);
+	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject,bool* onAttack);
 
 public:
 	bool							m_bRootMotion = false;
@@ -408,6 +408,12 @@ public:
 	//
 
 	bool						m_bActive = false;
+	
+	bool onAttack = false;
+	bool attackOnce = false;
+	bool onRun = false;
+	bool onDie = false;
+	bool onCollect = false;
 
 	void SetMesh(int nIndex, CMesh* pMesh);
 	void SetShader(CShader* pShader);

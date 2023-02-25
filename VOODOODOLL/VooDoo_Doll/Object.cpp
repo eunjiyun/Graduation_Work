@@ -580,7 +580,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack)//0225
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 	switch (m_nType)
@@ -593,8 +593,12 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
 			{
+				if (true == *onAttack)
+					*onAttack = false;
+
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 				return(fAnimationLength);
+
 			}
 		}
 		//			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTimes[m_nKeyFrames-1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTimes[m_nKeyFrames-1]) * m_pfKeyFrameTimes[m_nKeyFrames-1];
@@ -604,7 +608,8 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 	}
 	case ANIMATION_TYPE_ONCE:
 		m_fPosition = fTrackPosition + fTrackElapsedTime;
-		if (m_fPosition > fAnimationLength) m_fPosition = fAnimationLength;
+		if (m_fPosition > fAnimationLength)
+			m_fPosition = fAnimationLength;
 		break;
 	case ANIMATION_TYPE_PINGPONG:
 		break;
@@ -740,7 +745,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 }
 //*/
 //*
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject)
+void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -754,7 +759,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength);
+				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack);
 				for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 				{
 					XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
@@ -992,7 +997,9 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this);
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack);
+
+	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
 
 	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
 	if (m_pChild) m_pChild->Animate(fTimeElapsed);
@@ -1428,15 +1435,15 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 					OutputDebugString(pstrDebug);
 #endif
 				}
+				}
 			}
-		}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-	}
+		}
 	return(pGameObject);
-}
+	}
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 {
@@ -1485,7 +1492,7 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 				OutputDebugString(pstrDebug);
 #endif
 			}
-		}
+			}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -1526,8 +1533,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			break;
 		}
+		}
 	}
-}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
