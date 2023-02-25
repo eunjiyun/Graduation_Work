@@ -612,7 +612,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		if (pBox.Intersects(oBox))
 		{
 
-			cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌함" << endl;
+			//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌함" << endl;
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
@@ -625,7 +625,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 			
 			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-			//cout << "MovVec IN CheckCollisions: " << Vel.x << ", " << Vel.y << ", " << Vel.z << endl;
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
 			
 			m_pPlayer->Move(ReflectVec, false);
@@ -647,27 +646,6 @@ XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 	return SlidingVec;
-
-
-
-	//XMFLOAT3 ReflectVec{ 0,0,0 };
-	//BoundingBox PlayerBB = m_pPlayer->m_xmOOBB;
-
-	//if (PlayerBB.Center.x > box.Center.x)
-	//	ReflectVec.x = (PlayerBB.Extents.x + box.Extents.x) - (PlayerBB.Center.x - box.Center.x);
-	//else
-	//	ReflectVec.x = (box.Center.x - PlayerBB.Center.x) - (PlayerBB.Extents.x + box.Extents.x);
-
-	//if (PlayerBB.Center.y > box.Center.y)
-	//	ReflectVec.y = (PlayerBB.Extents.y + box.Extents.y) - (PlayerBB.Center.y - box.Center.y);
-	//else
-	//	ReflectVec.y = (box.Center.y - PlayerBB.Center.y) - (PlayerBB.Extents.y + box.Extents.y);
-
-	//if (PlayerBB.Center.z > box.Center.z)
-	//	ReflectVec.z = (PlayerBB.Extents.z + box.Extents.z) - (PlayerBB.Center.z - box.Center.z);
-	//else
-	//	ReflectVec.z = (box.Center.z - PlayerBB.Center.z) - (PlayerBB.Extents.z + box.Extents.z);
-	//return ReflectVec;
 }
 
 

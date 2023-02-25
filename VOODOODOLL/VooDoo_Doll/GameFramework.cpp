@@ -603,7 +603,7 @@ void CGameFramework::ProcessInput()
 				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL, m_GameTimer.GetTimeElapsed());
 				m_pLockedObject = NULL;
 			
-				m_pPlayer->playerRun(whatPlayer, dwDirection);
+				m_pPlayer->playerRun();
 				m_pPlayer->playerDie();
 				m_pPlayer->playerCollect();
 			}

@@ -634,7 +634,7 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 
 	return NULL;
 }
-void CTerrainPlayer::playerRun(int whatPlayer, DWORD dwDirection)
+void CTerrainPlayer::playerRun()
 {
 	if (true == onRun)
 	{

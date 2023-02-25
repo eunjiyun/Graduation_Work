@@ -43,7 +43,7 @@ public:
 	DWORD direction;
 	char	_name[NAME_SIZE];
 	int		_prev_remain;
-	BoundingOrientedBox m_xmOOBB;
+	BoundingBox m_xmOOBB;
 	short error_stack;
 	bool isRun, isAttack, isCollect;
 	//int		_last_move_time;
@@ -66,7 +66,7 @@ public:
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingOrientedBox(m_xmf3Position, XMFLOAT3(10, 5, 5), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 5, 5));
 		error_stack = 0;
 		isRun = false;
 		isAttack = false;
@@ -159,7 +159,7 @@ public:
 			if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 			Move(xmf3Shift, bUpdateVelocity);
 
-				
+			
 			
 		}
 	}

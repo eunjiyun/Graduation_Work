@@ -1,9 +1,7 @@
 #pragma once
 
-#include <iostream>
 #include <cassert>
 #include <memory>
-#include <vector>
 #include "stdafx.h"
 
 
@@ -251,9 +249,8 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
             strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
 
             LoadMeshFromFile(*pGameObject, pstrFilePath);
-            pGameObject->m_xmOOBB.Center.x = pGameObject->GetPosition().x;
-            pGameObject->m_xmOOBB.Center.y = pGameObject->GetPosition().y;
-            pGameObject->m_xmOOBB.Center.z = pGameObject->GetPosition().z;
+            pGameObject->m_xmOOBB.Center = pGameObject->GetPosition();
+       
         }
         
         
@@ -264,3 +261,20 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
 
     return(ppGameObjects);
 }
+
+class MonsterPool : public CMemoryPool<MonsterPool>
+{
+private:
+    XMFLOAT3 Look, Up, Right, Pos;
+    short HP;
+    short view_range;
+public:
+    int Find_Player()
+    {
+
+    }
+    void Update()
+    {
+
+    }
+};

@@ -12,17 +12,6 @@
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
 
-class MonsterPool : public CMemoryPool<MonsterPool>
-{
-private:
-	XMFLOAT3 Look, Up, Right, Pos;
-	short HP;
-	short view_range;
-public:
-
-};
-
-
 
 
 
@@ -62,10 +51,12 @@ void SESSION::send_move_packet(int c_id)
 	p.Up = clients[c_id].GetUpVector();
 	p.Pos = clients[c_id].GetPosition();
 	p.direction = clients[c_id].direction;
+	clients[c_id].direction = 0;
 	p.run = clients[c_id].isRun;
 	p.attack = clients[c_id].isAttack;
 	p.collect = clients[c_id].isCollect;
 	do_send(&p);
+
 }
 
 void SESSION::send_add_player_packet(int c_id)
@@ -263,8 +254,6 @@ int main()
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
 			Objects[j].push_back(m_ppObjects[i]);
 		}
-		/*int collide_range = (int)m_ppObjects[i]->m_xmOOBB.Center.z / 600;
-		Objects[collide_range].push_back(m_ppObjects[i]);*/
 	}
 	delete m_ppObjects;
 	HANDLE h_iocp;
