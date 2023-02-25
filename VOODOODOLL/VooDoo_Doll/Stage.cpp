@@ -536,6 +536,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
+		m_pLights[1].m_xmf3Position.y = m_pPlayer->GetPosition().y+10;
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 
 		//23.02.12
