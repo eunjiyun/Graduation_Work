@@ -14,7 +14,6 @@ class CGameFramework
 public:
 	CGameFramework();
 	~CGameFramework();
-	int num2 = 0;
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	void OnDestroy();
@@ -97,7 +96,7 @@ public:
 	int whatPlayer = 1;
 	bool changePlayerMode = false;
 	CGameObject* m_pLockedObject = NULL;
-	
+
 	CTerrainPlayer* pPlayer;
 	CTerrainPlayer* pPlayer2;
 	CTerrainPlayer* pPlayer3;
@@ -121,6 +120,5 @@ public:
 	_TCHAR						m_pszFrameRate[70];
 
 	CGameObject** m_ppBullets = NULL;//ÃÑ¾Ë
-	//bool onRotate = false;
 };
 

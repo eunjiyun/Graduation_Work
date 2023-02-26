@@ -6,12 +6,11 @@
 #define DIR_RIGHT				0x08
 #define DIR_ATTACK				0x10
 #define DIR_RUN					0x20
-#define DIR_DIE					0x30
+#define DIR_DIE					0x80//¹®Á¦
 #define DIR_COLLECT				0x40
 
-//23.02.21
 #define BULLETS					50
-//
+
 
 #include "Object.h"
 #include "Camera.h"
@@ -42,9 +41,11 @@ protected:
 	CCamera* m_pCamera = NULL;
 
 public:
-	//23.02.21
 	CGameObject** m_ppBullets;
-	//
+	CGameObject* m_pObjectCollided = NULL;
+	int c_id = -1;
+	bool recved_packet = false;
+	float cxDelta, cyDelta, czDelta = 0.0f;
 
 public:
 	CPlayer();
@@ -76,13 +77,12 @@ public:
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
-	//23.02.20
-	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*, float) { return NULL; }
+	
+	virtual void playerAttack(int, CGameObject*, CGameObject***) {}
 	virtual void playerRun() {}
 	virtual void playerDie() {}
 	virtual void playerCollect(){}
 	
-	//
 
 	virtual void Update(float fTimeElapsed);
 	virtual void otherPlayerUpdate() {};
@@ -114,30 +114,6 @@ public:
 	void SetRightVector(const XMFLOAT3& xmf3Right) { m_xmf3Right = xmf3Right; }
 	void Deceleration(float fTimeElapsed);
 
-
-public:
-	CGameObject* m_pObjectCollided = NULL;
-	int c_id = -1;
-	bool recved_packet = false;
-	float cxDelta, cyDelta, czDelta = 0.0f;
-};
-
-class CAirplanePlayer : public CPlayer
-{
-public:
-	CAirplanePlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL);
-	virtual ~CAirplanePlayer();
-
-	CGameObject* m_pMainRotorFrame = NULL;
-	CGameObject* m_pTailRotorFrame = NULL;
-
-private:
-	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
-
-public:
-	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-	virtual void OnPrepareRender();
 };
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
@@ -153,25 +129,20 @@ public:
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl, void* pContext = NULL);
+	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl);
 	virtual ~CTerrainPlayer();
 
 public:
 	virtual CCamera* ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
-
-	virtual void OnPlayerUpdateCallback(float fTimeElapsed);
-	virtual void OnCameraUpdateCallback(float fTimeElapsed);
 
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Update(float fTimeElapsed);
 	virtual void otherPlayerUpdate();
 
-	//23.02.20
-	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*, float);
+	virtual void playerAttack(int, CGameObject*, CGameObject***);
 	virtual void playerRun();
 	virtual void playerDie();
 	virtual void playerCollect();
-	//
 };
 

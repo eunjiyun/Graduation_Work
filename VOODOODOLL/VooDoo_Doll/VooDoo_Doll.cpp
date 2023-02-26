@@ -44,14 +44,11 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		//if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
-		//if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
-		//23.02.20
+
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die
 		if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
-		//
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -89,17 +86,15 @@ void GamePlayer_ProcessInput()
 
 		}
 
-		if (dwDirection) {//여기처럼
+		if (dwDirection) {
 			p.direction = dwDirection;
 			gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
-			//23.02.20
-			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets), NULL, NULL, NULL, 0.0f);
-			gGameFramework.m_pLockedObject = NULL;
 
+			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets));
+			gGameFramework.m_pLockedObject = NULL;
 			gGameFramework.m_pPlayer->playerRun();
 			gGameFramework.m_pPlayer->playerDie();
 			gGameFramework.m_pPlayer->playerCollect();
-			//
 
 			/*SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
 			for (auto& player : gGameFramework.Players)
@@ -137,40 +132,40 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-	#pragma region SERVER
-	
-		WSADATA WSAData;
-		int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-		if (ErrorStatus != 0)
-		{
-			cout << "WSAStartup 실패\n";
-		}
-		s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
-		if (s_socket == INVALID_SOCKET)
-		{
-			cout << "소켓 생성 실패\n";
-		}
-	
-	
-		// 서버와 연결
-		SOCKADDR_IN svr_addr;
-		memset(&svr_addr, 0, sizeof(svr_addr));
-		svr_addr.sin_family = AF_INET;
-		svr_addr.sin_port = htons(SERVER_PORT);
-		inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
-		ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
-		if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
-	
-		// 서버에게 자신의 정보를 패킷으로 전달
-		CS_LOGIN_PACKET p;
-		p.size = sizeof(CS_LOGIN_PACKET);
-		p.type = CS_LOGIN;
-		ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-	
-		recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+#pragma region SERVER
 
-	#pragma endregion 
+	WSADATA WSAData;
+	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+	if (ErrorStatus != 0)
+	{
+		cout << "WSAStartup 실패\n";
+	}
+	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+	if (s_socket == INVALID_SOCKET)
+	{
+		cout << "소켓 생성 실패\n";
+	}
+
+
+	// 서버와 연결
+	SOCKADDR_IN svr_addr;
+	memset(&svr_addr, 0, sizeof(svr_addr));
+	svr_addr.sin_family = AF_INET;
+	svr_addr.sin_port = htons(SERVER_PORT);
+	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
+
+	// 서버에게 자신의 정보를 패킷으로 전달
+	CS_LOGIN_PACKET p;
+	p.size = sizeof(CS_LOGIN_PACKET);
+	p.type = CS_LOGIN;
+	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+
+	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+
+#pragma endregion 
 
 
 	while (1)
@@ -187,7 +182,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			GamePlayer_ProcessInput();	
+			GamePlayer_ProcessInput();
 			//gGameFramework.ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
@@ -379,18 +374,25 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
-	if (p->direction & DIR_ATTACK) pl->onAttack = true; 
+	if (p->direction & DIR_ATTACK) pl->onAttack = true;
 	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
+	if (p->direction & DIR_DIE) pl->onDie= true; else pl->onDie = false;
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
 
-	
+
 
 	if (pl->onAttack) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		cout << "attack" << endl;
 		return;
 	}
 	else if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+		return;
+	}
+	else if (pl->onDie) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
+		cout << "die" << endl;
 		return;
 	}
 	else if (pl->onCollect) {
@@ -452,9 +454,9 @@ void ProcessPacket(char* ptr)
 				if (packet->id == player->c_id) {
 					player->SetLookVector(packet->Look);
 					player->SetUpVector(packet->Up);
-					player->SetRightVector(packet->Right);				
+					player->SetRightVector(packet->Right);
 					ProcessAnimation(player, packet);
-					player->SetPosition(packet->Pos);				
+					player->SetPosition(packet->Pos);
 					break;
 				}
 		//gGameFramework.m_pPlayer->recved_packet = false;
@@ -478,7 +480,7 @@ void ProcessData(char* packet, int io_byte)
 
 			//ptr += in_packet_size - saved_packet_size;
 			ptr += in_packet_size;
-			io_byte -= in_packet_size - saved_packet_size;//'-=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+			io_byte -= int(in_packet_size - saved_packet_size);//'-=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
 			in_packet_size = 0;
 			saved_packet_size = 0;
 		}

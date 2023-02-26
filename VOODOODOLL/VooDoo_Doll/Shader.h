@@ -78,34 +78,6 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CTerrainShader : public CShader
-{
-public:
-	CTerrainShader();
-	virtual ~CTerrainShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CSkyBoxShader : public CShader
-{
-public:
-	CSkyBoxShader();
-	virtual ~CSkyBoxShader();
-
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -144,14 +116,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CHellicopterObjectsShader : public CStandardObjectsShader
-{
-public:
-	CHellicopterObjectsShader();
-	virtual ~CHellicopterObjectsShader();
 
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, void* pContext = NULL);
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -199,14 +164,6 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CEthanObjectsShader : public CSkinnedAnimationObjectsShader
-{
-public:
-	CEthanObjectsShader();
-	virtual ~CEthanObjectsShader();
-
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, void* pContext = NULL);
-};
 
 class CObjectsShader : public CShader
 {

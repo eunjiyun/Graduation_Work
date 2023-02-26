@@ -166,7 +166,6 @@ ID3D12Resource* CreateTextureResourceFromDDSFile(ID3D12Device* pd3dDevice, ID3D1
 
 	HRESULT hResult = DirectX::LoadDDSTextureFromFileEx(pd3dDevice, pszFileName, 0, D3D12_RESOURCE_FLAG_NONE, DDS_LOADER_DEFAULT, &pd3dTexture, ddsData, vSubresources, &ddsAlphaMode, &bIsCubeMap);
 
-	//23.02.07
 	if (NULL != pd3dTexture)
 	{
 		D3D12_HEAP_PROPERTIES d3dHeapPropertiesDesc;
@@ -303,7 +302,7 @@ ID3D12Resource* CreateTextureResourceFromWICFile(ID3D12Device* pd3dDevice, ID3D1
 	return(pd3dTexture);
 }
 
-//23.01.05
+
 CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects)//0220
 {
 	FILE* pFile = NULL;

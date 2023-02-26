@@ -23,7 +23,7 @@
 #include <fstream>
 #include <vector>
 
-//23.01.03
+//consol
 #ifdef UNICODE
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #else
@@ -70,23 +70,17 @@ extern HINSTANCE						ghAppInstance;
 #define SPOT_LIGHT				2
 #define DIRECTIONAL_LIGHT		3
 
-//23.01.05
 #define MAX_Scene_MATERIALS		16 
-//
 
-//23.01.19
 #define FIRST_FLOOR				0
 #define SECOND_FLOOR			370
 #define FLOOR_SIZE				370
-//
 
-//23.01.30
 #define ROOT_PARAMETER_CAMERA			0
 #define ROOT_PARAMETER_PLAYER			1
 #define ROOT_PARAMETER_LIGHT			2
-#define ROOT_PARAMETER_BONEOFFSET       11
-#define ROOT_PARAMETER_BONETRANSFORM    12
-//
+#define ROOT_PARAMETER_BONEOFFSET       10
+#define ROOT_PARAMETER_BONETRANSFORM    11
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
@@ -120,11 +114,8 @@ extern float ReadFloatFromFile(FILE* pInFile);
 
 #define ANIMATION_CALLBACK_EPSILON		0.00165f
 
-
-//23.01.05
 #include "Object.h"
 extern CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects);
-//
 
 enum SCENEID { SCENE_ZERO, SCENE_OPEN, SCENE_LOGIN, SCENE_STAGE, SCENE_END };
 

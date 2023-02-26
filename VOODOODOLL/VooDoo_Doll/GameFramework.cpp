@@ -459,11 +459,11 @@ void CGameFramework::BuildObjects()
 
 
 #ifdef _WITH_TERRAIN_PLAYER
-	pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
+	pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 	//pPlayer->otherPlayerUpdate(m_GameTimer.GetTimeElapsed());
-	pPlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2, m_pStage->m_pTerrain);
+	pPlayer2 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 2);
 	//pPlayer2->otherPlayerUpdate(m_GameTimer.GetTimeElapsed());
-	pPlayer3 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 3, m_pStage->m_pTerrain);
+	pPlayer3 = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 3);
 	//pPlayer3->otherPlayerUpdate(m_GameTimer.GetTimeElapsed());
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
@@ -477,7 +477,7 @@ void CGameFramework::BuildObjects()
 		m_pCamera = m_pPlayer->GetCamera();
 
 		for (int i = 0; i < 2; i++) {
-			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
+			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 			pAirplanePlayer->otherPlayerUpdate();
 			Players.push_back(pAirplanePlayer);
 		}
@@ -485,7 +485,7 @@ void CGameFramework::BuildObjects()
 		//23.02.22
 		m_ppBullets = new CGameObject * [BULLETS];
 
-		CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);//
+		CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);
 		m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1);
 		m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
@@ -604,9 +604,9 @@ void CGameFramework::ProcessInput()
 			{
 				m_pPlayer->Move(dwDirection, 7.0f, true);
 
-				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets, NULL, NULL, NULL, m_GameTimer.GetTimeElapsed());
+				m_pPlayer->playerAttack(whatPlayer, m_pLockedObject, &m_ppBullets);
 				m_pLockedObject = NULL;
-			
+
 				m_pPlayer->playerRun();
 				m_pPlayer->playerDie();
 				m_pPlayer->playerCollect();
@@ -674,12 +674,12 @@ void CGameFramework::FrameAdvance()
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
 
-	m_pPlayer->Update(fTimeElapsed);	
+	m_pPlayer->Update(fTimeElapsed);
 	//m_pPlayer->otherPlayerUpdate(m_GameTimer.GetTimeElapsed());
 	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed);
 
 	m_pPlayer->Deceleration(fTimeElapsed);
-	
+
 	//for (auto& player : Players) {
 	//	if (player->c_id > -1) {
 	//		//player->Update(m_GameTimer.GetTimeElapsed());
@@ -734,22 +734,6 @@ void CGameFramework::FrameAdvance()
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
-
-	//int num = 0;//0226
-	//
-	//	for (int i = 0; i < 6; ++i)
-	//	{
-	//		if (false == m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[i].m_bEnable)
-	//			++num;
-	//	}
-	//	if (6 == num)
-	//	{
-	//		//m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-	//		//num = 0;
-
-	//		//cout << num2+1<<"번째 호출" << endl;//걸을땐 왜 호출?
-	//		//num2++;
-	//	}
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

@@ -160,13 +160,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[5]->SetScale(0.5f, 0.5f, 0.5f);
 	if (pZebraModel6) delete pZebraModel6;
 
-	//CLoadedModelInfo* pZebraModel7 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/body17.bin", NULL, 0);//
-	//m_ppHierarchicalGameObjects[6] = new CZebraObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pZebraModel7, 1, 7);
-	//m_ppHierarchicalGameObjects[6]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[6]->SetPosition(151.0f, 0.0f, 500.0f);//Ä³¸¯ÅÍbody
-	//m_ppHierarchicalGameObjects[6]->SetScale(1.1f, 1.1f, 1.1f);
-	//if (pZebraModel7) delete pZebraModel7;
-
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];
 	CObjectsShader* pObjectShader = new CObjectsShader();
@@ -176,7 +169,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
-
 		m_ppShaders2[0]->m_ppObjects[i]->Boundingbox_Transform();
 	}
 
@@ -199,20 +191,6 @@ void CStage::ReleaseObjects()
 		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
 		delete[] m_ppGameObjects;
 	}
-
-	if (m_ppShaders)
-	{
-		for (int i = 0; i < m_nShaders; i++)
-		{
-			m_ppShaders[i]->ReleaseShaderVariables();
-			m_ppShaders[i]->ReleaseObjects();
-			m_ppShaders[i]->Release();
-		}
-		delete[] m_ppShaders;
-	}
-
-	if (m_pTerrain) delete m_pTerrain;
-	if (m_pSkyBox) delete m_pSkyBox;
 
 	if (m_ppHierarchicalGameObjects)
 	{
@@ -239,7 +217,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[8];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[7];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -283,13 +261,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[6].RegisterSpace = 0;
 	pd3dDescriptorRanges[6].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	pd3dDescriptorRanges[7].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	pd3dDescriptorRanges[7].NumDescriptors = 1;
-	pd3dDescriptorRanges[7].BaseShaderRegister = 13; //t13: gtxtSkyBoxTexture
-	pd3dDescriptorRanges[7].RegisterSpace = 0;
-	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	D3D12_ROOT_PARAMETER pd3dRootParameters[13];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[12];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -344,21 +316,15 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[9].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[6]);
 	pd3dRootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	pd3dRootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[10].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[10].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[7]);
-	pd3dRootParameters[10].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
+	pd3dRootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[10].Descriptor.ShaderRegister = 7; //Skinned Bone Offsets
+	pd3dRootParameters[10].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[10].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	pd3dRootParameters[11].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[11].Descriptor.ShaderRegister = 7; //Skinned Bone Offsets
+	pd3dRootParameters[11].Descriptor.ShaderRegister = 8; //Skinned Bone Transforms
 	pd3dRootParameters[11].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-
-	pd3dRootParameters[12].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[12].Descriptor.ShaderRegister = 8; //Skinned Bone Transforms
-	pd3dRootParameters[12].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[12].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
 
@@ -433,9 +399,6 @@ void CStage::ReleaseShaderVariables()
 
 void CStage::ReleaseUploadBuffers()
 {
-	if (m_pSkyBox)
-		m_pSkyBox->ReleaseUploadBuffers();
-
 	for (int i = 0; i < m_nHierarchicalGameObjects; i++)
 		m_ppHierarchicalGameObjects[i]->ReleaseUploadBuffers();
 
@@ -529,7 +492,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
-		m_pLights[1].m_xmf3Position.y = m_pPlayer->GetPosition().y+10;
+		m_pLights[1].m_xmf3Position.y = m_pPlayer->GetPosition().y + 10;
 		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
 
 		//23.02.12
@@ -591,7 +554,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		}
 	}
 
-	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);// , m_d3dCbvGPUDescriptorHandle);//
+	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);
 }
 
 void CStage::UpdateBoundingBox()
@@ -603,7 +566,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects - 1; i++)
 	{
-		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16)) 
+		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16))
 			continue;
 
 		BoundingBox pBox = m_pPlayer->m_xmOOBB;
@@ -621,21 +584,21 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			}
 			else if (oBox.Center.x < pBox.Center.x + pBox.Extents.x) ObjLook = { 1,0,0 };
 			else ObjLook = { -1, 0, 0 };
-			
+
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 
 			if (Vector3::DotProduct(Vel, ObjLook) > 0)
 				break;
-			
+
 			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
-		
+
 			m_pPlayer->Move(ReflectVec, false);
 
 
 			XMFLOAT3 SlidingVec = GetReflectVec(ObjLook, MovVec);
 			m_pPlayer->Move(SlidingVec, false);
-			
+
 			break;
 		}
 	}
