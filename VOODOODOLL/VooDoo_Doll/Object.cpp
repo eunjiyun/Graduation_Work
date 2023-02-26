@@ -581,7 +581,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,int choose)//0226
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack)//0226
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 	switch (m_nType)
@@ -618,16 +618,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 				m_fPosition = fAnimationLength;
 				SetEnable(false);
 
-				if(1==choose)
-					cout << "2 or 5 ²ô±â" << endl;
-				else if (2 == choose)
-				{
-					cout << "2 ²ô±â" << endl;
-					cout << "½ºÀ§Ä¡ " << m_bEnable << endl;
-				}
-
-				*onAttack = false;
-				*onCollect = false;
+				cout << "2 or 5 ²ô±â" << endl;
 			}
 		}
 
@@ -777,7 +768,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 }
 //*/
 //*
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect,int choose)
+void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -807,7 +798,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_LOOP;
 				}
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack,onCollect,choose);//0226
+				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack);//0226
 
 				/*if (5 == k || 2 == k)
 				{
@@ -1052,16 +1043,16 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->SetTrackPosition(nAnimationTrack, fPosition);
 }
 
-void CGameObject::Animate(float fTimeElapsed,int choose)
+void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack,&onCollect,choose);
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack);
 
 	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
 
-	if (m_pSibling) m_pSibling->Animate(fTimeElapsed,choose);
-	if (m_pChild) m_pChild->Animate(fTimeElapsed,choose);
+	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
+	if (m_pChild) m_pChild->Animate(fTimeElapsed);
 
 }
 
@@ -1776,7 +1767,7 @@ void CSuperCobraObject::OnPrepareAnimate()
 	m_pTailRotorFrame = FindFrame("TailRotor");
 }
 
-void CSuperCobraObject::Animate(float fTimeElapsed,int choose)
+void CSuperCobraObject::Animate(float fTimeElapsed)
 {
 	if (m_pMainRotorFrame)
 	{
@@ -1789,7 +1780,7 @@ void CSuperCobraObject::Animate(float fTimeElapsed,int choose)
 		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
 	}
 
-	CGameObject::Animate(fTimeElapsed,0);
+	CGameObject::Animate(fTimeElapsed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1808,7 +1799,7 @@ void CGunshipObject::OnPrepareAnimate()
 	m_pTailRotorFrame = FindFrame("Back_Rotor");
 }
 
-void CGunshipObject::Animate(float fTimeElapsed,int choose)
+void CGunshipObject::Animate(float fTimeElapsed)
 {
 	if (m_pMainRotorFrame)
 	{
@@ -1821,7 +1812,7 @@ void CGunshipObject::Animate(float fTimeElapsed,int choose)
 		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
 	}
 
-	CGameObject::Animate(fTimeElapsed,0);
+	CGameObject::Animate(fTimeElapsed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1840,7 +1831,7 @@ void CMi24Object::OnPrepareAnimate()
 	m_pTailRotorFrame = FindFrame("Tail_Rotor");
 }
 
-void CMi24Object::Animate(float fTimeElapsed,int choose)
+void CMi24Object::Animate(float fTimeElapsed)
 {
 	if (m_pMainRotorFrame)
 	{
@@ -1853,7 +1844,7 @@ void CMi24Object::Animate(float fTimeElapsed,int choose)
 		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
 	}
 
-	CGameObject::Animate(fTimeElapsed,0);
+	CGameObject::Animate(fTimeElapsed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2094,7 +2085,7 @@ void CBulletObject::SetFirePosition(XMFLOAT3 xmf3FirePosition)
 	SetPosition(xmf3FirePosition);
 }
 
-void CBulletObject::Animate(float fElapsedTime,int choose)//ÃÑ¾Ë ¾÷µ¥ÀÌÆ®
+void CBulletObject::Animate(float fElapsedTime)//ÃÑ¾Ë ¾÷µ¥ÀÌÆ®
 {
 	m_fElapsedTimeAfterFire += fElapsedTime;
 

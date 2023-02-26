@@ -503,7 +503,7 @@ void CStandardObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, 
 	{
 		if (m_ppObjects[j])
 		{
-			m_ppObjects[j]->Animate(m_fElapsedTime,0);
+			m_ppObjects[j]->Animate(m_fElapsedTime);
 			m_ppObjects[j]->UpdateTransform(NULL);
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 		}
@@ -649,7 +649,7 @@ void CSkinnedAnimationObjectsShader::Render(ID3D12GraphicsCommandList* pd3dComma
 	{
 		if (m_ppObjects[j])
 		{
-			m_ppObjects[j]->Animate(m_fElapsedTime,0);
+			m_ppObjects[j]->Animate(m_fElapsedTime);
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 		}
 	}
@@ -918,7 +918,7 @@ void CObjectsShader::AnimateObjects(float fTimeElapsed)
 {
 	for (int j = 0; j < m_nObjects; j++)
 	{
-		m_ppObjects[j]->Animate(fTimeElapsed,0);
+		m_ppObjects[j]->Animate(fTimeElapsed);
 	}
 }
 
