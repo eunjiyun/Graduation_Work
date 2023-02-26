@@ -376,26 +376,54 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
-void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
+void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//02266
 {
-	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+	//pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+
+	pl->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 
 	if (p->direction & DIR_ATTACK) {
-		if (false == pl->attackOnce)
-		{
+
+		//cout << "p->direction : " << p->direction << endl;
+		//if (false == pl->attackOnce)
+		//{
 			pl->onAttack = true;
-			pl->attackOnce = true;
-		}
-		else pl->attackOnce = false;
+			//pl->attackOnce = true;
+		//}
+		//else pl->attackOnce = false;
 	}
-	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
-	if (p->direction & DIR_COLLECT) pl->onCollect = true; else pl->onCollect = false;
+	//else pl->onAttack = false;
+
+
+	if (p->direction & DIR_COLLECT)
+		pl->onCollect = true;
+	//else pl->onCollect = false;
+
+	if (p->direction & DIR_RUN) 
+		pl->onRun = true; 
+	else pl->onRun = false;
+
+	if (p->direction & DIR_DIE)
+		pl->onDie = true;
+	else pl->onDie = false;
+
+	//if (p->direction & DIR_RUN)//걷기
+	//	pl->onRun = true;
+	//else pl->onRun = false;
+
 
 	
+	if (pl->onAttack) 
+		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	
+	else if (pl->onCollect) 
+		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
 
-	if (pl->onAttack) pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	else if (pl->onRun) pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-	else if (pl->onCollect) pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+	else if (pl->onRun)
+		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+
+	else if (pl->onDie)
+		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
 
 	else if (!pl->onAttack && !pl->onRun && !pl->onDie && !pl->onCollect) {
 		XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
@@ -405,6 +433,9 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 		}
 		else pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	}
+
+	/*if(pl->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_bEnable)
+		pl->m_pSkinnedAnimationController->SetTrackEnable(2, false);*/
 
 }
 

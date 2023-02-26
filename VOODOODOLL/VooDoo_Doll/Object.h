@@ -272,7 +272,7 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
-	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack);
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,int choose);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);
@@ -335,7 +335,7 @@ public:
 	void SetCallbackKey(int nAnimationTrack, int nKeyIndex, float fTime, void* pData);
 	void SetAnimationCallbackHandler(int nAnimationTrack, CAnimationCallbackHandler* pCallbackHandler);
 
-	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject,bool* onAttack);
+	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject,bool* onAttack,bool* onCollect,int choose);
 
 public:
 	bool							m_bRootMotion = false;
@@ -432,7 +432,7 @@ public:
 	virtual void BuildMaterials(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
 
 	virtual void OnPrepareAnimate() { }
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed,int choose);
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
@@ -580,7 +580,7 @@ private:
 
 public:
 	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed,int choose);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -597,7 +597,7 @@ private:
 
 public:
 	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed,int choose);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,7 +614,7 @@ private:
 
 public:
 	virtual void OnPrepareAnimate();
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed,int choose);
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -725,7 +725,7 @@ public:
 	virtual ~CBulletObject() {}
 
 public:
-	virtual void Animate(float fElapsedTime);
+	virtual void Animate(float fElapsedTime,int choose);
 
 	float						m_fBulletEffectiveRange = 150.0f;
 	float						m_fMovingDistance = 0.0f;

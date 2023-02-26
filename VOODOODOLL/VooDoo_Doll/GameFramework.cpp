@@ -631,11 +631,16 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 {
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
-	m_pPlayer->Animate(fTimeElapsed);
+	m_pPlayer->Animate(fTimeElapsed,1);
 
 	for (auto& player : Players)
+	{
 		if (player->c_id > -1)
-			player->Animate(fTimeElapsed);
+		{
+			player->Animate(fTimeElapsed,2);
+			//cout << "other player animate È£Ãâ" << endl << endl;
+		}
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -688,7 +693,7 @@ void CGameFramework::FrameAdvance()
 	}
 
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
-	m_ppBullets[0]->Animate(fTimeElapsed);//ÃÑ¾Ë ¾÷µ«
+	m_ppBullets[0]->Animate(fTimeElapsed,0);//ÃÑ¾Ë ¾÷µ«
 
 	AnimateObjects(fTimeElapsed);
 

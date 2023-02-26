@@ -338,7 +338,7 @@ void CAirplanePlayer::Animate(float fTimeElapsed)
 		m_pTailRotorFrame->m_xmf4x4ToParent = Matrix4x4::Multiply(xmmtxRotate, m_pTailRotorFrame->m_xmf4x4ToParent);
 	}
 
-	CPlayer::Animate(fTimeElapsed);
+	CPlayer::Animate(fTimeElapsed,0);
 }
 
 void CAirplanePlayer::OnPrepareRender()
@@ -722,7 +722,7 @@ void CTerrainPlayer::Update(float fTimeElapsed)//0226
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 
-				cout << "0번 트루" << endl;
+				//cout << "0번 트루" << endl;
 			}
 		}
 
@@ -751,7 +751,7 @@ void CTerrainPlayer::otherPlayerUpdate(CPlayer* firstPlayer)//0226
 			{
 
 				if (false == m_pSkinnedAnimationController->m_pAnimationTracks[0].m_bEnable)
-					cout << "지금" << endl;
+					//cout << "지금" << endl;
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
 				//23.02.21
@@ -762,7 +762,7 @@ void CTerrainPlayer::otherPlayerUpdate(CPlayer* firstPlayer)//0226
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 
-				cout << "0번 트루00000" << endl;
+				//cout << "0번 트루00000" << endl;
 			}
 		}
 
