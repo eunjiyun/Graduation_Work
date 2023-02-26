@@ -454,6 +454,8 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationController->SetTrackEnable(3, false);
 	m_pSkinnedAnimationController->SetTrackEnable(4, false);
 	m_pSkinnedAnimationController->SetTrackEnable(5, false);
+
+	cout << "12345 애니메이션 끄기" << endl;
 	//
 
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 2);
@@ -582,6 +584,8 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
+
+		cout << "1번 트루" << endl;
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
@@ -600,6 +604,13 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
+
+		cout << "2번 트루" << endl;
+
+		onAttack = false;
+
+		//0226
+		m_pSkinnedAnimationController->m_pAnimationTracks->m_nType = ANIMATION_TYPE_ONCE;
 
 		if (2 == whatPlayer)
 		{
@@ -646,6 +657,8 @@ void CTerrainPlayer::playerRun()
 		m_pSkinnedAnimationController->SetTrackEnable(3, true);
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
+
+		cout << "3번 트루" << endl;
 	}
 }
 void CTerrainPlayer::playerDie()
@@ -658,11 +671,14 @@ void CTerrainPlayer::playerDie()
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
+
+		cout << "4번 트루" << endl;
 	}
 }
 
 void CTerrainPlayer::playerCollect()
 {
+	
 	if (true == onCollect)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
@@ -671,20 +687,30 @@ void CTerrainPlayer::playerCollect()
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, true);
+
+		m_pSkinnedAnimationController->m_pAnimationTracks->m_nType = ANIMATION_TYPE_ONCE;
+
+		cout << "5번 트루" << endl;
+		onCollect = false;
 	}
 }
 //
 
-void CTerrainPlayer::Update(float fTimeElapsed)
+void CTerrainPlayer::Update(float fTimeElapsed)//0226
 {
 	CPlayer::Update(fTimeElapsed);
+	int num = 0;
 
 	if (m_pSkinnedAnimationController)
 	{
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
 		{
-			if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
+			if(false==m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
+				false == m_pSkinnedAnimationController->m_pAnimationTracks[3].m_bEnable &&
+				false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable && 
+				false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable )
+			//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
 			{
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
@@ -695,7 +721,57 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 				m_pSkinnedAnimationController->SetTrackEnable(5, false);
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+
+				cout << "0번 트루" << endl;
 			}
 		}
+
+	/*	for (int i = 0; i < 6; ++i)
+		{
+			if (false == m_pSkinnedAnimationController->m_pAnimationTracks[i].m_bEnable)
+				++num;
+		}
+		if(6==num)
+			m_pSkinnedAnimationController->SetTrackEnable(0, true);*/
+	}
+}
+
+void CTerrainPlayer::otherPlayerUpdate(CPlayer* firstPlayer)//0226
+{
+	if (m_pSkinnedAnimationController)
+	{
+		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
+		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
+		{
+			if (false == m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
+				false == m_pSkinnedAnimationController->m_pAnimationTracks[3].m_bEnable &&
+				false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable &&
+				false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
+				//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
+			{
+
+				if (false == m_pSkinnedAnimationController->m_pAnimationTracks[0].m_bEnable)
+					cout << "지금" << endl;
+				m_pSkinnedAnimationController->SetTrackEnable(0, true);
+				m_pSkinnedAnimationController->SetTrackEnable(1, false);
+				//23.02.21
+				m_pSkinnedAnimationController->SetTrackEnable(2, false);
+				m_pSkinnedAnimationController->SetTrackEnable(3, false);
+				m_pSkinnedAnimationController->SetTrackEnable(4, false);
+				m_pSkinnedAnimationController->SetTrackEnable(5, false);
+				//
+				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+
+				cout << "0번 트루00000" << endl;
+			}
+		}
+
+		/*	for (int i = 0; i < 6; ++i)
+			{
+				if (false == m_pSkinnedAnimationController->m_pAnimationTracks[i].m_bEnable)
+					++num;
+			}
+			if(6==num)
+				m_pSkinnedAnimationController->SetTrackEnable(0, true);*/
 	}
 }

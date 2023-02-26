@@ -89,7 +89,7 @@ void GamePlayer_ProcessInput()
 
 		}
 
-		if (dwDirection) {
+		if (dwDirection) {//여기처럼
 			p.direction = dwDirection;
 			gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 			//23.02.20
@@ -100,6 +100,17 @@ void GamePlayer_ProcessInput()
 			gGameFramework.m_pPlayer->playerDie();
 			gGameFramework.m_pPlayer->playerCollect();
 			//
+
+			/*SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
+			for (auto& player : gGameFramework.Players)
+				if (packet->id == player->c_id) {
+					player->SetLookVector(packet->Look);
+					player->SetUpVector(packet->Up);
+					player->SetRightVector(packet->Right);
+					ProcessAnimation(player, packet);
+					player->SetPosition(packet->Pos);
+					break;
+				}*/
 		}
 
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
@@ -277,11 +288,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == 'Z' || wParam == 'z')
 		{
-			if (false == gGameFramework.m_pPlayer->attackOnce)
-			{
+			//if (false == gGameFramework.m_pPlayer->attackOnce)
+			//{
 				gGameFramework.m_pPlayer->onAttack = true;
-				gGameFramework.m_pPlayer->attackOnce = true;
-			}
+				//gGameFramework.m_pPlayer->attackOnce = true;
+			//}
 		}
 		else if (wParam == 'X' || wParam == 'x')
 		{
@@ -297,7 +308,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam == 'Z' || wParam == 'z')
 		{
 			//gGameFramework.m_pPlayer->onAttack = false;
-			gGameFramework.m_pPlayer->attackOnce = false;
+			//gGameFramework.m_pPlayer->attackOnce = false;
 		}
 		else if (wParam == 'X' || wParam == 'x')
 		{
@@ -307,7 +318,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = false;
 		else if (wParam == 'C' || wParam == 'c')
-			gGameFramework.m_pPlayer->onCollect = false;
+		{
+			//gGameFramework.m_pPlayer->onCollect = false;
+		}
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

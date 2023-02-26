@@ -14,6 +14,7 @@ class CGameFramework
 public:
 	CGameFramework();
 	~CGameFramework();
+	int num2 = 0;
 
 	bool OnCreate(HINSTANCE hInstance, HWND hMainWnd);
 	void OnDestroy();

@@ -85,6 +85,7 @@ public:
 	//
 
 	virtual void Update(float fTimeElapsed);
+	virtual void otherPlayerUpdate(CPlayer*) {};
 
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
@@ -164,6 +165,7 @@ public:
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Update(float fTimeElapsed);
+	virtual void otherPlayerUpdate(CPlayer*);
 
 	//23.02.20
 	virtual CBulletObject* playerAttack(int, CGameObject*, CGameObject***, ID3D12Device*, ID3D12GraphicsCommandList*, ID3D12RootSignature*, float);

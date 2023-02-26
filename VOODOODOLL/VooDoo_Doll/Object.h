@@ -243,10 +243,10 @@ public:
 	CGameObject** m_ppAnimatedBoneFrameCaches = NULL; //[m_nAnimatedBoneFrames]
 };
 
-class CAnimationTrack
+class CAnimationTrack 
 {
 public:
-	CAnimationTrack() { }
+	CAnimationTrack(){}
 	~CAnimationTrack();
 
 public:
@@ -272,7 +272,7 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
-	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength,bool* onAttack);
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);
@@ -298,13 +298,14 @@ public:
 	void PrepareSkinning();
 };
 
-class CAnimationController
+class CAnimationController 
 {
 public:
 	CAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfo* pModel);
 	~CAnimationController();
 
 public:
+	//int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong
 	float 							m_fTime = 0.0f;
 
 	short Cur_Animation_Track = 0;

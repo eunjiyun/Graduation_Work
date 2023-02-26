@@ -542,6 +542,7 @@ CAnimationSets::~CAnimationSets()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
 CAnimationTrack::~CAnimationTrack()
 {
 	if (m_pCallbackKeys) delete[] m_pCallbackKeys;
@@ -580,7 +581,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack)//0225
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack)//0226
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 	switch (m_nType)
@@ -593,8 +594,8 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
 			{
-				if (true == *onAttack)
-					*onAttack = false;
+				/*if (true == *onAttack)
+					*onAttack = false;*/
 
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 				return(fAnimationLength);
@@ -607,9 +608,31 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		break;
 	}
 	case ANIMATION_TYPE_ONCE:
-		m_fPosition = fTrackPosition + fTrackElapsedTime;
-		if (m_fPosition > fAnimationLength)
-			m_fPosition = fAnimationLength;
+		if (m_fPosition == fAnimationLength && 1== m_bEnable)//BOOL bool
+			m_fPosition = 0.0f;
+		else
+		{
+			m_fPosition = fTrackPosition + fTrackElapsedTime;
+			if (m_fPosition > fAnimationLength)
+			{
+				m_fPosition = fAnimationLength;
+				SetEnable(false);
+
+				cout << "2 or 5 ²ô±â" << endl;
+			}
+		}
+
+		//controller->SetTrackEnable(0, true);
+		//controller->SetTrackEnable(1, false);
+		////23.02.21
+		//controller->SetTrackEnable(2, false);
+		//controller->SetTrackEnable(3, false);
+		//controller->SetTrackEnable(4, false);
+		//controller->SetTrackEnable(5, false);
+		////
+		//controller->SetTrackPosition(1, 0.0f);
+
+		//SetEnable(false);
 		break;
 	case ANIMATION_TYPE_PINGPONG:
 		break;
@@ -753,13 +776,40 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
+		/*m_pAnimationTracks[2].m_nType = ANIMATION_TYPE_ONCE;
+		m_pAnimationTracks[5].m_nType = ANIMATION_TYPE_ONCE;
+
+		m_pAnimationTracks[0].m_nType = ANIMATION_TYPE_LOOP;
+		m_pAnimationTracks[1].m_nType = ANIMATION_TYPE_LOOP;
+		m_pAnimationTracks[3].m_nType = ANIMATION_TYPE_LOOP;
+		m_pAnimationTracks[4].m_nType = ANIMATION_TYPE_LOOP;*/
+
 		for (int k = 0; k < m_nAnimationTracks; k++)
 			//for (int k = 0; k <4; k++)
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
+				if (5 == k|| 2 == k)
+				{
+					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
+				}
+				else if (0 == k || 1 == k|| 3 == k || 4 == k)
+				{
+					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_LOOP;
+				}
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack);
+				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack);//0226
+
+				/*if (5 == k || 2 == k)
+				{
+					m_pAnimationTracks[0].SetEnable(true);
+					m_pAnimationTracks[1].SetEnable(false);
+					m_pAnimationTracks[2].SetEnable(false);
+					m_pAnimationTracks[3].SetEnable(false);
+					m_pAnimationTracks[4].SetEnable(false);
+					m_pAnimationTracks[5].SetEnable(false);
+				}*/
+
 				for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 				{
 					XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
