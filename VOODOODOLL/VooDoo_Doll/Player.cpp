@@ -153,6 +153,10 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
+	if (onAttack || onCollect) SetMaxVelocityXZ(0.0f);
+	else if (onRun) SetMaxVelocityXZ(100.0f);
+	else SetMaxVelocityXZ(10.0f);
+
 	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -585,7 +589,7 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		cout << "1번 트루" << endl;
+		//cout << "1번 트루" << endl;
 	}
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
@@ -605,9 +609,9 @@ CBulletObject* CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLocked
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		cout << "2번 트루" << endl;
+		//cout << "2번 트루" << endl;
 
-		onAttack = false;
+		//onAttack = false;
 
 		//0226
 		m_pSkinnedAnimationController->m_pAnimationTracks->m_nType = ANIMATION_TYPE_ONCE;
@@ -658,7 +662,7 @@ void CTerrainPlayer::playerRun()
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		cout << "3번 트루" << endl;
+		//cout << "3번 트루" << endl;
 	}
 }
 void CTerrainPlayer::playerDie()
@@ -672,7 +676,7 @@ void CTerrainPlayer::playerDie()
 		m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		cout << "4번 트루" << endl;
+		//cout << "4번 트루" << endl;
 	}
 }
 
@@ -690,8 +694,8 @@ void CTerrainPlayer::playerCollect()
 
 		m_pSkinnedAnimationController->m_pAnimationTracks->m_nType = ANIMATION_TYPE_ONCE;
 
-		cout << "5번 트루" << endl;
-		onCollect = false;
+		//cout << "5번 트루" << endl;
+		//onCollect = false;
 	}
 }
 //
@@ -722,7 +726,7 @@ void CTerrainPlayer::Update(float fTimeElapsed)//0226
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 
-				cout << "0번 트루" << endl;
+				//cout << "0번 트루" << endl;
 			}
 		}
 
@@ -736,7 +740,7 @@ void CTerrainPlayer::Update(float fTimeElapsed)//0226
 	}
 }
 
-void CTerrainPlayer::otherPlayerUpdate(CPlayer* firstPlayer)//0226
+void CTerrainPlayer::otherPlayerUpdate()//0226
 {
 	if (m_pSkinnedAnimationController)
 	{
@@ -751,7 +755,7 @@ void CTerrainPlayer::otherPlayerUpdate(CPlayer* firstPlayer)//0226
 			{
 
 				if (false == m_pSkinnedAnimationController->m_pAnimationTracks[0].m_bEnable)
-					cout << "지금" << endl;
+					//cout << "지금" << endl;
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
 				//23.02.21
@@ -762,7 +766,7 @@ void CTerrainPlayer::otherPlayerUpdate(CPlayer* firstPlayer)//0226
 				//
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 
-				cout << "0번 트루00000" << endl;
+				//cout << "0번 트루00000" << endl;
 			}
 		}
 

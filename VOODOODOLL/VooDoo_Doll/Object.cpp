@@ -581,7 +581,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack)//0226
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect)//0226
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 	switch (m_nType)
@@ -594,8 +594,6 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
 			{
-				/*if (true == *onAttack)
-					*onAttack = false;*/
 
 				m_fPosition = -ANIMATION_CALLBACK_EPSILON;
 				return(fAnimationLength);
@@ -617,8 +615,9 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			{
 				m_fPosition = fAnimationLength;
 				SetEnable(false);
-
-				cout << "2 or 5 ²ô±â" << endl;
+				if (true == *onAttack) *onAttack = false;
+				if (true == *onCollect) *onCollect = false;
+				//cout << "2 or 5 ²ô±â" << endl;
 			}
 		}
 
@@ -768,7 +767,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject *pRootGam
 }
 //*/
 //*
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack)
+void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -798,7 +797,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_LOOP;
 				}
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack);//0226
+				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect);//0226
 
 				/*if (5 == k || 2 == k)
 				{
@@ -1047,7 +1046,7 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack);
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect);
 
 	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
 

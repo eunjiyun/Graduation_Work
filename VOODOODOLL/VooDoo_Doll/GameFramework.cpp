@@ -478,7 +478,7 @@ void CGameFramework::BuildObjects()
 
 		for (int i = 0; i < 2; i++) {
 			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_pStage->m_pTerrain);
-			pAirplanePlayer->otherPlayerUpdate(m_pPlayer);
+			pAirplanePlayer->otherPlayerUpdate();
 			Players.push_back(pAirplanePlayer);
 		}
 
@@ -621,7 +621,7 @@ void CGameFramework::ProcessInput()
 		if (player->c_id > -1)
 		{
 			//player->Update(m_GameTimer.GetTimeElapsed());
-			player->otherPlayerUpdate(m_pPlayer);
+			player->otherPlayerUpdate();
 		}
 
 	}
@@ -680,12 +680,12 @@ void CGameFramework::FrameAdvance()
 
 	m_pPlayer->Deceleration(fTimeElapsed);
 	
-	for (auto& player : Players) {
-		if (player->c_id > -1) {
-			//player->Update(m_GameTimer.GetTimeElapsed());
-			player->otherPlayerUpdate(m_pPlayer);
-		}
-	}
+	//for (auto& player : Players) {
+	//	if (player->c_id > -1) {
+	//		//player->Update(m_GameTimer.GetTimeElapsed());
+	//		player->otherPlayerUpdate();
+	//	}
+	//}
 
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
 	m_ppBullets[0]->Animate(fTimeElapsed);//총알 업뎃
@@ -735,21 +735,21 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	int num = 0;//0226
-	
-		for (int i = 0; i < 6; ++i)
-		{
-			if (false == m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[i].m_bEnable)
-				++num;
-		}
-		if (6 == num)
-		{
-			//m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-			//num = 0;
+	//int num = 0;//0226
+	//
+	//	for (int i = 0; i < 6; ++i)
+	//	{
+	//		if (false == m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[i].m_bEnable)
+	//			++num;
+	//	}
+	//	if (6 == num)
+	//	{
+	//		//m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	//		//num = 0;
 
-			//cout << num2+1<<"번째 호출" << endl;//걸을땐 왜 호출?
-			//num2++;
-		}
+	//		//cout << num2+1<<"번째 호출" << endl;//걸을땐 왜 호출?
+	//		//num2++;
+	//	}
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
