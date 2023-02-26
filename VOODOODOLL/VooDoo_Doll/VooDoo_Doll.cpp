@@ -288,21 +288,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:
 		if (wParam == 'Z' || wParam == 'z')
 		{
-			//if (false == gGameFramework.m_pPlayer->attackOnce)
-			//{
-				gGameFramework.m_pPlayer->onAttack = true;
-				//gGameFramework.m_pPlayer->attackOnce = true;
-			//}
+			gGameFramework.m_pPlayer->onAttack = true;
+			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
 		}
 		else if (wParam == 'X' || wParam == 'x')
 		{
 			gGameFramework.m_pPlayer->onRun = true;
-			gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
+			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
 		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = true;
-		else if (wParam == 'C' || wParam == 'c')
+		else if (wParam == 'C' || wParam == 'c') {
 			gGameFramework.m_pPlayer->onCollect = true;
+			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
+		}
 		break;
 	case WM_KEYUP:
 		if (wParam == 'Z' || wParam == 'z')
@@ -313,7 +312,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (wParam == 'X' || wParam == 'x')
 		{
 			gGameFramework.m_pPlayer->onRun = false;
-			gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
+			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
 		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = false;
@@ -380,22 +379,24 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
-	if (p->direction & DIR_ATTACK) {
-		if (false == pl->attackOnce)
-		{
-			pl->onAttack = true;
-			pl->attackOnce = true;
-		}
-		else pl->attackOnce = false;
-	}
+	if (p->direction & DIR_ATTACK) pl->onAttack = true; 
 	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
-	if (p->direction & DIR_COLLECT) pl->onCollect = true; else pl->onCollect = false;
+	if (p->direction & DIR_COLLECT) pl->onCollect = true;
 
 	
 
-	if (pl->onAttack) pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	else if (pl->onRun) pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-	else if (pl->onCollect) pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+	if (pl->onAttack) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		return;
+	}
+	else if (pl->onRun) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+		return;
+	}
+	else if (pl->onCollect) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+		return;
+	}
 
 	else if (!pl->onAttack && !pl->onRun && !pl->onDie && !pl->onCollect) {
 		XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
