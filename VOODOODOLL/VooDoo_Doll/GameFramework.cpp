@@ -609,12 +609,12 @@ void CGameFramework::ProcessInput()
 			}
 		}
 	}
-	m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	//m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 
-	for (auto& player : Players) {
-		if (player->c_id > -1)
-			player->Update(m_GameTimer.GetTimeElapsed());
-	}
+	//for (auto& player : Players) {
+	//	if (player->c_id > -1)
+	//		player->Update(m_GameTimer.GetTimeElapsed());
+	//}
 }
 
 void CGameFramework::AnimateObjects(float fTimeElapsed)
@@ -663,7 +663,12 @@ void CGameFramework::FrameAdvance()
 	//ProcessInput();
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-	m_pPlayer->Update(fTimeElapsed);
+	
+	m_pPlayer->Update(fTimeElapsed);	
+	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed);
+
+	m_pPlayer->Deceleration(fTimeElapsed);
+	
 	//for (auto& player : Players) {
 	//	if (player->c_id > -1) {
 	//		player->Update(m_GameTimer.GetTimeElapsed());

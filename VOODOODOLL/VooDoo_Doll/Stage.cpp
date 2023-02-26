@@ -562,7 +562,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 //	mpTime = 0.f;
 //}
 
-	CheckObjectByObjectCollisions(fTimeElapsed);
+	//CheckObjectByObjectCollisions(fTimeElapsed);
 }
 
 void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -619,14 +619,17 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
 				else ObjLook = { 0, 0, -1 };
 			}
-			else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+			else if (oBox.Center.x < pBox.Center.x + pBox.Extents.x) ObjLook = { 1,0,0 };
 			else ObjLook = { -1, 0, 0 };
-
+			
 			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
+
+			if (Vector3::DotProduct(Vel, ObjLook) > 0)
+				break;
 			
 			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
-			
+		
 			m_pPlayer->Move(ReflectVec, false);
 
 

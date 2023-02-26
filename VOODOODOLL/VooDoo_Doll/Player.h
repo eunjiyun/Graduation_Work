@@ -81,6 +81,7 @@ public:
 	virtual void playerRun() {}
 	virtual void playerDie() {}
 	virtual void playerCollect(){}
+	
 	//
 
 	virtual void Update(float fTimeElapsed);
@@ -110,6 +111,8 @@ public:
 	void SetLookVector(const XMFLOAT3& xmf3Look) { m_xmf3Look = xmf3Look; }
 	void SetUpVector(const XMFLOAT3& xmf3Up) { m_xmf3Up = xmf3Up; }
 	void SetRightVector(const XMFLOAT3& xmf3Right) { m_xmf3Right = xmf3Right; }
+	void Deceleration(float fTimeElapsed);
+
 
 public:
 	CGameObject* m_pObjectCollided = NULL;

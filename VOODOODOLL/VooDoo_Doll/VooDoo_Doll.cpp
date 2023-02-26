@@ -17,7 +17,6 @@ constexpr short SERVER_PORT = 3500;
 SOCKET s_socket;
 char	recv_buffer[BUF_SIZE];
 thread* recv_t;
-thread* send_t;
 OVER_EXP _over;
 mutex m;
 #pragma endregion
@@ -48,10 +47,10 @@ void GamePlayer_ProcessInput()
 		//if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_UP;//x
 		//if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_DOWN;//c
 		//23.02.20
-		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
+		if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
-		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection |= DIR_COLLECT;//c collect
+		if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die
+		if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
 		//
 	}
 
@@ -97,7 +96,7 @@ void GamePlayer_ProcessInput()
 			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets), NULL, NULL, NULL, 0.0f);
 			gGameFramework.m_pLockedObject = NULL;
 
-			gGameFramework.m_pPlayer->playerRun(gGameFramework.whatPlayer, dwDirection);
+			gGameFramework.m_pPlayer->playerRun();
 			gGameFramework.m_pPlayer->playerDie();
 			gGameFramework.m_pPlayer->playerCollect();
 			//
@@ -159,7 +158,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
 	
 		recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-		//send_t = new thread{ GamePlayer_ProcessInput };
+
 	#pragma endregion 
 
 
@@ -177,15 +176,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			GamePlayer_ProcessInput();	// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			//gGameFramework.ProcessInput();	// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
+			GamePlayer_ProcessInput();	
+			//gGameFramework.ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
 
 	//clienttest
-	//recv_t->join();
-	//send_t->join();
+	recv_t->join();
 	gGameFramework.OnDestroy();
 
 	closesocket(s_socket);
@@ -367,30 +365,32 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 {
-	if (p->attack) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		return;
+	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+
+	if (p->direction & DIR_ATTACK) {
+		if (false == pl->attackOnce)
+		{
+			pl->onAttack = true;
+			pl->attackOnce = true;
+		}
+		else pl->attackOnce = false;
 	}
-	if (p->run) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-		return;
-	}
-	if (p->collect) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-		return;
-	}
-	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
-	if (Vector3::IsZero(Cmp)) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-	}
-	else {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
+	if (p->direction & DIR_COLLECT) pl->onCollect = true; else pl->onCollect = false;
+
+	
+
+	if (pl->onAttack) pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	else if (pl->onRun) pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+	else if (pl->onCollect) pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+
+	else if (!pl->onAttack && !pl->onRun && !pl->onDie && !pl->onCollect) {
+		XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
+		if (Vector3::IsZero(Cmp)) {
+			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+		}
+		else pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	}
 
 }
@@ -430,6 +430,7 @@ void ProcessPacket(char* ptr)
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
+			//ProcessAnimation(gGameFramework.m_pPlayer, packet);
 			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
 		}
 		else
