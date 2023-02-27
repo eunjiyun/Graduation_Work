@@ -613,9 +613,9 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 					m_pPlayer->On_Floor = true;
 				continue;
 			}
-			if (m_pPlayer->Collided) { // 중복 충돌 처리 코드 미구현
-				continue;
-			}
+			//if (m_pPlayer->Collided) { // 중복 충돌 처리 코드 미구현
+			//	continue;
+			//}
 			cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
