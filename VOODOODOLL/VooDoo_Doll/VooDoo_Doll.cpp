@@ -182,8 +182,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			GamePlayer_ProcessInput();
-			gGameFramework.ProcessInput();
+			GamePlayer_ProcessInput();// 서버를 적용했을 경우 사용하는 ProcessInput 함수
+			//gGameFramework.ProcessInput();// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
@@ -303,10 +303,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (wParam == 'K' || wParam == 'k')
 		{
 			gGameFramework.m_pPlayer->onDie = true;
-			gGameFramework.m_pPlayer->dieReset = true;
-
-			/*if (false == gGameFramework.m_pPlayer->dieFirst)
-				gGameFramework.m_pPlayer->dieFirst = true;*/
+			gGameFramework.m_pPlayer->dieOnce = true;
 		}
 		else if (wParam == 'C' || wParam == 'c') {
 			gGameFramework.m_pPlayer->onCollect = true;
@@ -319,22 +316,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYUP:
-		if (wParam == 'Z' || wParam == 'z')
-		{
-			//gGameFramework.m_pPlayer->onAttack = false;
-			//gGameFramework.m_pPlayer->attackOnce = false;
-		}
-		else if (wParam == 'X' || wParam == 'x')
+		if (wParam == 'X' || wParam == 'x')
 		{
 			gGameFramework.m_pPlayer->onRun = false;
 			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
 		}
 		else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = false;
-		else if (wParam == 'C' || wParam == 'c')
-		{
-			//gGameFramework.m_pPlayer->onCollect = false;
-		}
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:

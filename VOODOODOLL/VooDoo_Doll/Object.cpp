@@ -581,12 +581,9 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,bool* dieReset,int trackNum)//0226
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,bool* dieOnce,int trackNum)//0226
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
-
-	
-	
 
 	switch (m_nType)
 	{
@@ -611,19 +608,17 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		break;
 	}
 	case ANIMATION_TYPE_ONCE://0227
-		/*if (4 == trackNum)
+		/*if (4 == trackNum && 1 == m_bEnable)
 			m_fPosition = fAnimationLength;*/
 
 		if (m_fPosition == fAnimationLength && 1 == m_bEnable)//BOOL bool
 		{
-			if (4 != trackNum || 4 == trackNum && true == *dieReset)// && 0==dieOnce)
+			if (4 != trackNum || 4 == trackNum && true == *dieOnce)// && 0==dieOnce)
 			{
 				m_fPosition = 0.0f;
-
-				*dieReset = false;
 			}
 		}
-		else
+		else if(2== trackNum || 5== trackNum || 4== trackNum&& true== *dieOnce)
 		{
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
@@ -634,9 +629,8 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 					SetEnable(false);
 				if (true == *onAttack) *onAttack = false;
 				if (true == *onCollect) *onCollect = false;
-
-				//++dieOnce;
-
+				if (true == *dieOnce) *dieOnce = false;
+				
 				//cout << "2 or 5 ²ô±â" << endl;
 			}
 		}
@@ -742,7 +736,7 @@ void CAnimationController::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3d
 	}
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect,bool* dieReset)
+void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect,bool* dieOnce)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -765,7 +759,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 					//cout << "»ç¸Á" << endl;
 				
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect,dieReset,k);
+				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect,dieOnce,k);
 
 
 				for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
@@ -1005,7 +999,7 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect,&dieReset);
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect,&dieOnce);
 
 	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
 
@@ -1695,9 +1689,6 @@ CZebraObject::CZebraObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* 
 		break;
 	case 6:
 		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo62.bin", NULL, 6);
-		break;
-	case 7:
-		if (!pZebraModel) pZebraModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body17.bin", NULL, 7);
 		break;
 	}
 	//

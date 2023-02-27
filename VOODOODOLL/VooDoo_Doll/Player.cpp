@@ -359,7 +359,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationController->SetTrackEnable(4, false);
 	m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-	cout << "12345 애니메이션 끄기" << endl;
+	//cout << "12345 애니메이션 끄기" << endl;
 	//
 
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 2);
@@ -471,7 +471,7 @@ void CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLockedObject, CG
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		cout << "2번 트루" << endl;
+		//cout << "2번 트루" << endl;
 
 		if (2 == whatPlayer)
 		{
@@ -531,7 +531,7 @@ void CTerrainPlayer::playerDie()
 		m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		cout << "4번 트루" << endl;
+		//cout << "4번 트루" << endl;
 	}
 }
 

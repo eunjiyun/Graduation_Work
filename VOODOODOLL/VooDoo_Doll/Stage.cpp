@@ -136,8 +136,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	m_ppHierarchicalGameObjects[1]->SetPosition(210.0f, 0.0f, 550.0f);//
 	m_ppHierarchicalGameObjects[1]->SetScale(1.0f, 1.0f, 1.0f);
 	if (pZebraModel2) delete pZebraModel2;
@@ -160,10 +160,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
 	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(2, false);//바늘 휘두르기 딴걸로
 	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(4, true);//area attack? 화재발생
+	m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(4, false);//area attack? 화재발생
 	m_ppHierarchicalGameObjects[3]->SetPosition(76.0f, 0.0f, 192.0f);//
 	m_ppHierarchicalGameObjects[3]->SetScale(1.0f, 1.0f, 1.0f);
 	if (pZebraModel4) delete pZebraModel4;
@@ -174,8 +174,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
 	m_ppHierarchicalGameObjects[4]->SetScale(1.0f, 1.0f, 1.0f);
 	if (pZebraModel5) delete pZebraModel5;
@@ -186,8 +186,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
 	m_ppHierarchicalGameObjects[5]->SetScale(1.0f, 1.0f, 1.0f);
 	if (pZebraModel6) delete pZebraModel6;
