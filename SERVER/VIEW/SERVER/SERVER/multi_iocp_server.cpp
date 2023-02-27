@@ -52,9 +52,6 @@ void SESSION::send_move_packet(int c_id)
 	p.Pos = clients[c_id].GetPosition();
 	p.direction = clients[c_id].direction;
 	clients[c_id].direction = 0;
-	p.run = clients[c_id].isRun;
-	p.attack = clients[c_id].isAttack;
-	p.collect = clients[c_id].isCollect;
 	do_send(&p);
 
 }
@@ -94,9 +91,9 @@ void SESSION::CheckCollisionByMap(XMFLOAT3 newPos)
 	//	}
 	//}
 
-	if (error_stack > 50) {
+	if (error_stack > 500) {
 		disconnect(_id);
-		cout << "에러 스택 50 초과 플레이어 추방\n";
+		cout << "에러 스택 500 초과 플레이어 추방\n";
 	}
 
 }

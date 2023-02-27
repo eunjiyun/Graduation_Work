@@ -166,55 +166,53 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
 
-	float fMaxVelocityY = m_fMaxVelocityY;
-	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
-	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+	//float fMaxVelocityY = m_fMaxVelocityY;
+	//fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
+	//if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
+	
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-
 	//if (!recved_packet) {
 	Rotate(cxDelta, cyDelta, czDelta);
 	Move(xmf3Velocity, false);
 	//}
 
-	if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
+	//if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
-	if (m_xmf3Position.y > SECOND_FLOOR && m_xmf3Position.y < FLOOR_SIZE * 2)
-	{
-		if (m_xmf3Position.y < SECOND_FLOOR)
-		{
-			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-			xmf3PlayerVelocity.y = 0.0f;
-			SetVelocity(xmf3PlayerVelocity);
-			m_xmf3Position.y = SECOND_FLOOR;
-			SetPosition(m_xmf3Position);
-		}
-	}
-	else if (m_xmf3Position.y < FIRST_FLOOR)
-	{
-		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-		xmf3PlayerVelocity.y = 0.0f;
-		SetVelocity(xmf3PlayerVelocity);
-		m_xmf3Position.y = FIRST_FLOOR;
-		SetPosition(m_xmf3Position);
-	}
-
-
-
-	DWORD nCurrentCameraMode = m_pCamera->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)
-		m_pCamera->Update(m_xmf3Position, fTimeElapsed);
-
-	if (m_pCameraUpdatedContext)
-		OnCameraUpdateCallback(fTimeElapsed);
-
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
-	m_pCamera->RegenerateViewMatrix();
+	//if (m_xmf3Position.y > SECOND_FLOOR && m_xmf3Position.y < FLOOR_SIZE * 2)
+	//{
+	//	if (m_xmf3Position.y < SECOND_FLOOR)
+	//	{
+	//		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+	//		xmf3PlayerVelocity.y = 0.0f;
+	//		SetVelocity(xmf3PlayerVelocity);
+	//		m_xmf3Position.y = SECOND_FLOOR;
+	//		SetPosition(m_xmf3Position);
+	//	}
+	//}
+	//else if (m_xmf3Position.y < FIRST_FLOOR)
+	//{
+	//	XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
+	//	xmf3PlayerVelocity.y = 0.0f;
+	//	SetVelocity(xmf3PlayerVelocity);
+	//	m_xmf3Position.y = FIRST_FLOOR;
+	//	SetPosition(m_xmf3Position);
+	//}
 
 }
 
 void CPlayer::Deceleration(float fTimeElapsed)
 {
+	DWORD nCurrentCameraMode = m_pCamera->GetMode();
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)
+		m_pCamera->Update(m_xmf3Position, fTimeElapsed);
+
+	//if (m_pCameraUpdatedContext)
+	//	OnCameraUpdateCallback(fTimeElapsed);
+
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) m_pCamera->SetLookAt(m_xmf3Position);
+	m_pCamera->RegenerateViewMatrix();
+
 	float fLength = Vector3::Length(m_xmf3Velocity);
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
@@ -377,7 +375,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 5, 5));
+	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 5, 10));
 
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
 
@@ -427,7 +425,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 0.0f, -50.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, -50.0f));
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);

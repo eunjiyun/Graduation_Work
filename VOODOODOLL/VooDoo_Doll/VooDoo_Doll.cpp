@@ -64,12 +64,14 @@ void GamePlayer_ProcessInput()
 		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
 	}
 
-	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f) || (gGameFramework.m_pPlayer->On_Floor == false))
 	{
 		CS_MOVE_PACKET p;
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
+		if (gGameFramework.m_pPlayer->On_Floor == false)
+			gGameFramework.m_pPlayer->Move({ 0, -3.f, 0 }, false);
 		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		if (cxDelta || cyDelta)
 		{

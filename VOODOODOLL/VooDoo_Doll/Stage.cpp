@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "Stage.h"
-
 ID3D12DescriptorHeap* CStage::m_pd3dCbvSrvDescriptorHeap = NULL;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dCbvCPUDescriptorStartHandle;
@@ -596,18 +595,29 @@ void CStage::UpdateBoundingBox()
 
 void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
+	m_pPlayer->On_Floor = false;
+	m_pPlayer->Collided = false;
+	XMFLOAT3 Vel = m_pPlayer->GetVelocity();
+	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
+	BoundingBox pBox = m_pPlayer->m_xmOOBB;
+
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects - 1; i++)
 	{
-		if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16))
-			continue;
-
-		BoundingBox pBox = m_pPlayer->m_xmOOBB;
 		BoundingBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
 
 		if (pBox.Intersects(oBox))
 		{
-
-			//cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "충돌함" << endl;
+			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) ||
+				0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)) {
+				if (m_pPlayer->On_Floor == false)
+					m_pPlayer->On_Floor = true;
+				continue;
+			}
+			if (m_pPlayer->Collided) { // 중복 충돌 처리 코드 미구현
+				continue;
+			}
+			cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
@@ -617,21 +627,18 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			else if (oBox.Center.x < pBox.Center.x + pBox.Extents.x) ObjLook = { 1,0,0 };
 			else ObjLook = { -1, 0, 0 };
 
-			XMFLOAT3 Vel = m_pPlayer->GetVelocity();
+			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
+				continue;
 
-			if (Vector3::DotProduct(Vel, ObjLook) > 0)
-				break;
-
-			XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
 
 			m_pPlayer->Move(ReflectVec, false);
+		
+			MovVec = GetReflectVec(ObjLook, MovVec);
+			m_pPlayer->Move(MovVec, false);
 
-
-			XMFLOAT3 SlidingVec = GetReflectVec(ObjLook, MovVec);
-			m_pPlayer->Move(SlidingVec, false);
-
-			break;
+			m_pPlayer->Collided = true;
+			//break;
 		}
 	}
 }

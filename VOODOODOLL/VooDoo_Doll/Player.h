@@ -44,7 +44,8 @@ public:
 	CGameObject** m_ppBullets;
 	CGameObject* m_pObjectCollided = NULL;
 	int c_id = -1;
-	bool recved_packet = false;
+	bool On_Floor = false;
+	bool Collided = false;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 
 public:
