@@ -120,5 +120,6 @@ public:
 	_TCHAR						m_pszFrameRate[70];
 
 	CGameObject** m_ppBullets = NULL;//ÃÑ¾Ë
+	bool onFullScreen = false;
 };
 

@@ -183,7 +183,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		{
 			//clienttest
 			GamePlayer_ProcessInput();
-			//gGameFramework.ProcessInput();
+			gGameFramework.ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
@@ -234,6 +234,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);
+
+//full screen
+//#ifdef _WITH_SWAPCHAIN_FULLSCREEN_STATE
+	if(true==gGameFramework.onFullScreen)
+		gGameFramework.ChangeSwapChainState();
+	else
+		gGameFramework.CreateRenderTargetViews();
+//#endif
+//
 
 	return(TRUE);
 }
@@ -292,10 +301,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
 		}
 		else if (wParam == 'K' || wParam == 'k')
+		{
 			gGameFramework.m_pPlayer->onDie = true;
+			gGameFramework.m_pPlayer->dieReset = true;
+
+			/*if (false == gGameFramework.m_pPlayer->dieFirst)
+				gGameFramework.m_pPlayer->dieFirst = true;*/
+		}
 		else if (wParam == 'C' || wParam == 'c') {
 			gGameFramework.m_pPlayer->onCollect = true;
 			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
+		}
+		else if (wParam == 'L' || wParam == 'l')//full screen
+		{
+			gGameFramework.onFullScreen = true;
+			gGameFramework.ChangeSwapChainState();
 		}
 		break;
 	case WM_KEYUP:
@@ -383,7 +403,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 
 	if (pl->onAttack) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		cout << "attack" << endl;
+		//cout << "attack" << endl;
 		return;
 	}
 	else if (pl->onRun) {
@@ -392,7 +412,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 	}
 	else if (pl->onDie) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
-		cout << "die" << endl;
+		//cout << "die" << endl;
 		return;
 	}
 	else if (pl->onCollect) {

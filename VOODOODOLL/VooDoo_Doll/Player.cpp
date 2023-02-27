@@ -153,7 +153,7 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	if (onAttack || onCollect) SetMaxVelocityXZ(0.0f);
+	if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
 	else if (onRun) SetMaxVelocityXZ(100.0f);
 	else SetMaxVelocityXZ(10.0f);
 
@@ -471,7 +471,7 @@ void CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLockedObject, CG
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		//cout << "2번 트루" << endl;
+		cout << "2번 트루" << endl;
 
 		if (2 == whatPlayer)
 		{
@@ -531,7 +531,7 @@ void CTerrainPlayer::playerDie()
 		m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		//cout << "4번 트루" << endl;
+		cout << "4번 트루" << endl;
 	}
 }
 
@@ -569,12 +569,11 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 			{
 				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 				m_pSkinnedAnimationController->SetTrackEnable(1, false);
-				//23.02.21
 				m_pSkinnedAnimationController->SetTrackEnable(2, false);
 				m_pSkinnedAnimationController->SetTrackEnable(3, false);
 				m_pSkinnedAnimationController->SetTrackEnable(4, false);
 				m_pSkinnedAnimationController->SetTrackEnable(5, false);
-				//
+				
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 
 				//cout << "0번 트루" << endl;

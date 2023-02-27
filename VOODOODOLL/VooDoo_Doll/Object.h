@@ -263,6 +263,7 @@ public:
 	CALLBACKKEY* m_pCallbackKeys = NULL;
 
 	CAnimationCallbackHandler* m_pAnimationCallbackHandler = NULL;
+	int dieOnce = 0;
 
 public:
 	void SetAnimationSet(int nAnimationSet) { m_nAnimationSet = nAnimationSet; }
@@ -272,7 +273,7 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
-	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect);
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,bool* dieReset,int trackNum);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);
@@ -334,7 +335,7 @@ public:
 	void SetCallbackKey(int nAnimationTrack, int nKeyIndex, float fTime, void* pData);
 	void SetAnimationCallbackHandler(int nAnimationTrack, CAnimationCallbackHandler* pCallbackHandler);
 
-	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject,bool* onAttack, bool* onCollect);
+	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject,bool* onAttack, bool* onCollect,bool* dieReset);
 
 public:
 	bool							m_bRootMotion = false;
@@ -396,6 +397,8 @@ public:
 	bool onRun = false;
 	bool onDie = false;
 	bool onCollect = false;
+	bool dieReset = false;
+	//bool dieFirst = false;
 
 	void SetMesh(int nIndex, CMesh* pMesh);
 	void SetShader(CShader* pShader);
