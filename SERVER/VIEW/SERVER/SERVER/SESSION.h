@@ -66,7 +66,7 @@ public:
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 5, 10));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 3, 10));
 		error_stack = 0;
 		isRun = false;
 		isAttack = false;

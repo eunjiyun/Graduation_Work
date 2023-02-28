@@ -684,7 +684,7 @@ void CGameFramework::FrameAdvance()
 
 
 	m_pPlayer->Update(fTimeElapsed);
-	//m_pPlayer->otherPlayerUpdate(m_GameTimer.GetTimeElapsed());
+
 	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed);
 
 	m_pPlayer->Deceleration(fTimeElapsed);

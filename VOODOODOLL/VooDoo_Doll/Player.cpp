@@ -71,8 +71,9 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_LEFT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
-		//if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
+		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
 		//if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
+
 
 		Move(xmf3Shift, bUpdateVelocity);
 	}
@@ -154,12 +155,12 @@ void CPlayer::Rotate(float x, float y, float z)
 void CPlayer::Update(float fTimeElapsed)
 {
 	if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
-	//if (onAttack || onCollect ) SetMaxVelocityXZ(0.0f);
-
 	else if (onRun) SetMaxVelocityXZ(100.0f);
 	else SetMaxVelocityXZ(10.0f);
 
-	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
+	if (On_Floor) SetMaxVelocityY(0.0f);
+	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
+
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
 	if (fLength > m_fMaxVelocityXZ)
@@ -168,17 +169,17 @@ void CPlayer::Update(float fTimeElapsed)
 		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 	}
 
-	//float fMaxVelocityY = m_fMaxVelocityY;
-	//fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
-	//if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+	float fMaxVelocityY = m_fMaxVelocityY;
+	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
+	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	//if (!recved_packet) {
+
 	Rotate(cxDelta, cyDelta, czDelta);
 	Move(xmf3Velocity, false);
-	//}
 
+	// 
 	//if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
 	//if (m_xmf3Position.y > SECOND_FLOOR && m_xmf3Position.y < FLOOR_SIZE * 2)
@@ -377,7 +378,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 5, 10));
+	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 3, 10));
 
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
 
@@ -427,7 +428,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, -50.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);

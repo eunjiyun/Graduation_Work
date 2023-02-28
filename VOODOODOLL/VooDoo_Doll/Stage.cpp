@@ -596,7 +596,6 @@ void CStage::UpdateBoundingBox()
 void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
 	m_pPlayer->On_Floor = false;
-	m_pPlayer->Collided = false;
 	XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 	BoundingBox pBox = m_pPlayer->m_xmOOBB;
@@ -613,9 +612,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 					m_pPlayer->On_Floor = true;
 				continue;
 			}
-			//if (m_pPlayer->Collided) { // 중복 충돌 처리 코드 미구현
-			//	continue;
-			//}
+
 			cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
@@ -624,7 +621,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
 				else ObjLook = { 0, 0, -1 };
 			}
-			else if (oBox.Center.x < pBox.Center.x + pBox.Extents.x) ObjLook = { 1,0,0 };
+			else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
 			else ObjLook = { -1, 0, 0 };
 
 			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
@@ -637,7 +634,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			MovVec = GetReflectVec(ObjLook, MovVec);
 			m_pPlayer->Move(MovVec, false);
 
-			m_pPlayer->Collided = true;
 			//break;
 		}
 	}

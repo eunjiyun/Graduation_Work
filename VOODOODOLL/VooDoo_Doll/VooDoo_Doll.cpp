@@ -44,10 +44,12 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+		if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_UP;//SPACE Jump
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
+		
 
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
-		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
-		if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die
+		if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
 		if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
 	}
 
@@ -70,8 +72,6 @@ void GamePlayer_ProcessInput()
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
-		if (gGameFramework.m_pPlayer->On_Floor == false)
-			gGameFramework.m_pPlayer->Move({ 0, -3.f, 0 }, false);
 		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		if (cxDelta || cyDelta)
 		{
