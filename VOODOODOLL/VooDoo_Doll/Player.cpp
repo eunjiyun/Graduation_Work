@@ -154,6 +154,8 @@ void CPlayer::Rotate(float x, float y, float z)
 void CPlayer::Update(float fTimeElapsed)
 {
 	if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
+	//if (onAttack || onCollect ) SetMaxVelocityXZ(0.0f);
+
 	else if (onRun) SetMaxVelocityXZ(100.0f);
 	else SetMaxVelocityXZ(10.0f);
 
@@ -442,7 +444,8 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN && dwDirection != DIR_DIE && dwDirection != DIR_COLLECT)
+	//if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN && dwDirection != DIR_DIE && dwDirection != DIR_COLLECT)
+	if (dwDirection && dwDirection != DIR_ATTACK && dwDirection != DIR_RUN && dwDirection != DIR_COLLECT)
 	{
 		m_pSkinnedAnimationController->SetTrackEnable(0, false);
 

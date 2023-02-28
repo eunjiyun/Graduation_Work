@@ -581,7 +581,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,bool* dieOnce,int trackNum)//0226
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,bool* dieOnce,int trackNum)//0228
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 
@@ -617,6 +617,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			{
 				m_fPosition = 0.0f;
 			}
+
 		}
 		else if(2== trackNum || 5== trackNum || 4== trackNum&& true== *dieOnce)
 		{
@@ -629,7 +630,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 					SetEnable(false);
 				if (true == *onAttack) *onAttack = false;
 				if (true == *onCollect) *onCollect = false;
-				if (true == *dieOnce) *dieOnce = false;
+				if (true == *dieOnce) *dieOnce = false;//여기서 공격 애니메이션을 끄진 않고 또 공격 애니메이션이 처음부터 시작하는 걸 방지
 				
 				//cout << "2 or 5 끄기" << endl;
 			}
@@ -999,7 +1000,7 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect,&dieOnce);
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect,&onDie);
 
 	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
 
