@@ -607,13 +607,10 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 		break;
 	}
-	case ANIMATION_TYPE_ONCE://0227
-		/*if (4 == trackNum && 1 == m_bEnable)
-			m_fPosition = fAnimationLength;*/
-
+	case ANIMATION_TYPE_ONCE://0228
 		if (m_fPosition == fAnimationLength && 1 == m_bEnable)//BOOL bool
 		{
-			if (4 != trackNum || 4 == trackNum && true == *dieOnce)// && 0==dieOnce)
+			if (4 != trackNum || 4 == trackNum && true == *dieOnce)
 			{
 				m_fPosition = 0.0f;
 			}

@@ -395,14 +395,13 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 
 	if (p->direction & DIR_ATTACK) pl->onAttack = true;
 	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
-	if (p->direction & DIR_DIE) pl->onDie= true; //else pl->onDie = false;
+	if (p->direction & DIR_DIE) pl->onDie= true; 
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
 
 
 
 	if (pl->onAttack) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		cout << "attack" << endl;
 		return;
 	}
 	else if (pl->onRun) {
@@ -411,7 +410,6 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	}
 	else if (pl->onDie) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
-		cout << "die" << endl;
 		return;
 	}
 	else if (pl->onCollect) {
