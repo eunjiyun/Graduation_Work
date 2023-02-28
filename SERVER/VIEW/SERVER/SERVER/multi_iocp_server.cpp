@@ -177,7 +177,7 @@ void worker_thread(HANDLE h_iocp)
 					clients[client_id]._state = ST_ALLOC;
 				}
 				clients[client_id].m_xmf3Position.x = -50;
-				clients[client_id].m_xmf3Position.y = 200;
+				clients[client_id].m_xmf3Position.y = -20;
 				clients[client_id].m_xmf3Position.z = 0;
 				clients[client_id]._id = client_id;
 				clients[client_id]._name[0] = 0;

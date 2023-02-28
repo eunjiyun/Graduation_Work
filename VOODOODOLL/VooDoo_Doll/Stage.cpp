@@ -595,7 +595,6 @@ void CStage::UpdateBoundingBox()
 
 void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
-	m_pPlayer->On_Floor = false;
 	XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 	BoundingBox pBox = m_pPlayer->m_xmOOBB;
@@ -606,15 +605,16 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 		if (pBox.Intersects(oBox))
 		{
-			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) ||
-				0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)) {
-				if (m_pPlayer->On_Floor == false)
-					m_pPlayer->On_Floor = true;
+			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)) {
+			// if (pBox.Center.y > oBox.Center.y) {
+				XMFLOAT3 Pos = m_pPlayer->GetPosition();
+				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
+				m_pPlayer->SetPosition(Pos);
 				continue;
 			}
 
-			cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
+			//cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+			//	"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
@@ -634,7 +634,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			MovVec = GetReflectVec(ObjLook, MovVec);
 			m_pPlayer->Move(MovVec, false);
 
-			//break;
 		}
 	}
 }

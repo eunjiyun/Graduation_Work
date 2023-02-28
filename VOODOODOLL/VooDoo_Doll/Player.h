@@ -5,7 +5,6 @@
 #define DIR_LEFT				0x04
 #define DIR_RIGHT				0x08
 #define DIR_ATTACK				0x10
-#define DIR_UP					0x60
 #define DIR_RUN					0x20
 #define DIR_DIE					0x80//¹®Á¦
 #define DIR_COLLECT				0x40
@@ -43,9 +42,7 @@ protected:
 
 public:
 	CGameObject** m_ppBullets;
-	CGameObject* m_pObjectCollided = NULL;
 	int c_id = -1;
-	bool On_Floor = false;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 
 public:
