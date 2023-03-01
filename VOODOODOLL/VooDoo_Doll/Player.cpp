@@ -513,7 +513,7 @@ void CTerrainPlayer::playerRun()
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		//cout << "3번 트루" << endl;
+		cout << "3번 트루" << endl;
 	}
 }
 void CTerrainPlayer::playerDie()

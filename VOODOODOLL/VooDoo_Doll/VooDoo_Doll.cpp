@@ -379,10 +379,11 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 		else if(false== pl->onDie && p->direction)
 			pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 	}
-	//pl->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+	
+	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
 	if (p->direction & DIR_ATTACK) pl->onAttack = true;
-	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
+	if (p->direction & DIR_RUN) pl->onRun = true; else if (Vector3::IsZero(Cmp))pl->onRun = false;
 	if (p->direction & DIR_DIE) pl->onDie= true; 
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
 
@@ -394,6 +395,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	}
 	else if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+		cout << "run" << endl;
 		return;
 	}
 	else if (pl->onDie) {
@@ -406,14 +408,17 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	}
 
 	else if (!pl->onAttack && !pl->onRun && !pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable && !pl->onCollect) {
-	//else if (!pl->onAttack && !pl->onRun && !pl->onCollect) {
-		XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
+		//XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 		if (Vector3::IsZero(Cmp)) {
 			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-			//cout << "셋 아이들" << endl;
+			//cout << "idle" << endl;
 		}
-		else pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		else
+		{
+			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+			cout << "walk" << endl;
+		}
 	}
 
 }
