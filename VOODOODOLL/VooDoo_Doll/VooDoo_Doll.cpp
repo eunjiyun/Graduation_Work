@@ -19,6 +19,7 @@ char	recv_buffer[BUF_SIZE];
 thread* recv_t;
 OVER_EXP _over;
 mutex m;
+DWORD Old_Direction = 0;
 #pragma endregion
 
 HINSTANCE						ghAppInstance;
@@ -44,7 +45,6 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_UP;//SPACE Jump
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		
 
@@ -66,9 +66,20 @@ void GamePlayer_ProcessInput()
 		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
 	}
 
-	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f) || (gGameFramework.m_pPlayer->On_Floor == false))
+	if (dwDirection) {
+		gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
+
+		gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets));
+		gGameFramework.m_pLockedObject = NULL;
+		gGameFramework.m_pPlayer->playerRun();
+		gGameFramework.m_pPlayer->playerDie();
+		gGameFramework.m_pPlayer->playerCollect();
+	}
+
+	if ((dwDirection != Old_Direction) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
 		CS_MOVE_PACKET p;
+		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
@@ -88,31 +99,10 @@ void GamePlayer_ProcessInput()
 
 		}
 
-		if (dwDirection) {
-			p.direction = dwDirection;
-			gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
-
-			gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets));
-			gGameFramework.m_pLockedObject = NULL;
-			gGameFramework.m_pPlayer->playerRun();
-			gGameFramework.m_pPlayer->playerDie();
-			gGameFramework.m_pPlayer->playerCollect();
-
-			/*SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
-			for (auto& player : gGameFramework.Players)
-				if (packet->id == player->c_id) {
-					player->SetLookVector(packet->Look);
-					player->SetUpVector(packet->Up);
-					player->SetRightVector(packet->Right);
-					ProcessAnimation(player, packet);
-					player->SetPosition(packet->Pos);
-					break;
-				}*/
-		}
-
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
 		if (ErrorStatus == SOCKET_ERROR)
 			cout << "Move_Packet Error\n";
+		Old_Direction = dwDirection;
 	}
 
 

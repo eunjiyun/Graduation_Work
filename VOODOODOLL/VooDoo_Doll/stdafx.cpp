@@ -382,7 +382,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 			pGameObject->SetMesh(0, pMesh);
 		}
-
+		
 		ppGameObjects[i] = pGameObject;
 	}
 

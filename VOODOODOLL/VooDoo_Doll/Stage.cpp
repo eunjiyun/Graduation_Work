@@ -201,6 +201,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
 		m_ppShaders2[0]->m_ppObjects[i]->Boundingbox_Transform();
+
 	}
 
 
@@ -613,8 +614,8 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				continue;
 			}
 
-			//cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-			//	"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
+			cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {

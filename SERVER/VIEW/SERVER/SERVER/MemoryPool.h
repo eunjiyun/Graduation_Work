@@ -81,7 +81,8 @@ public:
     XMFLOAT4X4 m_xmf4x4World;
     char						m_pstrName[64] = { '\0' };
     BoundingBox			m_xmOOBB = BoundingBox();
-
+  
+    MapObject() { m_xmf4x4World = Matrix4x4::Identity(); }
     MapObject(int nMaterials) { m_xmf4x4World = Matrix4x4::Identity(); }
     XMFLOAT3 GetPosition()
     {
@@ -155,16 +156,16 @@ void LoadMeshFromFile(MapObject& obj, char* pstrFileName)
         if (!strcmp(pstrToken, "<BoundingBox>:"))
         {
             nReads = (UINT)::fread(&obj.m_xmOOBB.Center, sizeof(float), 3, pFile);
-            nReads = (UINT)::fread(&obj.m_xmOOBB.Extents, sizeof(float), 3, pFile);
-            Transform_BoundingBox(&(obj.m_xmOOBB), obj.m_xmf4x4World);
-       
+            nReads = (UINT)::fread(&obj.m_xmOOBB.Extents, sizeof(float), 3, pFile);  
             break;
         }
     }
-
+    
 
     ::fclose(pFile);
 }
+
+
 MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
 {
     FILE* pFile = NULL;
@@ -249,12 +250,16 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
             strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
 
             LoadMeshFromFile(*pGameObject, pstrFilePath);
-            pGameObject->m_xmOOBB.Center = pGameObject->GetPosition();
-       
         }
         
-        
+        pGameObject->m_xmOOBB.Transform(pGameObject->m_xmOOBB, XMLoadFloat4x4(&pGameObject->m_xmf4x4World));
+
+        /*cout << "Name: " << pGameObject->m_pstrName << "\nCenter: " << pGameObject->m_xmOOBB.Center.x << ", " << pGameObject->m_xmOOBB.Center.y << ", " << pGameObject->m_xmOOBB.Center.z <<
+            "\nExtents: " << pGameObject->m_xmOOBB.Extents.x << ", " << pGameObject->m_xmOOBB.Extents.y << ", " << pGameObject->m_xmOOBB.Extents.z << endl;*/
+
+
         ppGameObjects[i] = pGameObject;
+        
     }
 
     ::fclose(pFile);

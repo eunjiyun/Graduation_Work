@@ -45,7 +45,7 @@ public:
 	int		_prev_remain;
 	BoundingBox m_xmOOBB;
 	short error_stack;
-	bool isRun, isAttack, isCollect;
+	bool onAttack, onCollect, onDie, onRun;
 	//int		_last_move_time;
 public:
 	SESSION()
@@ -68,9 +68,10 @@ public:
 		_prev_remain = 0;
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 3, 10));
 		error_stack = 0;
-		isRun = false;
-		isAttack = false;
-		isCollect = false;
+		onAttack = false;
+		onCollect = false;
+		onDie = false;
+		onRun = false;
 	}
 
 	~SESSION() {}
@@ -144,24 +145,24 @@ public:
 	}
 	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	{
-		if (dwDirection)
-		{
-			XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-			if (dwDirection & DIR_ATTACK) isAttack = true; else isAttack = false;
-			if (dwDirection & DIR_RUN) isRun = true; else isRun = false;
-			if (dwDirection & DIR_COLLECT) isCollect = true; else isCollect = false;
+		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
-			if (isRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
+		if (dwDirection & DIR_ATTACK) onAttack = true; else onAttack = false;
+		if (dwDirection & DIR_RUN) onRun = true; else onRun = false;
+		if (dwDirection & DIR_DIE) onDie = true; else onDie = false;
+		if (dwDirection & DIR_COLLECT) onCollect = true; else onCollect = false;
 
-			if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-			if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-			if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-			if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-			Move(xmf3Shift, bUpdateVelocity);
 
-			
-			
-		}
+
+		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
+		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
+		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
+		Move(xmf3Shift, bUpdateVelocity);
+
+
+
+
 	}
 
 	void Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
@@ -184,7 +185,13 @@ public:
 
 	void Update(float fTimeElapsed)
 	{
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
+		Move(direction, 21.0f, true);
+
+		if (onAttack || onCollect || onDie) m_fMaxVelocityXZ = 0.0f;
+		else if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
+
+
+		
 		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 		float fMaxVelocityXZ = m_fMaxVelocityXZ;
 		if (fLength > m_fMaxVelocityXZ)
@@ -192,44 +199,32 @@ public:
 			m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
 			m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
 		}
-		float fMaxVelocityY = m_fMaxVelocityY;
-		fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
-		if (fLength > m_fMaxVelocityY)m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+
+		
 
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 		Move(xmf3Velocity, false);
 
+	}
 
+	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
+	{
+		float Dot = Vector3::DotProduct(MovVec, ObjLook);
+		//cout << "MovVec: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << "\nObjLook: " << ObjLook.x << ", " << ObjLook.y << ", " << ObjLook.z << "\nDot: " << Dot << endl;
+		XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
+		XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
+		//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
+		return SlidingVec;
+	}
 
-		//23.01.19
-		if (m_xmf3Position.y > SECOND_FLOOR && m_xmf3Position.y < FLOOR_SIZE * 2)
-		{
-			if (m_xmf3Position.y < SECOND_FLOOR)
-			{
-				XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-				xmf3PlayerVelocity.y = 0.0f;
-				SetVelocity(xmf3PlayerVelocity);
-				m_xmf3Position.y = SECOND_FLOOR;
-				SetPosition(m_xmf3Position);
-			}
-		}
-		else if (m_xmf3Position.y < FIRST_FLOOR)
-		{
-			XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-			xmf3PlayerVelocity.y = 0.0f;
-			SetVelocity(xmf3PlayerVelocity);
-			m_xmf3Position.y = FIRST_FLOOR;
-			SetPosition(m_xmf3Position);
-		}
-
-
-		fLength = Vector3::Length(m_xmf3Velocity);
+	void Deceleration(float fTimeElapsed)
+	{
+		float fLength = Vector3::Length(m_xmf3Velocity);
 		float fDeceleration = (m_fFriction * fTimeElapsed);
 		if (fDeceleration > fLength)fDeceleration = fLength;
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
 		UpdateBoundingBox();
-
 	}
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
@@ -240,6 +235,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void CheckCollisionByMap(XMFLOAT3 newPos);
+	void CheckPosition(XMFLOAT3 newPos);
+	void CheckCollision(float fTimeElapsed);
 };
 
