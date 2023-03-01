@@ -107,8 +107,8 @@ void SESSION::CheckCollision(float fTimeElapsed)
 				continue;
 			}
 
-			cout << "Name: " << object->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
+			/*cout << "Name: " << object->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;*/
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (oBox.Center.x - oBox.Extents.x < m_xmOOBB.Center.x && oBox.Center.x + oBox.Extents.x > m_xmOOBB.Center.x) {
@@ -284,7 +284,8 @@ int main()
 			Objects[j].push_back(m_ppObjects[i]);
 		}		
 	}
-	
+	delete m_ppObjects;
+
 	HANDLE h_iocp;
 
 	WSADATA WSAData;

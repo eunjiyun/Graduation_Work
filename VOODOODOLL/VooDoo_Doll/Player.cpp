@@ -442,13 +442,13 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	m_pSkinnedAnimationController->SetTrackEnable(0, false);
+	//m_pSkinnedAnimationController->SetTrackEnable(0, false);
 
-	m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	m_pSkinnedAnimationController->SetTrackEnable(4, false);
-	m_pSkinnedAnimationController->SetTrackEnable(5, false);
+	//m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	//m_pSkinnedAnimationController->SetTrackEnable(2, false);
+	//m_pSkinnedAnimationController->SetTrackEnable(3, false);
+	//m_pSkinnedAnimationController->SetTrackEnable(4, false);
+	//m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
 
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
@@ -552,30 +552,30 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 {
 	CPlayer::Update(fTimeElapsed);
 
-	if (m_pSkinnedAnimationController)
-	{
-		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
-		{
-			if (false == m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
-				false ==onRun && //run 키를 떼면 idle 모드로 전환
-				false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable &&
-				false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
-				//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
-			{
-				m_pSkinnedAnimationController->SetTrackEnable(0, true);
-				m_pSkinnedAnimationController->SetTrackEnable(1, false);
-				m_pSkinnedAnimationController->SetTrackEnable(2, false);
-				m_pSkinnedAnimationController->SetTrackEnable(3, false);
-				m_pSkinnedAnimationController->SetTrackEnable(4, false);
-				m_pSkinnedAnimationController->SetTrackEnable(5, false);
+	//if (m_pSkinnedAnimationController)
+	//{
+	//	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
+	//	if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
+	//	{
+	//		if (false == m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
+	//			false ==onRun && //run 키를 떼면 idle 모드로 전환
+	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable &&
+	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
+	//			//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
+	//		{
+	//			m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	//			m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(2, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(3, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(4, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+	//			m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 
-				//cout << "0번 트루" << endl;
-			}
-		}
-	}
+	//			//cout << "0번 트루" << endl;
+	//		}
+	//	}
+	//}
 }
 
 void CTerrainPlayer::otherPlayerUpdate()//0226

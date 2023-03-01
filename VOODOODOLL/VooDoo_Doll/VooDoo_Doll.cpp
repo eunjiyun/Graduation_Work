@@ -17,8 +17,6 @@ constexpr short SERVER_PORT = 3500;
 SOCKET s_socket;
 char	recv_buffer[BUF_SIZE];
 thread* recv_t;
-OVER_EXP _over;
-mutex m;
 DWORD Old_Direction = 0;
 #pragma endregion
 
@@ -45,12 +43,12 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
+		if (pKeysBuffer[0x58] & 0xF0 && gGameFramework.m_pPlayer->onRun == false) dwDirection |= DIR_RUN;//x run
 		
 
-		if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
-		if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
-		if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
+		else if (pKeysBuffer[0x5A] & 0xF0 && gGameFramework.m_pPlayer->onAttack == false) dwDirection = DIR_ATTACK;//z Attack
+		else if (pKeysBuffer[0x43] & 0xF0 && gGameFramework.m_pPlayer->onCollect == false) dwDirection = DIR_COLLECT;//c collect
+		else if (pKeysBuffer[0x4B] & 0xF0 && gGameFramework.m_pPlayer->onDie == false) dwDirection = DIR_DIE;//k die 
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -69,11 +67,11 @@ void GamePlayer_ProcessInput()
 	if (dwDirection) {
 		gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
-		gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets));
-		gGameFramework.m_pLockedObject = NULL;
-		gGameFramework.m_pPlayer->playerRun();
-		gGameFramework.m_pPlayer->playerDie();
-		gGameFramework.m_pPlayer->playerCollect();
+		//gGameFramework.m_pPlayer->playerRun();
+		//gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets));
+		//gGameFramework.m_pLockedObject = NULL;
+		//gGameFramework.m_pPlayer->playerDie();
+		//gGameFramework.m_pPlayer->playerCollect();
 	}
 
 	if ((dwDirection != Old_Direction) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -282,37 +280,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//
 
 	case WM_KEYDOWN:
-		if (wParam == 'Z' || wParam == 'z')
-		{
-			gGameFramework.m_pPlayer->onAttack = true;
-			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
-		}
-		else if (wParam == 'X' || wParam == 'x')
-		{
-			gGameFramework.m_pPlayer->onRun = true;
-			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
-		}
-		else if (wParam == 'K' || wParam == 'k')
-		{
-			gGameFramework.m_pPlayer->onDie = true;
-			//gGameFramework.m_pPlayer->dieOnce = true;
-		}
-		else if (wParam == 'C' || wParam == 'c') {
-			gGameFramework.m_pPlayer->onCollect = true;
-			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
-		}
-		else if (wParam == 'L' || wParam == 'l')//full screen
+		//if (wParam == 'Z' || wParam == 'z')
+		//{
+		//	gGameFramework.m_pPlayer->onAttack = true;
+		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
+		//}
+		//else if (wParam == 'X' || wParam == 'x')
+		//{
+		//	gGameFramework.m_pPlayer->onRun = true;
+		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
+		//}
+		//else if (wParam == 'K' || wParam == 'k')
+		//{
+		//	gGameFramework.m_pPlayer->onDie = true;
+		//	//gGameFramework.m_pPlayer->dieOnce = true;
+		//}
+		//else if (wParam == 'C' || wParam == 'c') {
+		//	gGameFramework.m_pPlayer->onCollect = true;
+		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
+		//}
+		if (wParam == 'L' || wParam == 'l')//full screen
 		{
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
 		break;
 	case WM_KEYUP:
-		if (wParam == 'X' || wParam == 'x')
-		{
-			gGameFramework.m_pPlayer->onRun = false;
-			//gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
-		}
+		//if (wParam == 'X' || wParam == 'x')
+		//{
+		//	gGameFramework.m_pPlayer->onRun = false;
+		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
+		//}
 		/*else if (wParam == 'K' || wParam == 'k')
 			gGameFramework.m_pPlayer->onDie = false;*/
 		break;
@@ -372,7 +370,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 {
-	if(4!=pl->m_pSkinnedAnimationController->Cur_Animation_Track)
+	if(0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
 		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 	else
 	{
@@ -433,7 +431,6 @@ void ProcessPacket(char* ptr)
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		int id = packet->id;
-		//id = packet->id;
 		cout << "client[" << packet->id << "] Accessed\n";
 		gGameFramework.CreateOtherPlayer(id, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
@@ -455,7 +452,7 @@ void ProcessPacket(char* ptr)
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
 			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
-			//ProcessAnimation(gGameFramework.m_pPlayer, packet);
+			ProcessAnimation(gGameFramework.m_pPlayer, packet);
 			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
 		}
 		else
