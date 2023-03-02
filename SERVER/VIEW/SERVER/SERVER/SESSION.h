@@ -205,6 +205,8 @@ public:
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 		Move(xmf3Velocity, false);
 
+		cout << xmf3Velocity.x << ", " << xmf3Velocity.y << ", " << xmf3Velocity.z << endl;
+
 	}
 
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)

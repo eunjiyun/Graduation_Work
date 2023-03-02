@@ -175,7 +175,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	Rotate(cxDelta, cyDelta, czDelta);
 	Move(xmf3Velocity, false);
-
+	cout << xmf3Velocity.x << ", " << xmf3Velocity.y << ", " << xmf3Velocity.z << endl;
 	// 
 	//if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 

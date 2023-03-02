@@ -43,12 +43,12 @@ void GamePlayer_ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x58] & 0xF0 && gGameFramework.m_pPlayer->onRun == false) dwDirection |= DIR_RUN;//x run
+		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		
 
-		else if (pKeysBuffer[0x5A] & 0xF0 && gGameFramework.m_pPlayer->onAttack == false) dwDirection = DIR_ATTACK;//z Attack
-		else if (pKeysBuffer[0x43] & 0xF0 && gGameFramework.m_pPlayer->onCollect == false) dwDirection = DIR_COLLECT;//c collect
-		else if (pKeysBuffer[0x4B] & 0xF0 && gGameFramework.m_pPlayer->onDie == false) dwDirection = DIR_DIE;//k die 
+		else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
+		else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
+		else if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -383,7 +383,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
 	if (p->direction & DIR_ATTACK) pl->onAttack = true;
-	if (p->direction & DIR_RUN) pl->onRun = true; else if (Vector3::IsZero(Cmp))pl->onRun = false;
+	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
 	if (p->direction & DIR_DIE) pl->onDie= true; 
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
 
