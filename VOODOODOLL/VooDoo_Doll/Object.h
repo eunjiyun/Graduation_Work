@@ -7,14 +7,14 @@
 #include "Mesh.h"
 #include "Camera.h"
 
-#define DIR_FORWARD					0x01
-#define DIR_BACKWARD				0x02
-#define DIR_LEFT					0x04
-#define DIR_RIGHT					0x08
-#define DIR_ATTACK					0x10
-#define DIR_RUN						0x20
-#define DIR_DIE						0x40
-#define DIR_COLLECT					0x80
+#define DIR_FORWARD				0x01
+#define DIR_BACKWARD			0x02
+#define DIR_LEFT				0x04
+#define DIR_RIGHT				0x08
+#define DIR_RUN					0x10
+#define DIR_ATTACK				0x20
+#define DIR_DIE					0x40//¹®Á¦
+#define DIR_COLLECT				0x80
 
 class CShader;
 class CStandardShader;

@@ -39,16 +39,18 @@ void GamePlayer_ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
-		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
-		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
-		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
-		
+		if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onDie && !gGameFramework.m_pPlayer->onCollect) {
+			if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
+			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
+			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
+			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 
-		else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
-		else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
-		else if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
+
+			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
+			else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
+			else if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
+		}
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -67,11 +69,6 @@ void GamePlayer_ProcessInput()
 	if (dwDirection) {
 		gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
-		//gGameFramework.m_pPlayer->playerRun();
-		//gGameFramework.m_pPlayer->playerAttack(gGameFramework.whatPlayer, gGameFramework.m_pLockedObject, &(gGameFramework.m_ppBullets));
-		//gGameFramework.m_pLockedObject = NULL;
-		//gGameFramework.m_pPlayer->playerDie();
-		//gGameFramework.m_pPlayer->playerCollect();
 	}
 
 	if ((dwDirection != Old_Direction) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
@@ -370,15 +367,16 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 {
-	if(0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
+	if(0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track ||
+		3 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
 		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-	else
-	{
-		if(false == pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable)
-			pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		else if(false== pl->onDie && p->direction)
-			pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-	}
+	//else
+	//{
+	//	if(false == pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable)
+	//		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+	//	else if(false== pl->onDie && p->direction)
+	//		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+	//}
 	
 	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
@@ -395,7 +393,6 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	}
 	else if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-		cout << "run" << endl;
 		return;
 	}
 	else if (pl->onDie) {
@@ -412,12 +409,10 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 		if (Vector3::IsZero(Cmp)) {
 			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-			//cout << "idle" << endl;
 		}
 		else
 		{
 			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			cout << "walk" << endl;
 		}
 	}
 

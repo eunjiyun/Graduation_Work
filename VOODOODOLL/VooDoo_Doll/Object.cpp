@@ -752,9 +752,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 				{
 					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
 				}
-
-				//if (k == 4)
-					//cout << "»ç¸Á" << endl;
 				
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
 				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect,dieOnce,k);

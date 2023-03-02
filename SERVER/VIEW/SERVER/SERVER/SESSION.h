@@ -147,13 +147,13 @@ public:
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
+
 		if (dwDirection & DIR_ATTACK) onAttack = true; else onAttack = false;
-		if (dwDirection & DIR_RUN) onRun = true; else onRun = false;
 		if (dwDirection & DIR_DIE) onDie = true; else onDie = false;
 		if (dwDirection & DIR_COLLECT) onCollect = true; else onCollect = false;
 
 
-
+		if (dwDirection & DIR_RUN) onRun = true; else onRun = false;
 		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
 		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
@@ -187,8 +187,9 @@ public:
 	{
 		Move(direction, 21.0f, true);
 
-		if (onAttack || onCollect || onDie) m_fMaxVelocityXZ = 0.0f;
-		else if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
+		if (onAttack || onCollect || onDie) m_xmf3Velocity = { 0, 0, 0 };
+		
+		if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
 
 
 		
@@ -205,17 +206,13 @@ public:
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 		Move(xmf3Velocity, false);
 
-		cout << xmf3Velocity.x << ", " << xmf3Velocity.y << ", " << xmf3Velocity.z << endl;
-
 	}
 
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 	{
 		float Dot = Vector3::DotProduct(MovVec, ObjLook);
-		//cout << "MovVec: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << "\nObjLook: " << ObjLook.x << ", " << ObjLook.y << ", " << ObjLook.z << "\nDot: " << Dot << endl;
 		XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
 		XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
-		//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 		return SlidingVec;
 	}
 
