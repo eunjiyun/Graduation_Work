@@ -5,6 +5,7 @@ constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
 
 constexpr int MAX_USER = 10000;
+constexpr int MAX_USER_PER_ROOM = 4;
 
 constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;

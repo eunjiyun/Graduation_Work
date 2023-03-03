@@ -485,7 +485,7 @@ void CGameFramework::BuildObjects()
 		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
 		m_pCamera = m_pPlayer->GetCamera();
 
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 3; i++) {
 			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 			pAirplanePlayer->otherPlayerUpdate();
 			Players.push_back(pAirplanePlayer);

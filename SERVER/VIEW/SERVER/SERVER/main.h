@@ -2,14 +2,15 @@
 
 
 
-array<SESSION, MAX_USER> clients;
+array<array<SESSION, MAX_USER_PER_ROOM>, MAX_USER / MAX_USER_PER_ROOM> clients;
+
 MapObject** m_ppObjects = 0;
 vector<MapObject*> Objects[6] = {};
 int m_nObjects = 0;
 
 void disconnect(int c_id)
 {
-	for (auto& pl : clients) {
+	for (auto& pl : clients[c_id / 4]) {
 		{
 			lock_guard<mutex> ll(pl._s_lock);
 			if (ST_INGAME != pl._state) continue;
@@ -17,10 +18,10 @@ void disconnect(int c_id)
 		if (pl._id == c_id) continue;
 		pl.send_remove_player_packet(c_id);
 	}
-	closesocket(clients[c_id]._socket);
+	closesocket(clients[c_id / 4][c_id % 4]._socket);
 
-	lock_guard<mutex> ll(clients[c_id]._s_lock);
-	clients[c_id]._state = ST_FREE;
+	lock_guard<mutex> ll(clients[c_id / 4][c_id % 4]._s_lock);
+	clients[c_id / 4][c_id % 4]._state = ST_FREE;
 }
 
 void SESSION::send_move_packet(int c_id)
@@ -29,12 +30,12 @@ void SESSION::send_move_packet(int c_id)
 	p.id = c_id;
 	p.size = sizeof(SC_MOVE_PLAYER_PACKET);
 	p.type = SC_MOVE_PLAYER;
-	p.Look = clients[c_id].GetLookVector();
-	p.Right = clients[c_id].GetRightVector();
-	p.Up = clients[c_id].GetUpVector();
-	p.Pos = clients[c_id].GetPosition();
-	p.direction = clients[c_id].direction;
-	//clients[c_id].direction = 0;
+	p.Look = clients[c_id/4][c_id%4].GetLookVector();
+	p.Right = clients[c_id/4][c_id%4].GetRightVector();
+	p.Up = clients[c_id/4][c_id%4].GetUpVector();
+	p.Pos = clients[c_id/4][c_id%4].GetPosition();
+	p.direction = clients[c_id/4][c_id%4].direction;
+	//clients[c_id/4][c_id%4].direction = 0;
 	do_send(&p);
 
 }
@@ -43,13 +44,13 @@ void SESSION::send_add_player_packet(int c_id)
 {
 	SC_ADD_PLAYER_PACKET add_packet;
 	add_packet.id = c_id;
-	strcpy_s(add_packet.name, clients[c_id]._name);
+	strcpy_s(add_packet.name, clients[c_id/4][c_id%4]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	add_packet.Look = clients[c_id].m_xmf3Look;
-	add_packet.Right = clients[c_id].m_xmf3Right;
-	add_packet.Up = clients[c_id].m_xmf3Up;
-	add_packet.Pos = clients[c_id].GetPosition();
+	add_packet.Look = clients[c_id/4][c_id%4].m_xmf3Look;
+	add_packet.Right = clients[c_id/4][c_id%4].m_xmf3Right;
+	add_packet.Up = clients[c_id/4][c_id%4].m_xmf3Up;
+	add_packet.Pos = clients[c_id/4][c_id%4].GetPosition();
 	do_send(&add_packet);
 }
 
@@ -116,10 +117,12 @@ void SESSION::CheckCollision(float fTimeElapsed)
 
 int get_new_client_id()
 {
-	for (int i = 0; i < MAX_USER; ++i) {
-		lock_guard <mutex> ll{ clients[i]._s_lock };
-		if (clients[i]._state == ST_FREE)
-			return i;
+	for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
+		for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
+			lock_guard <mutex> ll{ clients[i][j]._s_lock };
+			if (clients[i][j]._state == ST_FREE)
+				return i * 4 + j;
+		}
 	}
 	return -1;
 }

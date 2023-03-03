@@ -22,30 +22,30 @@ void process_packet(int c_id, char* packet)
 	case CS_LOGIN: {
 		cout << "Client[" << c_id << "] Accessed\n";
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		strcpy_s(clients[c_id]._name, p->name);
-		clients[c_id].send_login_info_packet();
+		strcpy_s(clients[c_id / 4][c_id % 4]._name, p->name);
+		clients[c_id / 4][c_id % 4].send_login_info_packet();
 		{
-			lock_guard<mutex> ll{ clients[c_id]._s_lock };
-			clients[c_id]._state = ST_INGAME;
+			lock_guard<mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
+			clients[c_id / 4][c_id % 4]._state = ST_INGAME;
 		}
-		for (auto& pl : clients) {
+		for (auto& pl : clients[c_id / 4]) {
 			{
 				lock_guard<mutex> ll(pl._s_lock);
 				if (ST_INGAME != pl._state) continue;
 			}
 			if (pl._id == c_id) continue;
 			pl.send_add_player_packet(c_id);
-			clients[c_id].send_add_player_packet(pl._id);
+			clients[c_id / 4][c_id % 4].send_add_player_packet(pl._id);
 		}
 		break;
 	}
 	case CS_MOVE: {
-		lock_guard <mutex> ll{ clients[c_id]._s_lock };
+		lock_guard <mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		
-		clients[c_id].CheckPosition(p->pos);
-		clients[c_id].direction = p->direction;
-		clients[c_id].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		clients[c_id / 4][c_id % 4].CheckPosition(p->pos);
+		clients[c_id / 4][c_id % 4].direction = p->direction;
+		clients[c_id / 4][c_id % 4].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 	}
 	}
 }
@@ -80,19 +80,19 @@ void worker_thread(HANDLE h_iocp)
 			int client_id = get_new_client_id();
 			if (client_id != -1) {
 				{
-					lock_guard<mutex> ll(clients[client_id]._s_lock);
-					clients[client_id]._state = ST_ALLOC;
+					lock_guard<mutex> ll(clients[client_id / 4][client_id % 4]._s_lock);
+					clients[client_id / 4][client_id % 4]._state = ST_ALLOC;
 				}
-				clients[client_id].m_xmf3Position.x = -50;
-				clients[client_id].m_xmf3Position.y = -20;
-				clients[client_id].m_xmf3Position.z = 0;
-				clients[client_id]._id = client_id;
-				clients[client_id]._name[0] = 0;
-				clients[client_id]._prev_remain = 0;
-				clients[client_id]._socket = g_c_socket;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.x = -50;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.y = -20;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 0;
+				clients[client_id / 4][client_id % 4]._id = client_id;
+				clients[client_id / 4][client_id % 4]._name[0] = 0;
+				clients[client_id / 4][client_id % 4]._prev_remain = 0;
+				clients[client_id / 4][client_id % 4]._socket = g_c_socket;
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
-				clients[client_id].do_recv();
+				clients[client_id / 4][client_id % 4].do_recv();
 				g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 			}
 			else {
@@ -104,7 +104,7 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			int remain_data = num_bytes + clients[key]._prev_remain;
+			int remain_data = num_bytes + clients[key / 4][key % 4]._prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
 				int packet_size = p[0];
@@ -115,11 +115,11 @@ void worker_thread(HANDLE h_iocp)
 				}
 				else break;
 			}
-			clients[key]._prev_remain = remain_data;
+			clients[key / 4][key % 4]._prev_remain = remain_data;
 			if (remain_data > 0) {
 				memcpy(ex_over->_send_buf, p, remain_data);
 			}
-			clients[key].do_recv();
+			clients[key / 4][key % 4].do_recv();
 			break;
 		}
 		case OP_SEND:
@@ -135,12 +135,14 @@ void update_thread()
 	while (1)
 	{
 		m_GameTimer.Tick(0.0f);
-		for (int i = 0; i < 4; i++) {
-			lock_guard <mutex> ll{ clients[i]._s_lock };
-			if (clients[i]._state != ST_INGAME) continue;
-			clients[i].Update(m_GameTimer.GetTimeElapsed());
-			for (auto& cl : clients) {
-				cl.send_move_packet(clients[i]._id);
+		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
+			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
+				lock_guard <mutex> ll{ clients[i][j]._s_lock };
+				if (clients[i][j]._state != ST_INGAME) continue;
+				clients[i][j].Update(m_GameTimer.GetTimeElapsed());
+				for (auto& cl : clients[i]) {
+					cl.send_move_packet(clients[i][j]._id);
+				}
 			}
 		}
 		Sleep(100);
