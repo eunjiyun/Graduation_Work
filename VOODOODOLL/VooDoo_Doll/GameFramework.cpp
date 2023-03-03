@@ -689,13 +689,6 @@ void CGameFramework::FrameAdvance()
 
 	m_pPlayer->Deceleration(fTimeElapsed);
 
-	//for (auto& player : Players) {
-	//	if (player->c_id > -1) {
-	//		//player->Update(m_GameTimer.GetTimeElapsed());
-	//		player->otherPlayerUpdate();
-	//	}
-	//}
-
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
 	m_ppBullets[0]->Animate(fTimeElapsed);//ÃÑ¾Ë ¾÷µ«
 

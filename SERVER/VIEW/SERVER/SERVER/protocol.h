@@ -19,7 +19,8 @@ constexpr char SC_LOGIN_INFO = 2;
 constexpr char SC_ADD_PLAYER = 3;
 constexpr char SC_REMOVE_PLAYER = 4;
 constexpr char SC_MOVE_PLAYER = 5;
-
+constexpr char SC_ADD_MONSTER = 6;
+constexpr char SC_MOVE_MONSTER = 7;
 #include "stdafx.h"
 
 
@@ -75,4 +76,21 @@ struct SC_MOVE_PLAYER_PACKET {
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
+
+struct SC_SUMMON_MONSTER_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+	XMFLOAT3 Pos, Look, Right, Up;
+};
+constexpr short SC_SUMMON_MONSTER_PACKET_SIZE = sizeof(SC_SUMMON_MONSTER_PACKET);
+
+struct SC_MOVE_MONSTER_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+	XMFLOAT3 Look, Up, Right, Pos;
+	DWORD direction;
+};
+constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 #pragma pack (pop)

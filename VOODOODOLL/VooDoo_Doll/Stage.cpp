@@ -642,10 +642,8 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
 	float Dot = Vector3::DotProduct(MovVec, ObjLook);
-	//cout << "MovVec: " << MovVec.x << ", " << MovVec.y << ", " << MovVec.z << "\nObjLook: " << ObjLook.x << ", " << ObjLook.y << ", " << ObjLook.z << "\nDot: " << Dot << endl;
 	XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
-	//cout << "SlidingVec: " << SlidingVec.x << ", " << SlidingVec.y << ", " << SlidingVec.z << endl;
 	return SlidingVec;
 }
 

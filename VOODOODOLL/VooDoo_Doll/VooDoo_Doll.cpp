@@ -55,7 +55,6 @@ void GamePlayer_ProcessInput()
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
-	//if (GetCapture() == gGameFramework.Get_HWNG())
 	if (GetCapture() == gGameFramework.Get_HWND())
 	{
 		::SetCursor(NULL);
@@ -66,10 +65,8 @@ void GamePlayer_ProcessInput()
 		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
 	}
 
-	if (dwDirection) {
-		gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
+	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
-	}
 
 	if ((dwDirection != Old_Direction) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
@@ -277,25 +274,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//
 
 	case WM_KEYDOWN:
-		//if (wParam == 'Z' || wParam == 'z')
-		//{
-		//	gGameFramework.m_pPlayer->onAttack = true;
-		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
-		//}
-		//else if (wParam == 'X' || wParam == 'x')
-		//{
-		//	gGameFramework.m_pPlayer->onRun = true;
-		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(100.0f);
-		//}
-		//else if (wParam == 'K' || wParam == 'k')
-		//{
-		//	gGameFramework.m_pPlayer->onDie = true;
-		//	//gGameFramework.m_pPlayer->dieOnce = true;
-		//}
-		//else if (wParam == 'C' || wParam == 'c') {
-		//	gGameFramework.m_pPlayer->onCollect = true;
-		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(0.0f);
-		//}
 		if (wParam == 'L' || wParam == 'l')//full screen
 		{
 			gGameFramework.onFullScreen = true;
@@ -303,13 +281,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYUP:
-		//if (wParam == 'X' || wParam == 'x')
-		//{
-		//	gGameFramework.m_pPlayer->onRun = false;
-		//	//gGameFramework.m_pPlayer->SetMaxVelocityXZ(10.0f);
-		//}
-		/*else if (wParam == 'K' || wParam == 'k')
-			gGameFramework.m_pPlayer->onDie = false;*/
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -405,7 +376,6 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	}
 
 	else if (!pl->onAttack && !pl->onRun && !pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable && !pl->onCollect) {
-		//XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 		if (Vector3::IsZero(Cmp)) {
 			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
@@ -430,23 +400,20 @@ void ProcessPacket(char* ptr)
 	}
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
-		int id = packet->id;
 		cout << "client[" << packet->id << "] Accessed\n";
-		gGameFramework.CreateOtherPlayer(id, packet->Pos, packet->Look, packet->Up, packet->Right);
+		gGameFramework.CreateOtherPlayer(packet->id, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
 	}
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
-		int id = packet->id;
 		for (CPlayer*& player : gGameFramework.Players)
-			if (player->c_id == id) {
+			if (player->c_id == packet->id) {
 				player->c_id = -1;
 				cout << "client[" << packet->id << "] Disconnected\n";
 			}
 		break;
 	}
 	case SC_MOVE_PLAYER: {
-		//gGameFramework.m_pPlayer->recved_packet = true;
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
 		if (packet->id == gGameFramework.m_pPlayer->c_id) {
 			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
@@ -465,7 +432,6 @@ void ProcessPacket(char* ptr)
 					player->SetPosition(packet->Pos);
 					break;
 				}
-		//gGameFramework.m_pPlayer->recved_packet = false;
 		break;
 	}
 	}

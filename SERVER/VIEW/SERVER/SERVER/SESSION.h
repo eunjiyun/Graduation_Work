@@ -206,6 +206,8 @@ public:
 		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 		Move(xmf3Velocity, false);
 
+		CheckCollision(fTimeElapsed);
+		Deceleration(fTimeElapsed);
 	}
 
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
