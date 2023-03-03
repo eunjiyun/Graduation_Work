@@ -79,16 +79,12 @@ struct ALIEN {
 void error_display(const char* msg, int err_no)
 {
 	WCHAR* lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, err_no,
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, WSAGetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-	std::cout << msg;
-	std::wcout << L"¿¡·¯" << lpMsgBuf << std::endl;
-
-	MessageBox(hWnd, lpMsgBuf, L"ERROR", 0);
+		(char*)&lpMsgBuf, 0, NULL);
+	printf("[%s] %s\n", msg, (char*)lpMsgBuf);
 	LocalFree(lpMsgBuf);
 	// while (true);
 }
@@ -128,19 +124,20 @@ void ProcessPacket(int ci, unsigned char packet[])
 	switch (packet[1]) {
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* move_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(packet);
+		//cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
 		if (move_packet->id < MAX_CLIENTS) {
 			int my_id = client_map[move_packet->id];
 			if (-1 != my_id) {
 				g_clients[my_id].pos = move_packet->Pos;
 			}
-			if (ci == my_id) {
-				if (0 != move_packet->move_time) {
-					auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - move_packet->move_time;
+			//if (ci == my_id) {
+			//	if (0 != move_packet->move_time) {
+			//		auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - move_packet->move_time;
 
-					if (global_delay < d_ms) global_delay++;
-					else if (global_delay > d_ms) global_delay--;
-				}
-			}
+			//		if (global_delay < d_ms) global_delay++;
+			//		else if (global_delay > d_ms) global_delay--;
+			//	}
+			//}
 		}
 	}
 					   break;
@@ -314,7 +311,7 @@ void Adjust_Number_Of_Client()
 
 	int temp = num_connections;
 	sprintf_s(l_packet.name, "%d", temp);
-	l_packet.size = sizeof(l_packet);
+	l_packet.size = sizeof(CS_LOGIN_PACKET);
 	l_packet.type = CS_LOGIN;
 	SendPacket(num_connections, &l_packet);
 
@@ -331,6 +328,7 @@ void Adjust_Number_Of_Client()
 	}
 	num_connections++;
 fail_to_connect:
+
 	return;
 }
 
@@ -347,13 +345,13 @@ void Test_Thread()
 			CS_MOVE_PACKET my_packet;
 			my_packet.size = sizeof(my_packet);
 			my_packet.type = CS_MOVE;
-			switch (rand() % 4) {
-			case 0: my_packet.direction = 0; break;
-			case 1: my_packet.direction = 1; break;
-			case 2: my_packet.direction = 2; break;
-			case 3: my_packet.direction = 3; break;
-			}
-			my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
+			my_packet.direction = rand() % 16;
+			my_packet.pos = g_clients[i].pos;
+			my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
+			my_packet.id = i;
+			//my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
+			//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
+			//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
 			SendPacket(i, &my_packet);
 		}
 	}

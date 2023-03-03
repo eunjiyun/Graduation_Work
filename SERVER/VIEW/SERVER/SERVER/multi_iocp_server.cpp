@@ -42,7 +42,7 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		lock_guard <mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		
+		//clients[c_id / 4][c_id % 4]._last_move_time = p->move_time;
 		clients[c_id / 4][c_id % 4].CheckPosition(p->pos);
 		clients[c_id / 4][c_id % 4].direction = p->direction;
 		clients[c_id / 4][c_id % 4].Rotate(p->cxDelta, p->cyDelta, p->czDelta);

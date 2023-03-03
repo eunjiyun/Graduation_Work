@@ -35,6 +35,7 @@ void SESSION::send_move_packet(int c_id)
 	p.Up = clients[c_id/4][c_id%4].GetUpVector();
 	p.Pos = clients[c_id/4][c_id%4].GetPosition();
 	p.direction = clients[c_id/4][c_id%4].direction;
+	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
 	//clients[c_id/4][c_id%4].direction = 0;
 	do_send(&p);
 

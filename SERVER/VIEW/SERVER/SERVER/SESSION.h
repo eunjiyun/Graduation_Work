@@ -46,7 +46,7 @@ public:
 	BoundingBox m_xmOOBB;
 	short error_stack;
 	bool onAttack, onCollect, onDie, onRun;
-	//int		_last_move_time;
+	int		_last_move_time;
 public:
 	SESSION()
 	{
@@ -72,6 +72,7 @@ public:
 		onCollect = false;
 		onDie = false;
 		onRun = false;
+		
 	}
 
 	~SESSION() {}
@@ -97,9 +98,7 @@ public:
 		p.id = _id;
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
-		p.x = m_xmf3Position.x;
-		p.y = m_xmf3Position.y;
-		p.z = m_xmf3Position.z;
+		p.pos = m_xmf3Position;
 		do_send(&p);
 	}
 	void send_move_packet(int c_id);

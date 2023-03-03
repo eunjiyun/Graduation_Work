@@ -394,7 +394,7 @@ void ProcessPacket(char* ptr)
 	case SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
-		gGameFramework.m_pPlayer->SetPosition(XMFLOAT3(packet->x, packet->y, packet->z));
+		gGameFramework.m_pPlayer->SetPosition(packet->pos);
 		cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
 		break;
 	}
