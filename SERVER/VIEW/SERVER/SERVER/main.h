@@ -256,7 +256,7 @@ void Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			while (node->parent != nullptr) 
 			{
 				if (Vector3::Compare(node->parent->Pos, start_Pos))
-				{;
+				{
 					Pos = node->Pos;
 					return;
 				}
@@ -317,6 +317,7 @@ void Monster::Update()
 		return;
 	}
 	Find_Direction(Pos, clients[room_num][target_id].GetPosition());
+	//cout << Pos.x << ", " << Pos.y << "," << Pos.z << endl;
 	BB.Center = Pos;
 	//Pos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(Pos, clients[room_num][target_id].GetPosition())), speed));
 	/*Pos.x += (clients[room_num][target_id].GetPosition().x - Pos.x) / 10.f;
