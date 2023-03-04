@@ -85,6 +85,7 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short monster_type;
 	XMFLOAT3 Pos;
 	//XMFLOAT3 Look, Up, Right;
 };

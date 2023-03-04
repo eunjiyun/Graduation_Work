@@ -65,6 +65,7 @@ void SESSION::send_summon_monster_packet(int npc_id)
 	//summon_packet.Right = clients[c_id / 4][c_id % 4].m_xmf3Right;
 	//summon_packet.Up = clients[c_id / 4][c_id % 4].m_xmf3Up;
 	summon_packet.Pos = monsters [_id / 4][npc_id].GetPosition();
+	summon_packet.monster_type = monsters[_id / 4][npc_id].getType();
 	do_send(&summon_packet);
 }
 
@@ -146,22 +147,22 @@ int Initialize_Monster(int roomNum, int stageNum)
 	int monster_count = 0;
 	switch (stageNum)
 	{
-	case 0:
+	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i] = Monster(roomNum, 0, { -100.f + 50.f * i, -20.f, 600.f });
-		}
-		break;
-	case 1:
-		monster_count = 4;
-		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i] = Monster(roomNum, 1, { -200.f + 50.f * i, -20.f, 600.f });
+			monsters[roomNum][i] = Monster(roomNum, 1, { -100.f + 50.f * i, -20.f, 600.f });
 		}
 		break;
 	case 2:
+		monster_count = 4;
+		for (int i = 0; i < monster_count; ++i) {
+			monsters[roomNum][i] = Monster(roomNum, 2, { -200.f + 50.f * i, -20.f, 600.f });
+		}
+		break;
+	case 3:
 		monster_count = 5;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i] = Monster(roomNum, 2, { -150.f + 50.f * i, -20.f, 600.f });
+			monsters[roomNum][i] = Monster(roomNum, 3, { -150.f + 50.f * i, -20.f, 600.f });
 		}
 		break;
 	}

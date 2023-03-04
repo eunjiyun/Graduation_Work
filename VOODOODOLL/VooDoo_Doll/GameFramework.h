@@ -34,7 +34,7 @@ public:
 
 	// SERVER
 	void CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right);
-	void SummonMonster(int npc_id, XMFLOAT3 Pos);
+	void SummonMonster(int npc_id, int type, XMFLOAT3 Pos);
 
 	/*HWND Get_HWNG() { return m_hWnd; }
 	LONG Get_OldCursorPointX() { return m_ptOldCursorPos.x; }

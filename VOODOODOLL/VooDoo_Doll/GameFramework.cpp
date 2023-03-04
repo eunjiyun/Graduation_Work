@@ -554,7 +554,7 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 		}
 }
 
-void CGameFramework::SummonMonster(int npc_id, XMFLOAT3 Pos)
+void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 {
 	// 이 함수에서 몬스터를 동적 할당하여 소환함
 }

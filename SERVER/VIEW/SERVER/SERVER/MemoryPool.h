@@ -289,29 +289,29 @@ public:
         is_alive = true;
         switch (_type)
         {
-        case 0:
-            type = 0;
+        case 1:
+            type = 1;
             HP = 100;
             power = 30;
             view_range = 200;
             speed = 5;
             break;
-        case 1:
-            type = 1;
+        case 2:
+            type = 2;
             HP = 60;
             power = 30;
             view_range = 400;
             speed = 3;
             break;
-        case 2:
-            type = 2;
+        case 3:
+            type = 3;
             HP = 10000;
             power = 50;
             view_range = 300;
             speed = 1;
             break;
-        case 3:
-            type = 3;
+        case 4:
+            type = 4;
             HP = 500;
             power = 70;
             view_range = 1000;
@@ -323,7 +323,12 @@ public:
     {
         return Pos;
     }
+    short getType()
+    {
+        return type;
+    }
     int get_targetID();
     void Update();
+
 
 };

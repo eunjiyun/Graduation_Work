@@ -407,7 +407,7 @@ void ProcessPacket(char* ptr)
 	case SC_SUMMON_MONSTER: {
 		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
 		cout << packet->id << " Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
-		gGameFramework.SummonMonster(packet->id, packet->Pos);
+		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}
 	case SC_REMOVE_PLAYER: {
