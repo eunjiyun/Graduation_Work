@@ -34,6 +34,8 @@ public:
 
 	// SERVER
 	void CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right);
+	void SummonMonster(int npc_id, XMFLOAT3 Pos);
+
 	/*HWND Get_HWNG() { return m_hWnd; }
 	LONG Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
 	LONG Get_OldCursorPointY() { return m_ptOldCursorPos.y; }*/
@@ -113,6 +115,7 @@ public:
 
 	CPlayer* m_pPlayer = NULL;
 	vector<CPlayer*> Players;
+	vector<CGameObject*> Monsters;
 	CCamera* m_pCamera = NULL;
 
 	POINT						m_ptOldCursorPos;

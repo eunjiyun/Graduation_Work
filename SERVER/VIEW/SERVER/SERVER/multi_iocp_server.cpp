@@ -1,10 +1,8 @@
-#include <array>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include <thread>
 #include <mutex>
 #include <unordered_set>
-#include "MemoryPool.h"
 #include "main.h"
 #include "Timer.h"
 
@@ -15,6 +13,7 @@ using namespace std;
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
 CGameTimer m_GameTimer;
+HANDLE h_iocp;
 
 void process_packet(int c_id, char* packet)
 {
@@ -125,6 +124,23 @@ void worker_thread(HANDLE h_iocp)
 		case OP_SEND:
 			delete ex_over;
 			break;
+		//case OP_NPC_MOVE:
+		//	bool keep_alive = false;
+		//	for (int j = 0; j < MAX_USER; ++j)
+		//		if (can_see(static_cast<int>(key), j)) {
+		//			keep_alive = true;
+		//			break;
+		//		}
+		//	if (true == keep_alive) {
+		//		do_npc_random_move(static_cast<int>(key));
+		//		TIMER_EVENT ev{ key, chrono::system_clock::now() + 1s, EV_RANDOM_MOVE, 0 };
+		//		timer_queue.push(ev);
+		//	}
+		//	else {
+		//		clients[key]._is_active = false;
+		//	}
+		//	delete ex_over;
+		//	break;
 		}
 	}
 }
@@ -145,9 +161,49 @@ void update_thread()
 				}
 			}
 		}
-		Sleep(100);
+		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
 	}
 }
+
+void update_NPC()
+{
+	while (1)
+	{
+		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
+			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
+				if (monsters[i][k].is_alive) {
+					monsters[i][k].Update();
+				}
+			}
+		}
+		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+	}
+}
+
+//void do_timer()
+//{
+//	while (true) {
+//		TIMER_EVENT ev;
+//		auto current_time = chrono::system_clock::now();
+//		if (true == timer_queue.try_pop(ev)) {
+//			if (ev.wakeup_time > current_time) {
+//				timer_queue.push(ev);		// 최적화 필요
+//				// timer_queue에 다시 넣지 않고 처리해야 한다.
+//				this_thread::sleep_for(1ms);
+//				continue;
+//			}
+//			switch (ev.event_id) {
+//			case EV_RANDOM_MOVE:
+//				OVER_EXP* ov = new OVER_EXP;
+//				ov->_comp_type = OP_NPC_MOVE;
+//				PostQueuedCompletionStatus(h_iocp, 1, ev.obj_id, &ov->_over);
+//				break;
+//			}
+//		}
+//		else this_thread::sleep_for(1ms);
+//	}
+//}
+
 
 int main()
 {
@@ -160,8 +216,6 @@ int main()
 		}		
 	}
 	delete m_ppObjects;
-
-	HANDLE h_iocp;
 
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);
@@ -182,13 +236,15 @@ int main()
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 
 	vector <thread> worker_threads;
-	thread* update_t = new thread{ update_thread };
-	//int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < 8; ++i)
+	thread* update_player_t = new thread{ update_thread };
+	thread* update_NPC_t = new thread{ update_NPC };
+	int num_threads = std::thread::hardware_concurrency();
+	for (int i = 0; i < num_threads - 2; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
-	update_t->join();
+	update_player_t->join();
+	update_NPC_t->join();
 	closesocket(g_s_socket);
 	WSACleanup();
 }

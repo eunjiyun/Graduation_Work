@@ -267,19 +267,63 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
     return(ppGameObjects);
 }
 
-class MonsterPool : public CMemoryPool<MonsterPool>
+class Monster : public CMemoryPool<Monster>
 {
 private:
-    XMFLOAT3 Look, Up, Right, Pos;
-    short HP;
-    short view_range;
+    XMFLOAT3 Look = { 0, 0, 1 };
+    XMFLOAT3 Up = { 0, 1, 0 };
+    XMFLOAT3 Right = { 1, 0, 0 };
+    XMFLOAT3 Pos;
+    short HP, view_range, type, power, speed;
+    short target_id; // 추적하는 플레이어 ID
+    array<float, MAX_USER_PER_ROOM> distances;
+    short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
 public:
-    int Find_Player()
+    bool is_alive = false;
+    Monster() {}
+    
+    Monster(short _roomNum, short _type, XMFLOAT3 _pos)
     {
-
+        Pos = _pos;
+        room_num = _roomNum;
+        is_alive = true;
+        switch (_type)
+        {
+        case 0:
+            type = 0;
+            HP = 100;
+            power = 30;
+            view_range = 200;
+            speed = 5;
+            break;
+        case 1:
+            type = 1;
+            HP = 60;
+            power = 30;
+            view_range = 400;
+            speed = 3;
+            break;
+        case 2:
+            type = 2;
+            HP = 10000;
+            power = 50;
+            view_range = 300;
+            speed = 1;
+            break;
+        case 3:
+            type = 3;
+            HP = 500;
+            power = 70;
+            view_range = 1000;
+            speed = 2;
+            break;
+        }
     }
-    void Update()
+    XMFLOAT3 GetPosition()
     {
-
+        return Pos;
     }
+    int get_targetID();
+    void Update();
+
 };

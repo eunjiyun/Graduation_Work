@@ -1,11 +1,29 @@
-#include <array>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include <thread>
 #include <mutex>
+#include <unordered_set>
+#include <concurrent_priority_queue.h>
 #include "protocol.h"
 
-enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
+#pragma comment(lib, "WS2_32.lib")
+#pragma comment(lib, "MSWSock.lib")
+
+enum EVENT_TYPE { EV_RANDOM_MOVE };
+
+struct TIMER_EVENT {
+	int obj_id;
+	chrono::system_clock::time_point wakeup_time;
+	EVENT_TYPE event_id;
+	int target_id;
+	constexpr bool operator < (const TIMER_EVENT& L) const
+	{
+		return (wakeup_time > L.wakeup_time);
+	}
+};
+concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
+
+enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_MOVE };
 class OVER_EXP {
 public:
 	WSAOVERLAPPED _over;
@@ -35,6 +53,7 @@ class SESSION {
 public:
 	mutex _s_lock;
 	S_STATE _state;
+	atomic_bool	_is_active;		// 주위에 플레이어가 있는가?
 	int _id;
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity, m_xmf3Gravity;
@@ -44,9 +63,12 @@ public:
 	char	_name[NAME_SIZE];
 	int		_prev_remain;
 	BoundingBox m_xmOOBB;
+	unordered_set <int> _view_list;
+	mutex	_vl;
+	short cur_stage;
 	short error_stack;
 	bool onAttack, onCollect, onDie, onRun;
-	int		_last_move_time;
+	//int		_last_move_time;
 public:
 	SESSION()
 	{
@@ -63,6 +85,7 @@ public:
 		m_fMaxVelocityXZ = 10.f;
 		m_fFriction = 20.f;
 		direction = 0;
+		cur_stage = 0;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
@@ -103,6 +126,7 @@ public:
 	}
 	void send_move_packet(int c_id);
 	void send_add_player_packet(int c_id);
+	void send_summon_monster_packet(int npc_id);
 	void send_remove_player_packet(int c_id)
 	{
 		SC_REMOVE_PLAYER_PACKET p;
@@ -182,33 +206,6 @@ public:
 		m_xmOOBB.Center = m_xmf3Position;
 	}
 
-	void Update(float fTimeElapsed)
-	{
-		Move(direction, 21.0f, true);
-
-		if (onAttack || onCollect || onDie) m_xmf3Velocity = { 0, 0, 0 };
-		
-		if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
-
-
-		
-		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		float fMaxVelocityXZ = m_fMaxVelocityXZ;
-		if (fLength > m_fMaxVelocityXZ)
-		{
-			m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
-			m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
-		}
-
-		
-
-		XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-		Move(xmf3Velocity, false);
-
-		CheckCollision(fTimeElapsed);
-		Deceleration(fTimeElapsed);
-	}
-
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 	{
 		float Dot = Vector3::DotProduct(MovVec, ObjLook);
@@ -235,6 +232,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
+	void Update(float fTimeElapsed);
 	void CheckPosition(XMFLOAT3 newPos);
 	void CheckCollision(float fTimeElapsed);
 };

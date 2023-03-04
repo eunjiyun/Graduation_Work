@@ -37,6 +37,8 @@ using namespace DirectX::PackedVector;
 
 #include <iostream>
 #include<vector>
+#include <array>
+#include <algorithm>
 using namespace std;
 //
 
