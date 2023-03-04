@@ -5,6 +5,7 @@
 
 #include "Object.h"
 #include "Camera.h"
+#include "Monster.h"
 
 class CPlayer : public CGameObject
 {

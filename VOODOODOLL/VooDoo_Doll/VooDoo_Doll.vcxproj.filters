@@ -22,9 +22,6 @@
     <Filter Include="01.GameObject\00.Player">
       <UniqueIdentifier>{96772ce5-75e4-46f9-83e5-25fcaac70788}</UniqueIdentifier>
     </Filter>
-    <Filter Include="01.GameObject\01.Monster">
-      <UniqueIdentifier>{725cd814-b910-467b-82dd-464e420979d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.Mesh">
       <UniqueIdentifier>{acc34275-07e3-42aa-b26f-38b04d008c95}</UniqueIdentifier>
     </Filter>
@@ -48,6 +45,12 @@
     </Filter>
     <Filter Include="07.Timer">
       <UniqueIdentifier>{5459aabc-aff8-4931-93cb-40161daa6013}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.GameObject\01.Object">
+      <UniqueIdentifier>{97094c3a-9d3f-4976-92d0-08fcaa41b59e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.GameObject\02.Monster">
+      <UniqueIdentifier>{865fb4bc-0431-4f67-a83f-3f9798c607fd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +106,10 @@
       <Filter>07.Timer</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
-      <Filter>01.GameObject\01.Monster</Filter>
+      <Filter>01.GameObject\01.Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>01.GameObject\02.Monster</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -144,7 +150,10 @@
       <Filter>07.Timer</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>01.GameObject\01.Monster</Filter>
+      <Filter>01.GameObject\01.Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>01.GameObject\02.Monster</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
