@@ -279,6 +279,7 @@ private:
     array<float, MAX_USER_PER_ROOM> distances;
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
 public:
+    BoundingBox BB;
     bool is_alive = false;
     Monster() {}
     
@@ -287,6 +288,7 @@ public:
         Pos = _pos;
         room_num = _roomNum;
         is_alive = true;
+        BB = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(10, 3, 10));
         switch (_type)
         {
         case 1:
@@ -327,8 +329,55 @@ public:
     {
         return type;
     }
+    void Move(XMFLOAT3 m_Shift)
+    {
+        Pos = Vector3::Add(Pos, m_Shift);
+        BB.Center = Pos;
+    }
     int get_targetID();
+    void Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
     void Update();
 
 
+};
+
+class A_star_Node : public CMemoryPool<A_star_Node>
+{
+public:
+    int F = 0;
+    int G = 0;
+    int H = 0;
+    A_star_Node* parent = nullptr;
+    XMFLOAT3 Pos;
+    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, int _G = 0, A_star_Node* node = nullptr)
+    {
+        Pos = _Pos;
+        G = _G;
+        H = abs(_Dest_Pos.z - Pos.z) + abs(_Dest_Pos.x - Pos.x);
+        F = G + H;
+        if (node) {
+            parent = node;
+        }
+    }
+    int Compare(A_star_Node* other)
+    {
+        if (F == other->F)
+            return 0;
+        return F < other->F ? 1 : -1;
+    }
+    //bool operator<(const A_star_Node ref) const
+    //{
+    //    return (this->F > ref.F);  
+    //}
+    
+};
+
+struct Comp
+{
+public:
+    bool operator()(A_star_Node* A, A_star_Node* B)
+    {
+        if (A->F > B->F) return true;
+        return false;
+    }
 };

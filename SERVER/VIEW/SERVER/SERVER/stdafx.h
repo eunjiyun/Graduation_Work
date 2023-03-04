@@ -38,6 +38,8 @@ using namespace DirectX::PackedVector;
 #include <iostream>
 #include<vector>
 #include <array>
+#include <set>
+#include <queue>
 #include <algorithm>
 using namespace std;
 //
@@ -194,6 +196,11 @@ namespace Vector3
 	inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMFLOAT4X4& xmmtx4x4Matrix)
 	{
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+	}
+
+	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.z == xmf3Vector2.z);
 	}
 }
 

@@ -223,6 +223,67 @@ void send_NPCUpdate_packet(int npc_id)
 	//do_send(&p);
 }
 
+bool check_path(XMFLOAT3 _pos, vector<A_star_Node*> CloseList)
+{
+	for (const auto& node : CloseList) {
+		if (node->Pos.x == _pos.x && node->Pos.z == _pos.z) // 이미 closedList에 있는 좌표면 
+		{
+			return false;
+		}
+	}
+	int collide_range = _pos.z / 600;
+	for (MapObject*& object : Objects[collide_range]) {
+		if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17))
+			continue;
+		if (BoundingBox(_pos, { 10,3,10 }).Intersects(object->m_xmOOBB)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
+{
+	priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
+	vector<A_star_Node*> CloseList;
+	openList.push(new A_star_Node(start_Pos, dest_Pos));
+	while (!openList.empty())
+	{
+		A_star_Node* node = openList.top();
+		openList.pop();
+		if (BoundingBox(node->Pos, { 10,3,10 }).Intersects(clients[room_num][target_id].m_xmOOBB)) 
+		{
+			while (node->parent != nullptr) 
+			{
+				if (Vector3::Compare(node->parent->Pos, start_Pos))
+				{;
+					Pos = node->Pos;
+					return;
+				}
+				node = node->parent;
+			}
+		}
+
+		XMFLOAT3 _Pos = Vector3::Add(node->Pos, XMFLOAT3{ -1, 0, 0 });
+		if (check_path(_Pos, CloseList)) {
+			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
+		}
+		_Pos = Vector3::Add(node->Pos, XMFLOAT3{ 1,0,0 });
+		if (check_path(_Pos, CloseList)) {
+			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
+		}
+		_Pos = Vector3::Add(node->Pos, XMFLOAT3{ 0,0,1 });
+		if (check_path(_Pos, CloseList)) {
+			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
+		}
+		_Pos = Vector3::Add(node->Pos, XMFLOAT3{ 0,0,-1 });
+		if (check_path(_Pos, CloseList)) {
+			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
+		}
+		CloseList.push_back(node);
+	}
+
+}
 int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
@@ -245,6 +306,20 @@ void Monster::Update()
 		target_id = get_targetID();
 		return;
 	}
-	Pos.x += (clients[room_num][target_id].GetPosition().x - Pos.x) / 10.f;
-	Pos.z += (clients[room_num][target_id].GetPosition().z - Pos.z) / 10.f;
+	//for (int i = 0; i < 60 / speed; ++i) {
+	//	XMFLOAT3 pos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(Pos, clients[room_num][target_id].GetPosition())), speed));
+	//	//if (po)
+	//}
+	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
+	{
+		cout << "이동하지않고공격\n";
+		// 이동하지 않고 공격
+		return;
+	}
+	Find_Direction(Pos, clients[room_num][target_id].GetPosition());
+	BB.Center = Pos;
+	//Pos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(Pos, clients[room_num][target_id].GetPosition())), speed));
+	/*Pos.x += (clients[room_num][target_id].GetPosition().x - Pos.x) / 10.f;
+	Pos.z += (clients[room_num][target_id].GetPosition().z - Pos.z) / 10.f;*/
 }
+
