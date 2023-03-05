@@ -107,90 +107,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	//23.02.05
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 76); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 79); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 	//
 
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	m_nHierarchicalGameObjects = 1;
-	m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
-
-
-	CLoadedModelInfo* pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo19.bin", NULL, 1);
-	m_ppHierarchicalGameObjects[0] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 3, 1);//손에 칼
-	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//m_ppHierarchicalGameObjects[0]->SetPosition(280.0f, 0.0f, 620.0f);
-	//m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
+	
+	CLoadedModelInfo* pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo19.bin", NULL, 7);
+	monsterLight = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 3, 1);//손에 칼
 	if (pMonsterModel) delete pMonsterModel;
-
-	//CLoadedModelInfo* pMonsterModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo23.bin", NULL, 2);
-	//m_ppHierarchicalGameObjects[1] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel2, 3, 2);//뼈다귀 다리
-	//m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_ppHierarchicalGameObjects[1]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//m_ppHierarchicalGameObjects[1]->SetPosition(210.0f, 0.0f, 550.0f);//
-	//m_ppHierarchicalGameObjects[1]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pMonsterModel2) delete pMonsterModel2;
-
-	//CLoadedModelInfo* pMonsterModel3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo31.bin", NULL, 3);//자폭하게
-	//m_ppHierarchicalGameObjects[2] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel3, 2, 3);//귀신
-	//m_ppHierarchicalGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[2]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_ppHierarchicalGameObjects[2]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//m_ppHierarchicalGameObjects[2]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_ppHierarchicalGameObjects[2]->SetPosition(237.0f, 0.0f, 667.0f);//
-	//m_ppHierarchicalGameObjects[2]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pMonsterModel3) delete pMonsterModel3;
-
-	//CLoadedModelInfo* pMonsterModel4 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo41.bin", NULL, 4);//
-	//m_ppHierarchicalGameObjects[3] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel4, 5, 4);//손에 바늘
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(2, false);//바늘 휘두르기 딴걸로
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	//m_ppHierarchicalGameObjects[3]->m_pSkinnedAnimationController->SetTrackEnable(4, false);//area attack? 화재발생
-	//m_ppHierarchicalGameObjects[3]->SetPosition(76.0f, 0.0f, 192.0f);//
-	//m_ppHierarchicalGameObjects[3]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pMonsterModel4) delete pMonsterModel4;
-
-	//CLoadedModelInfo* pMonsterModel5 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo52.bin", NULL, 5);
-	//m_ppHierarchicalGameObjects[4] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel5, 3, 5);//마법사
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
-	//m_ppHierarchicalGameObjects[4]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pMonsterModel5) delete pMonsterModel5;
-
-	//CLoadedModelInfo* pMonsterModel6 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo62.bin", NULL, 6);//
-	//m_ppHierarchicalGameObjects[5] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel6, 3, 6);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
-	//m_ppHierarchicalGameObjects[5]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pMonsterModel6) delete pMonsterModel6;
-
+	
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];
 	CObjectsShader* pObjectShader = new CObjectsShader();
@@ -222,11 +149,6 @@ void CStage::ReleaseObjects()
 		delete[] m_ppGameObjects;
 	}
 
-	/*if (m_ppHierarchicalGameObjects)
-	{
-		for (int i = 0; i < m_nHierarchicalGameObjects; i++) if (m_ppHierarchicalGameObjects[i]) m_ppHierarchicalGameObjects[i]->Release();
-		delete[] m_ppHierarchicalGameObjects;
-	}*/
 
 	if (m_ppShaders2)
 	{
@@ -357,7 +279,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
-
+	
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	pd3dSamplerDescs[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	pd3dSamplerDescs[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -429,9 +351,6 @@ void CStage::ReleaseShaderVariables()
 
 void CStage::ReleaseUploadBuffers()
 {
-	/*for (int i = 0; i < m_nHierarchicalGameObjects; i++)
-		m_ppHierarchicalGameObjects[i]->ReleaseUploadBuffers();*/
-
 	for (int i = 0; i < m_nShaders2; i++)
 		m_ppShaders2[i]->ReleaseUploadBuffers();
 }
@@ -535,27 +454,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	fAngle += 1.50f;
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Rotate(0.0f, -fAngle, 0.0f);
 	XMFLOAT3 xmf3Position = Vector3::TransformCoord(XMFLOAT3(50.0f, 0.0f, 0.0f), xmf4x4Rotate);
-
-	//23.02.11
-	//23.01.03
-	//일정한 시간이 지나면 적이 나를 향해서 오게: 델타 t
-//XMFLOAT3 xmf3Shift = XMFLOAT3(m_pPlayer->m_xmf4x4World._41 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41,
-//	m_pPlayer->m_xmf4x4World._42 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42,
-//	m_pPlayer->m_xmf4x4World._43 - m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43);
-
-//srand((unsigned int)time(NULL));
-//mpTime += fTimeElapsed;
-//XMFLOAT3 tmp = XMFLOAT3(xmf3Shift.x / 5, xmf3Shift.y / 5, xmf3Shift.z / 5);
-//if (mpTime > 0.25f)
-//{
-//	//플레이어를 현재 위치 벡터에서 xmf3Shift 벡터만큼 이동한다.
-
-//	m_ppHierarchicalGameObjects[5]->SetPosition(Vector3::Add(XMFLOAT3(
-//		m_ppHierarchicalGameObjects[5]->m_xmf4x4World._41, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._42, m_ppHierarchicalGameObjects[5]->m_xmf4x4World._43), tmp));
-//	mpTime = 0.f;
-//}
-
-	//CheckObjectByObjectCollisions(fTimeElapsed);
 }
 
 void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
@@ -574,15 +472,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
-	for (int i = 0; i < m_nHierarchicalGameObjects; i++)//0305
-	{
-		if (m_ppHierarchicalGameObjects[i])
-		{
-			//m_ppHierarchicalGameObjects[i]->Animate(m_fElapsedTime);
-			//if (!m_ppHierarchicalGameObjects[i]->m_pSkinnedAnimationController) m_ppHierarchicalGameObjects[i]->UpdateTransform(NULL);
-			m_ppHierarchicalGameObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-		}
-	}
+	monsterLight->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 
 	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);
 }

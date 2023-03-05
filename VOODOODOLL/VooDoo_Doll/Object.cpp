@@ -243,7 +243,7 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);//조명 관련
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
@@ -402,7 +402,10 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			(*ppTexture)->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
-			CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
+			/*if(6==choose)
+				CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 2, nRootParameter);
+			else*/
+				CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
 		}
 		else
 		{
@@ -581,7 +584,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect,bool* dieOnce,int trackNum)//0228
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum)//0228
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 
@@ -589,7 +592,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 	{
 	case ANIMATION_TYPE_LOOP:
 	{
-		if (m_fPosition < 0.0f) 
+		if (m_fPosition < 0.0f)
 			m_fPosition = 0.0f;
 		else
 		{
@@ -616,19 +619,19 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			}
 
 		}
-		else if(2== trackNum || 5== trackNum || 4== trackNum&& true== *dieOnce)
+		else if (2 == trackNum || 5 == trackNum || 4 == trackNum && true == *dieOnce)
 		{
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
 			if (m_fPosition > fAnimationLength)
 			{
 				m_fPosition = fAnimationLength;
 
-				if(true == *onAttack || true == *onCollect)
+				if (true == *onAttack || true == *onCollect)
 					SetEnable(false);
 				if (true == *onAttack) *onAttack = false;
 				if (true == *onCollect) *onCollect = false;
 				if (true == *dieOnce) *dieOnce = false;//여기서 공격 애니메이션을 끄진 않고 또 공격 애니메이션이 처음부터 시작하는 걸 방지
-				
+
 				//cout << "2 or 5 끄기" << endl;
 			}
 		}
@@ -734,7 +737,7 @@ void CAnimationController::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3d
 	}
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect,bool* dieOnce)
+void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -748,13 +751,13 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
-				if (5 == k || 2 == k || 4==k)//collect attack die
+				if (5 == k || 2 == k || 4 == k)//collect attack die
 				{
 					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
 				}
-				
+
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect,dieOnce,k);
+				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect, dieOnce, k);
 
 
 				for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
@@ -994,7 +997,7 @@ void CGameObject::Animate(float fTimeElapsed)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect,&onDie);
+	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect, &onDie);
 
 	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
 
@@ -1034,7 +1037,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 					if (m_ppMaterials[i]->m_pShader)
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, false);
 
-					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
 				}
 
 				m_ppMeshes[0]->Render(pd3dCommandList, i, i);
@@ -1046,6 +1049,18 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 		m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	if (m_pChild)
 		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+}
+
+void CGameObject::lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
+	CCamera* pCamera)
+{
+	if (m_ppMeshes)
+		m_ppMeshes[0]->OnPreRender(pd3dCommandList, NULL);
+
+	if (m_pSibling)
+		m_pSibling->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	if (m_pChild)
+		m_pChild->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)

@@ -96,8 +96,6 @@ void GamePlayer_ProcessInput()
 			cout << "Move_Packet Error\n";
 		Old_Direction = dwDirection;
 	}
-
-
 }
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
