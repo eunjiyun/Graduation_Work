@@ -113,12 +113,12 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	//m_nHierarchicalGameObjects = 6;
-	//m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
+	m_nHierarchicalGameObjects = 1;
+	m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
 
 
-	//CLoadedModelInfo* pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo19.bin", NULL, 1);
-	//m_ppHierarchicalGameObjects[0] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 3, 1);//¼Õ¿¡ Ä®
+	CLoadedModelInfo* pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo19.bin", NULL, 1);
+	m_ppHierarchicalGameObjects[0] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 3, 1);//¼Õ¿¡ Ä®
 	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -127,7 +127,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	//m_ppHierarchicalGameObjects[0]->SetPosition(280.0f, 0.0f, 620.0f);
 	//m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-	//if (pMonsterModel) delete pMonsterModel;
+	if (pMonsterModel) delete pMonsterModel;
 
 	//CLoadedModelInfo* pMonsterModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo23.bin", NULL, 2);
 	//m_ppHierarchicalGameObjects[1] = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel2, 3, 2);//»À´Ù±Í ´Ù¸®
@@ -204,9 +204,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	}
 
-
-
-	BuildDefaultLightsAndMaterials();//ÀÎÇüÀÌ ±î¸Ä°Ô Ãâ·Â
+	//BuildDefaultLightsAndMaterials();//ÀÎÇüÀÌ ±î¸Ä°Ô Ãâ·Â
 	//BuildLightsAndMaterials();
 	//
 
@@ -576,15 +574,15 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
-	/*for (int i = 0; i < m_nHierarchicalGameObjects; i++)
+	for (int i = 0; i < m_nHierarchicalGameObjects; i++)//0305
 	{
 		if (m_ppHierarchicalGameObjects[i])
 		{
-			m_ppHierarchicalGameObjects[i]->Animate(m_fElapsedTime);
-			if (!m_ppHierarchicalGameObjects[i]->m_pSkinnedAnimationController) m_ppHierarchicalGameObjects[i]->UpdateTransform(NULL);
+			//m_ppHierarchicalGameObjects[i]->Animate(m_fElapsedTime);
+			//if (!m_ppHierarchicalGameObjects[i]->m_pSkinnedAnimationController) m_ppHierarchicalGameObjects[i]->UpdateTransform(NULL);
 			m_ppHierarchicalGameObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 		}
-	}*/
+	}
 
 	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);
 }

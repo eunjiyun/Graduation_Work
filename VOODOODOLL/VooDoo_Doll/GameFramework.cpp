@@ -512,7 +512,7 @@ void CGameFramework::BuildObjects()
 		//
 
 
-		m_nHierarchicalGameObjects = 6;
+		m_nHierarchicalGameObjects = 4;
 		m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
 
 
@@ -566,29 +566,31 @@ void CGameFramework::BuildObjects()
 		m_ppHierarchicalGameObjects[3]->SetScale(1.0f, 1.0f, 1.0f);
 		if (pMonsterModel4) delete pMonsterModel4;
 
-		CLoadedModelInfo* pMonsterModel5 = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo52.bin", NULL, 5);
-		m_ppHierarchicalGameObjects[4] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel5, 3, 5);//마법사
-		m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
-		m_ppHierarchicalGameObjects[4]->SetScale(1.0f, 1.0f, 1.0f);
-		if (pMonsterModel5) delete pMonsterModel5;
+		//CLoadedModelInfo* pMonsterModel5 = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo52.bin", NULL, 5);
+		//m_ppHierarchicalGameObjects[4] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel5, 3, 5);//마법사
+		//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		//m_ppHierarchicalGameObjects[4]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		//m_ppHierarchicalGameObjects[4]->SetPosition(201.0f, 0.0f, 641.0f);//
+		//m_ppHierarchicalGameObjects[4]->SetScale(1.0f, 1.0f, 1.0f);
+		//if (pMonsterModel5) delete pMonsterModel5;
 
-		CLoadedModelInfo* pMonsterModel6 = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo62.bin", NULL, 6);//
-		m_ppHierarchicalGameObjects[5] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel6, 3, 6);
-		m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
-		m_ppHierarchicalGameObjects[5]->SetScale(1.0f, 1.0f, 1.0f);
-		if (pMonsterModel6) delete pMonsterModel6;
+		//CLoadedModelInfo* pMonsterModel6 = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo62.bin", NULL, 6);//
+		//m_ppHierarchicalGameObjects[5] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel6, 3, 6);
+		//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		//m_ppHierarchicalGameObjects[5]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		//m_ppHierarchicalGameObjects[5]->SetPosition(76.0f, 0.0f, 100.0f);//머리에 바늘있는 비실한 애
+		//m_ppHierarchicalGameObjects[5]->SetScale(1.0f, 1.0f, 1.0f);
+		//if (pMonsterModel6) delete pMonsterModel6;
+
+		m_pStage->BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
 
 		m_pd3dCommandList->Close();
 		ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -625,6 +627,8 @@ void CGameFramework::ReleaseObjects()
 
 	if (m_pLogin) m_pLogin->ReleaseObjects();
 	if (m_pLogin) delete m_pLogin;
+
+	//if (m_pLights) delete[] m_pLights;
 }
 
 void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right)
