@@ -107,16 +107,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	//23.02.05
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 79); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 80); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 	//
 
-
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	
-	CLoadedModelInfo* pMonsterModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Voodoo19.bin", NULL, 7);
-	monsterLight = new CMonster(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, pMonsterModel, 3, 1);//¼Õ¿¡ Ä®
-	if (pMonsterModel) delete pMonsterModel;
+
+	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
+	monsterLight = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, arrow, 0);
+	if (arrow) delete arrow;
 	
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];

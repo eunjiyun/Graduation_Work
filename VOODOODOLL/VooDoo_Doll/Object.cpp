@@ -1018,8 +1018,7 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
-	CCamera* pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera)
 {
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1051,8 +1050,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
 
-void CGameObject::lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
-	CCamera* pCamera)
+void CGameObject::lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera)
 {
 	if (m_ppMeshes)
 		m_ppMeshes[0]->OnPreRender(pd3dCommandList, NULL);

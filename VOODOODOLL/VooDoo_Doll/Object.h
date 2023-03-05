@@ -396,6 +396,8 @@ public:
 	bool onDie = false;
 	bool onCollect = false;
 	bool dieOnce = false;
+
+	int c_id = -1;//monster id
 	
 	void SetMesh(int nIndex, CMesh* pMesh);
 	void SetShader(CShader* pShader);
@@ -414,10 +416,8 @@ public:
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
-		CCamera* pCamera = NULL);
-	void lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
-		CCamera* pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera = NULL);
+	void lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera = NULL);
 	void onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState);
 	virtual void OnLateUpdate() { }
 

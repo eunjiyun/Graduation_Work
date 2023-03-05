@@ -114,6 +114,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
+//clienttest
 #pragma region SERVER
 
 	WSADATA WSAData;
@@ -386,7 +387,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 
 }
 
-void ProcessPacket(char* ptr)
+void ProcessPacket(char* ptr)//몬스터 생성
 {
 	switch (ptr[1]) {
 	case SC_LOGIN_INFO: {
