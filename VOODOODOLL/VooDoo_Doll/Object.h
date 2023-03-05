@@ -398,6 +398,7 @@ public:
 	bool dieOnce = false;
 
 	int c_id = -1;//monster id
+	int npc_type = -1;//monster type
 	
 	void SetMesh(int nIndex, CMesh* pMesh);
 	void SetShader(CShader* pShader);
