@@ -102,6 +102,7 @@ public:
 	CTerrainPlayer* pPlayer;
 	CTerrainPlayer* pPlayer2;
 	CTerrainPlayer* pPlayer3;
+	CLoadedModelInfo** pMonsterModel = NULL;// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
