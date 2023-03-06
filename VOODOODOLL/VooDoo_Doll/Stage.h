@@ -80,6 +80,10 @@ public:
 	void CheckObjectByObjectCollisions(float fTimeElapsed);
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec);
 
+	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);
+
+	XMFLOAT3 Get_BoundingBoxVertex(BoundingBox& pBoundingbox, int nIndex);
+
 	CPlayer* m_pPlayer = NULL;
 
 protected:

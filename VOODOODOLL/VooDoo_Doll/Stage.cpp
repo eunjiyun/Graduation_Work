@@ -1,6 +1,7 @@
 // File: CStage.cpp
 //-----------------------------------------------------------------------------
 
+#include <DirectXMath.h>
 #include "stdafx.h"
 #include "Stage.h"
 ID3D12DescriptorHeap* CStage::m_pd3dCbvSrvDescriptorHeap = NULL;
@@ -535,3 +536,90 @@ XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 }
 
 
+XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB)
+{
+	float				fMinOverlap = FLT_MAX;
+	XMFLOAT3		xmfAxis[3];
+	int					nMinAxis = -1;
+
+	xmfAxis[0] = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	xmfAxis[1] = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	xmfAxis[2] = XMFLOAT3(0.0f, 0.0f, 1.0f);
+
+	for (int i = 0; i < 3; ++i)
+	{
+		float fLength = sqrtf(xmfAxis[i].x * xmfAxis[i].x + xmfAxis[i].y * xmfAxis[i].y + xmfAxis[i].z * xmfAxis[i].z);
+		xmfAxis[i] = XMFLOAT3(xmfAxis[i].x / fLength, xmfAxis[i].y / fLength, xmfAxis[i].z / fLength);
+	}
+
+	for (int i = 0; i < 3; ++i)
+	{
+		float fAMin = FLT_MAX, fAMax = -FLT_MAX;
+		float fBMin = FLT_MAX, fBMax = -FLT_MAX;
+
+		for (int j = 0; j < 8; ++j)
+		{
+			XMFLOAT3	xmfResultA = { 0,0,0 };
+			XMFLOAT3	xmfResultB = { 0,0,0 };
+
+			XMVECTOR	xmResultA = XMVector3Dot(XMLoadFloat3(&pBouningBoxA.Extents), XMLoadFloat3(&Get_BoundingBoxVertex(pBouningBoxA, j)));
+			XMStoreFloat3(&xmfResultA, xmResultA);
+			XMFLOAT3		xmfAPoint = { (pBouningBoxA.Center.x + xmfResultA.x), (pBouningBoxA.Center.y + xmfResultA.y) ,(pBouningBoxA.Center.z + xmfResultA.z) };
+			
+			XMVECTOR	xmResultB = XMVector3Dot(XMLoadFloat3(&pBouningBoxB.Extents), XMLoadFloat3(&Get_BoundingBoxVertex(pBouningBoxB, j)));
+			XMStoreFloat3(&xmfResultB, xmResultB);
+			XMFLOAT3		xmfBPoint = { (pBouningBoxB.Center.x + xmfResultB.x), (pBouningBoxB.Center.y + xmfResultB.y) ,(pBouningBoxB.Center.z + xmfResultB.z) };
+		
+			float fAProjection = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&xmfAPoint), XMLoadFloat3(&xmfAxis[i])));
+			float fBProjection = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&xmfBPoint), XMLoadFloat3(&xmfAxis[i])));
+		
+			fAMin = min(fAMin, fAProjection);
+			fAMax = max(fAMin, fAProjection);
+			fBMin = min(fBMin, fBProjection);
+			fBMax = max(fBMin, fBProjection);
+		}
+
+		float fOverlap = min(fAMax, fBMax) - max(fAMin, fBMin);
+		if (fOverlap < 0)
+		{
+			return XMFLOAT3(0.0f, 0.0f, 0.0f);
+		}
+
+		else if (fOverlap < fMinOverlap)
+		{
+			fMinOverlap = fOverlap;
+			nMinAxis = i;
+		}
+	}
+	XMFLOAT3 xmfDirection = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	if (nMinAxis >= 0)
+	{
+		xmfDirection = xmfAxis[nMinAxis];
+	}
+	return xmfDirection;
+}
+
+XMFLOAT3 CStage::Get_BoundingBoxVertex(BoundingBox& pBoundingbox, int nIndex)
+{
+	assert(index >= 0 && index <= 7);
+	XMFLOAT3		xmfVertex;
+	XMVECTOR	xmvCenter = XMLoadFloat3(&pBoundingbox.Center);
+	XMVECTOR	xmvExtents = XMLoadFloat3(&pBoundingbox.Extents);
+
+	static const XMVECTORF32 s_vCorners[] =
+	{
+		{ -1.0f, -1.0f, -1.0f, 0.0f },
+		{ -1.0f, -1.0f,  1.0f, 0.0f },
+		{ -1.0f,  1.0f, -1.0f, 0.0f },
+		{ -1.0f,  1.0f,  1.0f, 0.0f },
+		{  1.0f, -1.0f, -1.0f, 0.0f },
+		{  1.0f, -1.0f,  1.0f, 0.0f },
+		{  1.0f,  1.0f, -1.0f, 0.0f },
+		{  1.0f,  1.0f,  1.0f, 0.0f }
+	};
+
+	xmvCenter = XMVectorAdd(xmvCenter, XMVectorMultiply(xmvExtents, s_vCorners[nIndex]));
+
+	XMStoreFloat3(&xmfVertex, xmvCenter);
+	return xmfVertex;
+}
