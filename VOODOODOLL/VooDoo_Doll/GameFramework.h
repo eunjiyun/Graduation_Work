@@ -116,9 +116,9 @@ public:
 
 	CPlayer* m_pPlayer = NULL;
 	vector<CPlayer*> Players;
-	vector<CGameObject*> Monsters;
+	vector<CMonster*> Monsters;
 	int									m_nHierarchicalGameObjects = 0;
-	CGameObject** m_ppHierarchicalGameObjects = NULL;
+	CMonster** m_ppHierarchicalGameObjects = NULL;
 
 	CCamera* m_pCamera = NULL;
 

@@ -69,6 +69,20 @@ void SESSION::send_summon_monster_packet(int npc_id)
 	do_send(&summon_packet);
 }
 
+void SESSION::send_NPCUpdate_packet(int npc_id)
+{
+	SC_MOVE_MONSTER_PACKET p;
+	p.id = npc_id;
+	p.size = sizeof(SC_MOVE_MONSTER_PACKET);
+	p.type = SC_MOVE_MONSTER;
+	//p.Look = clients[c_id / 4][c_id % 4].GetLookVector();
+	//p.Right = clients[c_id / 4][c_id % 4].GetRightVector();
+	//p.Up = clients[c_id / 4][c_id % 4].GetUpVector();
+	p.Pos = monsters[_id / 4][npc_id].GetPosition();
+	//p.direction = clients[c_id / 4][c_id % 4].direction;
+	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
+	do_send(&p);
+}
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// 이동속도가 말도 안되게 빠른 경우 체크
@@ -150,19 +164,20 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i] = Monster(roomNum, 1, { -100.f + 50.f * i, -20.f, 600.f });
+			//monsters[roomNum][i] = Monster(roomNum, 1, { -100.f + 50.f * i, -20.f, 600.f });
+			monsters[roomNum][i].Initialize(roomNum, 1, { -100.f + 50.f * i, -20.f, 600.f });
 		}
 		break;
 	case 2:
-		monster_count = 4;
+		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i] = Monster(roomNum, 2, { -200.f + 50.f * i, -20.f, 600.f });
+			monsters[roomNum][i].Initialize(roomNum, 2, { -50.f + 50.f * i, -20.f, 1200.f });
 		}
 		break;
 	case 3:
-		monster_count = 5;
+		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i] = Monster(roomNum, 3, { -150.f + 50.f * i, -20.f, 600.f });
+			monsters[roomNum][i].Initialize(roomNum, 3, { -170.f + 50.f * i, -20.f, 1800.f });
 		}
 		break;
 	}
@@ -175,6 +190,23 @@ void SESSION::Update(float fTimeElapsed)
 	Move(direction, 21.0f, true);
 
 	if (onAttack || onCollect || onDie) m_xmf3Velocity = { 0, 0, 0 };
+
+	if (onAttack)
+	{
+		for (auto& monster : monsters[_id/4])
+			if (BoundingBox(GetPosition(), { 3,0,3 }).Intersects(monster.BB))
+			{
+				// monster.HP -= power; 
+			}
+	}
+	if (onCollect)
+	{
+
+	}
+	if (onDie)
+	{
+		// 사망 애니메이션 출력  
+	}
 
 	if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
 
@@ -196,7 +228,7 @@ void SESSION::Update(float fTimeElapsed)
 	CheckCollision(fTimeElapsed);
 	Deceleration(fTimeElapsed);
 
-	short stage = GetPosition().z / 600;
+	short stage = (GetPosition().z + 400) / 600;
 	if (stage > cur_stage) {
 		int monster_count = Initialize_Monster(_id / 4, stage);
 		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
@@ -204,96 +236,95 @@ void SESSION::Update(float fTimeElapsed)
 				clients[_id / 4][i].send_summon_monster_packet(j);
 			}
 			clients[_id / 4][i].cur_stage = stage;
+			cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
 		}
 	}
 
 }
-void send_NPCUpdate_packet(int npc_id)
-{
-	SC_MOVE_MONSTER_PACKET p;
-	p.id = npc_id % MAX_MONSTER_PER_ROOM;
-	p.size = sizeof(SC_MOVE_MONSTER_PACKET);
-	p.type = SC_MOVE_MONSTER;
-	//p.Look = clients[c_id / 4][c_id % 4].GetLookVector();
-	//p.Right = clients[c_id / 4][c_id % 4].GetRightVector();
-	//p.Up = clients[c_id / 4][c_id % 4].GetUpVector();
-	p.Pos = monsters[npc_id / MAX_MONSTER_PER_ROOM][npc_id % MAX_MONSTER_PER_ROOM].GetPosition();
-	//p.direction = clients[c_id / 4][c_id % 4].direction;
-	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
-	//do_send(&p);
-}
 
-bool check_path(XMFLOAT3 _pos, vector<A_star_Node*> CloseList)
+void check_queue(priority_queue<A_star_Node*>& queue, XMFLOAT3 enqueue_pos, int _G)
 {
-	for (const auto& node : CloseList) {
-		if (node->Pos.x == _pos.x && node->Pos.z == _pos.z) // 이미 closedList에 있는 좌표면 
+	priority_queue<A_star_Node*> copy_queue = queue;
+	while (!copy_queue.empty())
+	{
+		A_star_Node* P = copy_queue.top();
+		if (Vector3::Compare(P->Pos, enqueue_pos) && P->G > _G) {
+			P->G = _G;
+			P->F = P->G + P->H;
+		}
+	}
+}
+bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
+{
+	for (const auto& pos : CloseList) {
+		if (pos.x == _pos.x && pos.z == _pos.z) // 이미 closedList에 있는 좌표면 
 		{
 			return false;
 		}
 	}
+
 	int collide_range = _pos.z / 600;
 	for (MapObject*& object : Objects[collide_range]) {
 		if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17))
 			continue;
-		if (BoundingBox(_pos, { 10,3,10 }).Intersects(object->m_xmOOBB)) {
+		if (BoundingBox(_pos, { 5,3,5 }).Intersects(object->m_xmOOBB)) {
 			return false;
 		}
 	}
 	return true;
 }
 
-void Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
+float nx[8]{ -1,1,0,0,-1,-1,1,1 };
+float nz[8]{ 0,0,1,-1,1,-1,1,-1 };
+XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
 	priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
-	vector<A_star_Node*> CloseList;
+	vector<XMFLOAT3> CloseList{};
+	//array<array<bool, 340>, 1000> check{ false };
 	openList.push(new A_star_Node(start_Pos, dest_Pos));
+	//check[start_Pos.x][start_Pos.z] = true;
 	while (!openList.empty())
 	{
 		A_star_Node* node = openList.top();
 		openList.pop();
-		if (BoundingBox(node->Pos, { 10,3,10 }).Intersects(clients[room_num][target_id].m_xmOOBB)) 
+		if (BoundingBox(node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
 		{
-			while (node->parent != nullptr) 
+			while (node->parent != nullptr)
 			{
 				if (Vector3::Compare(node->parent->Pos, start_Pos))
 				{
-					Pos = node->Pos;
-					return;
+					return node->Pos;
 				}
 				node = node->parent;
 			}
 		}
+		for (int i = 0; i < 4; i++) {
+			XMFLOAT3 _Pos = Vector3::Add(node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
+			if (check_path(_Pos, CloseList)) {
+				openList.push(new A_star_Node(_Pos, dest_Pos, node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), node));
+			}
+		}
+		CloseList.push_back(node->Pos);
 
-		XMFLOAT3 _Pos = Vector3::Add(node->Pos, XMFLOAT3{ -1, 0, 0 });
-		if (check_path(_Pos, CloseList)) {
-			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
-		}
-		_Pos = Vector3::Add(node->Pos, XMFLOAT3{ 1,0,0 });
-		if (check_path(_Pos, CloseList)) {
-			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
-		}
-		_Pos = Vector3::Add(node->Pos, XMFLOAT3{ 0,0,1 });
-		if (check_path(_Pos, CloseList)) {
-			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
-		}
-		_Pos = Vector3::Add(node->Pos, XMFLOAT3{ 0,0,-1 });
-		if (check_path(_Pos, CloseList)) {
-			openList.push(new A_star_Node(_Pos, dest_Pos, node->G + 1, node));
-		}
-		CloseList.push_back(node);
+		//openList.erase(openList.begin());
+		//openList.begin()++;
 	}
-
 }
 int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
+		if (clients[room_num][i]._state != ST_INGAME) {
+			distances[i] = view_range;
+			continue;
+		}
 		float distance_z = clients[room_num][i].GetPosition().z - Pos.z;
 		float distance_x = clients[room_num][i].GetPosition().x - Pos.x;
 		distances[i] = sqrtf(distance_z * distance_z + distance_x * distance_x);
 	}
 
 	int min = *min_element(distances.begin(), distances.end());
-	if (min <= view_range)
+
+	if (min < view_range)
 	{
 		return min_element(distances.begin(), distances.end()) - distances.begin();
 	}
@@ -306,21 +337,13 @@ void Monster::Update()
 		target_id = get_targetID();
 		return;
 	}
-	//for (int i = 0; i < 60 / speed; ++i) {
-	//	XMFLOAT3 pos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(Pos, clients[room_num][target_id].GetPosition())), speed));
-	//	//if (po)
-	//}
 	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
 	{
-		cout << "이동하지않고공격\n";
-		// 이동하지 않고 공격
+		// attack
 		return;
 	}
-	Find_Direction(Pos, clients[room_num][target_id].GetPosition());
-	//cout << Pos.x << ", " << Pos.y << "," << Pos.z << endl;
+	Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
 	BB.Center = Pos;
-	//Pos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(Pos, clients[room_num][target_id].GetPosition())), speed));
-	/*Pos.x += (clients[room_num][target_id].GetPosition().x - Pos.x) / 10.f;
-	Pos.z += (clients[room_num][target_id].GetPosition().z - Pos.z) / 10.f;*/
+
 }
 

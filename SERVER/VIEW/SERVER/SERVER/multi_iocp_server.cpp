@@ -19,7 +19,7 @@ void process_packet(int c_id, char* packet)
 {
 	switch (packet[1]) {
 	case CS_LOGIN: {
-		cout << "Client[" << c_id << "] Accessed\n";
+		//cout << "Client[" << c_id << "] Accessed\n";
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		strcpy_s(clients[c_id / 4][c_id % 4]._name, p->name);
 		clients[c_id / 4][c_id % 4].send_login_info_packet();
@@ -89,6 +89,8 @@ void worker_thread(HANDLE h_iocp)
 				clients[client_id / 4][client_id % 4]._name[0] = 0;
 				clients[client_id / 4][client_id % 4]._prev_remain = 0;
 				clients[client_id / 4][client_id % 4]._socket = g_c_socket;
+				clients[client_id / 4][client_id % 4].cur_stage = 0;
+				clients[client_id / 4][client_id % 4].error_stack = 0;
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
 				clients[client_id / 4][client_id % 4].do_recv();
@@ -172,7 +174,11 @@ void update_NPC()
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
 				if (monsters[i][k].is_alive) {
+					cout << k << "updating\n";
+					//lock_guard <mutex> ll{ monsters[i][k].mon_lock };
 					monsters[i][k].Update();
+					for (auto& cl : clients[i])
+						cl.send_NPCUpdate_packet(k);
 				}
 			}
 		}

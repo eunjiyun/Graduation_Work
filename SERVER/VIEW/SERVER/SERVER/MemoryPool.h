@@ -274,21 +274,23 @@ private:
     XMFLOAT3 Up = { 0, 1, 0 };
     XMFLOAT3 Right = { 1, 0, 0 };
     XMFLOAT3 Pos;
-    short HP, view_range, type, power, speed;
-    short target_id; // 추적하는 플레이어 ID
-    array<float, MAX_USER_PER_ROOM> distances;
+    short view_range, type, power, speed;
+    short target_id = -1; // 추적하는 플레이어 ID
+    array<float, MAX_USER_PER_ROOM> distances = { 10000.f };
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
 public:
+    mutex mon_lock;
+    short HP;
     BoundingBox BB;
-    bool is_alive = false;
+    bool is_alive;
     Monster() {}
     
-    Monster(short _roomNum, short _type, XMFLOAT3 _pos)
+    void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)
     {
         Pos = _pos;
         room_num = _roomNum;
         is_alive = true;
-        BB = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(10, 3, 10));
+        BB = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(5, 3, 5));
         switch (_type)
         {
         case 1:
@@ -335,7 +337,7 @@ public:
         BB.Center = Pos;
     }
     int get_targetID();
-    void Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
+    XMFLOAT3 Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
     void Update();
 
 
@@ -344,40 +346,31 @@ public:
 class A_star_Node : public CMemoryPool<A_star_Node>
 {
 public:
-    int F = 0;
-    int G = 0;
-    int H = 0;
+    float F = 0;
+    float G = 0;
+    float H = 0;
     A_star_Node* parent = nullptr;
     XMFLOAT3 Pos;
-    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, int _G = 0, A_star_Node* node = nullptr)
+    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, A_star_Node* node = nullptr)
     {
         Pos = _Pos;
         G = _G;
-        H = abs(_Dest_Pos.z - Pos.z) + abs(_Dest_Pos.x - Pos.x);
+        H = sqrt(powf(_Dest_Pos.z - Pos.z, 2) + powf(_Dest_Pos.x - Pos.x, 2));
         F = G + H;
         if (node) {
             parent = node;
         }
     }
-    int Compare(A_star_Node* other)
-    {
-        if (F == other->F)
-            return 0;
-        return F < other->F ? 1 : -1;
-    }
-    //bool operator<(const A_star_Node ref) const
-    //{
-    //    return (this->F > ref.F);  
-    //}
+    
     
 };
 
 struct Comp
 {
-public:
-    bool operator()(A_star_Node* A, A_star_Node* B)
+    bool operator()(A_star_Node* const& A, A_star_Node* const& B) const
     {
         if (A->F > B->F) return true;
-        return false;
+
+        else return false;
     }
 };
