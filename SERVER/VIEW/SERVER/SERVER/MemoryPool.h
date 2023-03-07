@@ -273,7 +273,6 @@ private:
     XMFLOAT3 Look = { 0, 0, 1 };
     XMFLOAT3 Up = { 0, 1, 0 };
     XMFLOAT3 Right = { 1, 0, 0 };
-    XMFLOAT3 Pos;
     short view_range, type, power, speed;
     short target_id = -1; // 추적하는 플레이어 ID
     array<float, MAX_USER_PER_ROOM> distances = { 10000.f };
@@ -283,6 +282,7 @@ public:
     short HP;
     BoundingBox BB;
     bool is_alive;
+    XMFLOAT3 Pos;
     Monster() {}
     
     void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)
@@ -355,7 +355,7 @@ public:
     {
         Pos = _Pos;
         G = _G;
-        H = sqrt(powf(_Dest_Pos.z - Pos.z, 2) + powf(_Dest_Pos.x - Pos.x, 2));
+        H = fabs(_Dest_Pos.z - Pos.z) + fabs(_Dest_Pos.x - Pos.x);
         F = G + H;
         if (node) {
             parent = node;

@@ -228,7 +228,7 @@ void SESSION::Update(float fTimeElapsed)
 	CheckCollision(fTimeElapsed);
 	Deceleration(fTimeElapsed);
 
-	short stage = (GetPosition().z + 400) / 600;
+	short stage = GetPosition().z / 600;
 	if (stage > cur_stage) {
 		int monster_count = Initialize_Monster(_id / 4, stage);
 		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
@@ -242,18 +242,45 @@ void SESSION::Update(float fTimeElapsed)
 
 }
 
-void check_queue(priority_queue<A_star_Node*>& queue, XMFLOAT3 enqueue_pos, int _G)
+list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
 {
-	priority_queue<A_star_Node*> copy_queue = queue;
-	while (!copy_queue.empty())
+	list<A_star_Node*>::iterator iter = (*m_List).begin();
+
+	int minValue = 20000; 
+	int order = 0; 
+
+	for (int i = 1; iter != (*m_List).end(); i++, iter++)
 	{
-		A_star_Node* P = copy_queue.top();
-		if (Vector3::Compare(P->Pos, enqueue_pos) && P->G > _G) {
-			P->G = _G;
-			P->F = P->G + P->H;
+		if ((*iter)->F <= minValue) 
+		{
+			minValue = (*iter)->F;
+			order = i;
 		}
 	}
+
+	iter = (*m_List).begin();
+	for (int i = 1; i < order; i++)
+	{
+		iter++;
+	}
+
+	return iter;
 }
+
+bool check_openList(XMFLOAT3 _Pos, int _G, A_star_Node* s_node, list<A_star_Node*>* m_List)
+{
+	auto iter = find_if((*m_List).begin(), (*m_List).end(), [&_Pos](A_star_Node* N) {return Vector3::Compare(_Pos, N->Pos); });
+	if (iter != (*m_List).end()) {
+		if ((*iter)->G > _G) {
+			(*iter)->G = _G;
+			(*iter)->F = (*iter)->G + (*iter)->H;
+			(*iter)->parent = s_node;
+		}
+		return false;
+	}
+	return true;
+}
+
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 {
 	for (const auto& pos : CloseList) {
@@ -278,36 +305,44 @@ float nx[8]{ -1,1,0,0,-1,-1,1,1 };
 float nz[8]{ 0,0,1,-1,1,-1,1,-1 };
 XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
-	priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
+	//priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
 	vector<XMFLOAT3> CloseList{};
-	//array<array<bool, 340>, 1000> check{ false };
-	openList.push(new A_star_Node(start_Pos, dest_Pos));
-	//check[start_Pos.x][start_Pos.z] = true;
+	list<A_star_Node*> openList;
+	A_star_Node* S_Node;
+
+	openList.push_back(new A_star_Node(start_Pos, dest_Pos));
+	list<A_star_Node*>::iterator iter;
+	clock_t start_time = clock();
 	while (!openList.empty())
 	{
-		A_star_Node* node = openList.top();
-		openList.pop();
-		if (BoundingBox(node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
+		if (clock() - start_time >= 5000)
 		{
-			while (node->parent != nullptr)
-			{
-				if (Vector3::Compare(node->parent->Pos, start_Pos))
-				{
-					return node->Pos;
-				}
-				node = node->parent;
-			}
+			cout << "경로탐색실패\n";
+			return Pos;
 		}
-		for (int i = 0; i < 4; i++) {
-			XMFLOAT3 _Pos = Vector3::Add(node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
-			if (check_path(_Pos, CloseList)) {
-				openList.push(new A_star_Node(_Pos, dest_Pos, node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), node));
-			}
-		}
-		CloseList.push_back(node->Pos);
+		iter = getNode(&openList);
+		S_Node = *iter;
 
-		//openList.erase(openList.begin());
-		//openList.begin()++;
+		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
+		{
+			while (S_Node->parent != nullptr)
+			{
+				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
+				{
+					delete *iter;
+					return S_Node->Pos;
+				}
+				S_Node = S_Node->parent;
+			}
+		}
+		for (int i = 0; i < 8; i++) {
+			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
+			if (check_path(_Pos, CloseList) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
+				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
+			}
+		}
+		CloseList.push_back(S_Node->Pos);
+		openList.erase(iter);
 	}
 }
 int Monster::get_targetID()
