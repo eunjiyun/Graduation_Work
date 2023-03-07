@@ -127,6 +127,8 @@ public:
 	void send_move_packet(int c_id);
 	void send_add_player_packet(int c_id);
 	void send_summon_monster_packet(int npc_id);
+	void send_NPCUpdate_packet(int npc_id);
+
 	void send_remove_player_packet(int c_id)
 	{
 		SC_REMOVE_PLAYER_PACKET p;

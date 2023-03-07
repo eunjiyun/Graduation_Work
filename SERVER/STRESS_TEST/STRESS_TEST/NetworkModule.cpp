@@ -124,7 +124,8 @@ void ProcessPacket(int ci, unsigned char packet[])
 	switch (packet[1]) {
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* move_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(packet);
-		//cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
+		if (move_packet->id == 0)
+			cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
 		if (move_packet->id < MAX_CLIENTS) {
 			int my_id = client_map[move_packet->id];
 			if (-1 != my_id) {
@@ -159,6 +160,16 @@ void ProcessPacket(int ci, unsigned char packet[])
 		//SendPacket(my_id, &t_packet);
 	}
 	break;
+	case SC_SUMMON_MONSTER:
+	{
+		SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
+		cout << ci << "클라이언트의 화면에" << p->id << "몬스터 소환\n";
+	}
+	break;
+	case SC_MOVE_MONSTER:
+	{
+		break;
+	}
 	default: MessageBox(hWnd, L"Unknown Packet Type", L"ERROR", 0);
 		while (true);
 	}
@@ -346,6 +357,10 @@ void Test_Thread()
 			my_packet.size = sizeof(my_packet);
 			my_packet.type = CS_MOVE;
 			my_packet.direction = rand() % 16;
+			if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 1));
+			if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -1));
+			if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-1, 0, 0));
+			if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(1, 0, 0));
 			my_packet.pos = g_clients[i].pos;
 			my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
 			my_packet.id = i;
@@ -398,8 +413,8 @@ void GetPointCloud(int* size, float** points)
 	int index = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
-			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.z);
-			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x);
+			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.z) * 4;
+			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x) * 4;
 			index++;
 		}
 

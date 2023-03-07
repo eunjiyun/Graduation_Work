@@ -439,6 +439,17 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				}
 		break;
 	}
+	case SC_MOVE_MONSTER: {
+		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
+		for (auto& monster : gGameFramework.Monsters)
+		{
+			if (packet->id == monster->c_id) {
+				monster->SetPosition(packet->Pos);
+				break;
+			}
+		}
+		break;
+	}
 	}
 }
 

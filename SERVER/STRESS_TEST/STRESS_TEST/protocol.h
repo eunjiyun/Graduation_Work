@@ -5,6 +5,8 @@ constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
 
 constexpr int MAX_USER = 10000;
+constexpr int MAX_USER_PER_ROOM = 4;
+constexpr int MAX_MONSTER_PER_ROOM = 10;
 
 constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
@@ -19,7 +21,7 @@ constexpr char SC_LOGIN_INFO = 2;
 constexpr char SC_ADD_PLAYER = 3;
 constexpr char SC_REMOVE_PLAYER = 4;
 constexpr char SC_MOVE_PLAYER = 5;
-constexpr char SC_ADD_MONSTER = 6;
+constexpr char SC_SUMMON_MONSTER = 6;
 constexpr char SC_MOVE_MONSTER = 7;
 #include "stdafx.h"
 
@@ -39,7 +41,7 @@ struct CS_MOVE_PACKET {
 	short	id;
 	float cxDelta, cyDelta, czDelta;
 	XMFLOAT3 pos;
-	//unsigned	move_time;
+	//unsigned move_time;
 };
 
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
@@ -83,7 +85,9 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	XMFLOAT3 Pos, Look, Right, Up;
+	short monster_type;
+	XMFLOAT3 Pos;
+	//XMFLOAT3 Look, Up, Right;
 };
 constexpr short SC_SUMMON_MONSTER_PACKET_SIZE = sizeof(SC_SUMMON_MONSTER_PACKET);
 
@@ -91,8 +95,9 @@ struct SC_MOVE_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	XMFLOAT3 Look, Up, Right, Pos;
-	DWORD direction;
+	XMFLOAT3 Pos;
+	//XMFLOAT3 Look, Up, Right;
+	//DWORD direction;
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 #pragma pack (pop)
