@@ -74,6 +74,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short	character_num;
 	XMFLOAT3 Look, Up, Right, Pos;
 	DWORD direction;
 	//unsigned int move_time;
@@ -96,6 +97,8 @@ struct SC_MOVE_MONSTER_PACKET {
 	char	type;
 	short	id;
 	XMFLOAT3 Pos;
+	short HP;
+	unsigned short attack; // 공격 타입. 0이면 안하는 것
 	//XMFLOAT3 Look, Up, Right;
 	//DWORD direction;
 };

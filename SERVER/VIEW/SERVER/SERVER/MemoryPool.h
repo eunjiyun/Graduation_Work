@@ -283,6 +283,7 @@ public:
     BoundingBox BB;
     bool is_alive;
     XMFLOAT3 Pos;
+    short attack = 0;
     Monster() {}
     
     void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)

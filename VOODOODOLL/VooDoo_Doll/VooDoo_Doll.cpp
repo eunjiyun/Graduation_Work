@@ -47,6 +47,7 @@ void GamePlayer_ProcessInput()
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 
 
+			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//z Attack
 			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
 			else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
 			else if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
@@ -250,25 +251,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		else if (wParam == 'Q' || wParam == 'q')
-		{
-			gGameFramework.changePlayerMode = true;
+		//else if (wParam == 'Q' || wParam == 'q')
+		//{
+		//	gGameFramework.changePlayerMode = true;
 
-			if (1 == gGameFramework.whatPlayer)
-			{
-				gGameFramework.whatPlayer = 2;
-			}
-			else if (2 == gGameFramework.whatPlayer)
-			{
-				gGameFramework.whatPlayer = 3;
-				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-			}
-			else if (3 == gGameFramework.whatPlayer)
-			{
-				gGameFramework.whatPlayer = 1;
-				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-			}
-		}
+		//	if (1 == gGameFramework.whatPlayer)
+		//	{
+		//		gGameFramework.whatPlayer = 2;
+		//	}
+		//	else if (2 == gGameFramework.whatPlayer)
+		//	{
+		//		gGameFramework.whatPlayer = 3;
+		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+		//	}
+		//	else if (3 == gGameFramework.whatPlayer)
+		//	{
+		//		gGameFramework.whatPlayer = 1;
+		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+		//	}
+		//}
 		break;
 		//
 
@@ -426,6 +427,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
 			ProcessAnimation(gGameFramework.m_pPlayer, packet);
 			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
+			
 		}
 		else
 			for (auto& player : gGameFramework.Players)
@@ -444,6 +446,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		for (auto& monster : gGameFramework.Monsters)
 		{
 			if (packet->id == monster->c_id) {
+				if (packet->HP <= 0) {
+					monster->c_id = -1;
+					break;
+				}
+				if (monster->m_pSkinnedAnimationController->Cur_Animation_Track != packet->attack) {
+					monster->m_pSkinnedAnimationController->SetTrackEnable(monster->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+					monster->m_pSkinnedAnimationController->SetTrackEnable(packet->attack, true);
+				}
 				monster->SetPosition(packet->Pos);
 				break;
 			}

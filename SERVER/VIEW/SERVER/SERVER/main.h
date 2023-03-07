@@ -1,3 +1,5 @@
+#pragma once
+
 #include "SESSION.h"
 #include "MemoryPool.h"
 
@@ -36,6 +38,7 @@ void SESSION::send_move_packet(int c_id)
 	p.Up = clients[c_id / 4][c_id % 4].GetUpVector();
 	p.Pos = clients[c_id / 4][c_id % 4].GetPosition();
 	p.direction = clients[c_id / 4][c_id % 4].direction;
+	p.character_num = clients[c_id / 4][c_id % 4].character_num;
 	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
 	do_send(&p);
 
@@ -79,6 +82,8 @@ void SESSION::send_NPCUpdate_packet(int npc_id)
 	//p.Right = clients[c_id / 4][c_id % 4].GetRightVector();
 	//p.Up = clients[c_id / 4][c_id % 4].GetUpVector();
 	p.Pos = monsters[_id / 4][npc_id].GetPosition();
+	p.HP = monsters[_id / 4][npc_id].HP;
+	p.attack = monsters[_id / 4][npc_id].attack;
 	//p.direction = clients[c_id / 4][c_id % 4].direction;
 	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
 	do_send(&p);
@@ -164,20 +169,19 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			//monsters[roomNum][i] = Monster(roomNum, 1, { -100.f + 50.f * i, -20.f, 600.f });
-			monsters[roomNum][i].Initialize(roomNum, 1, { -100.f + 50.f * i, -20.f, 600.f });
+			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, {-100.f + 50.f * i, -20.f, 600.f});
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 2, { -50.f + 50.f * i, -20.f, 1200.f });
+			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -50.f + 50.f * i, -20.f, 1200.f });
 		}
 		break;
 	case 3:
 		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 3, { -170.f + 50.f * i, -20.f, 1800.f });
+			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -170.f + 50.f * i, -20.f, 1800.f });
 		}
 		break;
 	}
@@ -193,11 +197,12 @@ void SESSION::Update(float fTimeElapsed)
 
 	if (onAttack)
 	{
-		for (auto& monster : monsters[_id/4])
-			if (BoundingBox(GetPosition(), { 3,0,3 }).Intersects(monster.BB))
+		for (auto& monster : monsters[_id / 4]) {
+			if (monster.HP > 0 && BoundingBox(GetPosition(), { 10,3,10 }).Intersects(monster.BB))
 			{
-				// monster.HP -= power; 
+				monster.HP -= 50;
 			}
+		}
 	}
 	if (onCollect)
 	{
@@ -368,15 +373,21 @@ int Monster::get_targetID()
 
 void Monster::Update()
 {
+	if (HP <= 0)
+	{
+		is_alive = false;
+		return;
+	}
 	if (target_id < 0) {
 		target_id = get_targetID();
 		return;
 	}
 	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
 	{
-		// attack
+		attack = 1;
 		return;
 	}
+	attack = 0;
 	Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
 	BB.Center = Pos;
 

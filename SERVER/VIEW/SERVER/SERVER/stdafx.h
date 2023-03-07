@@ -67,6 +67,7 @@ using namespace std;
 #define DIR_ATTACK				0x20
 #define DIR_DIE					0x40//문제
 #define DIR_COLLECT				0x80
+#define DIR_CHANGESTATE			0x100
 
 
 
@@ -80,6 +81,7 @@ using namespace std;
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+
 
 // TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
 

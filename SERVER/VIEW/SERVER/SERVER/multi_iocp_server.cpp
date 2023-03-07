@@ -41,7 +41,6 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		lock_guard <mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		//clients[c_id / 4][c_id % 4]._last_move_time = p->move_time;
 		clients[c_id / 4][c_id % 4].CheckPosition(p->pos);
 		clients[c_id / 4][c_id % 4].direction = p->direction;
 		clients[c_id / 4][c_id % 4].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
@@ -155,9 +154,11 @@ void update_thread()
 		m_GameTimer.Tick(0.0f);
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
-				lock_guard <mutex> ll{ clients[i][j]._s_lock };
 				if (clients[i][j]._state != ST_INGAME) continue;
-				clients[i][j].Update(m_GameTimer.GetTimeElapsed());
+				{
+					lock_guard <mutex> ll{ clients[i][j]._s_lock };
+					clients[i][j].Update(m_GameTimer.GetTimeElapsed());
+				}
 				for (auto& cl : clients[i]) {
 					cl.send_move_packet(clients[i][j]._id);
 				}
@@ -174,15 +175,16 @@ void update_NPC()
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
 				if (monsters[i][k].is_alive) {
-					cout << k << "updating\n";
-					//lock_guard <mutex> ll{ monsters[i][k].mon_lock };
 					monsters[i][k].Update();
-					for (auto& cl : clients[i])
+					for (auto& cl : clients[i]) {
 						cl.send_NPCUpdate_packet(k);
+						this_thread::sleep_for(1ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+					}
 				}
 			}
 		}
 		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+
 	}
 }
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include <thread>
@@ -8,20 +10,20 @@
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
-
-enum EVENT_TYPE { EV_RANDOM_MOVE };
-
-struct TIMER_EVENT {
-	int obj_id;
-	chrono::system_clock::time_point wakeup_time;
-	EVENT_TYPE event_id;
-	int target_id;
-	constexpr bool operator < (const TIMER_EVENT& L) const
-	{
-		return (wakeup_time > L.wakeup_time);
-	}
-};
-concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
+//
+//enum EVENT_TYPE { EV_RANDOM_MOVE };
+//
+//struct TIMER_EVENT {
+//	int obj_id;
+//	chrono::system_clock::time_point wakeup_time;
+//	EVENT_TYPE event_id;
+//	int target_id;
+//	constexpr bool operator < (const TIMER_EVENT& L) const
+//	{
+//		return (wakeup_time > L.wakeup_time);
+//	}
+//};
+//concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_MOVE };
 class OVER_EXP {
@@ -53,21 +55,19 @@ class SESSION {
 public:
 	mutex _s_lock;
 	S_STATE _state;
-	atomic_bool	_is_active;		// 주위에 플레이어가 있는가?
-	int _id;
+	short _id;
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity, m_xmf3Gravity;
 	float m_fPitch, m_fYaw, m_fRoll;
 	float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
 	DWORD direction;
 	char	_name[NAME_SIZE];
-	int		_prev_remain;
+	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
-	unordered_set <int> _view_list;
-	mutex	_vl;
 	short cur_stage;
 	short error_stack;
 	bool onAttack, onCollect, onDie, onRun;
+	short character_num;
 	//int		_last_move_time;
 public:
 	SESSION()
@@ -95,7 +95,7 @@ public:
 		onCollect = false;
 		onDie = false;
 		onRun = false;
-		
+		character_num = 0;
 	}
 
 	~SESSION() {}
@@ -176,9 +176,9 @@ public:
 		if (dwDirection & DIR_ATTACK) onAttack = true; else onAttack = false;
 		if (dwDirection & DIR_DIE) onDie = true; else onDie = false;
 		if (dwDirection & DIR_COLLECT) onCollect = true; else onCollect = false;
-
-
 		if (dwDirection & DIR_RUN) onRun = true; else onRun = false;
+		if (dwDirection & DIR_CHANGESTATE) character_num = (character_num++) % 3;
+
 		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
 		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
@@ -199,7 +199,6 @@ public:
 		else
 		{
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-			//if (m_pCamera) m_pCamera->Move(xmf3Shift);
 		}
 	}
 

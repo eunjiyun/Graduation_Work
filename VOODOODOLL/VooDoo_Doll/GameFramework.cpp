@@ -957,7 +957,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		if (player->c_id > -1)
 			player->Animate(fTimeElapsed);
 	for (auto& monster : Monsters)
-		if (monster->c_id > -1)
+		if (monster->c_id > -1) 
 			monster->Animate(fTimeElapsed);
 }
 
@@ -1053,17 +1053,14 @@ void CGameFramework::FrameAdvance()
 
 	changePlayerForm(&m_pStage->m_pPlayer, &m_pPlayer, pPlayer, pPlayer2);//플레이어 모드 변경
 
-	for (const auto& player : Players) {
+	for (auto& player : Players) {
 		if (player->c_id > -1) {
-
-			//changePlayerForm(m_pStage->m_pPlayer, player, pPlayer, pPlayer2);
+			changePlayerForm(&m_pStage->m_pPlayer, &player, pPlayer, pPlayer2);
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
-
-			//changePlayerForm(m_pStage->m_pPlayer, player, pPlayer, pPlayer2);
 			monster->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
