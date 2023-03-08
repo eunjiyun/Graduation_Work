@@ -32,6 +32,22 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
+CTexture::CTexture(const CTexture& other)
+{
+	m_nReferences = other.m_nReferences;
+	m_nTextureType = other.m_nTextureType;
+	m_nTextures = other.m_nTextures;
+	m_ppd3dTextures = other.m_ppd3dTextures;
+	m_ppd3dTextureUploadBuffers = other.m_ppd3dTextureUploadBuffers;
+	m_pnResourceTypes = other.m_pnResourceTypes;
+	m_pdxgiBufferFormats = other.m_pdxgiBufferFormats;
+	m_pnBufferElements = other.m_pnBufferElements;
+	m_nRootParameters = other.m_nRootParameters;
+	m_pnRootParameterIndices = other.m_pnRootParameterIndices;
+	m_pd3dSrvGpuDescriptorHandles = other.m_pd3dSrvGpuDescriptorHandles;
+	m_nSamplers = other.m_nSamplers;
+	m_pd3dSamplerGpuDescriptorHandles = other.m_pd3dSamplerGpuDescriptorHandles;
+}
 
 CTexture::~CTexture()
 {
@@ -189,6 +205,37 @@ CMaterial::CMaterial(int nTextures)
 		for (int i = 0; i < m_nTextures; i++) m_ppTextures[i] = NULL;
 		for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
 	}
+}
+CMaterial::CMaterial(const CMaterial& other)
+{
+	m_nReferences = other.m_nReferences;
+
+	m_pShader = new CShader(*other.m_pShader);
+
+	m_ppTextures = new CTexture * (*other.m_ppTextures);
+
+	m_pStandardShader = new CShader(*other.m_pStandardShader);
+
+	m_pSkinnedAnimationShader = new CShader(*other.m_pSkinnedAnimationShader);
+
+	m_xmf4AlbedoColor = other.m_xmf4AlbedoColor;
+	m_xmf4EmissiveColor = other.m_xmf4EmissiveColor;
+	m_xmf4SpecularColor = other.m_xmf4SpecularColor;
+	m_xmf4AmbientColor = other.m_xmf4AmbientColor;
+	m_nType = other.m_nType;
+	m_fGlossiness = other.m_fGlossiness;
+	m_fSmoothness = other.m_fSmoothness;
+	m_fSpecularHighlight = other.m_fSpecularHighlight;
+	m_fMetallic = other.m_fMetallic;
+	m_fGlossyReflection = other.m_fGlossyReflection;
+	m_nTextures = other.m_nTextures;
+	//strcpy_s(m_ppstrTextureNames, other.m_ppstrTextureNames);
+	//_tcscpy_s(m_ppstrTextureNames, other.m_ppstrTextureNames);
+	//_tcscpy_s(m_ppstrTextureNames, other.m_ppstrTextureNames);
+
+	m_nMaterial = other.m_nMaterial;
+
+	m_xmf4EmissionColor = other.m_xmf4EmissionColor;
 }
 
 CMaterial::~CMaterial()
@@ -402,10 +449,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			(*ppTexture)->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 			if (*ppTexture) (*ppTexture)->AddRef();
 
-			/*if(6==choose)
-				CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 2, nRootParameter);
-			else*/
-				CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
+			CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
 		}
 		else
 		{
@@ -454,6 +498,14 @@ CAnimationSet::CAnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames
 	m_ppxmf4x4KeyFrameTransforms = new XMFLOAT4X4 * [nKeyFrames];
 	for (int i = 0; i < nKeyFrames; i++) m_ppxmf4x4KeyFrameTransforms[i] = new XMFLOAT4X4[nAnimatedBones];
 #endif
+}
+CAnimationSet::CAnimationSet(const CAnimationSet& other)
+{
+	strcpy_s(m_pstrAnimationSetName, other.m_pstrAnimationSetName);
+	m_fLength = other.m_fLength;
+	m_nFramesPerSecond = other.m_nFramesPerSecond;
+	m_pfKeyFrameTimes = other.m_pfKeyFrameTimes;
+	*m_ppxmf4x4KeyFrameTransforms = *other.m_ppxmf4x4KeyFrameTransforms;
 }
 
 CAnimationSet::~CAnimationSet()
@@ -534,6 +586,31 @@ CAnimationSets::CAnimationSets(int nAnimationSets)
 	m_nAnimationSets = nAnimationSets;
 	m_pAnimationSets = new CAnimationSet * [nAnimationSets];
 }
+CAnimationSets::CAnimationSets(const CAnimationSets& other)
+{
+	m_nReferences = other.m_nReferences;
+
+	m_nAnimationSets = other.m_nAnimationSets;
+	//m_pAnimationSets = new CAnimationSet * (*other.m_pAnimationSets);
+	m_pAnimationSets = other.m_pAnimationSets;
+
+	m_nAnimatedBoneFrames = other.m_nAnimatedBoneFrames;
+	
+	//*m_ppAnimatedBoneFrameCaches = *other.m_ppAnimatedBoneFrameCaches;
+	/*m_ppAnimatedBoneFrameCaches = new CGameObject ** (other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];
+	m_ppAnimatedBoneFrameCaches = new (CGameObject * (*))[other.m_nAnimatedBoneFrames](*other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];
+	m_ppAnimatedBoneFrameCaches = new (CGameObject * *[other.m_nAnimatedBoneFrames]) (*other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];*/
+
+	m_ppAnimatedBoneFrameCaches = new CGameObject * [m_nAnimatedBoneFrames];
+	for (int i{}; i < m_nAnimatedBoneFrames; ++i)
+	{
+		m_ppAnimatedBoneFrameCaches[i] = new CGameObject  ();
+		*m_ppAnimatedBoneFrameCaches[i] = *other.m_ppAnimatedBoneFrameCaches[i];
+		//**m_ppAnimatedBoneFrameCaches(**other.m_ppAnimatedBoneFrameCaches);
+	}
+	//m_ppAnimatedBoneFrameCaches = new CGameObject * (*other.m_ppAnimatedBoneFrameCaches);
+	
+}
 
 CAnimationSets::~CAnimationSets()
 {
@@ -545,6 +622,18 @@ CAnimationSets::~CAnimationSets()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+CAnimationTrack::CAnimationTrack(const CAnimationTrack& other)
+{
+	m_bEnable = other.m_bEnable;
+	m_fSpeed = other.m_fSpeed;
+	m_fPosition = other.m_fPosition;
+	m_fWeight = other.m_fWeight;
+	m_nAnimationSet = other.m_nAnimationSet;
+	m_nType = other.m_nType;
+	m_nCallbackKeys = other.m_nCallbackKeys;
+	m_pAnimationCallbackHandler = new CAnimationCallbackHandler(*other.m_pAnimationCallbackHandler);
+}
 
 CAnimationTrack::~CAnimationTrack()
 {
@@ -669,6 +758,23 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 		m_ppd3dcbSkinningBoneTransforms[i]->Map(0, NULL, (void**)&m_ppcbxmf4x4MappedSkinningBoneTransforms[i]);
 	}
 }
+CAnimationController::CAnimationController(const CAnimationController& other)
+{
+	m_fTime = other.m_fTime;
+	Cur_Animation_Track = other.Cur_Animation_Track;
+	m_nAnimationTracks = other.m_nAnimationTracks;
+	m_pAnimationTracks = new CAnimationTrack(*other.m_pAnimationTracks);
+	m_pAnimationSets = new CAnimationSets(*other.m_pAnimationSets);
+	m_nSkinnedMeshes = other.m_nSkinnedMeshes;
+	m_ppSkinnedMeshes = new CSkinnedMesh * (*other.m_ppSkinnedMeshes);
+	**m_ppd3dcbSkinningBoneTransforms = **other.m_ppd3dcbSkinningBoneTransforms;
+	if(other.m_ppcbxmf4x4MappedSkinningBoneTransforms!=NULL)
+		m_ppcbxmf4x4MappedSkinningBoneTransforms = other.m_ppcbxmf4x4MappedSkinningBoneTransforms;
+	m_bRootMotion = other.m_bRootMotion;
+	m_pModelRootObject = new CGameObject(*other.m_pModelRootObject);
+	m_pRootMotionObject = new CGameObject(*other.m_pRootMotionObject);
+	m_xmf3FirstRootMotionPosition = other.m_xmf3FirstRootMotionPosition;
+}
 
 CAnimationController::~CAnimationController()
 {
@@ -780,6 +886,17 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 //*/
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+CLoadedModelInfo::CLoadedModelInfo(const CLoadedModelInfo& other)
+{
+	m_pAnimationSets = new CAnimationSets(*other.m_pAnimationSets);//
+	//m_pAnimationSets = other.m_pAnimationSets;
+	m_pModelRootObject = new CGameObject(*other.m_pModelRootObject);
+
+	m_nSkinnedMeshes = other.m_nSkinnedMeshes;
+
+	m_ppSkinnedMeshes = new CSkinnedMesh * (*other.m_ppSkinnedMeshes);
+}
 CLoadedModelInfo::~CLoadedModelInfo()
 {
 	if (m_ppSkinnedMeshes) delete[] m_ppSkinnedMeshes;
@@ -819,6 +936,57 @@ CGameObject::CGameObject(int nMaterials) : CGameObject()
 		m_ppMeshes = new CMesh * [m_nMeshes];
 		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
 	}
+}
+CGameObject::CGameObject(const CGameObject& other)
+{
+	m_nReferences = other.m_nReferences;
+	//m_pstrName = other.m_pstrName;
+	strcpy_s(m_pstrName, sizeof(m_pstrName), other.m_pstrName);
+	/*if (other.m_ppMeshes != NULL && m_ppMeshes == NULL)
+		m_ppMeshes = new CMesh * (*other.m_ppMeshes);*/
+	m_ppMeshes = other.m_ppMeshes;
+	m_nMeshes = other.m_nMeshes;
+	m_d3dCbvGPUDescriptorHandle = other.m_d3dCbvGPUDescriptorHandle;
+	strcpy_s(m_pstrFrameName, sizeof(m_pstrFrameName), other.m_pstrFrameName);
+	m_nMaterials = other.m_nMaterials;
+	if (other.m_ppMaterials != NULL)
+		m_ppMaterials = new CMaterial * (*other.m_ppMaterials);
+
+	m_xmf4x4ToParent = other.m_xmf4x4ToParent;
+	m_xmf4x4World = other.m_xmf4x4World;
+	//if (other.m_pParent != NULL)
+		//m_pParent = new CGameObject(*other.m_pParent);
+	//if (other.m_pParent != NULL)
+		m_pParent = other.m_pParent;
+	//if (other.m_pChild != NULL)
+		m_pChild = other.m_pChild;
+	//if (other.m_pSibling != NULL)
+		m_pSibling = other.m_pSibling;
+	/*if (other.m_pChild != NULL)
+		m_pChild = new CGameObject(*other.m_pChild);
+	if (other.m_pSibling != NULL)
+		m_pSibling = new CGameObject(*other.m_pSibling);*/
+	if (other.m_pSkinnedAnimationController != NULL)
+		m_pSkinnedAnimationController = new CAnimationController(*other.m_pSkinnedAnimationController);
+	*m_pd3dcbGameObject = *other.m_pd3dcbGameObject;
+	//*m_pcbMappedGameObject = *other.m_pcbMappedGameObject;
+	m_pd3dCbvSrvDescriptorHeap = other.m_pd3dCbvSrvDescriptorHeap;
+	m_xmOOBB = other.m_xmOOBB;
+	m_bActive = other.m_bActive;
+	onAttack = other.onAttack;
+	onRun = other.onRun;
+	onDie = other.onDie;
+	onCollect = other.onCollect;
+	dieOnce = other.dieOnce;
+	c_id = other.c_id;
+	npc_type = other.npc_type;
+	m_xmf3MovingDirection = other.m_xmf3MovingDirection;
+	m_xmf3FirePosition = other.m_xmf3FirePosition;
+	m_xmf3RotationAxis = other.m_xmf3RotationAxis;
+	if (other.m_pLockedObject != NULL)
+		m_pLockedObject = new CGameObject(*other.m_pLockedObject);
+	m_fMovingSpeed = other.m_fMovingSpeed;
+	m_fRotationSpeed = other.m_fRotationSpeed;
 }
 
 CGameObject::~CGameObject()

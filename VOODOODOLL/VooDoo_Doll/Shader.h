@@ -16,10 +16,34 @@ class CShader
 {
 public:
 	CShader();
+	CShader(const CShader& other);
 	virtual ~CShader();
 
 private:
 	int									m_nReferences = 0;
+protected:
+	ID3DBlob* m_pd3dVertexShaderBlob = NULL;
+	ID3DBlob* m_pd3dPixelShaderBlob = NULL;//
+
+	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;//
+	float								m_fElapsedTime = 0.0f;//
+
+public:
+	CGameObject** m_ppObjects = 0;//
+	int								m_nObjects = 0;//
+
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//
+	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;//
+
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;//
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorStartHandle;//
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;//
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;//
+
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorNextHandle;//
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;//
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -53,30 +77,6 @@ public:
 	void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
 	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
 	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, int nResources, ID3D12Resource** ppd3dResources, DXGI_FORMAT* pdxgiSrvFormats);
-
-protected:
-	ID3DBlob* m_pd3dVertexShaderBlob = NULL;
-	ID3DBlob* m_pd3dPixelShaderBlob = NULL;
-
-	ID3D12PipelineState* m_pd3dPipelineState = NULL;
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
-	float								m_fElapsedTime = 0.0f;
-
-public:
-	CGameObject** m_ppObjects = 0;
-	int								m_nObjects = 0;
-
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
-
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorStartHandle;
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;
-
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorNextHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;
 };
 
 

@@ -491,22 +491,22 @@ void CGameFramework::BuildObjects()
 			Players.push_back(pAirplanePlayer);
 		}
 
-		pMonsterModel = new CLoadedModelInfo * [11];
+		pMonsterModel = new CLoadedModelInfo * [9];
 
-		pMonsterModel[0] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo19.bin", NULL, 1);//ÀÚÆøÇÏ°Ô
+		pMonsterModel[0] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo19.bin", NULL, 1);
 
-		pMonsterModel[1] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[6] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[9] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[10] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);//ÀÚÆøÇÏ°Ô
+		pMonsterModel[1] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
+		pMonsterModel[6] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
+		pMonsterModel[7] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
+		pMonsterModel[8] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
 
-		pMonsterModel[2] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[7] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[8] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);//ÀÚÆøÇÏ°Ô
+		pMonsterModel[2] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);
 
-		pMonsterModel[3] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo41.bin", NULL, 4);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[4] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo52.bin", NULL, 5);//ÀÚÆøÇÏ°Ô
-		pMonsterModel[5] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo62.bin", NULL, 6);//ÀÚÆøÇÏ°Ô
+		pMonsterModel[3] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo41.bin", NULL, 4);
+		pMonsterModel[4] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo52.bin", NULL, 5);
+		pMonsterModel[5] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo62.bin", NULL, 6);
+		
+		//monModel= CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);
 
 
 		m_nHierarchicalGameObjects = 5;
@@ -645,8 +645,6 @@ void CGameFramework::BuildObjects()
 			m_ppHierarchicalGameObjects[i]->ReleaseUploadBuffers();*/
 	}
 
-
-
 	m_GameTimer.Reset();
 }
 
@@ -694,92 +692,37 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	{
 	case 1:
 		if (0 == npc_id)
-		{
 			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[2], 2, 3);//±Í½Å
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-			cout << "monster size : " << Monsters.size() << endl;
-
-		}
-		else if (1 == npc_id)
+		else 
 		{
-			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[7], 2, 3);//±Í½Å
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-			cout << "monster size : " << Monsters.size() << endl;
+			CLoadedModelInfo* temp = new CLoadedModelInfo(*pMonsterModel[2]);
+			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), temp, 2, 3);//±Í½Å
 		}
-		else
-		{
-			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[8], 2, 3);//±Í½Å
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-			cout << "monster size : " << Monsters.size() << endl;
-		}
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
-		//m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[1], 3, 2);//»À´Ù±Í ´Ù¸®
-		//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		//m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		//m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-
 		if (0 == npc_id)
-		{
 			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[1], 3, 2);//»À´Ù±Í ´Ù¸®
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-
-		}
-		else if (1 == npc_id)
+		else 
 		{
-			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[6], 3, 2);//»À´Ù±Í ´Ù¸®
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
+			/*CLoadedModelInfo* temp2 = new CLoadedModelInfo(*pMonsterModel[1]);
+			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), temp2, 3, 2);*/
+			if(1 == npc_id)
+				m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[6], 3, 2);//»À´Ù±Í ´Ù¸®
+			else if (2 == npc_id)
+				m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[7], 3, 2);//»À´Ù±Í ´Ù¸®
 		}
-		else if (2 == npc_id)
-		{
-			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[9], 3, 2);//»À´Ù±Í ´Ù¸®
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-		}
-		else
-		{
-			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[10], 3, 2);//»À´Ù±Í ´Ù¸®
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-			m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-			m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
-		}
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 		//case 3:
 		//	m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[4], 3, 5);//¸¶¹ý»ç

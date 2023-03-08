@@ -14,6 +14,43 @@ CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 	if (pstrFileName)
 		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName);
 }
+CMesh::CMesh(const CMesh& other)
+{
+	m_nReferences = other.m_nReferences;
+	strcpy_s(m_pstrMeshName, other.m_pstrMeshName);
+	m_xmBoundingBox = other.m_xmBoundingBox;
+	*m_pxmf3Positions = *other.m_pxmf3Positions;
+	*m_pxmf3Normals = *other.m_pxmf3Normals;
+	*m_pnIndices = *other.m_pnIndices;
+	m_nSubsets = other.m_nSubsets;
+	*m_pnSubSetIndices2 = *other.m_pnSubSetIndices2;
+	*m_pnSubSetStartIndices = *other.m_pnSubSetStartIndices;
+	**m_ppnSubSetIndices = **other.m_ppnSubSetIndices;
+	m_pd3dPositionBuffer = other.m_pd3dPositionBuffer;
+	m_pd3dPositionUploadBuffer = other.m_pd3dPositionUploadBuffer;
+	m_pd3dNormalBuffer = other.m_pd3dNormalBuffer;
+	m_pd3dNormalUploadBuffer = other.m_pd3dNormalUploadBuffer;
+	m_nVertexBufferViews = other.m_nVertexBufferViews;
+	m_pd3dVertexBufferViews = other.m_pd3dVertexBufferViews;
+	m_ppd3dIndexBuffers = other.m_ppd3dIndexBuffers;
+	m_ppd3dIndexUploadBuffers = other.m_ppd3dIndexUploadBuffers;
+	m_pd3dIndexBufferViews = other.m_pd3dIndexBufferViews;
+	//strcpy_s(pstrFileName, other.pstrFileName);
+	m_nIndices = other.m_nIndices;
+	*m_pnSubSetIndices = *other.m_pnSubSetIndices;
+	m_nType = other.m_nType;
+	m_xmf3AABBCenter = other.m_xmf3AABBCenter;
+	m_xmf3AABBExtents = other.m_xmf3AABBExtents;
+	m_d3dPrimitiveTopology = other.m_d3dPrimitiveTopology;
+	m_nSlot = other.m_nSlot;
+	m_nOffset = other.m_nOffset;
+	m_nVertices = other.m_nVertices;
+	m_d3dPositionBufferView = other.m_d3dPositionBufferView;
+	m_nSubMeshes = other.m_nSubMeshes;
+	m_ppd3dSubSetIndexBuffers = other.m_ppd3dSubSetIndexBuffers;
+	m_ppd3dSubSetIndexUploadBuffers = other.m_ppd3dSubSetIndexUploadBuffers;
+	m_pd3dSubSetIndexBufferViews = other.m_pd3dSubSetIndexBufferViews;
+}
 
 CMesh::~CMesh()
 {
@@ -443,6 +480,26 @@ void CStandardMesh::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void
 //
 CSkinnedMesh::CSkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) : CStandardMesh(pd3dDevice, pd3dCommandList)
 {
+}
+CSkinnedMesh::CSkinnedMesh(const CSkinnedMesh& other)
+{
+	m_nBonesPerVertex = other.m_nBonesPerVertex;
+	*m_pxmn4BoneIndices = *other.m_pxmn4BoneIndices;
+	*m_pd3dBoneIndexBuffer = *other.m_pd3dBoneIndexBuffer;
+	*m_pd3dBoneIndexUploadBuffer = *other.m_pd3dBoneIndexUploadBuffer;
+	m_d3dBoneIndexBufferView = other.m_d3dBoneIndexBufferView;
+	*m_pd3dBoneWeightBuffer = *other.m_pd3dBoneWeightBuffer;
+	*m_pd3dBoneWeightUploadBuffer = *other.m_pd3dBoneWeightUploadBuffer;
+	m_d3dBoneWeightBufferView = other.m_d3dBoneWeightBufferView;
+	m_nSkinningBones = other.m_nSkinningBones;
+	strcpy_s(*m_ppstrSkinningBoneNames, *(other.m_ppstrSkinningBoneNames));
+	m_ppSkinningBoneFrameCaches = new CGameObject * (*other.m_ppSkinningBoneFrameCaches);
+	*m_pxmf4x4BindPoseBoneOffsets = *other.m_pxmf4x4BindPoseBoneOffsets;
+	*m_pd3dcbBindPoseBoneOffsets = *other.m_pd3dcbBindPoseBoneOffsets;
+	*m_pcbxmf4x4MappedBindPoseBoneOffsets = *other.m_pcbxmf4x4MappedBindPoseBoneOffsets;
+	*m_pcbxmf4x4MappedBindPoseBoneOffsets = *other.m_pcbxmf4x4MappedBindPoseBoneOffsets;
+	*m_pd3dcbSkinningBoneTransforms = *other.m_pd3dcbSkinningBoneTransforms;
+	*m_pcbxmf4x4MappedSkinningBoneTransforms = *other.m_pcbxmf4x4MappedSkinningBoneTransforms;
 }
 
 CSkinnedMesh::~CSkinnedMesh()

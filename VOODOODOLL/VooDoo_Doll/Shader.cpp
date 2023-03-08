@@ -10,6 +10,24 @@
 CShader::CShader()
 {
 }
+CShader::CShader(const CShader& other)
+{
+	m_nReferences = other.m_nReferences;
+	m_pd3dVertexShaderBlob = other.m_pd3dVertexShaderBlob;
+	m_pd3dPixelShaderBlob = other.m_pd3dPixelShaderBlob;
+	m_pd3dPipelineState = other.m_pd3dPipelineState;
+	m_fElapsedTime = other.m_fElapsedTime;
+	m_ppObjects = new CGameObject * (*other.m_ppObjects);
+	m_nObjects = other.m_nObjects;
+	m_pd3dGraphicsRootSignature = other.m_pd3dGraphicsRootSignature;
+	m_pd3dCbvSrvDescriptorHeap = other.m_pd3dCbvSrvDescriptorHeap;
+	m_d3dCbvCPUDescriptorStartHandle = other.m_d3dCbvCPUDescriptorStartHandle;
+	m_d3dCbvGPUDescriptorStartHandle = other.m_d3dCbvGPUDescriptorStartHandle;
+	m_d3dSrvCPUDescriptorStartHandle = other.m_d3dSrvCPUDescriptorStartHandle;
+	m_d3dSrvGPUDescriptorStartHandle = other.m_d3dSrvGPUDescriptorStartHandle;
+	m_d3dSrvCPUDescriptorNextHandle = other.m_d3dSrvCPUDescriptorNextHandle;
+	m_d3dSrvGPUDescriptorNextHandle = other.m_d3dSrvGPUDescriptorNextHandle;
+}
 
 CShader::~CShader()
 {
