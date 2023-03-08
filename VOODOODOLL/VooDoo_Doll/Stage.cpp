@@ -502,6 +502,8 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				continue;
 			}
 
+			cout << Calculate_Direction(pBox, oBox).x << Calculate_Direction(pBox, oBox).y << Calculate_Direction(pBox, oBox).z << endl; // 충돌한 방향 벡터 출력 
+
 			/*cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;*/
 
@@ -538,65 +540,56 @@ XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 
 XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB)
 {
-	float				fMinOverlap = FLT_MAX;
-	XMFLOAT3		xmfAxis[3];
-	int					nMinAxis = -1;
+	XMVECTOR xmV1min = XMLoadFloat3(&pBouningBoxA.Center) - XMLoadFloat3(&pBouningBoxA.Extents);
+	XMVECTOR xmV1max = XMLoadFloat3(&pBouningBoxA.Center) + XMLoadFloat3(&pBouningBoxA.Extents);
+	XMVECTOR xmV2min = XMLoadFloat3(&pBouningBoxB.Center) - XMLoadFloat3(&pBouningBoxB.Extents);
+	XMVECTOR xmV2max = XMLoadFloat3(&pBouningBoxB.Center) + XMLoadFloat3(&pBouningBoxB.Extents);
 
-	xmfAxis[0] = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	xmfAxis[1] = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	xmfAxis[2] = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	bool bIntersect = XMVector3GreaterOrEqual(xmV1min, xmV2max) || XMVector3GreaterOrEqual(xmV2min, xmV1max);
 
-	for (int i = 0; i < 3; ++i)
+	if (bIntersect)
 	{
-		float fLength = sqrtf(xmfAxis[i].x * xmfAxis[i].x + xmfAxis[i].y * xmfAxis[i].y + xmfAxis[i].z * xmfAxis[i].z);
-		xmfAxis[i] = XMFLOAT3(xmfAxis[i].x / fLength, xmfAxis[i].y / fLength, xmfAxis[i].z / fLength);
+		return XMFLOAT3(0, 0, 0); // 충돌하지 않음
 	}
 
-	for (int i = 0; i < 3; ++i)
+	XMFLOAT3 xmf3Direction = { 0,0,0 };
+	XMFLOAT3 xmf3Subtraction = { 0,0,0 };
+
+	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
+	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
 	{
-		float fAMin = FLT_MAX, fAMax = -FLT_MAX;
-		float fBMin = FLT_MAX, fBMax = -FLT_MAX;
-
-		for (int j = 0; j < 8; ++j)
-		{
-			XMFLOAT3	xmfResultA = { 0,0,0 };
-			XMFLOAT3	xmfResultB = { 0,0,0 };
-
-			XMVECTOR	xmResultA = XMVector3Dot(XMLoadFloat3(&pBouningBoxA.Extents), XMLoadFloat3(&Get_BoundingBoxVertex(pBouningBoxA, j)));
-			XMStoreFloat3(&xmfResultA, xmResultA);
-			XMFLOAT3		xmfAPoint = { (pBouningBoxA.Center.x + xmfResultA.x), (pBouningBoxA.Center.y + xmfResultA.y) ,(pBouningBoxA.Center.z + xmfResultA.z) };
-			
-			XMVECTOR	xmResultB = XMVector3Dot(XMLoadFloat3(&pBouningBoxB.Extents), XMLoadFloat3(&Get_BoundingBoxVertex(pBouningBoxB, j)));
-			XMStoreFloat3(&xmfResultB, xmResultB);
-			XMFLOAT3		xmfBPoint = { (pBouningBoxB.Center.x + xmfResultB.x), (pBouningBoxB.Center.y + xmfResultB.y) ,(pBouningBoxB.Center.z + xmfResultB.z) };
-		
-			float fAProjection = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&xmfAPoint), XMLoadFloat3(&xmfAxis[i])));
-			float fBProjection = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&xmfBPoint), XMLoadFloat3(&xmfAxis[i])));
-		
-			fAMin = min(fAMin, fAProjection);
-			fAMax = max(fAMin, fAProjection);
-			fBMin = min(fBMin, fBProjection);
-			fBMax = max(fBMin, fBProjection);
-		}
-
-		float fOverlap = min(fAMax, fBMax) - max(fAMin, fBMin);
-		if (fOverlap < 0)
-		{
-			return XMFLOAT3(0.0f, 0.0f, 0.0f);
-		}
-
-		else if (fOverlap < fMinOverlap)
-		{
-			fMinOverlap = fOverlap;
-			nMinAxis = i;
-		}
+		xmf3Direction.x = xmf3Subtraction.x;
 	}
-	XMFLOAT3 xmfDirection = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	if (nMinAxis >= 0)
+	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
+	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
 	{
-		xmfDirection = xmfAxis[nMinAxis];
+		xmf3Direction.x = -xmf3Subtraction.x;
 	}
-	return xmfDirection;
+
+	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
+	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
+	{
+		xmf3Direction.y = xmf3Subtraction.y;
+	}
+	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
+	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
+	{
+		xmf3Direction.y = -xmf3Subtraction.y;
+	}
+
+	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
+	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
+	{
+		xmf3Direction.z = xmf3Subtraction.z;
+	}
+	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
+	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
+	{
+		xmf3Direction.z = -xmf3Subtraction.z;
+	}
+
+	XMStoreFloat3(&xmf3Direction, XMVector3Normalize(XMLoadFloat3(&xmf3Direction)));
+	return xmf3Direction;
 }
 
 XMFLOAT3 CStage::Get_BoundingBoxVertex(BoundingBox& pBoundingbox, int nIndex)
