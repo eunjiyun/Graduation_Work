@@ -475,6 +475,7 @@ CAnimationSet::CAnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames
 	m_fLength = fLength;
 	m_nFramesPerSecond = nFramesPerSecond;
 	m_nKeyFrames = nKeyFrames;
+	m_nAnimatedBones = nAnimatedBones;
 
 	strcpy_s(m_pstrAnimationSetName, 64, pstrName);
 
@@ -504,8 +505,17 @@ CAnimationSet::CAnimationSet(const CAnimationSet& other)
 	strcpy_s(m_pstrAnimationSetName, other.m_pstrAnimationSetName);
 	m_fLength = other.m_fLength;
 	m_nFramesPerSecond = other.m_nFramesPerSecond;
-	m_pfKeyFrameTimes = other.m_pfKeyFrameTimes;
-	*m_ppxmf4x4KeyFrameTransforms = *other.m_ppxmf4x4KeyFrameTransforms;
+	m_nKeyFrames = other.m_nKeyFrames;
+
+	//m_pfKeyFrameTimes = other.m_pfKeyFrameTimes;
+	m_pfKeyFrameTimes = new float;
+	for (int i{}; i < m_nKeyFrames; ++i)
+		m_pfKeyFrameTimes[i] = other.m_pfKeyFrameTimes[i];
+
+	//m_ppxmf4x4KeyFrameTransforms = other.m_ppxmf4x4KeyFrameTransforms;
+	m_ppxmf4x4KeyFrameTransforms = new XMFLOAT4X4*;
+	*m_ppxmf4x4KeyFrameTransforms = new XMFLOAT4X4;
+	**m_ppxmf4x4KeyFrameTransforms = **other.m_ppxmf4x4KeyFrameTransforms;
 }
 
 CAnimationSet::~CAnimationSet()
@@ -581,7 +591,7 @@ XMFLOAT4X4 CAnimationSet::GetSRT(int nBone, float fPosition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CAnimationSets::CAnimationSets(int nAnimationSets)
+CAnimationSets::CAnimationSets(int nAnimationSets)//0309
 {
 	m_nAnimationSets = nAnimationSets;
 	m_pAnimationSets = new CAnimationSet * [nAnimationSets];
@@ -591,11 +601,21 @@ CAnimationSets::CAnimationSets(const CAnimationSets& other)
 	m_nReferences = other.m_nReferences;
 
 	m_nAnimationSets = other.m_nAnimationSets;
+
+	m_pAnimationSets = new CAnimationSet * [m_nAnimationSets];
+	//m_pAnimationSets = other.m_pAnimationSets;
 	//m_pAnimationSets = new CAnimationSet * (*other.m_pAnimationSets);
-	m_pAnimationSets = other.m_pAnimationSets;
+
+	//CAnimationSet::CAnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames, int nAnimatedBones, char* pstrName)
+	for (int i{}; i < m_nAnimationSets; ++i)
+	{
+		m_pAnimationSets[i] = new CAnimationSet(other.m_pAnimationSets[i]->m_fLength, other.m_pAnimationSets[i]->m_nFramesPerSecond, other.m_pAnimationSets[i]->m_nKeyFrames,
+			other.m_pAnimationSets[i]->m_nAnimatedBones, other.m_pAnimationSets[i]->m_pstrAnimationSetName);
+		//*m_pAnimationSets[i] = *other.m_pAnimationSets[i];
+	}
 
 	m_nAnimatedBoneFrames = other.m_nAnimatedBoneFrames;
-	
+
 	//*m_ppAnimatedBoneFrameCaches = *other.m_ppAnimatedBoneFrameCaches;
 	/*m_ppAnimatedBoneFrameCaches = new CGameObject ** (other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];
 	m_ppAnimatedBoneFrameCaches = new (CGameObject * (*))[other.m_nAnimatedBoneFrames](*other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];
@@ -604,12 +624,12 @@ CAnimationSets::CAnimationSets(const CAnimationSets& other)
 	m_ppAnimatedBoneFrameCaches = new CGameObject * [m_nAnimatedBoneFrames];
 	for (int i{}; i < m_nAnimatedBoneFrames; ++i)
 	{
-		m_ppAnimatedBoneFrameCaches[i] = new CGameObject  ();
+		m_ppAnimatedBoneFrameCaches[i] = new CGameObject();
 		*m_ppAnimatedBoneFrameCaches[i] = *other.m_ppAnimatedBoneFrameCaches[i];
 		//**m_ppAnimatedBoneFrameCaches(**other.m_ppAnimatedBoneFrameCaches);
 	}
 	//m_ppAnimatedBoneFrameCaches = new CGameObject * (*other.m_ppAnimatedBoneFrameCaches);
-	
+
 }
 
 CAnimationSets::~CAnimationSets()
@@ -767,8 +787,8 @@ CAnimationController::CAnimationController(const CAnimationController& other)
 	m_pAnimationSets = new CAnimationSets(*other.m_pAnimationSets);
 	m_nSkinnedMeshes = other.m_nSkinnedMeshes;
 	m_ppSkinnedMeshes = new CSkinnedMesh * (*other.m_ppSkinnedMeshes);
-	**m_ppd3dcbSkinningBoneTransforms = **other.m_ppd3dcbSkinningBoneTransforms;
-	if(other.m_ppcbxmf4x4MappedSkinningBoneTransforms!=NULL)
+	m_ppd3dcbSkinningBoneTransforms = other.m_ppd3dcbSkinningBoneTransforms;
+	if (other.m_ppcbxmf4x4MappedSkinningBoneTransforms != NULL)
 		m_ppcbxmf4x4MappedSkinningBoneTransforms = other.m_ppcbxmf4x4MappedSkinningBoneTransforms;
 	m_bRootMotion = other.m_bRootMotion;
 	m_pModelRootObject = new CGameObject(*other.m_pModelRootObject);
@@ -954,21 +974,36 @@ CGameObject::CGameObject(const CGameObject& other)
 
 	m_xmf4x4ToParent = other.m_xmf4x4ToParent;
 	m_xmf4x4World = other.m_xmf4x4World;
-	//if (other.m_pParent != NULL)
-		//m_pParent = new CGameObject(*other.m_pParent);
-	//if (other.m_pParent != NULL)
-		m_pParent = other.m_pParent;
-	//if (other.m_pChild != NULL)
-		m_pChild = other.m_pChild;
-	//if (other.m_pSibling != NULL)
-		m_pSibling = other.m_pSibling;
+
+
+	if (other.m_pParent != NULL)
+	{
+		m_pParent = new CGameObject(*other.m_pParent);
+		m_pChild = new CGameObject();
+		m_pSibling = new CGameObject();
+		m_pParent->SetChild(m_pChild, true);
+		//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterModel);
+
+		if (other.m_pSkinnedAnimationController != NULL)
+			m_pSkinnedAnimationController = new CAnimationController(*other.m_pSkinnedAnimationController);
+	}
 	/*if (other.m_pChild != NULL)
+	{
 		m_pChild = new CGameObject(*other.m_pChild);
+
+	}
 	if (other.m_pSibling != NULL)
 		m_pSibling = new CGameObject(*other.m_pSibling);*/
-	if (other.m_pSkinnedAnimationController != NULL)
-		m_pSkinnedAnimationController = new CAnimationController(*other.m_pSkinnedAnimationController);
-	*m_pd3dcbGameObject = *other.m_pd3dcbGameObject;
+
+		//if (other.m_pParent != NULL)
+			//m_pParent = other.m_pParent;
+		//if (other.m_pChild != NULL)
+			//m_pChild = other.m_pChild;
+		//if (other.m_pSibling != NULL)
+			//m_pSibling = other.m_pSibling;
+
+
+	* m_pd3dcbGameObject = *other.m_pd3dcbGameObject;
 	//*m_pcbMappedGameObject = *other.m_pcbMappedGameObject;
 	m_pd3dCbvSrvDescriptorHeap = other.m_pd3dCbvSrvDescriptorHeap;
 	m_xmOOBB = other.m_xmOOBB;
@@ -1186,7 +1221,7 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
 {
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1218,7 +1253,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
 
-void CGameObject::lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera)
+void CGameObject::lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
 {
 	if (m_ppMeshes)
 		m_ppMeshes[0]->OnPreRender(pd3dCommandList, NULL);

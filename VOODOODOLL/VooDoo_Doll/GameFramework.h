@@ -60,7 +60,7 @@ public:
 	SCENEID m_ePrevScene;
 
 	//23.02.20
-	void changePlayerForm(CPlayer**, CPlayer**, CTerrainPlayer*, CTerrainPlayer*);
+	void changePlayerForm(CPlayer**, CPlayer**, CTerrainPlayer*, CTerrainPlayer*, CTerrainPlayer*);
 
 private:
 	HINSTANCE					m_hInstance;
@@ -97,6 +97,8 @@ public:
 	bool wakeUp = true;
 	int whatPlayer = 1;
 	bool changePlayerMode = false;
+	int otherPlayerWhat = 1;
+	bool p1Change = false;
 	CGameObject* m_pLockedObject = NULL;
 
 	CTerrainPlayer* pPlayer;

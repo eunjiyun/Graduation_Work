@@ -108,7 +108,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	//23.02.05
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 86); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 98); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 	//
 
@@ -117,7 +117,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
 	monsterLight = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, arrow, 0);
 	if (arrow) delete arrow;
-	
+
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];
 	CObjectsShader* pObjectShader = new CObjectsShader();
@@ -279,7 +279,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[11].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[2];
-	
+
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	pd3dSamplerDescs[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	pd3dSamplerDescs[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -495,7 +495,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		if (pBox.Intersects(oBox))
 		{
 			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)) {
-			// if (pBox.Center.y > oBox.Center.y) {
+				// if (pBox.Center.y > oBox.Center.y) {
 				XMFLOAT3 Pos = m_pPlayer->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
 				m_pPlayer->SetPosition(Pos);
@@ -521,7 +521,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
 
 			m_pPlayer->Move(ReflectVec, false);
-		
+
 			MovVec = GetReflectVec(ObjLook, MovVec);
 			m_pPlayer->Move(MovVec, false);
 

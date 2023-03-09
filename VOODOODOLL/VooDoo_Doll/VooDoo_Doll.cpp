@@ -47,7 +47,7 @@ void GamePlayer_ProcessInput()
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 
 
-			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//z Attack
+			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change
 			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
 			else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
 			else if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
@@ -115,7 +115,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-//clienttest
+	//clienttest
 #pragma region SERVER
 
 	WSADATA WSAData;
@@ -219,14 +219,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	::ShowWindow(hMainWnd, nCmdShow);
 	::UpdateWindow(hMainWnd);
 
-//full screen
-//#ifdef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-	if(true==gGameFramework.onFullScreen)
+	//full screen
+	//#ifdef _WITH_SWAPCHAIN_FULLSCREEN_STATE
+	if (true == gGameFramework.onFullScreen)
 		gGameFramework.ChangeSwapChainState();
 	else
 		gGameFramework.CreateRenderTargetViews();
-//#endif
-//
+	//#endif
+	//
 
 	return(TRUE);
 }
@@ -251,25 +251,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		else if (wParam == 'Q' || wParam == 'q')
-		{
-			gGameFramework.changePlayerMode = true;
 
-			if (1 == gGameFramework.whatPlayer)
-			{
-				gGameFramework.whatPlayer = 2;
-			}
-			else if (2 == gGameFramework.whatPlayer)
-			{
-				gGameFramework.whatPlayer = 3;
-				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-			}
-			else if (3 == gGameFramework.whatPlayer)
-			{
-				gGameFramework.whatPlayer = 1;
-				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-			}
-		}
+		//else if (wParam == 'Q' || wParam == 'q')
+		//{
+		//	gGameFramework.changePlayerMode = true;
+		//	//gGameFramework.p1Change = true;
+
+
+		//	if (1 == gGameFramework.whatPlayer)
+		//	{
+		//		gGameFramework.whatPlayer = 2;
+		//	}
+		//	else if (2 == gGameFramework.whatPlayer)
+		//	{
+		//		gGameFramework.whatPlayer = 3;
+		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+		//	}
+		//	else if (3 == gGameFramework.whatPlayer)
+		//	{
+		//		gGameFramework.whatPlayer = 1;
+		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+		//	}
+		//}
 		break;
 		//
 
@@ -338,7 +341,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 {
-	if(0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track ||
+	if (0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track ||
 		3 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
 		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 	//else
@@ -348,14 +351,43 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	//	else if(false== pl->onDie && p->direction)
 	//		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 	//}
-	
+
 	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
 	if (p->direction & DIR_ATTACK) pl->onAttack = true;
 	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
-	if (p->direction & DIR_DIE) pl->onDie= true; 
+	if (p->direction & DIR_DIE) pl->onDie = true;
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
+	if (p->direction & DIR_CHANGESTATE)
+	{
+		cout << "press q" << endl;
+		//pl->onChange = true;
 
+		//if (gGameFramework.p1Change)
+		{
+			gGameFramework.changePlayerMode = true;
+
+			if (1 == gGameFramework.otherPlayerWhat)
+			{
+				gGameFramework.otherPlayerWhat = 2;
+			}
+			else if (2 == gGameFramework.otherPlayerWhat)
+			{
+				gGameFramework.otherPlayerWhat = 3;
+				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+			}
+			else if (3 == gGameFramework.otherPlayerWhat)
+			{
+				gGameFramework.otherPlayerWhat = 1;
+				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+			}
+
+			gGameFramework.changePlayerForm(&gGameFramework.m_pStage->m_pPlayer, &gGameFramework.m_pPlayer, gGameFramework.pPlayer, gGameFramework.pPlayer2, gGameFramework.pPlayer3);//플레이어 모드 변경
+			gGameFramework.changePlayerForm(NULL, &pl, gGameFramework.pPlayer, gGameFramework.pPlayer2, gGameFramework.pPlayer3);//플레이어 모드 변경
+			//gGameFramework.p1Change = false;
+		}
+
+	}
 
 
 	if (pl->onAttack) {
@@ -374,6 +406,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
 		return;
 	}
+
 
 	else if (!pl->onAttack && !pl->onRun && !pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable && !pl->onCollect) {
 		if (Vector3::IsZero(Cmp)) {

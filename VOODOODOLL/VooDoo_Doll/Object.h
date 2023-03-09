@@ -1,5 +1,5 @@
 //------------------------------------------------------- ----------------------
-// File: Object.h
+// File: Object.hDIR_COLLECT
 //-----------------------------------------------------------------------------
 
 #pragma once
@@ -13,7 +13,7 @@
 #define DIR_RIGHT				0x08
 #define DIR_RUN					0x10
 #define DIR_ATTACK				0x20
-#define DIR_DIE					0x40//¹®Á¦
+#define DIR_DIE					0x40
 #define DIR_COLLECT				0x80
 #define DIR_CHANGESTATE			0x100
 
@@ -210,6 +210,7 @@ public:
 	int								m_nFramesPerSecond = 0; //m_fTicksPerSecond //
 
 	int								m_nKeyFrames = 0; //
+	int m_nAnimatedBones = 0;
 	float* m_pfKeyFrameTimes = NULL; //
 	XMFLOAT4X4** m_ppxmf4x4KeyFrameTransforms = NULL; //
 
@@ -368,7 +369,7 @@ public:
 	CGameObject(const CGameObject& other);
 	virtual ~CGameObject();
 
-private:
+public:
 	int								m_nReferences = 0;// //
 
 public:
@@ -402,9 +403,13 @@ public:
 	bool onDie = false;//
 	bool onCollect = false;//
 	bool dieOnce = false;//
+	//bool onChange = false;
+	int plWhat = 1;
 
 	int c_id = -1;//monster id //
 	int npc_type = -1;//monster type //
+
+	bool isChild = false;
 
 public:
 	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);//

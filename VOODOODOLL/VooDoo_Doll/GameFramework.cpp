@@ -496,6 +496,7 @@ void CGameFramework::BuildObjects()
 		pMonsterModel[0] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo19.bin", NULL, 1);
 
 		pMonsterModel[1] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
+
 		pMonsterModel[6] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
 		pMonsterModel[7] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
 		pMonsterModel[8] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
@@ -505,7 +506,7 @@ void CGameFramework::BuildObjects()
 		pMonsterModel[3] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo41.bin", NULL, 4);
 		pMonsterModel[4] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo52.bin", NULL, 5);
 		pMonsterModel[5] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo62.bin", NULL, 6);
-		
+
 		//monModel= CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);
 
 
@@ -693,7 +694,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	case 1:
 		if (0 == npc_id)
 			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[2], 2, 3);//귀신
-		else 
+		else
 		{
 			CLoadedModelInfo* temp = new CLoadedModelInfo(*pMonsterModel[2]);
 			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), temp, 2, 3);//귀신
@@ -703,18 +704,36 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
+
+		//if (0 == npc_id)
+		//	m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[4], 3, 5);//귀신
+		//else
+		//{
+		//	CLoadedModelInfo* temp = new CLoadedModelInfo(*pMonsterModel[4]);
+		//	m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), temp, 3, 5);//귀신
+		//}
+		//	m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//	m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		//	m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		//	m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		//	m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		//	m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		//	m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
 		if (0 == npc_id)
 			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[1], 3, 2);//뼈다귀 다리
-		else 
+		else
 		{
 			/*CLoadedModelInfo* temp2 = new CLoadedModelInfo(*pMonsterModel[1]);
 			m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), temp2, 3, 2);*/
-			if(1 == npc_id)
+
+			if (1 == npc_id)
 				m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[6], 3, 2);//뼈다귀 다리
 			else if (2 == npc_id)
 				m_ppHierarchicalGameObjects[0] = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[7], 3, 2);//뼈다귀 다리
+
+			//m_ppHierarchicalGameObjects[0]->SetChild(temp2->m_pModelRootObject, true);
 		}
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -828,6 +847,7 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 
 		//23.02.20
+		if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change
 		if (pKeysBuffer[0x5A] & 0xF0) dwDirection |= DIR_ATTACK;//z Attack
 		if (pKeysBuffer[0x58] & 0xF0) dwDirection |= DIR_RUN;//x run
 		if (pKeysBuffer[0x4B] & 0xF0) dwDirection |= DIR_DIE;//k die
@@ -900,7 +920,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		if (player->c_id > -1)
 			player->Animate(fTimeElapsed);
 	for (auto& monster : Monsters)
-		if (monster->c_id > -1) 
+		if (monster->c_id > -1)
 			monster->Animate(fTimeElapsed);
 }
 
@@ -994,11 +1014,11 @@ void CGameFramework::FrameAdvance()
 
 	m_pStage->whatPlayer = whatPlayer;
 
-	changePlayerForm(&m_pStage->m_pPlayer, &m_pPlayer, pPlayer, pPlayer2);//플레이어 모드 변경
+	//changePlayerForm(&m_pStage->m_pPlayer, &m_pPlayer, pPlayer, pPlayer2, pPlayer3);//플레이어 모드 변경
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
-			changePlayerForm(&m_pStage->m_pPlayer, &player, pPlayer, pPlayer2);
+			//changePlayerForm(&m_pStage->m_pPlayer, &player, pPlayer, pPlayer2);
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
@@ -1066,9 +1086,9 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
-void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPlayer, CTerrainPlayer* newPlayer, CTerrainPlayer* newPlayer2)//받을 플레이어, 할당할 플레이어
+void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPlayer, CTerrainPlayer* newPlayer, CTerrainPlayer* newPlayer2, CTerrainPlayer* newPlayer3)//받을 플레이어, 할당할 플레이어
 {
-	if (1 == whatPlayer)
+	/*if (1 == whatPlayer)
 	{
 		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
 
@@ -1109,6 +1129,86 @@ void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPla
 			m_pPlayer->SetLookVector(pPlayer2->GetLookVector());
 			m_pPlayer->SetUpVector(pPlayer2->GetUpVector());
 			m_pPlayer->SetRightVector(pPlayer2->GetRightVector());
+
+			changePlayerMode = false;
+		}
+	}
+
+	m_pCamera = m_pPlayer->GetCamera();*/
+
+	int choosePlayer = 0;
+
+	if (sceneOldPlayer)
+	{
+		//choosePlayer = whatPlayer;
+		choosePlayer = otherPlayerWhat;
+		p1Change = true;
+	}
+	else
+	{
+		choosePlayer = otherPlayerWhat;
+		p1Change = false;
+	}
+
+	if (1 == choosePlayer)
+	{
+		if (sceneOldPlayer)
+			*sceneOldPlayer = *oldPlayer = pPlayer;
+		else
+		{
+			//pPlayer->c_id = (*oldPlayer)->c_id;
+			*oldPlayer = pPlayer;
+		}
+
+		if (true == changePlayerMode)
+		{
+			(*oldPlayer)->SetPosition(pPlayer3->GetPosition());
+
+			(*oldPlayer)->SetLookVector(pPlayer3->GetLookVector());
+			(*oldPlayer)->SetUpVector(pPlayer3->GetUpVector());
+			(*oldPlayer)->SetRightVector(pPlayer3->GetRightVector());
+
+			changePlayerMode = false;
+		}
+	}
+	else if (2 == choosePlayer)
+	{
+		if (sceneOldPlayer)
+			*sceneOldPlayer = *oldPlayer = pPlayer2;
+		else
+		{
+			//pPlayer2->c_id = (*oldPlayer)->c_id;
+			*oldPlayer = pPlayer2;
+		}
+
+		if (true == changePlayerMode)
+		{
+			(*oldPlayer)->SetPosition(pPlayer->GetPosition());
+
+			(*oldPlayer)->SetLookVector(pPlayer->GetLookVector());
+			(*oldPlayer)->SetUpVector(pPlayer->GetUpVector());
+			(*oldPlayer)->SetRightVector(pPlayer->GetRightVector());
+
+			changePlayerMode = false;
+		}
+	}
+	else if (3 == choosePlayer)
+	{
+		if (sceneOldPlayer)
+			*sceneOldPlayer = *oldPlayer = pPlayer3;
+		else
+		{
+			//pPlayer3->c_id = (*oldPlayer)->c_id;
+			*oldPlayer = pPlayer3;
+		}
+
+		if (true == changePlayerMode)
+		{
+			(*oldPlayer)->SetPosition(pPlayer2->GetPosition());
+
+			(*oldPlayer)->SetLookVector(pPlayer2->GetLookVector());
+			(*oldPlayer)->SetUpVector(pPlayer2->GetUpVector());
+			(*oldPlayer)->SetRightVector(pPlayer2->GetRightVector());
 
 			changePlayerMode = false;
 		}
