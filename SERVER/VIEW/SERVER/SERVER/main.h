@@ -84,18 +84,16 @@ void SESSION::send_NPCUpdate_packet(int npc_id)
 	p.Pos = monsters[_id / 4][npc_id].GetPosition();
 	p.HP = monsters[_id / 4][npc_id].HP;
 	p.attack = monsters[_id / 4][npc_id].attack;
-	//p.direction = clients[c_id / 4][c_id % 4].direction;
-	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
 	do_send(&p);
 }
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// 이동속도가 말도 안되게 빠른 경우 체크
-	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
-	if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
-		error_stack++;
-		cout << "client[" << _id << "] 에러 포인트 감지\n";
-	}
+	//XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
+	//if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
+	//	error_stack++;
+	//	cout << "client[" << _id << "] 에러 포인트 감지\n";
+	//}
 
 	SetPosition(newPos);
 	UpdateBoundingBox();
@@ -115,7 +113,6 @@ void SESSION::CheckCollision(float fTimeElapsed)
 	int collide_range = (int)GetPosition().z / 600;
 
 	for (MapObject*& object : Objects[collide_range]) {
-		//for (int i = 0; i < m_nObjects; ++i) {
 		BoundingBox oBox = object->m_xmOOBB;
 		if (m_xmOOBB.Intersects(oBox)) {
 			if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17)) {
@@ -141,10 +138,10 @@ void SESSION::CheckCollision(float fTimeElapsed)
 
 			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
 
-			Move(ReflectVec, false);
+			Move(ReflectVec);
 
 			MovVec = GetReflectVec(ObjLook, MovVec);
-			Move(MovVec, false);
+			Move(MovVec);
 		}
 	}
 }
@@ -228,7 +225,7 @@ void SESSION::Update(float fTimeElapsed)
 
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity, false);
+	Move(xmf3Velocity);
 
 	CheckCollision(fTimeElapsed);
 	Deceleration(fTimeElapsed);
@@ -288,8 +285,8 @@ bool check_openList(XMFLOAT3 _Pos, int _G, A_star_Node* s_node, list<A_star_Node
 
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 {
-	for (const auto& pos : CloseList) {
-		if (pos.x == _pos.x && pos.z == _pos.z) // 이미 closedList에 있는 좌표면 
+	for (auto& pos : CloseList) {
+		if (Vector3::Compare(pos, _pos)) // 이미 closedList에 있는 좌표면 
 		{
 			return false;
 		}
@@ -308,6 +305,61 @@ bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 
 float nx[8]{ -1,1,0,0,-1,-1,1,1 };
 float nz[8]{ 0,0,1,-1,1,-1,1,-1 };
+#if USEPOOL == 1
+XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
+{
+	vector<XMFLOAT3> CloseList{};
+	list<A_star_Node*> openList;
+	A_star_Node* S_Node;
+
+	auto temp = PoolHandle->GetMemory();
+	temp->Initialize(start_Pos, dest_Pos);
+
+	openList.push_back(temp);
+	list<A_star_Node*>::iterator iter;
+	clock_t start_time = clock();
+	while (!openList.empty())
+	{
+		if (clock() - start_time >= 5000)
+		{
+			target_id = -1;
+			return Pos;
+		}
+		iter = getNode(&openList);
+		S_Node = *iter;
+
+		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
+		{
+			while (S_Node->parent != nullptr)
+			{
+				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
+				{
+					while (!openList.empty())
+					{
+						auto node = openList.front();
+						PoolHandle->ReturnMemory(node);
+						openList.pop_front();
+					}
+					return S_Node->Pos;
+				}
+				S_Node = S_Node->parent;
+			}
+		}
+		for (int i = 0; i < 8; i++) {
+			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
+			if (check_path(_Pos, CloseList) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
+				auto temp = PoolHandle->GetMemory();
+				temp->Initialize(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node);
+				openList.push_back(temp);
+				//openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
+			}
+		}
+		CloseList.push_back(S_Node->Pos);
+		PoolHandle->ReturnMemory(*iter);
+		openList.erase(iter);
+	}
+}
+#elif USEPOOL == 0
 XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
 	//priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
@@ -322,7 +374,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	{
 		if (clock() - start_time >= 5000)
 		{
-			cout << "경로탐색실패\n";
+			target_id = -1;
 			return Pos;
 		}
 		iter = getNode(&openList);
@@ -334,7 +386,6 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			{
 				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
 				{
-					delete *iter;
 					return S_Node->Pos;
 				}
 				S_Node = S_Node->parent;
@@ -350,6 +401,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		openList.erase(iter);
 	}
 }
+#endif
 int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {

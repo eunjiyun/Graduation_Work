@@ -251,25 +251,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		//else if (wParam == 'Q' || wParam == 'q')
-		//{
-		//	gGameFramework.changePlayerMode = true;
+		else if (wParam == 'Q' || wParam == 'q')
+		{
+			gGameFramework.changePlayerMode = true;
 
-		//	if (1 == gGameFramework.whatPlayer)
-		//	{
-		//		gGameFramework.whatPlayer = 2;
-		//	}
-		//	else if (2 == gGameFramework.whatPlayer)
-		//	{
-		//		gGameFramework.whatPlayer = 3;
-		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-		//	}
-		//	else if (3 == gGameFramework.whatPlayer)
-		//	{
-		//		gGameFramework.whatPlayer = 1;
-		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-		//	}
-		//}
+			if (1 == gGameFramework.whatPlayer)
+			{
+				gGameFramework.whatPlayer = 2;
+			}
+			else if (2 == gGameFramework.whatPlayer)
+			{
+				gGameFramework.whatPlayer = 3;
+				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+			}
+			else if (3 == gGameFramework.whatPlayer)
+			{
+				gGameFramework.whatPlayer = 1;
+				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
+			}
+		}
 		break;
 		//
 
@@ -427,7 +427,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
 			ProcessAnimation(gGameFramework.m_pPlayer, packet);
 			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
-			
 		}
 		else
 			for (auto& player : gGameFramework.Players)

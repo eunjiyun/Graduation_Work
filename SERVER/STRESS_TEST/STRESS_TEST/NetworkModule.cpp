@@ -124,8 +124,8 @@ void ProcessPacket(int ci, unsigned char packet[])
 	switch (packet[1]) {
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* move_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(packet);
-		if (move_packet->id == 0)
-			cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
+		//if (move_packet->id == 0)
+		//	cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
 		if (move_packet->id < MAX_CLIENTS) {
 			int my_id = client_map[move_packet->id];
 			if (-1 != my_id) {
@@ -365,8 +365,8 @@ void Test_Thread()
 			my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
 			my_packet.id = i;
 			//my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
-			//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
-			//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
+			cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
+				<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
 			SendPacket(i, &my_packet);
 		}
 	}

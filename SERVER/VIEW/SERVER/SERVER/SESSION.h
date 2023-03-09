@@ -139,30 +139,10 @@ public:
 	}
 	void Rotate(float x, float y, float z)
 	{
-		if (x != 0.0f)
-		{
-			m_fPitch += x;
-			if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
-			if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
-		}
-		if (y != 0.0f)
-		{
-			m_fYaw += y;
-			if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
-			if (m_fYaw < 0.0f) m_fYaw += 360.0f;
-		}
-		if (z != 0.0f)
-		{
-			m_fRoll += z;
-			if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
-			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
+
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
@@ -172,31 +152,24 @@ public:
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
+		onAttack = dwDirection & DIR_ATTACK;
+		onDie = dwDirection & DIR_DIE;
+		onCollect = dwDirection & DIR_COLLECT;
+		onRun = dwDirection & DIR_RUN;
+		character_num = (character_num + dwDirection & DIR_CHANGESTATE) % 3;
 
-		if (dwDirection & DIR_ATTACK) onAttack = true; else onAttack = false;
-		if (dwDirection & DIR_DIE) onDie = true; else onDie = false;
-		if (dwDirection & DIR_COLLECT) onCollect = true; else onCollect = false;
-		if (dwDirection & DIR_RUN) onRun = true; else onRun = false;
-		if (dwDirection & DIR_CHANGESTATE) character_num = (character_num++) % 3;
-
-		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-		if (dwDirection & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-		Move(xmf3Shift, bUpdateVelocity);
-
+		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, fDistance, false), dwDirection& DIR_FORWARD, false));
+		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, -fDistance, false), dwDirection & DIR_BACKWARD, false));
+		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, fDistance, false), dwDirection & DIR_RIGHT, false));
+		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, -fDistance, false), dwDirection & DIR_LEFT, false));
+		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 
 
 
 	}
 
-	void Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
+	void Move(const XMFLOAT3& xmf3Shift)
 	{
-		if (bUpdateVelocity)
-		{
-			m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
-		}
-		else
 		{
 			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		}
@@ -227,7 +200,7 @@ public:
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
-	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z), false); }
+	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z)); }
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }

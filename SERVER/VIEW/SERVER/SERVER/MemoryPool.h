@@ -9,73 +9,44 @@ using namespace std;
 typedef unsigned char UCHAR;
 typedef unsigned int UINT;
 
-template <class T, size_t MEMORY_BLOCK_SIZE = 50 >
-class CMemoryPool {
+#define USEPOOL 1
 
+template<class T>
+class CObjectPool {
 private:
-    static UCHAR* mPoolPointer;  
-    static vector<UCHAR*> m_pointerForRelease;    
-protected:
-    ~CMemoryPool()
-    {
-    }
-
-private:
-    static void AllocBlock(size_t _size = MEMORY_BLOCK_SIZE) // 메모리 할당 함수
-    {
-        mPoolPointer = new UCHAR[sizeof(T) * _size];
-        m_pointerForRelease.push_back(mPoolPointer);
-
-        UCHAR** curr = reinterpret_cast<UCHAR**>(mPoolPointer);
-        UCHAR* next = mPoolPointer;
-
-        for (int i = 0; i < _size - 1; ++i)
-        {
-            next += sizeof(T);  
-            *curr = next;
-            curr = reinterpret_cast<UCHAR**>(next);
-        }
-        *curr = nullptr;
-    }
-
+    queue<T*> objectQueue;
 public:
-
-    static void* operator new(size_t _allocSize)
+    CObjectPool(size_t initMemorySize)
     {
-        assert(sizeof(T) >= sizeof(UCHAR*));
-        assert(sizeof(T) == _allocSize);
-
-        if (!mPoolPointer)
-            AllocBlock();
-
-        UCHAR* returnPointer = mPoolPointer;
-        mPoolPointer = *reinterpret_cast<UCHAR**>(returnPointer);
-
-        return returnPointer;
+        for (size_t i = 0; i < initMemorySize; ++i) {
+            objectQueue.push(new T);
+        }
     }
-
-    static void operator delete(void* deletePointer)
+    ~CObjectPool()
     {
-        *reinterpret_cast<UCHAR**>(deletePointer) = mPoolPointer;
-        mPoolPointer = static_cast<UCHAR*>(deletePointer);
+        objectQueue = queue<T*>();
     }
-
-    static void ReleasePool()
+    T* GetMemory()
     {
-        for (auto i = m_pointerForRelease.begin(); i < m_pointerForRelease.end(); i++)
-            delete[] * i;
+        if (objectQueue.empty()) {
+            objectQueue.push(new T);
+        }
+
+        auto front = objectQueue.front();
+        objectQueue.pop();
+
+        return front;
+    }
+    void ReturnMemory(T* Mem)
+    {
+        Mem->~T();
+        //T* newPtr(Mem);
+        objectQueue.push(Mem);
     }
 };
 
 
-template <class T, size_t MEMORY_DEFAULT_SIZE>
-UCHAR* CMemoryPool<T, MEMORY_DEFAULT_SIZE>::mPoolPointer = nullptr;
-
-template <class T, size_t MEMORY_DEFAULT_SIZE>
-vector<UCHAR*> CMemoryPool<T, MEMORY_DEFAULT_SIZE>::m_pointerForRelease;
-
-
-class MapObject : public CMemoryPool<MapObject>
+class MapObject
 {
 public:
     XMFLOAT4X4 m_xmf4x4World;
@@ -267,7 +238,39 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
     return(ppGameObjects);
 }
 
-class Monster : public CMemoryPool<Monster>
+class A_star_Node //: public CMemoryPool<A_star_Node>
+{
+public:
+    float F = 0;
+    float G = 0;
+    float H = 0;
+    A_star_Node* parent = nullptr;
+    XMFLOAT3 Pos = { 0,0,0 };
+    A_star_Node() {}
+    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, A_star_Node* node = nullptr)
+    {
+        Pos = _Pos;
+        G = _G;
+        H = fabs(_Dest_Pos.z - Pos.z) + fabs(_Dest_Pos.x - Pos.x);
+        F = G + H;
+        if (node) {
+            parent = node;
+        }
+    }
+    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, A_star_Node* node = nullptr)
+    {
+        Pos = _Pos;
+        G = _G;
+        H = fabs(_Dest_Pos.z - Pos.z) + fabs(_Dest_Pos.x - Pos.x);
+        F = G + H;
+        if (node) {
+            parent = node;
+        }
+    }
+
+
+};
+class Monster// : public CMemoryPool<Monster>
 {
 private:
     XMFLOAT3 Look = { 0, 0, 1 };
@@ -277,6 +280,9 @@ private:
     short target_id = -1; // 추적하는 플레이어 ID
     array<float, MAX_USER_PER_ROOM> distances = { 10000.f };
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
+#if USEPOOL == 1
+    std::unique_ptr<CObjectPool<A_star_Node>> PoolHandle = make_unique<CObjectPool<A_star_Node>>(1000);
+#endif
 public:
     mutex mon_lock;
     short HP;
@@ -284,7 +290,7 @@ public:
     bool is_alive;
     XMFLOAT3 Pos;
     short attack = 0;
-    Monster() {}
+    Monster() { }
     
     void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)
     {
@@ -344,27 +350,7 @@ public:
 
 };
 
-class A_star_Node : public CMemoryPool<A_star_Node>
-{
-public:
-    float F = 0;
-    float G = 0;
-    float H = 0;
-    A_star_Node* parent = nullptr;
-    XMFLOAT3 Pos;
-    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, A_star_Node* node = nullptr)
-    {
-        Pos = _Pos;
-        G = _G;
-        H = fabs(_Dest_Pos.z - Pos.z) + fabs(_Dest_Pos.x - Pos.x);
-        F = G + H;
-        if (node) {
-            parent = node;
-        }
-    }
-    
-    
-};
+
 
 struct Comp
 {

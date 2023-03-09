@@ -502,7 +502,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				continue;
 			}
 
-			cout << Calculate_Direction(pBox, oBox).x << Calculate_Direction(pBox, oBox).y << Calculate_Direction(pBox, oBox).z << endl; // 충돌한 방향 벡터 출력 
+			//cout << Calculate_Direction(oBox, pBox).x << ", " << Calculate_Direction(oBox, pBox).y << ", " << Calculate_Direction(oBox, pBox).z << endl; // 충돌한 방향 벡터 출력 
 
 			/*cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;*/
