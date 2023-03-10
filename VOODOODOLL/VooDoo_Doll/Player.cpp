@@ -321,24 +321,29 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
-	CLoadedModelInfo* pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body26.bin", NULL, 7);
-	CLoadedModelInfo* pAngrybotModel2 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body27.bin", NULL, 7);
-	CLoadedModelInfo* pAngrybotModel3 = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body28.bin", NULL, 7);
+
+	pAngrybotModels[0] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body26.bin", NULL, 7);
+	pAngrybotModels[1] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body27.bin", NULL, 7);
+	pAngrybotModels[2] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body28.bin", NULL, 7);
+	
+	for (int i = 0; i < 3; i++) {
+		AnimationControllers[i] = new CAnimationController(pd3dDevice, pd3dCommandList, 6, pAngrybotModels[i]);
+	}
 
 	if (1 == choosePl)
 	{
-		SetChild(pAngrybotModel->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 6, pAngrybotModel);
+		SetChild(pAngrybotModels[0]->m_pModelRootObject, true);
+		m_pSkinnedAnimationController = AnimationControllers[0];
 	}
 	else if (2 == choosePl)
 	{
-		SetChild(pAngrybotModel2->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 6, pAngrybotModel2);
+		SetChild(pAngrybotModels[1]->m_pModelRootObject, true);
+		m_pSkinnedAnimationController = AnimationControllers[1];
 	}
 	else if (3 == choosePl)
 	{
-		SetChild(pAngrybotModel3->m_pModelRootObject, true);
-		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, 6, pAngrybotModel3);
+		SetChild(pAngrybotModels[2]->m_pModelRootObject, true);
+		m_pSkinnedAnimationController = AnimationControllers[2];
 	}
 
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
@@ -375,10 +380,6 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 3, 10));
 
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
-
-	if (pAngrybotModel) delete pAngrybotModel;
-	if (pAngrybotModel2) delete pAngrybotModel2;
-	if (pAngrybotModel2) delete pAngrybotModel3;
 }
 
 CTerrainPlayer::~CTerrainPlayer()

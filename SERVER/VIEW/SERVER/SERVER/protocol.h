@@ -88,7 +88,6 @@ struct SC_SUMMON_MONSTER_PACKET {
 	short	id;
 	short monster_type;
 	XMFLOAT3 Pos;
-	//XMFLOAT3 Look, Up, Right;
 };
 constexpr short SC_SUMMON_MONSTER_PACKET_SIZE = sizeof(SC_SUMMON_MONSTER_PACKET);
 
@@ -98,9 +97,8 @@ struct SC_MOVE_MONSTER_PACKET {
 	short	id;
 	XMFLOAT3 Pos;
 	short HP;
+	short Chasing_PlayerID;
 	unsigned short attack; // 공격 타입. 0이면 안하는 것
-	//XMFLOAT3 Look, Up, Right;
-	//DWORD direction;
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 #pragma pack (pop)

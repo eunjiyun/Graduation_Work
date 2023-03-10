@@ -36,7 +36,8 @@ public:
 	CGameObject** m_ppBullets;
 	int c_id = -1;
 	float cxDelta, cyDelta, czDelta = 0.0f;
-
+	CLoadedModelInfo* pAngrybotModels[3];
+	CAnimationController* AnimationControllers[3];
 public:
 	CPlayer();
 	virtual ~CPlayer();

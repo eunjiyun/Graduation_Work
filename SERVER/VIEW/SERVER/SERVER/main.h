@@ -84,16 +84,17 @@ void SESSION::send_NPCUpdate_packet(int npc_id)
 	p.Pos = monsters[_id / 4][npc_id].GetPosition();
 	p.HP = monsters[_id / 4][npc_id].HP;
 	p.attack = monsters[_id / 4][npc_id].attack;
+	p.Chasing_PlayerID = monsters[_id / 4][npc_id].target_id;
 	do_send(&p);
 }
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// 이동속도가 말도 안되게 빠른 경우 체크
-	//XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
-	//if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
-	//	error_stack++;
-	//	cout << "client[" << _id << "] 에러 포인트 감지\n";
-	//}
+	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
+	if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
+		error_stack++;
+		cout << "client[" << _id << "] 에러 포인트 감지\n";
+	}
 
 	SetPosition(newPos);
 	UpdateBoundingBox();
@@ -115,12 +116,12 @@ void SESSION::CheckCollision(float fTimeElapsed)
 	for (MapObject*& object : Objects[collide_range]) {
 		BoundingBox oBox = object->m_xmOOBB;
 		if (m_xmOOBB.Intersects(oBox)) {
-			if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17)) {
-				XMFLOAT3 Pos = GetPosition();
-				Pos.y = oBox.Center.y + oBox.Extents.y + m_xmOOBB.Extents.y;
-				SetPosition(Pos);
-				continue;
-			}
+			//if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17)) {
+			//	XMFLOAT3 Pos = GetPosition();
+			//	Pos.y = oBox.Center.y + oBox.Extents.y + m_xmOOBB.Extents.y;
+			//	SetPosition(Pos);
+			//	continue;
+			//}
 
 			/*cout << "Name: " << object->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;*/
@@ -166,19 +167,19 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, {-100.f + 50.f * i, -20.f, 600.f});
+			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, {-100.f + 50.f * i, -17.5f, 600.f});
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -50.f + 50.f * i, -20.f, 1200.f });
+			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -50.f + 50.f * i, -17.5f, 1200.f });
 		}
 		break;
 	case 3:
 		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -170.f + 50.f * i, -20.f, 1800.f });
+			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -170.f + 50.f * i, -17.5f, 1800.f });
 		}
 		break;
 	}
@@ -243,17 +244,137 @@ void SESSION::Update(float fTimeElapsed)
 	}
 
 }
+bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
+{
+	//for (auto& pos : CloseList) {
+	//	if (Vector3::Compare(pos, _pos)) // 이미 closedList에 있는 좌표면 
+	//	{
+	//		return false;
+	//	}
+	//}
 
+	int collide_range = _pos.z / 600;
+	auto iter = find_if(Objects[collide_range].begin(), Objects[collide_range].end(),
+		[_pos](MapObject*& Obj) {return BoundingBox(_pos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); });
+	return (iter >= Objects[collide_range].end());
+
+	//for (MapObject*& object : Objects[collide_range]) {
+	//	if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17))
+	//		continue;
+	//	if (BoundingBox(_pos, { 5,3,5 }).Intersects(object->m_xmOOBB)) {
+	//		return false;
+	//	}
+	//}
+	//return true;
+}
+
+float nx[8]{ -1,1,0,0,-1,-1,1,1 };
+float nz[8]{ 0,0,1,-1,1,-1,1,-1 };
+#if USEPOOL == 1
+list<shared_ptr<A_star_Node>>::iterator getNode(list<shared_ptr<A_star_Node>>* m_List)
+{
+	list<shared_ptr<A_star_Node>>::iterator iter = (*m_List).begin();
+
+	int minValue = 20000;
+	int order = 0;
+
+	for (int i = 1; iter != (*m_List).end(); i++, iter++)
+	{
+		if ((*iter)->F <= minValue)
+		{
+			minValue = (*iter)->F;
+			order = i;
+		}
+	}
+
+	iter = (*m_List).begin();
+	for (int i = 1; i < order; i++)
+	{
+		iter++;
+	}
+
+	return iter;
+}
+
+bool check_openList(XMFLOAT3 _Pos, int _G, A_star_Node* s_node, list<shared_ptr<A_star_Node>>* m_List)
+{
+	auto iter = find_if((*m_List).begin(), (*m_List).end(), [&_Pos](shared_ptr<A_star_Node> N) {return Vector3::Compare(_Pos, N->Pos); });
+	if (iter != (*m_List).end()) {
+		if ((*iter)->G > _G) {
+			(*iter)->G = _G;
+			(*iter)->F = (*iter)->G + (*iter)->H;
+			(*iter)->parent = s_node;
+		}
+		return false;
+	}
+	return true;
+}
+XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
+{
+	vector<XMFLOAT3> CloseList{};
+	list<shared_ptr<A_star_Node>> openList;
+	A_star_Node* S_Node;
+
+	auto temp = PoolHandle->GetMemory();
+	temp->Initialize(start_Pos, dest_Pos);
+
+	openList.push_back(temp);
+	list<shared_ptr<A_star_Node>>::iterator iter;
+	clock_t start_time = clock();
+	while (!openList.empty())
+	{
+		//if (clock() - start_time >= 5000)
+		//{
+		//	target_id = -1;
+		//	return Pos;	
+		//}
+		iter = getNode(&openList);
+		S_Node = (*iter).get();
+
+		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
+		{
+			while (S_Node->parent != nullptr)
+			{
+				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
+				{
+					while (!openList.empty())
+					{
+						auto node = openList.front();
+						PoolHandle->ReturnMemory(node);
+						openList.pop_front();
+					}
+					return S_Node->Pos;
+				}
+				S_Node = S_Node->parent;
+			}
+		}
+		for (int i = 0; i < 8; i++) {
+			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
+			if (check_path(_Pos, CloseList) &&
+				(CloseList.end() == find_if(CloseList.begin(), CloseList.end(), [&_Pos](XMFLOAT3 pos_) {return Vector3::Compare(_Pos, pos_); })) &&
+				check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
+				auto temp = PoolHandle->GetMemory();
+				temp->Initialize(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node);
+				openList.push_back(temp);
+				//openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
+			}
+		}
+		CloseList.push_back(S_Node->Pos);
+		PoolHandle->ReturnMemory(*iter);
+		openList.erase(iter);
+	}
+}
+#elif USEPOOL == 0
 list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
 {
 	list<A_star_Node*>::iterator iter = (*m_List).begin();
 
-	int minValue = 20000; 
-	int order = 0; 
+	int minValue = 20000;
+	int order = 0;
 
 	for (int i = 1; iter != (*m_List).end(); i++, iter++)
 	{
-		if ((*iter)->F <= minValue) 
+		if ((*iter)->F <= minValue)
 		{
 			minValue = (*iter)->F;
 			order = i;
@@ -282,84 +403,6 @@ bool check_openList(XMFLOAT3 _Pos, int _G, A_star_Node* s_node, list<A_star_Node
 	}
 	return true;
 }
-
-bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
-{
-	for (auto& pos : CloseList) {
-		if (Vector3::Compare(pos, _pos)) // 이미 closedList에 있는 좌표면 
-		{
-			return false;
-		}
-	}
-
-	int collide_range = _pos.z / 600;
-	for (MapObject*& object : Objects[collide_range]) {
-		if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17))
-			continue;
-		if (BoundingBox(_pos, { 5,3,5 }).Intersects(object->m_xmOOBB)) {
-			return false;
-		}
-	}
-	return true;
-}
-
-float nx[8]{ -1,1,0,0,-1,-1,1,1 };
-float nz[8]{ 0,0,1,-1,1,-1,1,-1 };
-#if USEPOOL == 1
-XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
-{
-	vector<XMFLOAT3> CloseList{};
-	list<A_star_Node*> openList;
-	A_star_Node* S_Node;
-
-	auto temp = PoolHandle->GetMemory();
-	temp->Initialize(start_Pos, dest_Pos);
-
-	openList.push_back(temp);
-	list<A_star_Node*>::iterator iter;
-	clock_t start_time = clock();
-	while (!openList.empty())
-	{
-		if (clock() - start_time >= 5000)
-		{
-			target_id = -1;
-			return Pos;
-		}
-		iter = getNode(&openList);
-		S_Node = *iter;
-
-		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
-		{
-			while (S_Node->parent != nullptr)
-			{
-				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
-				{
-					while (!openList.empty())
-					{
-						auto node = openList.front();
-						PoolHandle->ReturnMemory(node);
-						openList.pop_front();
-					}
-					return S_Node->Pos;
-				}
-				S_Node = S_Node->parent;
-			}
-		}
-		for (int i = 0; i < 8; i++) {
-			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
-			if (check_path(_Pos, CloseList) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
-				auto temp = PoolHandle->GetMemory();
-				temp->Initialize(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node);
-				openList.push_back(temp);
-				//openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
-			}
-		}
-		CloseList.push_back(S_Node->Pos);
-		PoolHandle->ReturnMemory(*iter);
-		openList.erase(iter);
-	}
-}
-#elif USEPOOL == 0
 XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
 	//priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
@@ -393,7 +436,9 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		}
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
-			if (check_path(_Pos, CloseList) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
+			if (check_path(_Pos, CloseList) && 
+				(CloseList.end() == find_if(CloseList.begin(), CloseList.end(), [&_Pos](XMFLOAT3 pos_) {return Vector3::Compare(_Pos, pos_); })) &&
+				check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
 				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
 			}
 		}
@@ -418,6 +463,8 @@ int Monster::get_targetID()
 
 	if (min < view_range)
 	{
+		short ID = min_element(distances.begin(), distances.end()) - distances.begin();
+		Pos.y = clients[room_num][ID].GetPosition().y;
 		return min_element(distances.begin(), distances.end()) - distances.begin();
 	}
 	else return -1;
@@ -425,23 +472,30 @@ int Monster::get_targetID()
 
 void Monster::Update()
 {
-	if (HP <= 0)
-	{
-		is_alive = false;
-		return;
-	}
+	is_alive = HP + abs(HP);
+
 	if (target_id < 0) {
 		target_id = get_targetID();
-		return;
 	}
-	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
-	{
-		attack = 1;
-		return;
-	}
-	attack = 0;
-	Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
-	BB.Center = Pos;
+	//if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
+	//{
+	//	attack = 1;
+	//	return;
+	//}
+	//attack = 0;
 
+	attack = BB.Intersects(clients[room_num][target_id].m_xmOOBB);
+
+	if (!attack) Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
+	//Look = Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos));
+
+	//XMFLOAT3 newLook = Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos));
+	//XMFLOAT3 current_Look = GetLookVector();
+	//rotate_Angle = acos(Vector3::DotProduct(newLook, current_Look)) * 180 / 3.1415926535;
+	//rotate_Angle = (newLook.x * current_Look.y - newLook.y * current_Look.x > 0.f) ? -rotate_Angle : rotate_Angle;
+	//SetLookVector(newLook);
+	//if (isnan(rotate_Angle)) {rotate_Angle = 0;}
+	//cout << rotate_Angle << endl;
+	BB.Center = Pos;
 }
 

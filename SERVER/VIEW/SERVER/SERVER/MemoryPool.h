@@ -9,27 +9,29 @@ using namespace std;
 typedef unsigned char UCHAR;
 typedef unsigned int UINT;
 
-#define USEPOOL 1
+#define USEPOOL 0
 
 template<class T>
 class CObjectPool {
 private:
-    queue<T*> objectQueue;
+    queue<shared_ptr<T>> objectQueue;
 public:
-    CObjectPool(size_t initMemorySize)
+    CObjectPool(size_t MemorySize)
     {
-        for (size_t i = 0; i < initMemorySize; ++i) {
-            objectQueue.push(new T);
+        for (int i = 0; i < MemorySize; ++i) {
+            objectQueue.push(make_shared<T>());
         }
     }
     ~CObjectPool()
     {
-        objectQueue = queue<T*>();
+        objectQueue = queue<shared_ptr<T>>();
     }
-    T* GetMemory()
+    shared_ptr<T> GetMemory()
     {
         if (objectQueue.empty()) {
-            objectQueue.push(new T);
+            cout << "추가요청이 호출됨\n";
+            for (int i = 0; i< 50; ++i)
+                objectQueue.push(make_shared<T>());
         }
 
         auto front = objectQueue.front();
@@ -37,10 +39,8 @@ public:
 
         return front;
     }
-    void ReturnMemory(T* Mem)
+    void ReturnMemory(shared_ptr<T> Mem)
     {
-        Mem->~T();
-        //T* newPtr(Mem);
         objectQueue.push(Mem);
     }
 };
@@ -270,14 +270,13 @@ public:
 
 
 };
-class Monster// : public CMemoryPool<Monster>
+class Monster
 {
 private:
-    XMFLOAT3 Look = { 0, 0, 1 };
-    XMFLOAT3 Up = { 0, 1, 0 };
-    XMFLOAT3 Right = { 1, 0, 0 };
+    XMFLOAT3 m_xmf3Look = { 0, 0, 1 };
+    XMFLOAT3 m_xmf3Up = { 0, 1, 0 };
+    XMFLOAT3 m_xmf3Right = { 1, 0, 0 };
     short view_range, type, power, speed;
-    short target_id = -1; // 추적하는 플레이어 ID
     array<float, MAX_USER_PER_ROOM> distances = { 10000.f };
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
 #if USEPOOL == 1
@@ -287,9 +286,11 @@ public:
     mutex mon_lock;
     short HP;
     BoundingBox BB;
-    bool is_alive;
+    bool is_alive = false;
     XMFLOAT3 Pos;
     short attack = 0;
+    float rotate_Angle = 0.f;
+    short target_id = -1; // 추적하는 플레이어 ID
     Monster() { }
     
     void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)
@@ -305,34 +306,30 @@ public:
             HP = 100;
             power = 30;
             view_range = 200;
-            speed = 5;
+            speed = 10;
             break;
         case 2:
             type = 2;
             HP = 60;
             power = 30;
             view_range = 400;
-            speed = 3;
+            speed = 6;
             break;
         case 3:
             type = 3;
             HP = 10000;
             power = 50;
             view_range = 300;
-            speed = 1;
+            speed = 2;
             break;
         case 4:
             type = 4;
             HP = 500;
             power = 70;
             view_range = 1000;
-            speed = 2;
+            speed = 4;
             break;
         }
-    }
-    XMFLOAT3 GetPosition()
-    {
-        return Pos;
     }
     short getType()
     {
@@ -343,10 +340,24 @@ public:
         Pos = Vector3::Add(Pos, m_Shift);
         BB.Center = Pos;
     }
+    void Rotate(float x, float y, float z)
+    {
+        XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+        m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+        m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+        m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+        m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+        m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+    }
+
     int get_targetID();
     XMFLOAT3 Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
     void Update();
-
+    XMFLOAT3 GetPosition() { return Pos; }
+    XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
+    XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
+    XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+    void SetLookVector(XMFLOAT3 _Look) { m_xmf3Look = _Look; }
 
 };
 

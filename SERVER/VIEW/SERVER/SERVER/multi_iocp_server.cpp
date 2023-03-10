@@ -172,7 +172,7 @@ void update_NPC()
 {
 	while (1)
 	{
-		clock_t start_time = clock();
+		//clock_t start_time = clock();
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
 				if (monsters[i][k].is_alive) {
@@ -184,9 +184,8 @@ void update_NPC()
 				}
 			}
 		}
-		cout << "한 사이클에 걸린 시간: " << clock() - start_time << endl;
+		//cout << "1cycle - " << clock() - start_time << endl;
 		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
-
 	}
 }
 
@@ -220,6 +219,8 @@ int main()
 	m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
 	clock_t start_time = clock();
 	for (int i = 0; i < m_nObjects; i++) {
+		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17))
+			continue;
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
@@ -227,6 +228,7 @@ int main()
 		}		
 	}
 	delete m_ppObjects;
+
 
 	WSADATA WSAData;
 	WSAStartup(MAKEWORD(2, 2), &WSAData);

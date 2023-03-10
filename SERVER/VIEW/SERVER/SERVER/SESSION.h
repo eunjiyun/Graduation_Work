@@ -139,14 +139,12 @@ public:
 	}
 	void Rotate(float x, float y, float z)
 	{
-
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
-
 	}
 	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	{
@@ -156,7 +154,7 @@ public:
 		onDie = dwDirection & DIR_DIE;
 		onCollect = dwDirection & DIR_COLLECT;
 		onRun = dwDirection & DIR_RUN;
-		character_num = (character_num + dwDirection & DIR_CHANGESTATE) % 3;
+		character_num = (character_num + (dwDirection & DIR_CHANGESTATE)) % 3;
 
 		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, fDistance, false), dwDirection& DIR_FORWARD, false));
 		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, -fDistance, false), dwDirection & DIR_BACKWARD, false));

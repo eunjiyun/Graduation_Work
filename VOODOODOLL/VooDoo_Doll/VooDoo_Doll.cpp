@@ -360,33 +360,15 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
 	if (p->direction & DIR_CHANGESTATE)
 	{
-		cout << "press q" << endl;
-		//pl->onChange = true;
+		cout << p->character_num << endl;
 
-		//if (gGameFramework.p1Change)
+		pl->m_pChild = pl->pAngrybotModels[p->character_num]->m_pModelRootObject;
+		pl->m_pSkinnedAnimationController = pl->AnimationControllers[p->character_num];
+		for (int i = 0; i < 6; i++)
 		{
-			gGameFramework.changePlayerMode = true;
-
-			if (1 == gGameFramework.otherPlayerWhat)
-			{
-				gGameFramework.otherPlayerWhat = 2;
-			}
-			else if (2 == gGameFramework.otherPlayerWhat)
-			{
-				gGameFramework.otherPlayerWhat = 3;
-				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-			}
-			else if (3 == gGameFramework.otherPlayerWhat)
-			{
-				gGameFramework.otherPlayerWhat = 1;
-				//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-			}
-
-			gGameFramework.changePlayerForm(&gGameFramework.m_pStage->m_pPlayer, &gGameFramework.m_pPlayer, gGameFramework.pPlayer, gGameFramework.pPlayer2, gGameFramework.pPlayer3);//플레이어 모드 변경
-			gGameFramework.changePlayerForm(NULL, &pl, gGameFramework.pPlayer, gGameFramework.pPlayer2, gGameFramework.pPlayer3);//플레이어 모드 변경
-			//gGameFramework.p1Change = false;
+			pl->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
+			pl->m_pSkinnedAnimationController->SetTrackEnable(i, false);
 		}
-
 	}
 
 

@@ -462,9 +462,8 @@ void CGameFramework::BuildObjects()
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	if (m_pStage)
 	{
-
-
-	}m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+		m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	}
 
 
 #ifdef _WITH_TERRAIN_PLAYER
@@ -487,7 +486,6 @@ void CGameFramework::BuildObjects()
 
 		for (int i = 0; i < 3; i++) {
 			CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
-			pAirplanePlayer->otherPlayerUpdate();
 			Players.push_back(pAirplanePlayer);
 		}
 
@@ -1088,54 +1086,6 @@ void CGameFramework::FrameAdvance()
 
 void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPlayer, CTerrainPlayer* newPlayer, CTerrainPlayer* newPlayer2, CTerrainPlayer* newPlayer3)//받을 플레이어, 할당할 플레이어
 {
-	/*if (1 == whatPlayer)
-	{
-		m_pStage->m_pPlayer = m_pPlayer = pPlayer;
-
-		if (true == changePlayerMode)
-		{
-			m_pPlayer->SetPosition(pPlayer3->GetPosition());
-
-			m_pPlayer->SetLookVector(pPlayer3->GetLookVector());
-			m_pPlayer->SetUpVector(pPlayer3->GetUpVector());
-			m_pPlayer->SetRightVector(pPlayer3->GetRightVector());
-
-			changePlayerMode = false;
-		}
-	}
-	else if (2 == whatPlayer)
-	{
-		m_pStage->m_pPlayer = m_pPlayer = pPlayer2;
-
-		if (true == changePlayerMode)
-		{
-			m_pPlayer->SetPosition(pPlayer->GetPosition());
-
-			m_pPlayer->SetLookVector(pPlayer->GetLookVector());
-			m_pPlayer->SetUpVector(pPlayer->GetUpVector());
-			m_pPlayer->SetRightVector(pPlayer->GetRightVector());
-
-			changePlayerMode = false;
-		}
-	}
-	else if (3 == whatPlayer)
-	{
-		m_pStage->m_pPlayer = m_pPlayer = pPlayer3;
-
-		if (true == changePlayerMode)
-		{
-			m_pPlayer->SetPosition(pPlayer2->GetPosition());
-
-			m_pPlayer->SetLookVector(pPlayer2->GetLookVector());
-			m_pPlayer->SetUpVector(pPlayer2->GetUpVector());
-			m_pPlayer->SetRightVector(pPlayer2->GetRightVector());
-
-			changePlayerMode = false;
-		}
-	}
-
-	m_pCamera = m_pPlayer->GetCamera();*/
-
 	int choosePlayer = 0;
 
 	if (sceneOldPlayer)
