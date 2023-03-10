@@ -167,7 +167,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		{
 			//clienttest
 			GamePlayer_ProcessInput();// 서버를 적용했을 경우 사용하는 ProcessInput 함수
-			//gGameFramework.ProcessInput();// 서버를 미적용했을 경우 사용하는 ProcessInput 함수
 			gGameFramework.FrameAdvance();
 		}
 	}
@@ -358,7 +357,6 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
 	if (p->direction & DIR_DIE) pl->onDie = true;
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
-	
 	if (p->direction & DIR_CHANGESTATE)
 	{
 		cout << p->character_num << endl;
@@ -465,10 +463,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
 					monster->c_id = -1;
 					break;
 				}
-				if (monster->m_pSkinnedAnimationController->Cur_Animation_Track != packet->attack) {
+				if (monster->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
+					//cout << "packetTrack - " << packet->animation_track << ", " << "curTrack - " << monster->m_pSkinnedAnimationController->Cur_Animation_Track << endl;
 					monster->m_pSkinnedAnimationController->SetTrackEnable(monster->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-					monster->m_pSkinnedAnimationController->SetTrackEnable(packet->attack, true);
-				}
+					monster->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
+				} 
+				//if (Vector3::Compare(monster->GetPosition(), packet->Pos)) 
+				XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, gGameFramework.m_pPlayer->GetPosition(), gGameFramework.m_pPlayer->GetUpVector());
+				monster->m_xmf4x4ToParent = mtxLookAt;
+				cout << monster->GetLook().x << monster->GetLook().y << monster->GetLook().z << endl;
+				monster->UpdateTransform(NULL);
 				monster->SetPosition(packet->Pos);
 				break;
 			}

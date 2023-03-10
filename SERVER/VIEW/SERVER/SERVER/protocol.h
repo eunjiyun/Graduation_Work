@@ -98,7 +98,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	XMFLOAT3 Pos;
 	short HP;
 	short Chasing_PlayerID;
-	unsigned short attack; // 공격 타입. 0이면 안하는 것
+	unsigned short animation_track; // 애니메이션 타입
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 #pragma pack (pop)

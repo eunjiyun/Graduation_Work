@@ -246,6 +246,11 @@ namespace Vector3
 	{
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
+
+	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.z == xmf3Vector2.z);
+	}
 }
 
 namespace Vector4
@@ -398,6 +403,13 @@ namespace Matrix4x4
 	{
 		XMFLOAT4X4 xmf4x4Result;
 		XMStoreFloat4x4(&xmf4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
+		return(xmf4x4Result);
+	}
+
+	inline XMFLOAT4X4 LookAtRH(XMFLOAT3& xmf3EyePosition, XMFLOAT3& xmf3LookAtPosition, XMFLOAT3& xmf3UpDirection)
+	{
+		XMFLOAT4X4 xmf4x4Result;
+		XMStoreFloat4x4(&xmf4x4Result, XMMatrixLookAtRH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
 		return(xmf4x4Result);
 	}
 }

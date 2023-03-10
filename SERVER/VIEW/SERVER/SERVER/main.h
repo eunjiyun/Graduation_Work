@@ -83,7 +83,7 @@ void SESSION::send_NPCUpdate_packet(int npc_id)
 	//p.Up = clients[c_id / 4][c_id % 4].GetUpVector();
 	p.Pos = monsters[_id / 4][npc_id].GetPosition();
 	p.HP = monsters[_id / 4][npc_id].HP;
-	p.attack = monsters[_id / 4][npc_id].attack;
+	p.animation_track = monsters[_id / 4][npc_id].cur_animation_track;
 	p.Chasing_PlayerID = monsters[_id / 4][npc_id].target_id;
 	do_send(&p);
 }
@@ -167,19 +167,19 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, {-100.f + 50.f * i, -17.5f, 600.f});
+			monsters[roomNum][i].Initialize(roomNum, 2, {-100.f + 50.f * i, -17.5f, 600.f});
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -50.f + 50.f * i, -17.5f, 1200.f });
+			monsters[roomNum][i].Initialize(roomNum, 1, { -50.f + 50.f * i, -17.5f, 1200.f });
 		}
 		break;
 	case 3:
 		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, rand() % 2 + 1, { -170.f + 50.f * i, -17.5f, 1800.f });
+			monsters[roomNum][i].Initialize(roomNum, 1, { -170.f + 50.f * i, -17.5f, 1800.f });
 		}
 		break;
 	}
@@ -477,25 +477,13 @@ void Monster::Update()
 	if (target_id < 0) {
 		target_id = get_targetID();
 	}
-	//if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
-	//{
-	//	attack = 1;
-	//	return;
-	//}
-	//attack = 0;
-
-	attack = BB.Intersects(clients[room_num][target_id].m_xmOOBB);
-
-	if (!attack) Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
-	//Look = Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos));
-
-	//XMFLOAT3 newLook = Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos));
-	//XMFLOAT3 current_Look = GetLookVector();
-	//rotate_Angle = acos(Vector3::DotProduct(newLook, current_Look)) * 180 / 3.1415926535;
-	//rotate_Angle = (newLook.x * current_Look.y - newLook.y * current_Look.x > 0.f) ? -rotate_Angle : rotate_Angle;
-	//SetLookVector(newLook);
-	//if (isnan(rotate_Angle)) {rotate_Angle = 0;}
-	//cout << rotate_Angle << endl;
+	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
+	{
+		cur_animation_track = 2;
+		return;
+	}
+	Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
 	BB.Center = Pos;
+	cur_animation_track = 1;
 }
 

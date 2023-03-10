@@ -732,9 +732,9 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		m_ppHierarchicalGameObjects[0]->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		m_ppHierarchicalGameObjects[0]->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 		//case 3:

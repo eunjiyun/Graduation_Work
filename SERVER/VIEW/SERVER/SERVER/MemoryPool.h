@@ -9,7 +9,7 @@ using namespace std;
 typedef unsigned char UCHAR;
 typedef unsigned int UINT;
 
-#define USEPOOL 0
+#define USEPOOL 1
 
 template<class T>
 class CObjectPool {
@@ -280,7 +280,7 @@ private:
     array<float, MAX_USER_PER_ROOM> distances = { 10000.f };
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
 #if USEPOOL == 1
-    std::unique_ptr<CObjectPool<A_star_Node>> PoolHandle = make_unique<CObjectPool<A_star_Node>>(1000);
+    std::unique_ptr<CObjectPool<A_star_Node>> PoolHandle = make_unique<CObjectPool<A_star_Node>>(500);
 #endif
 public:
     mutex mon_lock;
@@ -288,7 +288,7 @@ public:
     BoundingBox BB;
     bool is_alive = false;
     XMFLOAT3 Pos;
-    short attack = 0;
+    short cur_animation_track = 0;
     float rotate_Angle = 0.f;
     short target_id = -1; // 추적하는 플레이어 ID
     Monster() { }
