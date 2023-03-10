@@ -101,9 +101,6 @@ public:
 	bool p1Change = false;
 	CGameObject* m_pLockedObject = NULL;
 
-	CTerrainPlayer* pPlayer;
-	CTerrainPlayer* pPlayer2;
-	CTerrainPlayer* pPlayer3;
 	CLoadedModelInfo** pMonsterModel = NULL;// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	int num[6] = {};
 	CLoadedModelInfo* monModel = NULL;

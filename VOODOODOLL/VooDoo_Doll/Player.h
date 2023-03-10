@@ -37,6 +37,7 @@ public:
 	int c_id = -1;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
+	CLoadedModelInfo* tmp = NULL;
 	CAnimationController* AnimationControllers[3];
 public:
 	CPlayer();

@@ -358,6 +358,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
 	if (p->direction & DIR_DIE) pl->onDie = true;
 	if (p->direction & DIR_COLLECT) pl->onCollect = true;
+	
 	if (p->direction & DIR_CHANGESTATE)
 	{
 		cout << p->character_num << endl;
