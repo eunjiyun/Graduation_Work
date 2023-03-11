@@ -116,12 +116,12 @@ void SESSION::CheckCollision(float fTimeElapsed)
 	for (MapObject*& object : Objects[collide_range]) {
 		BoundingBox oBox = object->m_xmOOBB;
 		if (m_xmOOBB.Intersects(oBox)) {
-			//if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17)) {
-			//	XMFLOAT3 Pos = GetPosition();
-			//	Pos.y = oBox.Center.y + oBox.Extents.y + m_xmOOBB.Extents.y;
-			//	SetPosition(Pos);
-			//	continue;
-			//}
+			if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17)) {
+				XMFLOAT3 Pos = GetPosition();
+				Pos.y = oBox.Center.y + oBox.Extents.y + m_xmOOBB.Extents.y;
+				SetPosition(Pos);
+				continue;
+			}
 
 			/*cout << "Name: " << object->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;*/
@@ -167,18 +167,21 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
+			//lock_guard <mutex> ll{ monsters[roomNum][i].mon_lock };
 			monsters[roomNum][i].Initialize(roomNum, 2, {-100.f + 50.f * i, -17.5f, 600.f});
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
+			//lock_guard <mutex> ll{ monsters[roomNum][i].mon_lock };
 			monsters[roomNum][i].Initialize(roomNum, 1, { -50.f + 50.f * i, -17.5f, 1200.f });
 		}
 		break;
 	case 3:
 		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
+			//lock_guard <mutex> ll{ monsters[roomNum][i].mon_lock };
 			monsters[roomNum][i].Initialize(roomNum, 1, { -170.f + 50.f * i, -17.5f, 1800.f });
 		}
 		break;
@@ -254,18 +257,18 @@ bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 	//}
 
 	int collide_range = _pos.z / 600;
-	auto iter = find_if(Objects[collide_range].begin(), Objects[collide_range].end(),
-		[_pos](MapObject*& Obj) {return BoundingBox(_pos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); });
-	return (iter >= Objects[collide_range].end());
+	//auto iter = find_if(Objects[collide_range].begin(), Objects[collide_range].end(),
+	//	[_pos](MapObject*& Obj) {return BoundingBox(_pos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); });
+	//return (iter == Objects[collide_range].end());
 
-	//for (MapObject*& object : Objects[collide_range]) {
-	//	if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17))
-	//		continue;
-	//	if (BoundingBox(_pos, { 5,3,5 }).Intersects(object->m_xmOOBB)) {
-	//		return false;
-	//	}
-	//}
-	//return true;
+	for (MapObject*& object : Objects[collide_range]) {
+		if (0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17))
+			continue;
+		if (BoundingBox(_pos, { 5,3,5 }).Intersects(object->m_xmOOBB)) {
+			return false;
+		}
+	}
+	return true;
 }
 
 float nx[8]{ -1,1,0,0,-1,-1,1,1 };
@@ -415,14 +418,13 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	clock_t start_time = clock();
 	while (!openList.empty())
 	{
-		if (clock() - start_time >= 5000)
-		{
-			target_id = -1;
-			return Pos;
-		}
+		//if (clock() - start_time >= 5000)
+		//{
+		//	target_id = -1;
+		//	return Pos;
+		//}
 		iter = getNode(&openList);
 		S_Node = *iter;
-
 		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
 		{
 			while (S_Node->parent != nullptr)
@@ -436,7 +438,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		}
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
-			if (check_path(_Pos, CloseList) && 
+			if (check_path(_Pos, CloseList) &&
 				(CloseList.end() == find_if(CloseList.begin(), CloseList.end(), [&_Pos](XMFLOAT3 pos_) {return Vector3::Compare(_Pos, pos_); })) &&
 				check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
 				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
@@ -444,7 +446,8 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		}
 		CloseList.push_back(S_Node->Pos);
 		openList.erase(iter);
-	}
+	}	
+	return Pos;
 }
 #endif
 int Monster::get_targetID()

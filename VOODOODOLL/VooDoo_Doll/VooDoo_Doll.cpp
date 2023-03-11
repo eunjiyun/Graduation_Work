@@ -471,7 +471,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				//if (Vector3::Compare(monster->GetPosition(), packet->Pos)) 
 				XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, gGameFramework.m_pPlayer->GetPosition(), gGameFramework.m_pPlayer->GetUpVector());
 				monster->m_xmf4x4ToParent = mtxLookAt;
-				cout << monster->GetLook().x << monster->GetLook().y << monster->GetLook().z << endl;
+				//cout << monster->GetLook().x << monster->GetLook().y << monster->GetLook().z << endl;
 				monster->UpdateTransform(NULL);
 				monster->SetPosition(packet->Pos);
 				break;
