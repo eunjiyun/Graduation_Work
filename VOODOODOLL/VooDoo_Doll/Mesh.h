@@ -43,6 +43,11 @@ public:
 	BoundingBox						m_xmBoundingBox;//
 	XMFLOAT3* m_pxmf3Positions = NULL;//
 	XMFLOAT3* m_pxmf3Normals = NULL;//
+	XMFLOAT2* m_pxmf2TextureCoords = NULL;
+
+	ID3D12Resource*									m_pd3dTextureCoordsBuffer = NULL;
+	ID3D12Resource*									m_pd3dTextureCoordUploadBuffer;
+
 	UINT* m_pnIndices = NULL;//
 	UINT							m_nSubsets = 0;//
 	UINT* m_pnSubSetIndices2 = NULL;//

@@ -594,7 +594,7 @@ XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBo
 
 XMFLOAT3 CStage::Get_BoundingBoxVertex(BoundingBox& pBoundingbox, int nIndex)
 {
-	assert(index >= 0 && index <= 7);
+	assert(nIndex >= 0 && nIndex <= 7);
 	XMFLOAT3		xmfVertex;
 	XMVECTOR	xmvCenter = XMLoadFloat3(&pBoundingbox.Center);
 	XMVECTOR	xmvExtents = XMLoadFloat3(&pBoundingbox.Extents);

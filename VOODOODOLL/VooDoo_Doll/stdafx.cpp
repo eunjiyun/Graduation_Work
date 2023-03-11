@@ -309,35 +309,54 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	::fopen_s(&pFile, pstrFileName, "rb");
 	::rewind(pFile);
 
-	char pstrToken[64] = { '\0' };
+	char		strAlbedoTextureName[64] = { '\0' };
+	char		strEmissionTextureName[64] = { '\0' };
+	BYTE	nAlbedoTextureStrLength = 0;
+	BYTE	nEmissionTextureStrLength = 0;
+
+	char pstrToken1[64] = { '\0' };
+	char pstrToken2[64] = { '\0' };
 	char pstrGameObjectName[64] = { '\0' };
 	char pstrFilePath[64] = { '\0' };
 
 	BYTE nStrLength = 0, nObjectNameLength = 0;
 	UINT nReads = 0, nMaterials = 0;
 	size_t nConverted = 0;
+	int		nTextureNumber = 0;
 
 	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
-	nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile); //"<GameObjects>:"
+	nReads = (UINT)::fread(pstrToken1, sizeof(char), nStrLength, pFile); //"<GameObjects>:"
 	nReads = (UINT)::fread(pnGameObjects, sizeof(int), 1, pFile);
 
 	CGameObject** ppGameObjects = new CGameObject * [*pnGameObjects];
 
+	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+	nReads = (UINT)::fread(pstrToken2, sizeof(char), nStrLength, pFile); //"<Textures>:"
+	nReads = (UINT)::fread(&nTextureNumber, sizeof(int), 1, pFile);
+
+
 	CGameObject* pGameObject = NULL, * pObjectFound = NULL;
+
 	for (int i = 0; i < *pnGameObjects; i++)
 	{
+		char pstrToken3[64] = { '\0' };
+		char pstrToken4[64] = { '\0' };
+		char pstrToken5[64] = { '\0' };
+		char pstrToken6[64] = { '\0' };
+
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
-		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile); //"<GameObject>:"
+		nReads = (UINT)::fread(pstrToken3, sizeof(char), nStrLength, pFile); //"<GameObject>:"
 		nReads = (UINT)::fread(&nObjectNameLength, sizeof(BYTE), 1, pFile);
 		nReads = (UINT)::fread(pstrGameObjectName, sizeof(char), nObjectNameLength, pFile);
 		pstrGameObjectName[nObjectNameLength] = '\0';
 
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
-		nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pFile); //"<Materials>:"
+		nReads = (UINT)::fread(pstrToken4, sizeof(char), nStrLength, pFile); //"<Materials>:"
 		nReads = (UINT)::fread(&nMaterials, sizeof(int), 1, pFile);
 
 		pGameObject = new CGameObject(nMaterials);
 		strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
+
 
 
 		CGameObject* pObjectFound = NULL;
@@ -362,13 +381,35 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		for (UINT k = 0; k < nMaterials; k++)
 		{
+
 			if (!pObjectFound) pGameObject->SetMaterial(k, rand() % MAX_Scene_MATERIALS);
 
 			nReads = (UINT)::fread(&xmf4AlbedoColor, sizeof(float), 4, pFile);
 			if (!pObjectFound) pGameObject->SetAlbedoColor(k, xmf4AlbedoColor);
 
+			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+			nReads = (UINT)::fread(pstrToken5, sizeof(char), nStrLength, pFile); //"<<AlbedoTextureName>:"
+			if (0 == strcmp(pstrToken5, "<AlbedoTextureName>:"))
+			{
+				nReads = (UINT)::fread(&nAlbedoTextureStrLength, sizeof(BYTE), 1, pFile);
+				nReads = (UINT)::fread(strAlbedoTextureName, sizeof(char), nAlbedoTextureStrLength, pFile);
+				/*pGameObject->SetAlbedoTexture(k, pd3dDevice, pd3dCommandList, strAlbedoTextureName, nTextureNumber);*/
+			}
+
+
 			nReads = (UINT)::fread(&xmf4EmissionColor, sizeof(float), 4, pFile);
 			if (!pObjectFound) pGameObject->SetEmissionColor(k, xmf4EmissionColor);
+
+
+			nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
+			nReads = (UINT)::fread(pstrToken6, sizeof(char), nStrLength, pFile); //"<EmissionTextureName>:"
+
+			if (0 == strcmp(pstrToken6, "<EmissionTextureName>:"))
+			{
+				nReads = (UINT)::fread(&nEmissionTextureStrLength, sizeof(BYTE), 1, pFile);
+				nReads = (UINT)::fread(strEmissionTextureName, sizeof(char), nEmissionTextureStrLength, pFile);
+				cout << pstrToken6 << strEmissionTextureName << endl << endl;
+			}
 		}
 
 		nReads = (UINT)::fread(&pGameObject->m_xmf4x4World, sizeof(float), 16, pFile);
@@ -378,17 +419,18 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			strcpy_s(pstrFilePath, 64, "Models/");
 			strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 			strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
+
 			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 
 			pGameObject->SetMesh(0, pMesh);
 		}
-		
+
 		ppGameObjects[i] = pGameObject;
+
 	}
+
 
 	::fclose(pFile);
 
 	return(ppGameObjects);
 }
-
-
