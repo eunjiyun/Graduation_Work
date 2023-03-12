@@ -480,6 +480,7 @@ void CGameFramework::BuildObjects()
 	/*m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 	m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(0, true);*/
 
+	Players.push_back(m_pPlayer);
 	for (int i = 0; i < 3; i++) {
 		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 		Players.push_back(pAirplanePlayer);
@@ -908,8 +909,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 {
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
-	m_pPlayer->Animate(fTimeElapsed);
-
 	for (auto& player : Players)
 		if (player->c_id > -1)
 			player->Animate(fTimeElapsed);
@@ -1006,7 +1005,7 @@ void CGameFramework::FrameAdvance()
 		}
 	}*/
 
-	m_pStage->whatPlayer = whatPlayer;
+	//m_pStage->whatPlayer = whatPlayer;
 
 
 
@@ -1028,7 +1027,7 @@ void CGameFramework::FrameAdvance()
 	//m_pPlayer->SetPosition(XMFLOAT3(300, 0, 0));
 	if (m_pPlayer)
 	{
-		m_pPlayer->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		//m_pPlayer->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 		if (2 == whatPlayer)//궁수 모드일 때 총알 렌더
 		{
@@ -1079,95 +1078,5 @@ void CGameFramework::FrameAdvance()
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 
-void CGameFramework::changePlayerForm(CPlayer** sceneOldPlayer, CPlayer** oldPlayer, CTerrainPlayer* newPlayer, CTerrainPlayer* newPlayer2, CTerrainPlayer* newPlayer3)//받을 플레이어, 할당할 플레이어
-{
-	int choosePlayer = 0;
 
-	if (sceneOldPlayer)
-	{
-		//choosePlayer = whatPlayer;
-		choosePlayer = otherPlayerWhat;
-		p1Change = true;
-	}
-	else
-	{
-		choosePlayer = otherPlayerWhat;
-		p1Change = false;
-	}
-
-	if (1 == choosePlayer)
-	{
-		if (sceneOldPlayer)
-		{
-
-		}
-		else
-		{
-
-
-			(*oldPlayer)->tmp = (*oldPlayer)->pAngrybotModels[0];
-
-			(*oldPlayer)->SetChild((*oldPlayer)->tmp->m_pModelRootObject, true);
-
-			(*oldPlayer)->m_pSkinnedAnimationController = (*oldPlayer)->AnimationControllers[0];
-		}
-
-		if (true == changePlayerMode)
-		{
-			changePlayerMode = false;
-		}
-	}
-	else if (2 == choosePlayer)
-	{
-		if (sceneOldPlayer)
-		{
-			//*sceneOldPlayer = *oldPlayer = pPlayer2;
-		}
-		else
-		{
-
-
-			(*oldPlayer)->tmp = (*oldPlayer)->pAngrybotModels[1];
-
-			(*oldPlayer)->SetChild((*oldPlayer)->tmp->m_pModelRootObject, true);
-
-			(*oldPlayer)->m_pSkinnedAnimationController = (*oldPlayer)->AnimationControllers[1];
-
-		}
-
-		if (true == changePlayerMode)
-		{
-
-
-			changePlayerMode = false;
-		}
-	}
-	else if (3== choosePlayer)
-	{
-		if (sceneOldPlayer)
-		{
-			//*sceneOldPlayer = *oldPlayer = pPlayer3;
-		}
-		else
-		{
-
-
-			(*oldPlayer)->tmp = (*oldPlayer)->pAngrybotModels[2];
-
-			(*oldPlayer)->SetChild((*oldPlayer)->tmp->m_pModelRootObject, true);
-
-			(*oldPlayer)->m_pSkinnedAnimationController = (*oldPlayer)->AnimationControllers[2];
-
-		}
-
-		if (true == changePlayerMode)
-		{
-
-
-			changePlayerMode = false;
-		}
-	}
-
-	m_pCamera = m_pPlayer->GetCamera();
-}
 

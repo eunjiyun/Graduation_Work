@@ -167,21 +167,18 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			//lock_guard <mutex> ll{ monsters[roomNum][i].mon_lock };
 			monsters[roomNum][i].Initialize(roomNum, 2, {-100.f + 50.f * i, -17.5f, 600.f});
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			//lock_guard <mutex> ll{ monsters[roomNum][i].mon_lock };
 			monsters[roomNum][i].Initialize(roomNum, 1, { -50.f + 50.f * i, -17.5f, 1200.f });
 		}
 		break;
 	case 3:
 		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
-			//lock_guard <mutex> ll{ monsters[roomNum][i].mon_lock };
 			monsters[roomNum][i].Initialize(roomNum, 1, { -170.f + 50.f * i, -17.5f, 1800.f });
 		}
 		break;
@@ -370,30 +367,10 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 #elif USEPOOL == 0
 list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
 {
-	list<A_star_Node*>::iterator iter = (*m_List).begin();
-
-	int minValue = 20000;
-	int order = 0;
-
-	for (int i = 1; iter != (*m_List).end(); i++, iter++)
-	{
-		if ((*iter)->F <= minValue)
-		{
-			minValue = (*iter)->F;
-			order = i;
-		}
-	}
-
-	iter = (*m_List).begin();
-	for (int i = 1; i < order; i++)
-	{
-		iter++;
-	}
-
-	return iter;
+	return min_element(m_List->begin(), m_List->end(), [](A_star_Node* N1, A_star_Node* N2) {return N1->F < N2->F; });
 }
 
-bool check_openList(XMFLOAT3 _Pos, int _G, A_star_Node* s_node, list<A_star_Node*>* m_List)
+bool check_openList(XMFLOAT3 _Pos, float _G, A_star_Node* s_node, list<A_star_Node*>* m_List)
 {
 	auto iter = find_if((*m_List).begin(), (*m_List).end(), [&_Pos](A_star_Node* N) {return Vector3::Compare(_Pos, N->Pos); });
 	if (iter != (*m_List).end()) {
@@ -408,7 +385,6 @@ bool check_openList(XMFLOAT3 _Pos, int _G, A_star_Node* s_node, list<A_star_Node
 }
 XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
-	//priority_queue<A_star_Node*, vector<A_star_Node*>, Comp> openList;
 	vector<XMFLOAT3> CloseList{};
 	list<A_star_Node*> openList;
 	A_star_Node* S_Node;
@@ -418,11 +394,13 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	clock_t start_time = clock();
 	while (!openList.empty())
 	{
-		//if (clock() - start_time >= 5000)
-		//{
-		//	target_id = -1;
-		//	return Pos;
-		//}
+		if (clock() - start_time >= 4000)
+		{
+			cout << start_Pos.x << ", " << start_Pos.y << ", " << start_Pos.z << "  to  " << dest_Pos.x << ", " << dest_Pos.y << ", " << dest_Pos.z << "추적 중지\n";
+			cur_animation_track = 0;
+			target_id = -1;
+			return Pos;
+		}
 		iter = getNode(&openList);
 		S_Node = *iter;
 		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
@@ -439,7 +417,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
 			if (check_path(_Pos, CloseList) &&
-				(CloseList.end() == find_if(CloseList.begin(), CloseList.end(), [&_Pos](XMFLOAT3 pos_) {return Vector3::Compare(_Pos, pos_); })) &&
+				//(CloseList.end() == find_if(CloseList.begin(), CloseList.end(), [&_Pos](XMFLOAT3 pos_) {return Vector3::Compare(_Pos, pos_); })) &&
 				check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
 				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
 			}
@@ -466,8 +444,6 @@ int Monster::get_targetID()
 
 	if (min < view_range)
 	{
-		short ID = min_element(distances.begin(), distances.end()) - distances.begin();
-		Pos.y = clients[room_num][ID].GetPosition().y;
 		return min_element(distances.begin(), distances.end()) - distances.begin();
 	}
 	else return -1;
@@ -478,7 +454,9 @@ void Monster::Update()
 	is_alive = HP + abs(HP);
 
 	if (target_id < 0) {
+		cur_animation_track = 0;
 		target_id = get_targetID();
+		return;
 	}
 	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
 	{

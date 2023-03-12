@@ -59,9 +59,6 @@ public:
 	SCENEID m_eCurrentScene;
 	SCENEID m_ePrevScene;
 
-	//23.02.20
-	void changePlayerForm(CPlayer**, CPlayer**, CTerrainPlayer*, CTerrainPlayer*, CTerrainPlayer*);
-
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;

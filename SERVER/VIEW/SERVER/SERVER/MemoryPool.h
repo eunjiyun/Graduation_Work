@@ -168,8 +168,6 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
     nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
     nReads = (UINT)::fread(pstrToken2, sizeof(char), nStrLength, pFile); //"<Textures>:"
     nReads = (UINT)::fread(&nTextureNumber, sizeof(int), 1, pFile);
-    cout << *pnGameObjects << endl;
-    cout << nTextureNumber << endl;
 
     MapObject* pGameObject = NULL, * pObjectFound = NULL;
     for (int i = 0; i < *pnGameObjects; i++)
@@ -377,15 +375,6 @@ public:
         Pos = Vector3::Add(Pos, m_Shift);
         BB.Center = Pos;
     }
-    void Rotate(float x, float y, float z)
-    {
-        XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-        m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-        m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-        m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-        m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-        m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
-    }
 
     int get_targetID();
     XMFLOAT3 Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
@@ -394,7 +383,6 @@ public:
     XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
     XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
     XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
-    void SetLookVector(XMFLOAT3 _Look) { m_xmf3Look = _Look; }
 
 };
 

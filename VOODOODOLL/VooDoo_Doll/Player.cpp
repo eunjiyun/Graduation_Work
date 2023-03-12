@@ -178,25 +178,7 @@ void CPlayer::Update(float fTimeElapsed)
 	// 
 	//if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
 
-	//if (m_xmf3Position.y > SECOND_FLOOR && m_xmf3Position.y < FLOOR_SIZE * 2)
-	//{
-	//	if (m_xmf3Position.y < SECOND_FLOOR)
-	//	{
-	//		XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-	//		xmf3PlayerVelocity.y = 0.0f;
-	//		SetVelocity(xmf3PlayerVelocity);
-	//		m_xmf3Position.y = SECOND_FLOOR;
-	//		SetPosition(m_xmf3Position);
-	//	}
-	//}
-	//else if (m_xmf3Position.y < FIRST_FLOOR)
-	//{
-	//	XMFLOAT3 xmf3PlayerVelocity = GetVelocity();
-	//	xmf3PlayerVelocity.y = 0.0f;
-	//	SetVelocity(xmf3PlayerVelocity);
-	//	m_xmf3Position.y = FIRST_FLOOR;
-	//	SetPosition(m_xmf3Position);
-	//}
+
 
 }
 
@@ -441,15 +423,6 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 
 void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
-	//m_pSkinnedAnimationController->SetTrackEnable(0, false);
-
-	//m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	//m_pSkinnedAnimationController->SetTrackEnable(4, false);
-	//m_pSkinnedAnimationController->SetTrackEnable(5, false);
-
-
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
 

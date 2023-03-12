@@ -22,6 +22,10 @@ void process_packet(int c_id, char* packet)
 		//cout << "Client[" << c_id << "] Accessed\n";
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		strcpy_s(clients[c_id / 4][c_id % 4]._name, p->name);
+		clients[c_id / 4][c_id % 4].direction = 0;
+		clients[c_id / 4][c_id % 4].m_xmf3Up = XMFLOAT3{ 0,1,0 };
+		clients[c_id / 4][c_id % 4].m_xmf3Right = XMFLOAT3{ 1,0,0 };
+		clients[c_id / 4][c_id % 4].m_xmf3Look = XMFLOAT3{ 0,0,1 };
 		clients[c_id / 4][c_id % 4].send_login_info_packet();
 		{
 			lock_guard<mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
@@ -83,7 +87,7 @@ void worker_thread(HANDLE h_iocp)
 				}
 				clients[client_id / 4][client_id % 4].m_xmf3Position.x = -50;
 				clients[client_id / 4][client_id % 4].m_xmf3Position.y = -17.5;
-				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 590;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 0;
 				clients[client_id / 4][client_id % 4]._id = client_id;
 				clients[client_id / 4][client_id % 4]._name[0] = 0;
 				clients[client_id / 4][client_id % 4]._prev_remain = 0;

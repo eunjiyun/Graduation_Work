@@ -94,7 +94,7 @@ void GamePlayer_ProcessInput()
 
 		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
 		if (ErrorStatus == SOCKET_ERROR)
-			cout << "Move_Packet Error\n";
+			cout << "SEND_PACKET_ERROR\n";
 		Old_Direction = dwDirection;
 	}
 }
@@ -166,7 +166,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			//clienttest
-			GamePlayer_ProcessInput();// 서버를 적용했을 경우 사용하는 ProcessInput 함수
+			GamePlayer_ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
@@ -250,28 +250,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-
-		//else if (wParam == 'Q' || wParam == 'q')
-		//{
-		//	gGameFramework.changePlayerMode = true;
-		//	//gGameFramework.p1Change = true;
-
-
-		//	if (1 == gGameFramework.whatPlayer)
-		//	{
-		//		gGameFramework.whatPlayer = 2;
-		//	}
-		//	else if (2 == gGameFramework.whatPlayer)
-		//	{
-		//		gGameFramework.whatPlayer = 3;
-		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-		//	}
-		//	else if (3 == gGameFramework.whatPlayer)
-		//	{
-		//		gGameFramework.whatPlayer = 1;
-		//		//gGameFramework.m_pPlayer->SetPosition(gGameFramework.pPlayer->GetPosition());
-		//	}
-		//}
 		break;
 		//
 
@@ -343,24 +321,15 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	if (0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track ||
 		3 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
 		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-	//else
-	//{
-	//	if(false == pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable)
-	//		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-	//	else if(false== pl->onDie && p->direction)
-	//		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-	//}
 
 	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
+	pl->onRun = p->direction & DIR_RUN;
 	if (p->direction & DIR_ATTACK) pl->onAttack = true;
-	if (p->direction & DIR_RUN) pl->onRun = true; else pl->onRun = false;
-	if (p->direction & DIR_DIE) pl->onDie = true;
-	if (p->direction & DIR_COLLECT) pl->onCollect = true;
-	if (p->direction & DIR_CHANGESTATE)
+	else if (p->direction & DIR_DIE) pl->onDie = true;
+	else if (p->direction & DIR_COLLECT) pl->onCollect = true;
+	else if (p->direction & DIR_CHANGESTATE)
 	{
-		cout << p->character_num << endl;
-
 		pl->m_pChild = pl->pAngrybotModels[p->character_num]->m_pModelRootObject;
 		pl->m_pSkinnedAnimationController = pl->AnimationControllers[p->character_num];
 		for (int i = 0; i < 6; i++)
@@ -389,7 +358,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 	}
 
 
-	else if (!pl->onAttack && !pl->onRun && !pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable && !pl->onCollect) {
+	else if (!pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable) {
 		if (Vector3::IsZero(Cmp)) {
 			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
@@ -435,23 +404,15 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
-		if (packet->id == gGameFramework.m_pPlayer->c_id) {
-			gGameFramework.m_pPlayer->SetLookVector(packet->Look);
-			gGameFramework.m_pPlayer->SetUpVector(packet->Up);
-			gGameFramework.m_pPlayer->SetRightVector(packet->Right);
-			ProcessAnimation(gGameFramework.m_pPlayer, packet);
-			gGameFramework.m_pPlayer->SetPosition(packet->Pos);
-		}
-		else
-			for (auto& player : gGameFramework.Players)
-				if (packet->id == player->c_id) {
-					player->SetLookVector(packet->Look);
-					player->SetUpVector(packet->Up);
-					player->SetRightVector(packet->Right);
-					ProcessAnimation(player, packet);
-					player->SetPosition(packet->Pos);
-					break;
-				}
+		for (auto& player : gGameFramework.Players)
+			if (packet->id == player->c_id) {
+				player->SetLookVector(packet->Look);
+				player->SetUpVector(packet->Up);
+				player->SetRightVector(packet->Right);
+				ProcessAnimation(player, packet);
+				player->SetPosition(packet->Pos);
+				break;
+			}
 		break;
 	}
 	case SC_MOVE_MONSTER: {
@@ -463,13 +424,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
 					monster->c_id = -1;
 					break;
 				}
+				auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [&packet](CPlayer* pl) {return pl->c_id == packet->Chasing_PlayerID; });
 				if (monster->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
 					//cout << "packetTrack - " << packet->animation_track << ", " << "curTrack - " << monster->m_pSkinnedAnimationController->Cur_Animation_Track << endl;
 					monster->m_pSkinnedAnimationController->SetTrackEnable(monster->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 					monster->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 				} 
 				//if (Vector3::Compare(monster->GetPosition(), packet->Pos)) 
-				XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, gGameFramework.m_pPlayer->GetPosition(), gGameFramework.m_pPlayer->GetUpVector());
+				XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, (*iter)->GetPosition(), (*iter)->GetUpVector());
 				monster->m_xmf4x4ToParent = mtxLookAt;
 				//cout << monster->GetLook().x << monster->GetLook().y << monster->GetLook().z << endl;
 				monster->UpdateTransform(NULL);

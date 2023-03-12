@@ -5,7 +5,6 @@
 #include <thread>
 #include <mutex>
 #include <unordered_set>
-#include <concurrent_priority_queue.h>
 #include "protocol.h"
 
 #pragma comment(lib, "WS2_32.lib")
@@ -58,7 +57,6 @@ public:
 	short _id;
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity, m_xmf3Gravity;
-	float m_fPitch, m_fYaw, m_fRoll;
 	float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
 	DWORD direction;
 	char	_name[NAME_SIZE];
@@ -80,7 +78,6 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		m_xmf3Gravity = { 0.f, -250.f, 0.f };
-		m_fPitch = m_fYaw = m_fRoll = 0.f;
 		m_fMaxVelocityY = 100.f;
 		m_fMaxVelocityXZ = 10.f;
 		m_fFriction = 20.f;
