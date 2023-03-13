@@ -411,10 +411,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				player->SetUpVector(packet->Up);
 				player->SetRightVector(packet->Right);
 				ProcessAnimation(player, packet);
-				if (player->GetPosition().y != packet->Pos.y) {
-					cout << "기존: " << player->GetPosition().x << ", " << player->GetPosition().y << ", " << player->GetPosition().z << endl
-						<< "신규: " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
-				}
+				//if (player->GetPosition().y != packet->Pos.y) {
+				//	cout << "기존: " << player->GetPosition().x << ", " << player->GetPosition().y << ", " << player->GetPosition().z << endl
+				//		<< "신규: " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
+				//}
 				player->SetPosition(packet->Pos);
 				break;
 			}
