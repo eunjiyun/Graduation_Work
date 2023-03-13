@@ -77,10 +77,10 @@ public:
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		m_xmf3Gravity = { 0.f, -15.f, 0.f };
-		m_fMaxVelocityY = 150.f;
+		m_xmf3Gravity = { 0.f, -6.0f, 0.f };
+		m_fMaxVelocityY = 100.f;
 		m_fMaxVelocityXZ = 10.f;
-		m_fFriction = 20.f;
+		m_fFriction = 30.f;
 		direction = 0;
 		cur_stage = 0;
 		_name[0] = 0;
@@ -153,11 +153,25 @@ public:
 		onRun = dwDirection & DIR_RUN;
 		character_num = (character_num + (dwDirection & DIR_CHANGESTATE)) % 3;
 
-		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, fDistance, false), dwDirection& DIR_FORWARD, false));
-		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, -fDistance, false), dwDirection & DIR_BACKWARD, false));
-		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, fDistance, false), dwDirection & DIR_RIGHT, false));
-		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, -fDistance, false), dwDirection & DIR_LEFT, false));
-		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Up, fDistance, false), dwDirection & DIR_JUMP, false));		
+		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, fDistance, false), dwDirection& DIR_FORWARD, false));
+		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, -fDistance, false), dwDirection & DIR_BACKWARD, false));
+		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, fDistance, false), dwDirection & DIR_RIGHT, false));
+		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, -fDistance, false), dwDirection & DIR_LEFT, false));
+		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Up, fDistance, false), dwDirection & DIR_JUMP, false));		
+
+		if (dwDirection & DIR_FORWARD)
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+
+		if (dwDirection & DIR_BACKWARD)
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
+
+		if (dwDirection & DIR_RIGHT)
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
+
+		if (dwDirection & DIR_LEFT)
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
+
+		if (dwDirection & DIR_JUMP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 1.5);
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 
 

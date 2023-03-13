@@ -155,7 +155,7 @@ void update_thread()
 	m_GameTimer.Start();
 	while (1)
 	{
-		m_GameTimer.Tick(0.0f);
+		m_GameTimer.Tick(10.0f);
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
 				if (clients[i][j]._state != ST_INGAME) continue;

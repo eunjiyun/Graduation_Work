@@ -45,7 +45,9 @@ void GamePlayer_ProcessInput()
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
-			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP ;//space jump
+			if (pKeysBuffer[0x20] & 0xF0) {
+				dwDirection |= DIR_JUMP; 
+			} //space jump
 
 			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change
 			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
@@ -410,6 +412,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				player->SetUpVector(packet->Up);
 				player->SetRightVector(packet->Right);
 				ProcessAnimation(player, packet);
+				if (player->GetPosition().y != packet->Pos.y) {
+					cout << "기존: " << player->GetPosition().x << ", " << player->GetPosition().y << ", " << player->GetPosition().z << endl
+						<< "신규: " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
+				}
 				player->SetPosition(packet->Pos);
 				break;
 			}

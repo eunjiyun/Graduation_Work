@@ -503,11 +503,10 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				m_pPlayer->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
 				continue;
 			}
-
 			//cout << Calculate_Direction(oBox, pBox).x << ", " << Calculate_Direction(oBox, pBox).y << ", " << Calculate_Direction(oBox, pBox).z << endl; // 충돌한 방향 벡터 출력 
 
-			/*cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-				"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;*/
+			//cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+			//	"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {

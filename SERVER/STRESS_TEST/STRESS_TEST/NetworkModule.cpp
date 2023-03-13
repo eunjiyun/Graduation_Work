@@ -365,8 +365,8 @@ void Test_Thread()
 			my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
 			my_packet.id = i;
 			//my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
-			cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
-				<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
+			//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
+			//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
 			SendPacket(i, &my_packet);
 		}
 	}
