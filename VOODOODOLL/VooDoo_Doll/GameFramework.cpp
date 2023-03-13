@@ -840,6 +840,7 @@ void CGameFramework::ProcessInput()
 		if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 		if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 		if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
+		if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP;//space jump
 
 		//23.02.20
 		if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change

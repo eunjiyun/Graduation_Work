@@ -77,8 +77,8 @@ public:
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		m_xmf3Gravity = { 0.f, -250.f, 0.f };
-		m_fMaxVelocityY = 100.f;
+		m_xmf3Gravity = { 0.f, -15.f, 0.f };
+		m_fMaxVelocityY = 150.f;
 		m_fMaxVelocityXZ = 10.f;
 		m_fFriction = 20.f;
 		direction = 0;
@@ -157,6 +157,7 @@ public:
 		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, -fDistance, false), dwDirection & DIR_BACKWARD, false));
 		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, fDistance, false), dwDirection & DIR_RIGHT, false));
 		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, -fDistance, false), dwDirection & DIR_LEFT, false));
+		xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Up, fDistance, false), dwDirection & DIR_JUMP, false));		
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 
 

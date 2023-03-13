@@ -16,6 +16,7 @@
 #define DIR_DIE					0x40
 #define DIR_COLLECT				0x80
 #define DIR_CHANGESTATE			0x100
+#define DIR_JUMP				0x200
 
 class CShader;
 class CStandardShader;

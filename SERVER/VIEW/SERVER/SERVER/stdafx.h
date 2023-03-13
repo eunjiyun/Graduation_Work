@@ -71,7 +71,7 @@ using namespace std;
 #define DIR_DIE					0x40//¹®Á¦
 #define DIR_COLLECT				0x80
 #define DIR_CHANGESTATE			0x100
-
+#define DIR_JUMP				0x200
 
 
 
@@ -168,10 +168,10 @@ namespace Vector3
 
 	inline float Length(XMFLOAT3& xmf3Vector)
 	{
-		//XMFLOAT3 xmf3Result;
-		//XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
-		//return(xmf3Result.x);
-		return sqrtf(xmf3Vector.x * xmf3Vector.x + xmf3Vector.z * xmf3Vector.z);
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
+		return(xmf3Result.x);
+		//return sqrtf(xmf3Vector.x * xmf3Vector.x + xmf3Vector.z * xmf3Vector.z);
 	}
 
 	inline float Angle(XMVECTOR& xmvVector1, XMVECTOR& xmvVector2)
