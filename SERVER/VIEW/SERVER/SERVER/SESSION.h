@@ -171,7 +171,7 @@ public:
 		if (dwDirection & DIR_LEFT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
-		if (dwDirection & DIR_JUMP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 1.5);
+		if (dwDirection & DIR_JUMP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 
 

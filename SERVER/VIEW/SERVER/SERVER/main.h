@@ -234,17 +234,17 @@ void SESSION::Update(float fTimeElapsed)
 	CheckCollision(fTimeElapsed);
 	Deceleration(fTimeElapsed);
 
-	short stage = GetPosition().z / 600;
-	if (stage > cur_stage) {
-		int monster_count = Initialize_Monster(_id / 4, stage);
-		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-			for (int j = 0; j < monster_count; ++j) {
-				clients[_id / 4][i].send_summon_monster_packet(j);
-			}
-			clients[_id / 4][i].cur_stage = stage;
-			cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
-		}
-	}
+	//short stage = GetPosition().z / 600;
+	//if (stage > cur_stage) {
+	//	int monster_count = Initialize_Monster(_id / 4, stage);
+	//	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
+	//		for (int j = 0; j < monster_count; ++j) {
+	//			clients[_id / 4][i].send_summon_monster_packet(j);
+	//		}
+	//		clients[_id / 4][i].cur_stage = stage;
+	//		cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
+	//	}
+	//}
 
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
