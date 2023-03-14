@@ -116,11 +116,14 @@ void SESSION::CheckCollision(float fTimeElapsed)
 	for (MapObject*& object : Objects[collide_range]) {
 		BoundingBox oBox = object->m_xmOOBB;
 		if (m_xmOOBB.Intersects(oBox)) {
-			if ((0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17)) && Vel.y <= 0) {
+			if ((0 == strncmp(object->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(object->m_pstrName, "Ceiling_base_mesh", 17) 
+				|| 0 == strncmp(object->m_pstrName, "Stair_step", 10)) && Vel.y <= 0) {
+			//if (m_xmOOBB.Center.y - m_xmOOBB.Extents.y > oBox.Center.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + m_xmOOBB.Extents.y;
 				SetPosition(Pos);
 				SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
+				onFloor = true;
 				continue;
 			}
 			//cout << "Name: " << object->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
@@ -234,17 +237,17 @@ void SESSION::Update(float fTimeElapsed)
 	CheckCollision(fTimeElapsed);
 	Deceleration(fTimeElapsed);
 
-	//short stage = GetPosition().z / 600;
-	//if (stage > cur_stage) {
-	//	int monster_count = Initialize_Monster(_id / 4, stage);
-	//	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-	//		for (int j = 0; j < monster_count; ++j) {
-	//			clients[_id / 4][i].send_summon_monster_packet(j);
-	//		}
-	//		clients[_id / 4][i].cur_stage = stage;
-	//		cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
-	//	}
-	//}
+	short stage = GetPosition().z / 600;
+	if (stage > cur_stage) {
+		int monster_count = Initialize_Monster(_id / 4, stage);
+		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
+			for (int j = 0; j < monster_count; ++j) {
+				clients[_id / 4][i].send_summon_monster_packet(j);
+			}
+			clients[_id / 4][i].cur_stage = stage;
+			cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
+		}
+	}
 
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)

@@ -64,7 +64,7 @@ public:
 	BoundingBox m_xmOOBB;
 	short cur_stage;
 	short error_stack;
-	bool onAttack, onCollect, onDie, onRun;
+	bool onAttack, onCollect, onDie, onRun, onFloor;
 	short character_num;
 	//int		_last_move_time;
 public:
@@ -78,7 +78,7 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		m_xmf3Gravity = { 0.f, -6.0f, 0.f };
-		m_fMaxVelocityY = 100.f;
+		m_fMaxVelocityY = 50.f;
 		m_fMaxVelocityXZ = 10.f;
 		m_fFriction = 30.f;
 		direction = 0;
@@ -92,6 +92,7 @@ public:
 		onCollect = false;
 		onDie = false;
 		onRun = false;
+		onFloor = false;
 		character_num = 0;
 	}
 
@@ -171,7 +172,10 @@ public:
 		if (dwDirection & DIR_LEFT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
-		if (dwDirection & DIR_JUMP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
+		if (dwDirection & DIR_JUMP && onFloor) {
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 10);
+			onFloor = false;
+		}
 		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
 
 

@@ -404,6 +404,7 @@ public:
 	bool onDie = false;//
 	bool onCollect = false;//
 	bool dieOnce = false;//
+	bool onFloor = false;
 	//bool onChange = false;
 	int plWhat = 1;
 

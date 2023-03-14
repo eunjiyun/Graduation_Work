@@ -71,7 +71,8 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_LEFT)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
-		if (dwDirection & DIR_JUMP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
+		if (dwDirection & DIR_JUMP && onFloor) {
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 10); onFloor = false; }
 		//if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 
 
@@ -405,7 +406,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		SetFriction(10.0f);
 		SetGravity(XMFLOAT3(0.0f, -2.0f, 0.0f));
 		SetMaxVelocityXZ(10.0f);
-		SetMaxVelocityY(100.0f);
+		SetMaxVelocityY(50.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));

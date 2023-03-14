@@ -494,12 +494,14 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 		if (pBox.Intersects(oBox))
 		{
-			if ((0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)) && Vel.y <= 0) {
-				// if (pBox.Center.y > oBox.Center.y) {
+			if ((0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
+				|| 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Stair_step", 10)) && Vel.y <= 0) {
+				//if (pBox.Center.y - pBox.Extents.y > oBox.Center.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = m_pPlayer->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
 				m_pPlayer->SetPosition(Pos);			
 				m_pPlayer->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
+				m_pPlayer->onFloor = true;
 				continue;
 			}
 			//cout << Calculate_Direction(oBox, pBox).x << ", " << Calculate_Direction(oBox, pBox).y << ", " << Calculate_Direction(oBox, pBox).z << endl; // 충돌한 방향 벡터 출력 
