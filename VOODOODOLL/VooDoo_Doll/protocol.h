@@ -40,7 +40,6 @@ struct CS_MOVE_PACKET {
 	DWORD	direction = 0;
 	short	id;
 	float cxDelta, cyDelta, czDelta;
-	XMFLOAT3 pos;
 	//unsigned move_time;
 };
 

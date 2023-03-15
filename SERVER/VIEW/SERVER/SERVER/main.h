@@ -170,21 +170,21 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 2, {-100.f + 50.f * i, -17.5f, 600.f});
+			monsters[roomNum][i].Initialize(roomNum, i+1, { -100.f + 20.f * i, -17.5f, 700.f + i * 60.f });
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 1, { -50.f + 50.f * i, -17.5f, 1200.f });
+			monsters[roomNum][i].Initialize(roomNum, i + 1, { -50.f + 50.f * i, -17.5f, 1500.f + i * 100.f });
 		}
 		break;
-	case 3:
-		monster_count = 4;
-		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 1, { -170.f + 50.f * i, -17.5f, 1800.f });
-		}
-		break;
+	//case 3:
+	//	monster_count = 4;
+	//	for (int i = 0; i < monster_count; ++i) {
+	//		monsters[roomNum][i].Initialize(roomNum, 1, { -170.f + 50.f * i, -17.5f, 1800.f });
+	//	}
+	//	break;
 	}
 	return monster_count;
 }
@@ -242,7 +242,7 @@ void SESSION::Update(float fTimeElapsed)
 		int monster_count = Initialize_Monster(_id / 4, stage);
 		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
 			for (int j = 0; j < monster_count; ++j) {
-				clients[_id / 4][i].send_summon_monster_packet(j);
+				if (clients[_id / 4][i]._state == ST_INGAME) clients[_id / 4][i].send_summon_monster_packet(j);
 			}
 			clients[_id / 4][i].cur_stage = stage;
 			cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
@@ -409,7 +409,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		}
 		iter = getNode(&openList);
 		S_Node = *iter;
-		if (BoundingBox(S_Node->Pos, { 5,3,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
+		if (BoundingBox(S_Node->Pos, { 5,20,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
 		{
 			while (S_Node->parent != nullptr)
 			{
@@ -466,7 +466,9 @@ void Monster::Update()
 	}
 	if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
 	{
-		cur_animation_track = 2;
+		if (type != 3) {
+			cur_animation_track = 2;
+		}
 		return;
 	}
 	Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());

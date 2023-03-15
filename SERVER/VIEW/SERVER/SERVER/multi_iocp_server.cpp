@@ -164,7 +164,7 @@ void update_thread()
 					clients[i][j].Update(m_GameTimer.GetTimeElapsed());
 				}
 				for (auto& cl : clients[i]) {
-					cl.send_move_packet(clients[i][j]._id);
+					if (cl._state == ST_INGAME)  cl.send_move_packet(clients[i][j]._id);
 				}
 			}
 		}
@@ -182,12 +182,12 @@ void update_NPC()
 				if (monsters[i][k].is_alive) {
 					monsters[i][k].Update();
 					for (auto& cl : clients[i]) {
-						cl.send_NPCUpdate_packet(k);
-						this_thread::sleep_for(1ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+						if (cl._state == ST_INGAME) cl.send_NPCUpdate_packet(k);
 					}
 				}
 			}
 		}
+		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
 		//cout << "1cycle - " << clock() - start_time << endl;
 	}
 }

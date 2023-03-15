@@ -327,7 +327,9 @@ public:
     float rotate_Angle = 0.f;
     short target_id = -1; // ÃßÀûÇÏ´Â ÇÃ·¹ÀÌ¾î ID
     Monster() { }
-    
+#if USEPOOL == 1
+    ~Monster() { delete PoolHandle; }
+#endif 
     void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)
     {
         Pos = _pos;
@@ -336,33 +338,47 @@ public:
         BB = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(5, 3, 5));
         switch (_type)
         {
-        case 1:
+        case 1: // ¼Õ¿¡ Ä®
             type = 1;
+            HP = 150;
+            power = 30;
+            view_range = 400;
+            speed = 2;
+            break;
+        case 2: // »À´Ù±Í ´Ù¸®
+            type = 2;
             HP = 100;
             power = 30;
             view_range = 200;
-            speed = 10;
+            speed = 2;
             break;
-        case 2:
-            type = 2;
-            HP = 60;
-            power = 30;
-            view_range = 400;
-            speed = 6;
-            break;
-        case 3:
+        case 3: // ±Í½Å
             type = 3;
-            HP = 10000;
+            HP = 50;
             power = 50;
             view_range = 300;
-            speed = 2;
+            speed = 1;
             break;
         case 4:
             type = 4;
+            HP = 50;
+            power = 70;
+            view_range = 400;
+            speed = 2;
+            break;
+        case 5: // ¸¶¼ú»ç
+            type = 5;
+            HP = 50;
+            power = 70;
+            view_range = 400;
+            speed = 2;
+            break;
+        case 6:
+            type = 6;
             HP = 500;
             power = 70;
-            view_range = 1000;
-            speed = 4;
+            view_range = 400;
+            speed = 2;
             break;
         }
     }
@@ -383,17 +399,8 @@ public:
     XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
     XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
     XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
-
+    short GetSpeed() { return speed; }
+    short GetPower() { return power; }
 };
 
 
-
-struct Comp
-{
-    bool operator()(A_star_Node* const& A, A_star_Node* const& B) const
-    {
-        if (A->F > B->F) return true;
-
-        else return false;
-    }
-};

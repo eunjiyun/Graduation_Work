@@ -17,6 +17,8 @@ constexpr short SERVER_PORT = 3500;
 SOCKET s_socket;
 char	recv_buffer[BUF_SIZE];
 thread* recv_t;
+OVER_EXP recv_over;
+short _prev_remain = 0;
 DWORD Old_Direction = 0;
 #pragma endregion
 
@@ -32,8 +34,9 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
 void RecvThread();
+void do_recv();
 
-void GamePlayer_ProcessInput()
+void ProcessInput()
 {
 	static UCHAR pKeysBuffer[256];
 	DWORD dwDirection = 0;
@@ -46,8 +49,8 @@ void GamePlayer_ProcessInput()
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP;
-			 //space jump
-			
+			//space jump
+
 			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change
 			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
 			else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
@@ -77,7 +80,6 @@ void GamePlayer_ProcessInput()
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
-		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		if (cxDelta || cyDelta)
 		{
 			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
@@ -93,9 +95,13 @@ void GamePlayer_ProcessInput()
 
 		}
 
-		int ErrorStatus = send(s_socket, (char*)&p, sizeof(CS_MOVE_PACKET), 0);
-		if (ErrorStatus == SOCKET_ERROR)
-			cout << "SEND_PACKET_ERROR\n";
+		recv_over._wsabuf.len = p.size;
+		recv_over._wsabuf.buf = recv_over._send_buf;
+		ZeroMemory(&recv_over._over, sizeof(recv_over._over));
+		memcpy(recv_over._wsabuf.buf, reinterpret_cast<char*>(&p), recv_over._wsabuf.len);
+		int ErrorStatus = WSASend(s_socket, &recv_over._wsabuf, 1, 0, 0, &recv_over._over, 0);
+		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+
 		Old_Direction = dwDirection;
 	}
 }
@@ -104,6 +110,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+
+	wcout.imbue(locale("korean"));
 
 	MSG msg;
 	HACCEL hAccelTable;
@@ -116,8 +124,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
-	//clienttest
-#pragma region SERVER
+#pragma region SERVER ACCESS
 
 	WSADATA WSAData;
 	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
@@ -125,7 +132,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	{
 		cout << "WSAStartup 실패\n";
 	}
-	s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, 0, 0, WSA_FLAG_OVERLAPPED);
+	s_socket = WSASocket(PF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (s_socket == INVALID_SOCKET)
 	{
 		cout << "소켓 생성 실패\n";
@@ -141,18 +148,29 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
 	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
 
+
+
 	// 서버에게 자신의 정보를 패킷으로 전달
 	CS_LOGIN_PACKET p;
 	p.size = sizeof(CS_LOGIN_PACKET);
 	p.type = CS_LOGIN;
-	ErrorStatus = send(s_socket, reinterpret_cast<char*>(&p), p.size, 0);
-	if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+	recv_over._wsabuf.len = p.size;
+	recv_over._wsabuf.buf = recv_over._send_buf;
+	ZeroMemory(&recv_over._over, sizeof(recv_over._over));
+	memcpy(recv_over._wsabuf.buf, reinterpret_cast<char*>(&p), recv_over._wsabuf.len);
+	ErrorStatus = WSASend(s_socket, &recv_over._wsabuf, 1, 0, 0, &recv_over._over, 0);
+	//s_wsabuf->len = p.size;
+	//s_wsabuf->buf = reinterpret_cast<char*>(&p);
+	//ZeroMemory(&s_over, sizeof(s_over));
+	//ErrorStatus = WSASend(s_socket, s_wsabuf, 1, 0, 0, &s_over, 0);
+	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
-	recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
+	//recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
 
 #pragma endregion 
 
 
+	do_recv();
 	while (1)
 	{
 		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -166,11 +184,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			//clienttest
-			GamePlayer_ProcessInput();
+			SleepEx(0, true);
+			ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
+
+
+
+
 
 	//clienttest
 	recv_t->join();
@@ -390,7 +412,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_SUMMON_MONSTER: {
 		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-		cout << packet->id << " Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
+		cout << packet->monster_type << " Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
 		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}
@@ -431,13 +453,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				}
 				auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [&packet](CPlayer* pl) {return pl->c_id == packet->Chasing_PlayerID; });
 				if (monster->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
-					//cout << "packetTrack - " << packet->animation_track << ", " << "curTrack - " << monster->m_pSkinnedAnimationController->Cur_Animation_Track << endl;
+					monster->m_pSkinnedAnimationController->SetTrackPosition(monster->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
 					monster->m_pSkinnedAnimationController->SetTrackEnable(monster->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 					monster->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
-				} 
+				}
 				//if (Vector3::Compare(monster->GetPosition(), packet->Pos)) 
-				XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, (*iter)->GetPosition(), (*iter)->GetUpVector());
-				monster->m_xmf4x4ToParent = mtxLookAt;
+				//XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, (*iter)->GetPosition(), (*iter)->GetUpVector());
+				//monster->m_xmf4x4ToParent = mtxLookAt;
 				//cout << monster->GetLook().x << monster->GetLook().y << monster->GetLook().z << endl;
 				monster->UpdateTransform(NULL);
 				monster->SetPosition(packet->Pos);
@@ -449,42 +471,81 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 }
 
-void ProcessData(char* packet, int io_byte)
+//void ProcessData(char* packet, int io_byte)
+//{
+//	char* ptr = packet;
+//	static size_t in_packet_size = 0;
+//	static size_t saved_packet_size = 0;
+//	static char packet_buffer[BUF_SIZE];
+//
+//	while (io_byte != 0) {
+//		if (0 == in_packet_size) in_packet_size = ptr[0];
+//		if (io_byte + saved_packet_size >= in_packet_size) {
+//			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
+//			ProcessPacket(packet_buffer);
+//
+//			ptr += in_packet_size - saved_packet_size;
+//			//ptr += in_packet_size;
+//			io_byte -= int(in_packet_size - saved_packet_size);//'-=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+//			in_packet_size = 0;
+//			saved_packet_size = 0;
+//		}
+//		else {
+//			memcpy(packet_buffer + saved_packet_size, ptr, io_byte);
+//			saved_packet_size += io_byte;
+//			io_byte = 0;
+//		}
+//	}
+//}
+//
+//
+//
+//void RecvThread()
+//{
+//	while (1)
+//	{
+//		int Length = recv(s_socket, recv_buffer, BUF_SIZE, 0);
+//		if (Length == 0)
+//			return;
+//		ProcessData(recv_buffer, Length);
+//	}
+//}
+
+
+void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags)
 {
-	char* ptr = packet;
+	char* ptr = recv_over._send_buf;
 	static size_t in_packet_size = 0;
 	static size_t saved_packet_size = 0;
 	static char packet_buffer[BUF_SIZE];
-
-	while (io_byte != 0) {
+	while (num_bytes != 0) {
 		if (0 == in_packet_size) in_packet_size = ptr[0];
-		if (io_byte + saved_packet_size >= in_packet_size) {
+		if (num_bytes + saved_packet_size >= in_packet_size) {
 			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
 			ProcessPacket(packet_buffer);
 
-			//ptr += in_packet_size - saved_packet_size;
-			ptr += in_packet_size;
-			io_byte -= int(in_packet_size - saved_packet_size);//'-=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+			ptr += in_packet_size - saved_packet_size;
+			num_bytes -= int(in_packet_size - saved_packet_size);
 			in_packet_size = 0;
 			saved_packet_size = 0;
 		}
 		else {
-			memcpy(packet_buffer + saved_packet_size, ptr, io_byte);
-			saved_packet_size += io_byte;
-			io_byte = 0;
+			memcpy(packet_buffer + saved_packet_size, ptr, num_bytes);
+			saved_packet_size += num_bytes;
+			num_bytes = 0;
 		}
 	}
+	do_recv();
 }
 
 
 
-void RecvThread()
+void do_recv()
 {
-	while (1)
-	{
-		int Length = recv(s_socket, recv_buffer, BUF_SIZE, 0);
-		if (Length == 0)
-			return;
-		ProcessData(recv_buffer, Length);
-	}
+	DWORD r_flag = 0;
+	memset(&recv_over._over, 0, sizeof(recv_over._over));
+	recv_over._wsabuf.len = BUF_SIZE;
+	recv_over._wsabuf.buf = recv_over._send_buf;
+	int ret = WSARecv(s_socket, &recv_over._wsabuf, 1, NULL, &r_flag, &recv_over._over, recv_callback);
+	if (ret != 0 && WSAGetLastError() != ERROR_IO_PENDING) err_display("WSARecv()");
 }

@@ -9,20 +9,7 @@
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
-//
-//enum EVENT_TYPE { EV_RANDOM_MOVE };
-//
-//struct TIMER_EVENT {
-//	int obj_id;
-//	chrono::system_clock::time_point wakeup_time;
-//	EVENT_TYPE event_id;
-//	int target_id;
-//	constexpr bool operator < (const TIMER_EVENT& L) const
-//	{
-//		return (wakeup_time > L.wakeup_time);
-//	}
-//};
-//concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
+
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_MOVE };
 class OVER_EXP {
@@ -104,14 +91,15 @@ public:
 		memset(&_recv_over._over, 0, sizeof(_recv_over._over));
 		_recv_over._wsabuf.len = BUF_SIZE - _prev_remain;
 		_recv_over._wsabuf.buf = _recv_over._send_buf + _prev_remain;
-		WSARecv(_socket, &_recv_over._wsabuf, 1, 0, &recv_flag,
-			&_recv_over._over, 0);
+		int ret = WSARecv(_socket, &_recv_over._wsabuf, 1, 0, &recv_flag, &_recv_over._over, 0);
+		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSARecv()");
 	}
 
 	void do_send(void* packet)
 	{
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
-		WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
+		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
+		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
 	void send_login_info_packet()
 	{

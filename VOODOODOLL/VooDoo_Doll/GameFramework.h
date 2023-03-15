@@ -44,7 +44,6 @@ public:
 	LONG		Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
 	LONG		Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
 
-	void ProcessInput();
 	void AnimateObjects(float fTimeElapsed);
 	void FrameAdvance();
 
