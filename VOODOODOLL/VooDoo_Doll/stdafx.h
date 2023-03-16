@@ -22,6 +22,7 @@
 
 #include <fstream>
 #include <vector>
+#include <chrono>
 
 //consol
 #ifdef UNICODE
@@ -32,6 +33,7 @@
 
 #include<iostream>
 using namespace std;
+using namespace chrono;
 //
 
 #include <WS2tcpip.h>
@@ -247,9 +249,14 @@ namespace Vector3
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
 
-	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	inline bool Compare2D(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.z == xmf3Vector2.z);
+	}
+
+	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.y == xmf3Vector2.y && xmf3Vector1.z == xmf3Vector2.z);
 	}
 }
 

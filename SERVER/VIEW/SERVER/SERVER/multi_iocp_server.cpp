@@ -19,7 +19,6 @@ void process_packet(int c_id, char* packet)
 {
 	switch (packet[1]) {
 	case CS_LOGIN: {
-		//cout << "Client[" << c_id << "] Accessed\n";
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		strcpy_s(clients[c_id / 4][c_id % 4]._name, p->name);
 		clients[c_id / 4][c_id % 4].direction = 0;
@@ -45,7 +44,7 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		lock_guard <mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		//clients[c_id / 4][c_id % 4].CheckPosition(p->pos);
+		clients[c_id / 4][c_id % 4].CheckPosition(p->pos);
 		clients[c_id / 4][c_id % 4].direction = p->direction;
 		clients[c_id / 4][c_id % 4].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 	}
@@ -86,7 +85,7 @@ void worker_thread(HANDLE h_iocp)
 					clients[client_id / 4][client_id % 4]._state = ST_ALLOC;
 				}
 				clients[client_id / 4][client_id % 4].m_xmf3Position.x = -50;
-				clients[client_id / 4][client_id % 4].m_xmf3Position.y = -20;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.y = -17.5;
 				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 0;
 				clients[client_id / 4][client_id % 4]._id = client_id;
 				clients[client_id / 4][client_id % 4]._name[0] = 0;
@@ -176,7 +175,6 @@ void update_NPC()
 {
 	while (1)
 	{
-		//clock_t start_time = clock();
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
 				if (monsters[i][k].is_alive) {
@@ -188,7 +186,6 @@ void update_NPC()
 			}
 		}
 		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
-		//cout << "1cycle - " << clock() - start_time << endl;
 	}
 }
 

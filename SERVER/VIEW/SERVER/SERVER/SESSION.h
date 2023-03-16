@@ -53,6 +53,7 @@ public:
 	short error_stack;
 	bool onAttack, onCollect, onDie, onRun, onFloor;
 	short character_num;
+	bool overwrite;
 	//int		_last_move_time;
 public:
 	SESSION()
@@ -81,6 +82,7 @@ public:
 		onRun = false;
 		onFloor = false;
 		character_num = 0;
+
 	}
 
 	~SESSION() {}

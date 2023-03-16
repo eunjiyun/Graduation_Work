@@ -39,6 +39,7 @@ void SESSION::send_move_packet(int c_id)
 	p.Pos = clients[c_id / 4][c_id % 4].GetPosition();
 	p.direction = clients[c_id / 4][c_id % 4].direction;
 	p.character_num = clients[c_id / 4][c_id % 4].character_num;
+	p.overwrite = clients[c_id / 4][c_id % 4].overwrite;
 	//p.move_time = clients[c_id / 4][c_id % 4]._last_move_time;
 	do_send(&p);
 
@@ -92,17 +93,19 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	// 이동속도가 말도 안되게 빠른 경우 체크
 	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
 	if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
-		error_stack++;
 		cout << "client[" << _id << "] 에러 포인트 감지\n";
+		overwrite = true;
+	} 
+	else {
+		overwrite = false;
+		SetPosition(newPos);
+		UpdateBoundingBox();
 	}
 
-	SetPosition(newPos);
-	UpdateBoundingBox();
-
-	if (error_stack > 500) {
-		disconnect(_id);
-		cout << "에러 스택 500 초과 플레이어 추방\n";
-	}
+	//if (error_stack > 500) {
+	//	disconnect(_id);
+	//	cout << "에러 스택 500 초과 플레이어 추방\n";
+	//}
 
 }
 
@@ -194,7 +197,7 @@ void SESSION::Update(float fTimeElapsed)
 
 	Move(direction, 21.0f, true);
 
-	if (onAttack || onCollect || onDie) m_xmf3Velocity = { 0, 0, 0 };
+	//if (onAttack || onCollect || onDie) m_xmf3Velocity = { 0, 0, 0 };
 
 	if (onAttack)
 	{
@@ -214,28 +217,28 @@ void SESSION::Update(float fTimeElapsed)
 		// 사망 애니메이션 출력  
 	}
 
-	if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
+	//if (onRun) m_fMaxVelocityXZ = 100.0f; else m_fMaxVelocityXZ = 10.0f;
 
-	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
+	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 
 
-	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-	float fMaxVelocityXZ = m_fMaxVelocityXZ;
-	if (fLength > m_fMaxVelocityXZ)
-	{
-		m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
-		m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
-	}
+	//float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
+	//float fMaxVelocityXZ = m_fMaxVelocityXZ;
+	//if (fLength > m_fMaxVelocityXZ)
+	//{
+	//	m_xmf3Velocity.x *= (fMaxVelocityXZ / fLength);
+	//	m_xmf3Velocity.z *= (fMaxVelocityXZ / fLength);
+	//}
 
-	float fMaxVelocityY = m_fMaxVelocityY;
-	fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
-	if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
+	//float fMaxVelocityY = m_fMaxVelocityY;
+	//fLength = sqrtf(m_xmf3Velocity.y * m_xmf3Velocity.y);
+	//if (fLength > m_fMaxVelocityY) m_xmf3Velocity.y *= (fMaxVelocityY / fLength);
 
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	Move(xmf3Velocity);
+	//XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+	//Move(xmf3Velocity);
 
-	CheckCollision(fTimeElapsed);
-	Deceleration(fTimeElapsed);
+	//CheckCollision(fTimeElapsed);
+	//Deceleration(fTimeElapsed);
 
 	short stage = GetPosition().z / 600;
 	if (stage > cur_stage) {
@@ -378,7 +381,7 @@ list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
 
 bool check_openList(XMFLOAT3 _Pos, float _G, A_star_Node* s_node, list<A_star_Node*>* m_List)
 {
-	auto iter = find_if((*m_List).begin(), (*m_List).end(), [&_Pos](A_star_Node* N) {return Vector3::Compare(_Pos, N->Pos); });
+	auto iter = find_if((*m_List).begin(), (*m_List).end(), [&_Pos](A_star_Node* N) {return Vector3::Compare2D(_Pos, N->Pos); });
 	if (iter != (*m_List).end()) {
 		if ((*iter)->G > _G) {
 			(*iter)->G = _G;
@@ -413,7 +416,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		{
 			while (S_Node->parent != nullptr)
 			{
-				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
+				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
 					return S_Node->Pos;
 				}

@@ -20,6 +20,7 @@ thread* recv_t;
 OVER_EXP recv_over;
 short _prev_remain = 0;
 DWORD Old_Direction = 0;
+clock_t elapsedTime = clock();
 #pragma endregion
 
 HINSTANCE						ghAppInstance;
@@ -33,7 +34,6 @@ BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 
-void RecvThread();
 void do_recv();
 
 void ProcessInput()
@@ -48,8 +48,7 @@ void ProcessInput()
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
-			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP;
-			//space jump
+			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
 
 			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change
 			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
@@ -73,13 +72,13 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if ((dwDirection != Old_Direction) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-	{
+	if (dwDirection || clock() - elapsedTime > 100 || cxDelta != 0.0f || cyDelta != 0.0f) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
+		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		if (cxDelta || cyDelta)
 		{
 			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
@@ -94,15 +93,10 @@ void ProcessInput()
 			}
 
 		}
-
-		recv_over._wsabuf.len = p.size;
-		recv_over._wsabuf.buf = recv_over._send_buf;
-		ZeroMemory(&recv_over._over, sizeof(recv_over._over));
-		memcpy(recv_over._wsabuf.buf, reinterpret_cast<char*>(&p), recv_over._wsabuf.len);
-		int ErrorStatus = WSASend(s_socket, &recv_over._wsabuf, 1, 0, 0, &recv_over._over, 0);
+		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-
-		Old_Direction = dwDirection;
+		elapsedTime = clock();
 	}
 }
 
@@ -154,19 +148,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	CS_LOGIN_PACKET p;
 	p.size = sizeof(CS_LOGIN_PACKET);
 	p.type = CS_LOGIN;
-	recv_over._wsabuf.len = p.size;
-	recv_over._wsabuf.buf = recv_over._send_buf;
-	ZeroMemory(&recv_over._over, sizeof(recv_over._over));
-	memcpy(recv_over._wsabuf.buf, reinterpret_cast<char*>(&p), recv_over._wsabuf.len);
-	ErrorStatus = WSASend(s_socket, &recv_over._wsabuf, 1, 0, 0, &recv_over._over, 0);
-	//s_wsabuf->len = p.size;
-	//s_wsabuf->buf = reinterpret_cast<char*>(&p);
-	//ZeroMemory(&s_over, sizeof(s_over));
-	//ErrorStatus = WSASend(s_socket, s_wsabuf, 1, 0, 0, &s_over, 0);
+	OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+	ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
 	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-
-	//recv_t = new thread{ RecvThread };	// 서버가 보내는 패킷을 받는 스레드 생성
-
+	delete start_data;
 #pragma endregion 
 
 
@@ -184,18 +169,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			SleepEx(0, true);
+			SleepEx(1000.f/30.f, true);
 			ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
 	}
 
-
-
-
-
-	//clienttest
-	recv_t->join();
 	gGameFramework.OnDestroy();
 
 	closesocket(s_socket);
@@ -382,13 +361,13 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
 
 
 	else if (!pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable) {
-		if (Vector3::IsZero(Cmp)) {
-			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+		if (p->direction) {
+			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		}
 		else
 		{
-			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 		}
 	}
 
@@ -427,89 +406,44 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
-		for (auto& player : gGameFramework.Players)
-			if (packet->id == player->c_id) {
-				player->SetLookVector(packet->Look);
-				player->SetUpVector(packet->Up);
-				player->SetRightVector(packet->Right);
-				ProcessAnimation(player, packet);
-				//if (player->GetPosition().y != packet->Pos.y) {
-				//	cout << "기존: " << player->GetPosition().x << ", " << player->GetPosition().y << ", " << player->GetPosition().z << endl
-				//		<< "신규: " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
-				//}
-				player->SetPosition(packet->Pos);
-				break;
-			}
+		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		if (iter == gGameFramework.Players.end()) break;
+		(*iter)->SetLookVector(packet->Look);
+		(*iter)->SetUpVector(packet->Up);
+		(*iter)->SetRightVector(packet->Right);
+		ProcessAnimation(*iter, packet);
+		//if ((*iter)->GetPosition().y != packet->Pos.y || (*iter)->GetPosition().x != packet->Pos.x || (*iter)->GetPosition().z != packet->Pos.z) {
+		//	cout << "기존: " << (*iter)->GetPosition().x << ", " << (*iter)->GetPosition().y << ", " << (*iter)->GetPosition().z << endl
+		//		<< "신규: " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
+		//}
+		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
+		(*iter)->SetPosition(packet->Pos);
 		break;
 	}
 	case SC_MOVE_MONSTER: {
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
-		for (auto& monster : gGameFramework.Monsters)
-		{
-			if (packet->id == monster->c_id) {
-				if (packet->HP <= 0) {
-					monster->c_id = -1;
-					break;
-				}
-				auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [&packet](CPlayer* pl) {return pl->c_id == packet->Chasing_PlayerID; });
-				if (monster->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
-					monster->m_pSkinnedAnimationController->SetTrackPosition(monster->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
-					monster->m_pSkinnedAnimationController->SetTrackEnable(monster->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-					monster->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
-				}
-				//if (Vector3::Compare(monster->GetPosition(), packet->Pos)) 
-				//XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, (*iter)->GetPosition(), (*iter)->GetUpVector());
-				//monster->m_xmf4x4ToParent = mtxLookAt;
-				//cout << monster->GetLook().x << monster->GetLook().y << monster->GetLook().z << endl;
-				monster->UpdateTransform(NULL);
-				monster->SetPosition(packet->Pos);
-				break;
-			}
+		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
+		if (packet->HP <= 0) {
+			gGameFramework.Monsters.erase(iter);
+			break;
 		}
+		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
+			(*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
+			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
+		}
+		//if (Vector3::Compare((*iter)->GetPosition(), packet->Pos)) 
+		//XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, (*iter)->GetPosition(), (*iter)->GetUpVector());
+		//(*iter)->m_xmf4x4ToParent = mtxLookAt;
+		//cout << (*iter)->GetLook().x << (*iter)->GetLook().y << (*iter)->GetLook().z << endl;
+		(*iter)->UpdateTransform(NULL);
+		(*iter)->SetPosition(packet->Pos);
+		break;
+
 		break;
 	}
 	}
 }
-
-//void ProcessData(char* packet, int io_byte)
-//{
-//	char* ptr = packet;
-//	static size_t in_packet_size = 0;
-//	static size_t saved_packet_size = 0;
-//	static char packet_buffer[BUF_SIZE];
-//
-//	while (io_byte != 0) {
-//		if (0 == in_packet_size) in_packet_size = ptr[0];
-//		if (io_byte + saved_packet_size >= in_packet_size) {
-//			memcpy(packet_buffer + saved_packet_size, ptr, in_packet_size - saved_packet_size);
-//			ProcessPacket(packet_buffer);
-//
-//			ptr += in_packet_size - saved_packet_size;
-//			//ptr += in_packet_size;
-//			io_byte -= int(in_packet_size - saved_packet_size);//'-=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-//			in_packet_size = 0;
-//			saved_packet_size = 0;
-//		}
-//		else {
-//			memcpy(packet_buffer + saved_packet_size, ptr, io_byte);
-//			saved_packet_size += io_byte;
-//			io_byte = 0;
-//		}
-//	}
-//}
-//
-//
-//
-//void RecvThread()
-//{
-//	while (1)
-//	{
-//		int Length = recv(s_socket, recv_buffer, BUF_SIZE, 0);
-//		if (Length == 0)
-//			return;
-//		ProcessData(recv_buffer, Length);
-//	}
-//}
 
 
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags)
@@ -525,6 +459,7 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DW
 			ProcessPacket(packet_buffer);
 
 			ptr += in_packet_size - saved_packet_size;
+			//ptr += in_packet_size;
 			num_bytes -= int(in_packet_size - saved_packet_size);
 			in_packet_size = 0;
 			saved_packet_size = 0;
