@@ -432,14 +432,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 		}
-		//if (Vector3::Compare((*iter)->GetPosition(), packet->Pos)) 
-		//XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(packet->Pos, (*iter)->GetPosition(), (*iter)->GetUpVector());
-		//(*iter)->m_xmf4x4ToParent = mtxLookAt;
-		//cout << (*iter)->GetLook().x << (*iter)->GetLook().y << (*iter)->GetLook().z << endl;
-		(*iter)->UpdateTransform(NULL);
+		XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos), 
+			Vector3::RemoveY(gGameFramework.m_pPlayer->GetPosition()), XMFLOAT3(0, 1, 0));
+		mtkLookAt._11 = -mtkLookAt._11;
+		mtkLookAt._21 = -mtkLookAt._21;
+		mtkLookAt._31 = -mtkLookAt._31;
+		(*iter)->m_xmf4x4ToParent = mtkLookAt;
 		(*iter)->SetPosition(packet->Pos);
-		break;
-
 		break;
 	}
 	}

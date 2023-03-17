@@ -85,7 +85,7 @@ void worker_thread(HANDLE h_iocp)
 					clients[client_id / 4][client_id % 4]._state = ST_ALLOC;
 				}
 				clients[client_id / 4][client_id % 4].m_xmf3Position.x = -50;
-				clients[client_id / 4][client_id % 4].m_xmf3Position.y = -17.5;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.y = 0;
 				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 0;
 				clients[client_id / 4][client_id % 4]._id = client_id;
 				clients[client_id / 4][client_id % 4]._name[0] = 0;
@@ -167,7 +167,7 @@ void update_thread()
 				}
 			}
 		}
-		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+		this_thread::sleep_for(100ms); // 0.1초당 한번 패킷 전달
 	}
 }
 
@@ -185,7 +185,7 @@ void update_NPC()
 				}
 			}
 		}
-		this_thread::sleep_for(100ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+		this_thread::sleep_for(30ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
 	}
 }
 
@@ -217,10 +217,10 @@ void update_NPC()
 int main()
 {
 	m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
-	clock_t start_time = clock();
 	for (int i = 0; i < m_nObjects; i++) {
-		//if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17))
-		//	continue;
+		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
+			|| 0 == strncmp(m_ppObjects[i]->m_pstrName, "Stair_step", 10))
+			continue;
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
@@ -228,6 +228,7 @@ int main()
 		}		
 	}
 	delete m_ppObjects;
+
 
 
 	WSADATA WSAData;

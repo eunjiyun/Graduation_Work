@@ -14,24 +14,24 @@ typedef unsigned int UINT;
 template<class T>
 class CObjectPool {
 private:
-    queue<shared_ptr<T>> objectQueue;
+    queue<T*> objectQueue;
 public:
     CObjectPool(size_t MemorySize)
     {
         for (int i = 0; i < MemorySize; ++i) {
-            objectQueue.push(make_shared<T>());
+            objectQueue.push(new T());
         }
     }
     ~CObjectPool()
     {
-        objectQueue = queue<shared_ptr<T>>();
+        objectQueue = queue<T*>();
     }
-    shared_ptr<T> GetMemory()
+    T* GetMemory()
     {
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
             for (int i = 0; i< 50; ++i)
-                objectQueue.push(make_shared<T>());
+                objectQueue.push(new T());
         }
 
         auto front = objectQueue.front();
@@ -39,7 +39,7 @@ public:
 
         return front;
     }
-    void ReturnMemory(shared_ptr<T> Mem)
+    void ReturnMemory(T* Mem)
     {
         objectQueue.push(Mem);
     }
@@ -315,10 +315,11 @@ private:
     array<float, MAX_USER_PER_ROOM> distances = { 10000.f };
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
 #if USEPOOL == 1
-    std::unique_ptr<CObjectPool<A_star_Node>> PoolHandle = make_unique<CObjectPool<A_star_Node>>(500);
+    std::unique_ptr<CObjectPool<A_star_Node>> PoolHandle = make_unique<CObjectPool<A_star_Node>>(1000);
 #endif
 public:
-    mutex mon_lock;
+    bool Move_Lock = false;
+    stack<XMFLOAT3> roadToMove;
     short HP;
     BoundingBox BB;
     bool is_alive = false;
@@ -326,10 +327,7 @@ public:
     short cur_animation_track = 0;
     float rotate_Angle = 0.f;
     short target_id = -1; // 추적하는 플레이어 ID
-    Monster() { }
-#if USEPOOL == 1
-    ~Monster() { delete PoolHandle; }
-#endif 
+    Monster() { } 
     void Initialize(short _roomNum, short _type, XMFLOAT3 _pos)
     {
         Pos = _pos;
@@ -340,24 +338,24 @@ public:
         {
         case 1: // 손에 칼
             type = 1;
-            HP = 150;
+            HP = 200;
             power = 30;
-            view_range = 400;
+            view_range = 500;
             speed = 2;
             break;
         case 2: // 뼈다귀 다리
             type = 2;
             HP = 100;
             power = 30;
-            view_range = 200;
-            speed = 2;
+            view_range = 500;
+            speed = 3;
             break;
         case 3: // 귀신
             type = 3;
             HP = 50;
             power = 50;
-            view_range = 300;
-            speed = 1;
+            view_range = 500;
+            speed = 4;
             break;
         case 4:
             type = 4;

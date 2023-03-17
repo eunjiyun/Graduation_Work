@@ -166,6 +166,14 @@ namespace Vector3
 		return(xmf3Result);
 	}
 
+	inline XMFLOAT3 Subtract2D(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
+		xmf3Result.y = 0;
+		return(xmf3Result);
+	}
+
 	inline XMFLOAT3 Subtract(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		XMFLOAT3 xmf3Result;
@@ -257,6 +265,20 @@ namespace Vector3
 	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.y == xmf3Vector2.y && xmf3Vector1.z == xmf3Vector2.z);
+	}
+
+	inline float getDegreeFromTwoVectors(XMFLOAT3 a, XMFLOAT3 b)
+	{
+		double cosAngle = acosf(Vector3::DotProduct(a, b) / (Vector3::Length(a) * Vector3::Length(b)));
+		cosAngle *= (180.f / 3.141592654);
+		cosAngle = (a.x * b.z - a.z * b.x > 0) ? cosAngle : -cosAngle;
+		return (float)cosAngle;
+	}
+
+	inline XMFLOAT3 RemoveY(XMFLOAT3 xmf3Vector)
+	{
+		xmf3Vector.y = 0;
+		return xmf3Vector;
 	}
 }
 

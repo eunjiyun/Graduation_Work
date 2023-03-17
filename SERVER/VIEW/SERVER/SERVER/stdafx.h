@@ -40,6 +40,7 @@ using namespace DirectX::PackedVector;
 #include <array>
 #include <set>
 #include <queue>
+#include <stack>
 #include <algorithm>
 #include <type_traits>
 #include<utility>
@@ -214,6 +215,11 @@ namespace Vector3
 	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
 	{
 		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.y == xmf3Vector2.y && xmf3Vector1.z == xmf3Vector2.z);
+	}
+	inline XMFLOAT3 RemoveY(XMFLOAT3& xmf3Vector)
+	{
+		xmf3Vector.y = 0;
+		return xmf3Vector;
 	}
 }
 

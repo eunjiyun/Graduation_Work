@@ -1359,6 +1359,25 @@ XMFLOAT3 CGameObject::GetRight()
 	return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
 }
 
+void CGameObject::SetLook(XMFLOAT3 _in)
+{
+	m_xmf4x4World._31 = _in.x;
+	m_xmf4x4World._32 = _in.y;
+	m_xmf4x4World._33 = _in.z;
+}
+void CGameObject::SetUp(XMFLOAT3 _in)
+{
+	m_xmf4x4World._21 = _in.x;
+	m_xmf4x4World._22 = _in.y;
+	m_xmf4x4World._23 = _in.z;
+}
+void CGameObject::SetRight(XMFLOAT3 _in)
+{
+	m_xmf4x4World._11 = _in.x;
+	m_xmf4x4World._12 = _in.y;
+	m_xmf4x4World._13 = _in.z;
+}
+
 void CGameObject::MoveStrafe(float fDistance)
 {
 	XMFLOAT3 xmf3Position = GetPosition();
