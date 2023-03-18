@@ -76,9 +76,6 @@ void SESSION::send_summon_monster_packet(int npc_id)
 	summon_packet.id = npc_id;
 	summon_packet.size = sizeof(summon_packet);
 	summon_packet.type = SC_SUMMON_MONSTER;
-	//summon_packet.Look = clients[c_id / 4][c_id % 4].m_xmf3Look;
-	//summon_packet.Right = clients[c_id / 4][c_id % 4].m_xmf3Right;
-	//summon_packet.Up = clients[c_id / 4][c_id % 4].m_xmf3Up;
 	summon_packet.Pos = monsters [_id / 4][npc_id].GetPosition();
 	summon_packet.monster_type = monsters[_id / 4][npc_id].getType();
 	do_send(&summon_packet);
@@ -181,19 +178,19 @@ int Initialize_Monster(int roomNum, int stageNum)
 	case 1:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, i+1, { -100.f + 20.f * i, -17.5f, 700.f + i * 60.f });
+			monsters[roomNum][i].Initialize(roomNum, 0, { -100.f + 20.f * i, -17.5f, 700.f + i * 60.f });
 		}
 		break;
 	case 2:
 		monster_count = 3;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, i + 1, { -50.f + 50.f * i, -17.5f, 1500.f + i * 100.f });
+			monsters[roomNum][i].Initialize(roomNum, 0, { -100.f + 20.f * i, -17.5f, 700.f + i * 60.f });
 		}
 		break;
 	case 3:
 		monster_count = 4;
 		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 1, { -170.f + 50.f * i, -17.5f, 1800.f });
+			monsters[roomNum][i].Initialize(roomNum, 0, { -170.f + 50.f * i, -17.5f, 1800.f });
 		}
 		break;
 	}
@@ -222,16 +219,18 @@ void SESSION::Update(float fTimeElapsed)
 		// 사망 애니메이션 출력  
 	}
 
-	short stage = GetPosition().z / 1000;
+	short stage = GetPosition().z / 600;
 
 	if (stage > cur_stage) {
 		int monster_count = Initialize_Monster(_id / 4, stage);
 		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
 			for (int j = 0; j < monster_count; ++j) {
-				if (clients[_id / 4][i]._state == ST_INGAME) clients[_id / 4][i].send_summon_monster_packet(j);
+				if (clients[_id / 4][i]._state == ST_INGAME) {
+					clients[_id / 4][i].send_summon_monster_packet(j);
+					clients[_id / 4][i].cur_stage = stage;
+					cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
+				}
 			}
-			clients[_id / 4][i].cur_stage = stage;
-			cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
 		}
 	}
 

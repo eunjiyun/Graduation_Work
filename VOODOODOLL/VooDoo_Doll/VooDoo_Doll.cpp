@@ -412,10 +412,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetUpVector(packet->Up);
 		(*iter)->SetRightVector(packet->Right);
 		ProcessAnimation(*iter, packet);
-		//if ((*iter)->GetPosition().y != packet->Pos.y || (*iter)->GetPosition().x != packet->Pos.x || (*iter)->GetPosition().z != packet->Pos.z) {
-		//	cout << "기존: " << (*iter)->GetPosition().x << ", " << (*iter)->GetPosition().y << ", " << (*iter)->GetPosition().z << endl
-		//		<< "신규: " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
-		//}
 		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
 		(*iter)->SetPosition(packet->Pos);
 		break;
@@ -424,6 +420,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
 		if (packet->HP <= 0) {
+			short type = (*iter)->npc_type;
+			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
 			gGameFramework.Monsters.erase(iter);
 			break;
 		}

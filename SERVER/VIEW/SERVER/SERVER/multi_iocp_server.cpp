@@ -86,7 +86,7 @@ void worker_thread(HANDLE h_iocp)
 				}
 				clients[client_id / 4][client_id % 4].m_xmf3Position.x = -50;
 				clients[client_id / 4][client_id % 4].m_xmf3Position.y = 0;
-				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 0;
+				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 590;
 				clients[client_id / 4][client_id % 4]._id = client_id;
 				clients[client_id / 4][client_id % 4]._name[0] = 0;
 				clients[client_id / 4][client_id % 4]._prev_remain = 0;

@@ -8,6 +8,9 @@
 #include "Stage.h"
 #include "Login.h"
 #include <vector>
+#include <queue>
+#include <array>
+
 
 class CGameFramework
 {
@@ -92,15 +95,11 @@ private:
 public:
 	bool wakeUp = true;
 	int whatPlayer = 1;
-	bool changePlayerMode = false;
-	int otherPlayerWhat = 1;
-	bool p1Change = false;
 	CGameObject* m_pLockedObject = NULL;
 
-	CLoadedModelInfo** pMonsterModel = NULL;// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
-	int num[6] = {};
-	CLoadedModelInfo* monModel = NULL;
-
+	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
+	array<char*, 6> binFileNames = { "Model/Voodoo19.bin", "Model/Voodoo23.bin", "Model/Voodoo31.bin", "Model/Voodoo41.bin",
+	"Model/Voodoo52.bin" ,"Model/Voodoo62.bin" };
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
 #endif

@@ -486,25 +486,11 @@ void CGameFramework::BuildObjects()
 		Players.push_back(pAirplanePlayer);
 	}
 
-	pMonsterModel = new CLoadedModelInfo * [6];
-
-	pMonsterModel[0] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo19.bin", NULL, 1);
-
-	pMonsterModel[1] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
-
-	//pMonsterModel[6] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
-	//pMonsterModel[7] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
-	//pMonsterModel[8] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo23.bin", NULL, 2);
-
-	pMonsterModel[2] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo31.bin", NULL, 3);
-
-	pMonsterModel[3] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo41.bin", NULL, 4);
-	pMonsterModel[4] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo52.bin", NULL, 5);
-	pMonsterModel[5] = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo62.bin", NULL, 6);
-
-
-	m_nHierarchicalGameObjects = 5;
-	m_ppHierarchicalGameObjects = new CGameObject * [m_nHierarchicalGameObjects];
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 5; j++) {
+			pMonsterModel[i].push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
+		}
+	}
 
 
 
@@ -541,8 +527,6 @@ void CGameFramework::BuildObjects()
 	if (m_pStage) m_pStage->ReleaseUploadBuffers();
 	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 
-	/*for (int i = 0; i < m_nHierarchicalGameObjects; i++)
-		m_ppHierarchicalGameObjects[i]->ReleaseUploadBuffers();*/
 
 
 	m_GameTimer.Reset();
@@ -587,11 +571,17 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 {
 	// 이 함수에서 몬스터를 동적 할당하여 소환함
+	if (pMonsterModel[type].empty()) {
+		cout << "생성실패\n";
+		return;
+	}
 	CMonster* Mon = nullptr;
+	CLoadedModelInfo* Model = pMonsterModel[type].front();
+	pMonsterModel[type].pop();
 	switch (type)
 	{
-	case 1:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[type - 1], 3); //손에 칼	
+	case 0:
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3); //손에 칼	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -600,8 +590,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
-	case 2:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[type - 1], 3);//뼈다귀 다리
+	case 1:
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3);//뼈다귀 다리
 
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -611,16 +601,26 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
-	case 3:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[type - 1], 2);//귀신
+	case 2:
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//귀신
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
+	case 3:
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->SetScale(1.0f, 1.0f, 1.0f);
+		break;
 	case 4:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[type - 1], 3);
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3); // 마술사
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -630,17 +630,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 5:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[type - 1], 3); // 마술사
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->SetScale(1.0f, 1.0f, 1.0f);
-		break;
-	case 6:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), pMonsterModel[type - 1], 5);//손에 바늘
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//손에 바늘
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
