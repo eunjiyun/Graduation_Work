@@ -41,7 +41,7 @@ struct CS_MOVE_PACKET {
 	short	id;
 	float cxDelta, cyDelta, czDelta;
 	XMFLOAT3 pos;
-	//unsigned move_time;
+	//	unsigned move_time;
 };
 
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
@@ -76,8 +76,8 @@ struct SC_MOVE_PLAYER_PACKET {
 	short	id;
 	short	character_num;
 	XMFLOAT3 Look, Up, Right, Pos;
+	bool overwrite;
 	DWORD direction;
-	//unsigned int move_time;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
@@ -88,7 +88,6 @@ struct SC_SUMMON_MONSTER_PACKET {
 	short	id;
 	short monster_type;
 	XMFLOAT3 Pos;
-	//XMFLOAT3 Look, Up, Right;
 };
 constexpr short SC_SUMMON_MONSTER_PACKET_SIZE = sizeof(SC_SUMMON_MONSTER_PACKET);
 
@@ -98,9 +97,8 @@ struct SC_MOVE_MONSTER_PACKET {
 	short	id;
 	XMFLOAT3 Pos;
 	short HP;
-	unsigned short attack; // 공격 타입. 0이면 안하는 것
-	//XMFLOAT3 Look, Up, Right;
-	//DWORD direction;
+	short Chasing_PlayerID;
+	unsigned short animation_track; // 애니메이션 타입
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 #pragma pack (pop)

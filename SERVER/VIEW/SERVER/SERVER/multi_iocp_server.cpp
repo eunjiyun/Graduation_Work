@@ -36,8 +36,8 @@ void process_packet(int c_id, char* packet)
 				if (ST_INGAME != pl._state) continue;
 			}
 			if (pl._id == c_id) continue;
-			pl.send_add_player_packet(c_id);
-			clients[c_id / 4][c_id % 4].send_add_player_packet(pl._id);
+			pl.send_add_player_packet(&clients[c_id / 4][c_id % 4]);
+			clients[c_id / 4][c_id % 4].send_add_player_packet(&pl);
 		}
 		break;
 	}
@@ -128,43 +128,25 @@ void worker_thread(HANDLE h_iocp)
 		case OP_SEND:
 			delete ex_over;
 			break;
-		//case OP_NPC_MOVE:
-		//	bool keep_alive = false;
-		//	for (int j = 0; j < MAX_USER; ++j)
-		//		if (can_see(static_cast<int>(key), j)) {
-		//			keep_alive = true;
-		//			break;
-		//		}
-		//	if (true == keep_alive) {
-		//		do_npc_random_move(static_cast<int>(key));
-		//		TIMER_EVENT ev{ key, chrono::system_clock::now() + 1s, EV_RANDOM_MOVE, 0 };
-		//		timer_queue.push(ev);
-		//	}
-		//	else {
-		//		clients[key]._is_active = false;
-		//	}
-		//	delete ex_over;
-		//	break;
 		}
 	}
 }
 
 void update_thread()
 {
-	m_GameTimer.Start();
 	while (1)
 	{
-		m_GameTimer.Tick(10.0f);
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
 				if (clients[i][j]._state != ST_INGAME) continue;
 				{
 					lock_guard <mutex> ll{ clients[i][j]._s_lock };
-					clients[i][j].Update(m_GameTimer.GetTimeElapsed());
+					clients[i][j].Update();
 				}
 				for (auto& cl : clients[i]) {
-					if (cl._state == ST_INGAME)  cl.send_move_packet(clients[i][j]._id);
+					if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(&clients[i][j]);
 				}
+				if (clients[i][j].direction == DIR_DIE) clients[i][j]._state = ST_DEAD;
 			}
 		}
 		this_thread::sleep_for(100ms); // 0.1초당 한번 패킷 전달
@@ -173,46 +155,23 @@ void update_thread()
 
 void update_NPC()
 {
+	m_GameTimer.Start();
 	while (1)
 	{
+		m_GameTimer.Tick(30.0f);
 		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
 			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
 				if (monsters[i][k].is_alive) {
-					monsters[i][k].Update();
+					monsters[i][k].Update(m_GameTimer.GetTimeElapsed());
 					for (auto& cl : clients[i]) {
-						if (cl._state == ST_INGAME) cl.send_NPCUpdate_packet(k);
+						if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(k);
 					}
 				}
 			}
 		}
-		this_thread::sleep_for(30ms); // busy waiting을 막기 위해 잠깐 기다리는 함수
+		this_thread::sleep_for(30ms);
 	}
 }
-
-//void do_timer()
-//{
-//	while (true) {
-//		TIMER_EVENT ev;
-//		auto current_time = chrono::system_clock::now();
-//		if (true == timer_queue.try_pop(ev)) {
-//			if (ev.wakeup_time > current_time) {
-//				timer_queue.push(ev);		// 최적화 필요
-//				// timer_queue에 다시 넣지 않고 처리해야 한다.
-//				this_thread::sleep_for(1ms);
-//				continue;
-//			}
-//			switch (ev.event_id) {
-//			case EV_RANDOM_MOVE:
-//				OVER_EXP* ov = new OVER_EXP;
-//				ov->_comp_type = OP_NPC_MOVE;
-//				PostQueuedCompletionStatus(h_iocp, 1, ev.obj_id, &ov->_over);
-//				break;
-//			}
-//		}
-//		else this_thread::sleep_for(1ms);
-//	}
-//}
-
 
 int main()
 {

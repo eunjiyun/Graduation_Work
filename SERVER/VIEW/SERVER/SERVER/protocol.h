@@ -5,6 +5,7 @@ constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
 
 constexpr int MAX_USER = 10000;
+constexpr int MAX_ROOM = 2500;
 constexpr int MAX_USER_PER_ROOM = 4;
 constexpr int MAX_MONSTER_PER_ROOM = 10;
 
@@ -75,7 +76,9 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	short	character_num;
+	short	HP;
 	XMFLOAT3 Look, Up, Right, Pos;
+	//XMFLOAT3 BulletPos;
 	bool overwrite;
 	DWORD direction;
 };

@@ -35,7 +35,7 @@ public:
 	}
 };
 
-enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME };
+enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD };
 class SESSION {
 	OVER_EXP _recv_over;
 public:
@@ -45,16 +45,17 @@ public:
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity, m_xmf3Gravity;
 	float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
+	float HP;
 	DWORD direction;
 	char	_name[NAME_SIZE];
 	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
 	short cur_stage;
 	short error_stack;
-	bool onAttack, onCollect, onDie, onRun, onFloor;
+	bool onAttack, onCollect, onDie, onRun, onChange, onShooting; // 중복입력을 막기 위한 bool 변수
 	short character_num;
 	bool overwrite;
-	//int		_last_move_time;
+	//XMFLOAT3 BulletPos;
 public:
 	SESSION()
 	{
@@ -66,6 +67,7 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		m_xmf3Gravity = { 0.f, -6.0f, 0.f };
+		//BulletPos = { 5000,5000,5000 };
 		m_fMaxVelocityY = 50.f;
 		m_fMaxVelocityXZ = 10.f;
 		m_fFriction = 30.f;
@@ -80,8 +82,9 @@ public:
 		onCollect = false;
 		onDie = false;
 		onRun = false;
-		onFloor = false;
+		onChange = false;
 		character_num = 0;
+		HP = 150;
 
 	}
 
@@ -112,8 +115,40 @@ public:
 		p.pos = m_xmf3Position;
 		do_send(&p);
 	}
-	void send_move_packet(int c_id);
-	void send_add_player_packet(int c_id);
+	void send_move_packet(SESSION* Player)
+	{
+		SC_MOVE_PLAYER_PACKET p;
+		p.id = Player->_id;
+		p.size = sizeof(SC_MOVE_PLAYER_PACKET);
+		p.type = SC_MOVE_PLAYER;
+
+		p.Look = Player->GetLookVector();
+		p.Right = Player->GetRightVector();
+		p.Up = Player->GetUpVector();
+		p.Pos = Player->GetPosition();
+		p.direction = Player->direction;
+		p.character_num = Player->character_num;
+		p.HP = Player->HP;
+		p.overwrite = Player->overwrite;
+		//p.BulletPos = Player->BulletPos;
+		do_send(&p);
+	}
+
+	void send_add_player_packet(SESSION* Player)
+	{
+		SC_ADD_PLAYER_PACKET add_packet;
+		add_packet.id = Player->_id;
+
+		strcpy_s(add_packet.name, Player->_name);
+		add_packet.size = sizeof(add_packet);
+		add_packet.type = SC_ADD_PLAYER;
+		add_packet.Look = Player->m_xmf3Look;
+		add_packet.Right = Player->m_xmf3Right;
+		add_packet.Up = Player->m_xmf3Up;
+		add_packet.Pos = Player->GetPosition();
+		do_send(&add_packet);
+	}
+
 	void send_summon_monster_packet(int npc_id);
 	void send_NPCUpdate_packet(int npc_id);
 
@@ -137,39 +172,12 @@ public:
 	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-
-		onAttack = dwDirection & DIR_ATTACK;
-		onDie = dwDirection & DIR_DIE;
-		onCollect = dwDirection & DIR_COLLECT;
-		onRun = dwDirection & DIR_RUN;
-		character_num = (character_num + (dwDirection & DIR_CHANGESTATE)) % 3;
-
-		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, fDistance, false), dwDirection& DIR_FORWARD, false));
-		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Look, -fDistance, false), dwDirection & DIR_BACKWARD, false));
-		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, fDistance, false), dwDirection & DIR_RIGHT, false));
-		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Right, -fDistance, false), dwDirection & DIR_LEFT, false));
-		//xmf3Shift = Vector3::Add(xmf3Shift, Vector3::ScalarProduct(Vector3::ScalarProduct(m_xmf3Up, fDistance, false), dwDirection & DIR_JUMP, false));		
-
-		//if (dwDirection & DIR_FORWARD)
-		//	xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-
-		//if (dwDirection & DIR_BACKWARD)
-		//	xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
-
-		//if (dwDirection & DIR_RIGHT)
-		//	xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, fDistance);
-
-		//if (dwDirection & DIR_LEFT)
-		//	xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
-
-		//if (dwDirection & DIR_JUMP && onFloor) {
-		//	xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 10);
-		//	onFloor = false;
-		//}
-		//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, xmf3Shift);
-
-
-
+		onAttack = dwDirection & DIR_ATTACK && !onAttack;
+		onDie = dwDirection & DIR_DIE && !onDie;
+		onCollect = dwDirection & DIR_COLLECT && !onCollect;
+		onRun = dwDirection & DIR_RUN && !onRun;
+		onChange = dwDirection & DIR_CHANGESTATE && !onChange;
+		character_num = (character_num + onChange) % 3;
 	}
 
 	void Move(const XMFLOAT3& xmf3Shift)
@@ -210,8 +218,8 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void Update(float fTimeElapsed);
+	void Update();
 	void CheckPosition(XMFLOAT3 newPos);
-	void CheckCollision(float fTimeElapsed);
+	// void CheckCollision(float fTimeElapsed);
 };
 

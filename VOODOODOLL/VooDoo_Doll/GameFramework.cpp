@@ -700,15 +700,13 @@ void CGameFramework::FrameAdvance()
 {
 	m_GameTimer.Tick(30.0f);
 
-	//ProcessInput();
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
 
 	m_pPlayer->Update(fTimeElapsed);
-
 	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed);
-
 	m_pPlayer->Deceleration(fTimeElapsed);
+
 
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
 	m_ppBullets[0]->Animate(fTimeElapsed);//ÃÑ¾Ë ¾÷µ«
@@ -775,23 +773,8 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 
-	//m_pPlayer->SetPosition(XMFLOAT3(300, 0, 0));
-	if (m_pPlayer)
-	{
-		//m_pPlayer->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-
-		if (2 == whatPlayer)//±Ã¼ö ¸ðµåÀÏ ¶§ ÃÑ¾Ë ·»´õ
-		{
-			//for (int i = 0; i < BULLETS; ++i)
-			for (int i = 0; i < 1; ++i)
-			{
-				if (m_ppBullets[i]->m_bActive)
-				{
-					m_ppBullets[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-				}
-			}
-		}
-	}
+	//m_ppBullets[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//m_ppBullets[0]->SetPosition(m_pPlayer->GetPosition());
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

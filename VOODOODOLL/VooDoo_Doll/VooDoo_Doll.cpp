@@ -50,13 +50,12 @@ void ProcessInput()
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
 
-			else if (pKeysBuffer[0x51] & 0xF0) dwDirection = DIR_CHANGESTATE;//q change
-			else if (pKeysBuffer[0x5A] & 0xF0) dwDirection = DIR_ATTACK;//z Attack
-			else if (pKeysBuffer[0x43] & 0xF0) dwDirection = DIR_COLLECT;//c collect
-			else if (pKeysBuffer[0x4B] & 0xF0) dwDirection = DIR_DIE;//k die 
+			else if (pKeysBuffer[0x51] & 0xF0 && Old_Direction != DIR_CHANGESTATE) dwDirection = DIR_CHANGESTATE;//q change
+			else if (pKeysBuffer[0x5A] & 0xF0 && Old_Direction != DIR_ATTACK) dwDirection = DIR_ATTACK;//z Attack
+			else if (pKeysBuffer[0x43] & 0xF0 && Old_Direction != DIR_COLLECT) dwDirection = DIR_COLLECT;//c collect
+			else if (pKeysBuffer[0x4B] & 0xF0 && Old_Direction != DIR_DIE) dwDirection = DIR_DIE;//k die 
 		}
 	}
-
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
 	if (GetCapture() == gGameFramework.Get_HWND())
@@ -96,6 +95,7 @@ void ProcessInput()
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+		Old_Direction = dwDirection;
 		elapsedTime = clock();
 	}
 }
@@ -411,14 +411,17 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetLookVector(packet->Look);
 		(*iter)->SetUpVector(packet->Up);
 		(*iter)->SetRightVector(packet->Right);
+		//(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
 		ProcessAnimation(*iter, packet);
 		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
 		(*iter)->SetPosition(packet->Pos);
+
 		break;
 	}
 	case SC_MOVE_MONSTER: {
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
+		auto targetP = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->Chasing_PlayerID == Pl->c_id; });
 		if (packet->HP <= 0) {
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
@@ -431,7 +434,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 		}
 		XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos), 
-			Vector3::RemoveY(gGameFramework.m_pPlayer->GetPosition()), XMFLOAT3(0, 1, 0));
+			Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));
 		mtkLookAt._11 = -mtkLookAt._11;
 		mtkLookAt._21 = -mtkLookAt._21;
 		mtkLookAt._31 = -mtkLookAt._31;

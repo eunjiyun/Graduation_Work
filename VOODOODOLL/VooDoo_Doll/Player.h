@@ -5,7 +5,6 @@
 
 #include "Object.h"
 #include "Camera.h"
-#include "Monster.h"
 
 class CPlayer : public CGameObject
 {
@@ -33,7 +32,7 @@ protected:
 	CCamera* m_pCamera = NULL;
 
 public:
-	CGameObject** m_ppBullets;
+	CGameObject* m_ppBullet;
 	int c_id = -1;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
