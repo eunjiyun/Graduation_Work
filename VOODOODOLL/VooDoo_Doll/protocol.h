@@ -76,7 +76,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	short	character_num;
-	short	HP;
+	float	HP;
 	XMFLOAT3 Look, Up, Right, Pos;
 	// XMFLOAT3 BulletPos;
 	bool overwrite;

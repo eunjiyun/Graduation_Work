@@ -15,12 +15,10 @@ using namespace chrono;
 // 서버 통신에 사용되는 변수들의 집합
 constexpr short SERVER_PORT = 3500;
 SOCKET s_socket;
-char	recv_buffer[BUF_SIZE];
-thread* recv_t;
 OVER_EXP recv_over;
 short _prev_remain = 0;
 DWORD Old_Direction = 0;
-clock_t elapsedTime = clock();
+auto elapsedTime = high_resolution_clock::now();
 #pragma endregion
 
 HINSTANCE						ghAppInstance;
@@ -71,7 +69,7 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if (dwDirection || clock() - elapsedTime > 100 || cxDelta != 0.0f || cyDelta != 0.0f) {
+	if (dwDirection || duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100 || cxDelta != 0.0f || cyDelta != 0.0f) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
@@ -96,7 +94,7 @@ void ProcessInput()
 		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
 		Old_Direction = dwDirection;
-		elapsedTime = clock();
+		elapsedTime = high_resolution_clock::now();
 	}
 }
 
@@ -391,7 +389,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_SUMMON_MONSTER: {
 		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-		cout << packet->monster_type << " Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
+		cout << packet->monster_type << "type, " << packet->id << "number Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
 		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}

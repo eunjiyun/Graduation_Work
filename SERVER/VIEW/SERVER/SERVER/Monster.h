@@ -1,5 +1,7 @@
 #pragma once
 #include "stdafx.h"
+#include <mutex>
+
 
 enum class NPC_State
 {
@@ -30,8 +32,12 @@ public:
     float attack_timer = 1.f;
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
     short target_id = -1; // 추적하는 플레이어 ID
+    short m_id = -1;    // 몬스터 자체ID
+    mutable mutex m_lock;
     Monster() { }
-    void Initialize(short _roomNum, short _type, XMFLOAT3 _pos);
+    Monster(const Monster& other);
+    Monster& operator=(const Monster& other);
+    void Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos);
     short getType()
     {
         return type;
@@ -48,5 +54,17 @@ public:
     short GetSpeed() { return speed; }
     short GetPower() { return power; }
 };
+
+class MonsterInfo
+{
+public:
+    XMFLOAT3 Pos;
+    short type;
+    short id;
+    MonsterInfo(XMFLOAT3 _pos, short _type, int _id) : Pos(_pos), type(_type), id(_id) {}
+};
+
+
+
 
 

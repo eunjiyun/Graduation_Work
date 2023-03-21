@@ -8,6 +8,11 @@
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<array<Monster, MAX_MONSTER_PER_ROOM>, MAX_ROOM> monsters;
+array<vector<Monster>, MAX_ROOM> PoolMonsters;
+CObjectPool<Monster> MonsterPool(10'000);
+array<vector<MonsterInfo>, 7> StagesInfo;
+
+
 
 MapObject** m_ppObjects = 0;
 vector<MapObject*> Objects[6] = {};
@@ -36,29 +41,46 @@ void disconnect(int c_id)
 	CL->_state = ST_FREE;
 }
 
-void SESSION::send_summon_monster_packet(int npc_id)
+void SESSION::send_summon_monster_packet(Monster* M)
 {
 	SC_SUMMON_MONSTER_PACKET summon_packet;
-	summon_packet.id = npc_id;
+	summon_packet.id = M->m_id;
 	summon_packet.size = sizeof(summon_packet);
 	summon_packet.type = SC_SUMMON_MONSTER;
-	summon_packet.Pos = monsters [_id / 4][npc_id].GetPosition();
-	summon_packet.monster_type = monsters[_id / 4][npc_id].getType();
+	summon_packet.Pos = M->GetPosition();
+	summon_packet.monster_type = M->getType();
 	do_send(&summon_packet);
 }
 
-void SESSION::send_NPCUpdate_packet(int npc_id)
+void SESSION::send_NPCUpdate_packet(Monster* M)
 {
 	SC_MOVE_MONSTER_PACKET p;
-	p.id = npc_id;
+	p.id = M->m_id;
 	p.size = sizeof(SC_MOVE_MONSTER_PACKET);
 	p.type = SC_MOVE_MONSTER;
-	p.Pos = monsters[_id / 4][npc_id].GetPosition();
-	p.HP = monsters[_id / 4][npc_id].HP;
-	p.animation_track = monsters[_id / 4][npc_id].cur_animation_track;
-	p.Chasing_PlayerID = monsters[_id / 4][npc_id].target_id;
+	p.Pos = M->GetPosition();
+	p.HP = M->HP;
+	p.animation_track = M->cur_animation_track;
+	p.Chasing_PlayerID = M->target_id;
 	do_send(&p);
 }
+
+void Initialize_Monster(int roomNum, int stageNum)
+{
+	for (auto& info : StagesInfo[stageNum - 1]) {
+		Monster* M = MonsterPool.GetMemory();
+		M->Initialize(roomNum, info.id, info.type, info.Pos);
+		PoolMonsters[roomNum].emplace_back(*M);
+		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
+			if (clients[roomNum][i]._state == ST_INGAME) {
+				clients[roomNum][i].cur_stage = stageNum;
+				clients[roomNum][i].send_summon_monster_packet(M);
+				cout << roomNum << "번 방 " << stageNum << " 스테이지 몬스터 소환\n";
+			}
+		}
+	}
+}
+
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// 이동속도가 말도 안되게 빠른 경우 체크
@@ -83,12 +105,16 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 
+	short stage = (short)(GetPosition().z / 600);
 
+	if (stage > cur_stage) {
+		Initialize_Monster(_id / 4, stage);
+	}
 }
 
 int get_new_client_id()
 {
-	for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
+	for (int i = 0; i < MAX_ROOM; ++i) {
 		for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
 			lock_guard <mutex> ll{ clients[i][j]._s_lock };
 			if (clients[i][j]._state == ST_FREE)
@@ -98,32 +124,7 @@ int get_new_client_id()
 	return -1;
 }
 
-int Initialize_Monster(int roomNum, int stageNum)
-{
-	int monster_count = 0;
-	switch (stageNum)
-	{
-	case 1:
-		monster_count = 3;
-		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 0, { -100.f + 20.f * i, -17.5f, 700.f + i * 60.f });
-		}
-		break;
-	case 2:
-		monster_count = 3;
-		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 1, { -100.f + 20.f * i, -17.5f, 700.f + i * 60.f });
-		}
-		break;
-	case 3:
-		monster_count = 4;
-		for (int i = 0; i < monster_count; ++i) {
-			monsters[roomNum][i].Initialize(roomNum, 2, { -170.f + 50.f * i, -17.5f, 1800.f });
-		}
-		break;
-	}
-	return monster_count;
-}
+
 
 void SESSION::Update()
 {
@@ -134,7 +135,7 @@ void SESSION::Update()
 		switch (character_num)
 		{
 		case 0:
-			for (auto& monster : monsters[_id / 4]) {
+			for (auto& monster : PoolMonsters[_id / 4]) {
 				if (monster.HP > 0 && BoundingBox(GetPosition(), { 10,3,10 }).Intersects(monster.BB))
 				{
 					monster.HP -= 50;
@@ -148,7 +149,7 @@ void SESSION::Update()
 			//}
 			break;
 		case 2:
-			for (auto& monster : monsters[_id / 4]) {
+			for (auto& monster : PoolMonsters[_id / 4]) {
 				if (monster.HP > 0 && BoundingBox(GetPosition(), { 10,3,10 }).Intersects(monster.BB))
 				{
 					monster.HP -= 50;
@@ -167,7 +168,7 @@ void SESSION::Update()
 	}
 	//if (onShooting) {
 	//	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(GetLookVector(), 10, false));
-	//	for (auto& monster : monsters[_id / 4]) {
+	//	for (auto& monster : PoolMonsters[_id / 4]) {
 	//		if (monster.HP > 0 && BoundingBox(BulletPos, { 1,1,3 }).Intersects(monster.BB))
 	//		{
 	//			monster.HP -= 150;
@@ -176,25 +177,10 @@ void SESSION::Update()
 	//		}
 	//	}
 	//}
-	short stage = GetPosition().z / 600;
-
-	if (stage > cur_stage) {
-		int monster_count = Initialize_Monster(_id / 4, stage);
-		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-			for (int j = 0; j < monster_count; ++j) {
-				if (clients[_id / 4][i]._state == ST_INGAME) {
-					clients[_id / 4][i].send_summon_monster_packet(j);
-					clients[_id / 4][i].cur_stage = stage;
-					cout << _id / 4 << "번 방 " << stage << " 스테이지 몬스터 소환\n";
-				}
-			}
-		}
-	}
-
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 {
-	int collide_range = _pos.z / 600;
+	int collide_range = (int)(_pos.z / 600);
 	BoundingBox CheckBox = BoundingBox(_pos, { 5,3,5 });
 
 	if ((CloseList.end() != find_if(CloseList.begin(), CloseList.end(), [&_pos](XMFLOAT3 pos_) {return Vector3::Compare(_pos, pos_); })) ||
@@ -231,14 +217,15 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 
 	openList.push_back(new A_star_Node(start_Pos, dest_Pos));
 	list<A_star_Node*>::iterator iter;
-	clock_t start_time = clock();
+	auto start_time = high_resolution_clock::now();
 	while (!openList.empty())
 	{
-		if (clock() - start_time >= 1000)
+		if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() >= 1000)
 		{
 			cout << start_Pos.x << ", " << start_Pos.y << ", " << start_Pos.z << "  to  " << dest_Pos.x << ", " << dest_Pos.y << ", " << dest_Pos.z << "추적 중지\n";
 			cur_animation_track = 0;
 			target_id = -1;
+			curState = NPC_State::Idle;
 			return Pos;
 		}
 		iter = getNode(&openList);
@@ -249,8 +236,6 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
-					if (clock() - start_time > 100)
-						cout << "수행시간: " <<  clock() - start_time << endl;
 					return S_Node->Pos;
 				}
 				roadToMove.push(S_Node->Pos);
@@ -295,6 +280,7 @@ int Monster::get_targetID()
 void Monster::Update(float fTimeElapsed)
 {
 	is_alive = HP + abs(HP);
+
 	switch (curState)
 	{
 	case NPC_State::Idle:
@@ -310,6 +296,7 @@ void Monster::Update(float fTimeElapsed)
 			if (type != 3) {
 				cur_animation_track = 2;
 			}
+			roadToMove = stack<XMFLOAT3>(); // 스택 초기화
 		}
 		if (!roadToMove.empty())
 		{
@@ -317,7 +304,7 @@ void Monster::Update(float fTimeElapsed)
 			roadToMove.pop();
 		}
 		else {
-			int collide_range = Pos.z / 600;
+			int collide_range = (int)(Pos.z / 600);
 			XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos))), speed, false));
 			if (Objects[collide_range].end() == find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [newPos](MapObject* Obj) {return BoundingBox(newPos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); })) {
 				Pos = newPos;
@@ -356,37 +343,35 @@ void Monster::Update(float fTimeElapsed)
 	default:
 		break;
 	}
-	//if (target_id < 0) {
-	//	cur_animation_track = 0;
-	//	target_id = get_targetID();
-	//	return;
-	//}
-	//if (BB.Intersects(clients[room_num][target_id].m_xmOOBB))
-	//{
-	//	if (type != 3) {
-	//		cur_animation_track = 2;
-	//	}
-	//	return;
-	//}
-
-	//cur_animation_track = 1;
-	//// 플레이어 추적
-	//if (!roadToMove.empty())
-	//{
-	//	Pos = roadToMove.top();
-	//	roadToMove.pop();
-	//}
-	//else {
-	//	int collide_range = Pos.z / 600;
-	//	XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos))), speed, false));
-	//	if (Objects[collide_range].end() == find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [newPos](MapObject* Obj) {return BoundingBox(newPos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); })) {
-	//		Pos = newPos;
-	//		BB.Center = Pos;
-	//	}
-	//	else {
-	//		Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
-	//		BB.Center = Pos;
-	//	}
-	//}
 }
 
+
+void InitializeStages()
+{
+	int ID_constructor = 0;
+	{	// 1stage
+		for (int i = 0; i < 3; ++i) {
+			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 650), 0, ID_constructor++));
+	
+		}
+	}
+	{	// 2stage
+		for (int i = 0; i < 3; ++i) {
+			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 1000), 1, ID_constructor++));
+		}
+	}
+	{	// 3stage
+		for (int i = 0; i < 3; ++i) {
+			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900),2, ID_constructor++));
+		}
+	}
+	{	// 4stage
+
+	}
+	{	// 5stage
+
+	}
+	{	// 6stage
+
+	}
+}

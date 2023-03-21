@@ -17,18 +17,19 @@ HANDLE h_iocp;
 
 void process_packet(int c_id, char* packet)
 {
+	SESSION* CL = getClient(c_id);
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		strcpy_s(clients[c_id / 4][c_id % 4]._name, p->name);
-		clients[c_id / 4][c_id % 4].direction = 0;
-		clients[c_id / 4][c_id % 4].m_xmf3Up = XMFLOAT3{ 0,1,0 };
-		clients[c_id / 4][c_id % 4].m_xmf3Right = XMFLOAT3{ 1,0,0 };
-		clients[c_id / 4][c_id % 4].m_xmf3Look = XMFLOAT3{ 0,0,1 };
-		clients[c_id / 4][c_id % 4].send_login_info_packet();
+		strcpy_s(CL->_name, p->name);
+		CL->send_login_info_packet();
 		{
-			lock_guard<mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
-			clients[c_id / 4][c_id % 4]._state = ST_INGAME;
+			lock_guard<mutex> ll{ CL->_s_lock };
+			CL->_state = ST_INGAME;
+			CL->direction = 0;
+			CL->m_xmf3Up = XMFLOAT3{ 0,1,0 };
+			CL->m_xmf3Right = XMFLOAT3{ 1,0,0 };
+			CL->m_xmf3Look = XMFLOAT3{ 0,0,1 };
 		}
 		for (auto& pl : clients[c_id / 4]) {
 			{
@@ -37,16 +38,16 @@ void process_packet(int c_id, char* packet)
 			}
 			if (pl._id == c_id) continue;
 			pl.send_add_player_packet(&clients[c_id / 4][c_id % 4]);
-			clients[c_id / 4][c_id % 4].send_add_player_packet(&pl);
+			CL->send_add_player_packet(&pl);
 		}
 		break;
 	}
 	case CS_MOVE: {
-		lock_guard <mutex> ll{ clients[c_id / 4][c_id % 4]._s_lock };
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		clients[c_id / 4][c_id % 4].CheckPosition(p->pos);
-		clients[c_id / 4][c_id % 4].direction = p->direction;
-		clients[c_id / 4][c_id % 4].Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		lock_guard <mutex> ll{ CL->_s_lock };
+		CL->CheckPosition(p->pos);
+		CL->direction = p->direction;
+		CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 	}
 	}
 }
@@ -79,23 +80,24 @@ void worker_thread(HANDLE h_iocp)
 		switch (ex_over->_comp_type) {
 		case OP_ACCEPT: {
 			int client_id = get_new_client_id();
+			SESSION* CL = getClient(client_id);
 			if (client_id != -1) {
 				{
-					lock_guard<mutex> ll(clients[client_id / 4][client_id % 4]._s_lock);
-					clients[client_id / 4][client_id % 4]._state = ST_ALLOC;
+					lock_guard<mutex> ll(CL->_s_lock);
+					CL->_state = ST_ALLOC;
 				}
-				clients[client_id / 4][client_id % 4].m_xmf3Position.x = -50;
-				clients[client_id / 4][client_id % 4].m_xmf3Position.y = 0;
-				clients[client_id / 4][client_id % 4].m_xmf3Position.z = 590;
-				clients[client_id / 4][client_id % 4]._id = client_id;
-				clients[client_id / 4][client_id % 4]._name[0] = 0;
-				clients[client_id / 4][client_id % 4]._prev_remain = 0;
-				clients[client_id / 4][client_id % 4]._socket = g_c_socket;
-				clients[client_id / 4][client_id % 4].cur_stage = 0;
-				clients[client_id / 4][client_id % 4].error_stack = 0;
+				CL->m_xmf3Position.x = -50;
+				CL->m_xmf3Position.y = 0;
+				CL->m_xmf3Position.z = 1990;
+				CL->_id = client_id;
+				CL->_name[0] = 0;
+				CL->_prev_remain = 0;
+				CL->_socket = g_c_socket;
+				CL->cur_stage = 0;
+				CL->error_stack = 0;
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
-				clients[client_id / 4][client_id % 4].do_recv();
+				CL->do_recv();
 				g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 			}
 			else {
@@ -107,7 +109,8 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			int remain_data = num_bytes + clients[key / 4][key % 4]._prev_remain;
+			SESSION* CL = getClient(key);
+			int remain_data = num_bytes + CL->_prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
 				int packet_size = p[0];
@@ -118,11 +121,11 @@ void worker_thread(HANDLE h_iocp)
 				}
 				else break;
 			}
-			clients[key / 4][key % 4]._prev_remain = remain_data;
+			CL->_prev_remain = remain_data;
 			if (remain_data > 0) {
 				memcpy(ex_over->_send_buf, p, remain_data);
 			}
-			clients[key / 4][key % 4].do_recv();
+			CL->do_recv();
 			break;
 		}
 		case OP_SEND:
@@ -142,11 +145,11 @@ void update_thread()
 				{
 					lock_guard <mutex> ll{ clients[i][j]._s_lock };
 					clients[i][j].Update();
+					if (clients[i][j].direction == DIR_DIE) clients[i][j]._state = ST_DEAD;
 				}
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(&clients[i][j]);
 				}
-				if (clients[i][j].direction == DIR_DIE) clients[i][j]._state = ST_DEAD;
 			}
 		}
 		this_thread::sleep_for(100ms); // 0.1초당 한번 패킷 전달
@@ -159,18 +162,27 @@ void update_NPC()
 	while (1)
 	{
 		m_GameTimer.Tick(30.0f);
-		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
-			for (int k = 0; k < MAX_MONSTER_PER_ROOM; ++k) {
-				if (monsters[i][k].is_alive) {
-					monsters[i][k].Update(m_GameTimer.GetTimeElapsed());
-					for (auto& cl : clients[i]) {
-						if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(k);
-					}
+		for (int i = 0; i < MAX_ROOM; ++i) {
+			auto iter = PoolMonsters[i].begin();
+			while (iter != PoolMonsters[i].end()) {	// iter erase를 위해 while 사용
+				{
+					lock_guard<mutex> mm{ (*iter).m_lock };
+					(*iter).Update(m_GameTimer.GetTimeElapsed());
 				}
+				for (auto& cl : clients[i]) {
+					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(&(*iter));
+				}
+				if ((*iter).HP <= 0) {
+					MonsterPool.ReturnMemory(&(*iter));
+					PoolMonsters[i].erase(iter);
+					MonsterPool.PrintSize();
+				}
+				else
+					iter++;
 			}
 		}
-		this_thread::sleep_for(30ms);
 	}
+	this_thread::sleep_for(30ms);
 }
 
 int main()
@@ -188,6 +200,7 @@ int main()
 	}
 	delete m_ppObjects;
 
+	InitializeStages();
 
 
 	WSADATA WSAData;

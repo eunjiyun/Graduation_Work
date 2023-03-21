@@ -6,6 +6,7 @@
 #include <mutex>
 #include <unordered_set>
 #include "protocol.h"
+#include "Monster.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -149,8 +150,11 @@ public:
 		do_send(&add_packet);
 	}
 
-	void send_summon_monster_packet(int npc_id);
-	void send_NPCUpdate_packet(int npc_id);
+	//void send_summon_monster_packet(int npc_id);
+	//void send_NPCUpdate_packet(int npc_id);
+	void send_summon_monster_packet(Monster* M);
+	void send_NPCUpdate_packet(Monster* M);
+
 
 	void send_remove_player_packet(int c_id)
 	{

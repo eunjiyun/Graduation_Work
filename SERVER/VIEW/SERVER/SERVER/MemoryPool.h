@@ -30,7 +30,7 @@ public:
     {
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
-            for (int i = 0; i< 50; ++i)
+            for (int i = 0; i< 500; ++i)
                 objectQueue.push(new T());
         }
 
@@ -42,6 +42,10 @@ public:
     void ReturnMemory(T* Mem)
     {
         objectQueue.push(Mem);
+    }
+    void PrintSize()
+    {
+        cout << "CurrentSize - " << objectQueue.size() << endl;
     }
 };
 
