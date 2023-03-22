@@ -98,8 +98,8 @@ public:
 	CGameObject* m_pLockedObject = NULL;
 
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
-	array<char*, 6> binFileNames = { "Model/Voodoo19.bin", "Model/Voodoo23.bin", "Model/Voodoo31.bin", "Model/Voodoo41.bin",
-	"Model/Voodoo52.bin" ,"Model/Voodoo62.bin" };
+	array<char*, 6> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo3.bin", "Model/Voodoo4.bin",
+	"Model/Voodoo5.bin" ,"Model/Voodoo6.bin" };
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
 #endif

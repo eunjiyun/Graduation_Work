@@ -403,7 +403,7 @@ public:
 	bool						m_bActive = false;//
 	bool onAttack = false;//
 	bool onRun = false;//
-	bool onDie = false;//
+	bool onDie = false;
 	bool onCollect = false;//
 	bool dieOnce = false;//
 	bool onFloor = false;

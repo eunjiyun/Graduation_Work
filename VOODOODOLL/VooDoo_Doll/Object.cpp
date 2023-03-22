@@ -885,7 +885,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
-				//if (true == onPlayer)
+				if (true == onPlayer)
 				{
 					if (5 == k || 2 == k || 4 == k)//player : collect attack die //monster : die
 						m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;

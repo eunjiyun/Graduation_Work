@@ -167,7 +167,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			SleepEx(1000.f/30.f, true);
+			SleepEx(1000.f / 30.f, true);
 			ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
@@ -324,6 +324,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 
 	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
+	
 	pl->onRun = p->direction & DIR_RUN;
 	if (p->direction & DIR_ATTACK) pl->onAttack = true;
 	else if (p->direction & DIR_DIE) pl->onDie = true;
@@ -427,11 +428,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
-			(*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
-			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+
+			if (3 != (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track)
+			{
+				(*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
+				(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+			}
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
+
 		}
-		XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos), 
+		XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos),
 			Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));
 		mtkLookAt._11 = -mtkLookAt._11;
 		mtkLookAt._21 = -mtkLookAt._21;

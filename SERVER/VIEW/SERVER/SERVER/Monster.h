@@ -25,7 +25,7 @@ public:
     stack<XMFLOAT3> roadToMove;
     short HP, power, speed;
     BoundingBox BB;
-    bool is_alive = false;
+    bool is_alive = true;
     XMFLOAT3 Pos;
     short cur_animation_track = 0;
     double attack_cycle = 2.35;

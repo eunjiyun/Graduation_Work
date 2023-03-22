@@ -465,6 +465,13 @@ void CGameFramework::BuildObjects()
 		m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	}
 
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 5; j++) {
+			pMonsterModel[i].push(
+				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
+		}
+	}
+
 
 #ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
@@ -486,11 +493,7 @@ void CGameFramework::BuildObjects()
 		Players.push_back(pAirplanePlayer);
 	}
 
-	for (int i = 0; i < 6; i++) {
-		for (int j = 0; j < 5; j++) {
-			pMonsterModel[i].push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
-		}
-	}
+	
 
 
 

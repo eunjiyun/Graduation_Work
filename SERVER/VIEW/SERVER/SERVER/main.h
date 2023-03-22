@@ -347,7 +347,8 @@ void Monster::Update(float fTimeElapsed)
 		 cur_animation_track = 3;
 		 attack_timer -= fTimeElapsed;
 		 if (attack_timer <= 0) {
-			 SetState(NPC_State::Idle);
+			 //SetState(NPC_State::Idle);
+			 SetState(NPC_State::Dead);
 			 is_alive = false;
 		 }
 		break;
