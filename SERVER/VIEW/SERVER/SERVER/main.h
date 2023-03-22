@@ -60,6 +60,7 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	p.type = SC_MOVE_MONSTER;
 	p.Pos = M->GetPosition();
 	p.HP = M->HP;
+	p.is_alive = M->is_alive;
 	p.animation_track = M->cur_animation_track;
 	p.Chasing_PlayerID = M->target_id;
 	do_send(&p);
@@ -138,7 +139,7 @@ void SESSION::Update(float fTimeElapsed)
 			for (auto& monster : PoolMonsters[_id / 4]) {
 				if (monster.HP > 0 && BoundingBox(GetPosition(), { 10,3,10 }).Intersects(monster.BB))
 				{
-					monster.HP -= 50;
+					monster.HP -= 100;
 				}
 			}
 			break;
@@ -169,12 +170,12 @@ void SESSION::Update(float fTimeElapsed)
 	for (auto& monster : PoolMonsters[_id / 4]) {
 		if (monster.HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster.BB))
 		{
+			cout << monster.m_id << "HIT\n";
 			monster.HP -= 200;
 			BulletPos = XMFLOAT3(5000, 5000, 5000);
 			break;
 		}
 	}
-
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 {
@@ -266,7 +267,7 @@ int Monster::get_targetID()
 		distances[i] = sqrtf(distance_z * distance_z + distance_x * distance_x);
 	}
 
-	int min = *min_element(distances.begin(), distances.end());
+	float min = *min_element(distances.begin(), distances.end());
 
 	if (min < view_range)
 	{
@@ -277,7 +278,10 @@ int Monster::get_targetID()
 
 void Monster::Update(float fTimeElapsed)
 {
-	is_alive = HP + abs(HP);
+	if (HP <= 0 && curState != NPC_State::Dead) {
+		curState = NPC_State::Dead;
+		attack_timer = 3.f;
+	}
 
 	switch (curState)
 	{
@@ -291,7 +295,7 @@ void Monster::Update(float fTimeElapsed)
 	case NPC_State::Chase:
 		if (BB.Intersects(clients[room_num][target_id].m_xmOOBB)) {
 			curState = NPC_State::Attack;
-			if (type != 3) {
+			if (type != 2) {
 				cur_animation_track = 2;
 			}
 			roadToMove = stack<XMFLOAT3>(); // 스택 초기화
@@ -327,6 +331,7 @@ void Monster::Update(float fTimeElapsed)
 			{
 				lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
 				clients[room_num][target_id].HP -= GetPower();
+				cout << clients[room_num][target_id].HP << endl;
 			}
 			attack_timer = attack_cycle;
 		}
@@ -337,6 +342,12 @@ void Monster::Update(float fTimeElapsed)
 		}
 		break;
 	case NPC_State::Dead:
+		 cur_animation_track = 0;
+		 attack_timer -= fTimeElapsed;
+		 if (attack_timer <= 0) {
+			 SetState(NPC_State::Idle);
+			 is_alive = false;
+		 }
 		break;
 	default:
 		break;
@@ -360,7 +371,7 @@ void InitializeStages()
 	}
 	{	// 3stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900),2, ID_constructor++));
+			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 2, ID_constructor++));
 		}
 	}
 	{	// 4stage

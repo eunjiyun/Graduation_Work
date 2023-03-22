@@ -110,7 +110,7 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			SESSION* CL = getClient(key);
+			SESSION* CL = getClient((int)key);
 			int remain_data = num_bytes + CL->_prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
@@ -167,7 +167,7 @@ void update_NPC()
 		m_NPCTimer.Tick(30.0f);
 		for (int i = 0; i < MAX_ROOM; ++i) {
 			auto iter = PoolMonsters[i].begin();
-			while (iter != PoolMonsters[i].end()) {	// iter erase를 위해 while 사용
+			while (iter != PoolMonsters[i].end()) {
 				{
 					lock_guard<mutex> mm{ (*iter).m_lock };
 					(*iter).Update(m_NPCTimer.GetTimeElapsed());
@@ -175,7 +175,7 @@ void update_NPC()
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(&(*iter));
 				}
-				if ((*iter).HP <= 0) {
+				if ((*iter).is_alive == false) {
 					MonsterPool.ReturnMemory(&(*iter));
 					PoolMonsters[i].erase(iter);
 					MonsterPool.PrintSize();
@@ -207,7 +207,8 @@ int main()
 
 
 	WSADATA WSAData;
-	WSAStartup(MAKEWORD(2, 2), &WSAData);
+	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+	if (ErrorStatus == SOCKET_ERROR) return 0;
 	g_s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	SOCKADDR_IN server_addr;
 	memset(&server_addr, 0, sizeof(server_addr));

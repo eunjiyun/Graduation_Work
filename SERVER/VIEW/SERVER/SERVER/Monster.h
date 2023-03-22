@@ -28,8 +28,8 @@ public:
     bool is_alive = false;
     XMFLOAT3 Pos;
     short cur_animation_track = 0;
-    float attack_cycle = 2.35;
-    float attack_timer = 1.f;
+    double attack_cycle = 2.35;
+    double attack_timer = 1.f;
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
     short target_id = -1; // 추적하는 플레이어 ID
     short m_id = -1;    // 몬스터 자체ID
@@ -53,6 +53,7 @@ public:
     XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
     short GetSpeed() { return speed; }
     short GetPower() { return power; }
+    void SetState(NPC_State st) { curState = st; }
 };
 
 class MonsterInfo

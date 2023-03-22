@@ -85,7 +85,7 @@ public:
 		onRun = false;
 		onChange = false;
 		character_num = 0;
-		HP = 300;
+		HP = 3000;
 	}
 
 	~SESSION() {}
@@ -149,8 +149,7 @@ public:
 		do_send(&add_packet);
 	}
 
-	//void send_summon_monster_packet(int npc_id);
-	//void send_NPCUpdate_packet(int npc_id);
+
 	void send_summon_monster_packet(Monster* M);
 	void send_NPCUpdate_packet(Monster* M);
 

@@ -100,6 +100,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	short	id;
 	XMFLOAT3 Pos;
 	short HP;
+	bool is_alive;
 	short Chasing_PlayerID;
 	unsigned short animation_track; // 애니메이션 타입
 };
