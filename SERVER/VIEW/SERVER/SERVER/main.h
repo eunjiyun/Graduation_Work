@@ -10,7 +10,7 @@ array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<array<Monster, MAX_MONSTER_PER_ROOM>, MAX_ROOM> monsters;
 array<vector<Monster>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(10'000);
-array<vector<MonsterInfo>, 7> StagesInfo;
+array<vector<MonsterInfo>, 6> StagesInfo;
 
 
 
@@ -126,7 +126,7 @@ int get_new_client_id()
 
 
 
-void SESSION::Update()
+void SESSION::Update(float fTimeElapsed)
 {
 	Move(direction, 21.0f, true);
 
@@ -143,10 +143,8 @@ void SESSION::Update()
 			}
 			break;
 		case 1:
-			//if (onShooting = false) {
-			//	BulletPos = GetPosition();
-			//	onShooting = true;
-			//}
+			BulletPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
+			BulletLook = GetLookVector();
 			break;
 		case 2:
 			for (auto& monster : PoolMonsters[_id / 4]) {
@@ -163,20 +161,20 @@ void SESSION::Update()
 
 	}
 	if (HP <= 0)
-	{  
+	{
 		direction = DIR_DIE;
 	}
-	//if (onShooting) {
-	//	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(GetLookVector(), 10, false));
-	//	for (auto& monster : PoolMonsters[_id / 4]) {
-	//		if (monster.HP > 0 && BoundingBox(BulletPos, { 1,1,3 }).Intersects(monster.BB))
-	//		{
-	//			monster.HP -= 150;
-	//			BulletPos = { 5000,5000,5000 };
-	//			onShooting = false;
-	//		}
-	//	}
-	//}
+
+	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, 10, false));
+	for (auto& monster : PoolMonsters[_id / 4]) {
+		if (monster.HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster.BB))
+		{
+			monster.HP -= 200;
+			BulletPos = XMFLOAT3(5000, 5000, 5000);
+			break;
+		}
+	}
+
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
 {

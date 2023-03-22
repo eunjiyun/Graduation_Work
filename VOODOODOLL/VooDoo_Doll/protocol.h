@@ -78,9 +78,9 @@ struct SC_MOVE_PLAYER_PACKET {
 	short	character_num;
 	float	HP;
 	XMFLOAT3 Look, Up, Right, Pos;
-	// XMFLOAT3 BulletPos;
 	bool overwrite;
 	DWORD direction;
+	XMFLOAT3 BulletPos;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 

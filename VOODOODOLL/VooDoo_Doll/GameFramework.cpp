@@ -709,7 +709,7 @@ void CGameFramework::FrameAdvance()
 
 
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)
-	m_ppBullets[0]->Animate(fTimeElapsed);//ÃÑ¾Ë ¾÷µ«
+	//m_ppBullets[0]->Animate(fTimeElapsed);//ÃÑ¾Ë ¾÷µ«
 
 	AnimateObjects(fTimeElapsed);
 
@@ -761,6 +761,7 @@ void CGameFramework::FrameAdvance()
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			player->m_ppBullet->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
 	for (const auto& monster : Monsters) {

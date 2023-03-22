@@ -335,12 +335,12 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
 	m_ppBullet = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, arrow, 1);
 	m_ppBullet->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppBullet->SetScale(1.1f, 1.1f, 1.1f);
+	m_ppBullet->SetScale(2.f, 2.f, 2.f);
 
 	m_ppBullet->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
 	m_ppBullet->SetRotationSpeed(360.0f);
 	m_ppBullet->SetMovingSpeed(120.0f);
-	m_ppBullet->SetActive(false);
+	m_ppBullet->SetPosition(XMFLOAT3(5000,5000,5000));
 	if (arrow) delete arrow;
 
 

@@ -53,10 +53,10 @@ public:
 	BoundingBox m_xmOOBB;
 	short cur_stage;
 	short error_stack;
-	bool onAttack, onCollect, onDie, onRun, onChange, onShooting; // 중복입력을 막기 위한 bool 변수
+	bool onAttack, onCollect, onDie, onRun, onChange; // 중복입력을 막기 위한 bool 변수
 	short character_num;
 	bool overwrite;
-	//XMFLOAT3 BulletPos;
+	XMFLOAT3 BulletPos, BulletLook;
 public:
 	SESSION()
 	{
@@ -68,7 +68,7 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		m_xmf3Gravity = { 0.f, -6.0f, 0.f };
-		//BulletPos = { 5000,5000,5000 };
+		BulletPos = { 5000,5000,5000 };
 		m_fMaxVelocityY = 50.f;
 		m_fMaxVelocityXZ = 10.f;
 		m_fFriction = 30.f;
@@ -85,8 +85,7 @@ public:
 		onRun = false;
 		onChange = false;
 		character_num = 0;
-		HP = 150;
-
+		HP = 300;
 	}
 
 	~SESSION() {}
@@ -131,7 +130,7 @@ public:
 		p.character_num = Player->character_num;
 		p.HP = Player->HP;
 		p.overwrite = Player->overwrite;
-		//p.BulletPos = Player->BulletPos;
+		p.BulletPos = Player->BulletPos;
 		do_send(&p);
 	}
 
@@ -222,7 +221,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void Update();
+	void Update(float fTimeElapsed);
 	void CheckPosition(XMFLOAT3 newPos);
 	// void CheckCollision(float fTimeElapsed);
 };

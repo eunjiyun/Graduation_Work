@@ -12,7 +12,8 @@ using namespace std;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
-CGameTimer m_GameTimer;
+CGameTimer m_NPCTimer;
+CGameTimer m_PlayerTimer;
 HANDLE h_iocp;
 
 void process_packet(int c_id, char* packet)
@@ -26,10 +27,6 @@ void process_packet(int c_id, char* packet)
 		{
 			lock_guard<mutex> ll{ CL->_s_lock };
 			CL->_state = ST_INGAME;
-			CL->direction = 0;
-			CL->m_xmf3Up = XMFLOAT3{ 0,1,0 };
-			CL->m_xmf3Right = XMFLOAT3{ 1,0,0 };
-			CL->m_xmf3Look = XMFLOAT3{ 0,0,1 };
 		}
 		for (auto& pl : clients[c_id / 4]) {
 			{
@@ -86,10 +83,14 @@ void worker_thread(HANDLE h_iocp)
 					lock_guard<mutex> ll(CL->_s_lock);
 					CL->_state = ST_ALLOC;
 				}
+				CL->_id = client_id;
 				CL->m_xmf3Position.x = -50;
 				CL->m_xmf3Position.y = 0;
-				CL->m_xmf3Position.z = 1990;
-				CL->_id = client_id;
+				CL->m_xmf3Position.z = 590;
+				CL->direction = 0;
+				CL->m_xmf3Up = XMFLOAT3{ 0,1,0 };
+				CL->m_xmf3Right = XMFLOAT3{ 1,0,0 };
+				CL->m_xmf3Look = XMFLOAT3{ 0,0,1 };
 				CL->_name[0] = 0;
 				CL->_prev_remain = 0;
 				CL->_socket = g_c_socket;
@@ -137,14 +138,16 @@ void worker_thread(HANDLE h_iocp)
 
 void update_thread()
 {
+	m_PlayerTimer.Start();
 	while (1)
 	{
-		for (int i = 0; i < MAX_USER / MAX_USER_PER_ROOM; ++i) {
+		m_PlayerTimer.Tick(10.f);
+		for (int i = 0; i < MAX_ROOM; ++i) {
 			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
 				if (clients[i][j]._state != ST_INGAME) continue;
 				{
 					lock_guard <mutex> ll{ clients[i][j]._s_lock };
-					clients[i][j].Update();
+					clients[i][j].Update(m_PlayerTimer.GetTimeElapsed());
 					if (clients[i][j].direction == DIR_DIE) clients[i][j]._state = ST_DEAD;
 				}
 				for (auto& cl : clients[i]) {
@@ -158,16 +161,16 @@ void update_thread()
 
 void update_NPC()
 {
-	m_GameTimer.Start();
+	m_NPCTimer.Start();
 	while (1)
 	{
-		m_GameTimer.Tick(30.0f);
+		m_NPCTimer.Tick(30.0f);
 		for (int i = 0; i < MAX_ROOM; ++i) {
 			auto iter = PoolMonsters[i].begin();
 			while (iter != PoolMonsters[i].end()) {	// iter erase를 위해 while 사용
 				{
 					lock_guard<mutex> mm{ (*iter).m_lock };
-					(*iter).Update(m_GameTimer.GetTimeElapsed());
+					(*iter).Update(m_NPCTimer.GetTimeElapsed());
 				}
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(&(*iter));

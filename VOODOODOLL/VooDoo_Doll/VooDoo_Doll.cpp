@@ -409,7 +409,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetLookVector(packet->Look);
 		(*iter)->SetUpVector(packet->Up);
 		(*iter)->SetRightVector(packet->Right);
-		//(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
+		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
 		ProcessAnimation(*iter, packet);
 		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
 		(*iter)->SetPosition(packet->Pos);
