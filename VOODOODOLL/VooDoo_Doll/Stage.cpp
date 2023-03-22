@@ -108,7 +108,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	//23.02.05
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 98); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0,288); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76->188
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 	//
 

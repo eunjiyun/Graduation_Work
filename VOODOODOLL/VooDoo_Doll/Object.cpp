@@ -696,6 +696,9 @@ void CAnimationTrack::HandleCallback()
 float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum)//0228
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
+	//float end, cycle;
+	static float start;
+	static float end;
 
 	switch (m_nType)
 	{
@@ -719,9 +722,13 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 		break;
 	}
+	
 	case ANIMATION_TYPE_ONCE://0228
 		if (m_fPosition == fAnimationLength && 1 == m_bEnable)//BOOL bool
 		{
+			end= fElapsedTime;
+			cycle = end - start;
+			cout << "cycle : " << cycle << endl;
 			if (4 != trackNum || 4 == trackNum && true == *dieOnce)
 			{
 				m_fPosition = 0.0f;
@@ -730,8 +737,9 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		}
 		else if (2 == trackNum || 5 == trackNum || 4 == trackNum && true == *dieOnce)
 		{
+			start = fElapsedTime;
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
-			if (m_fPosition > fAnimationLength)
+			if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
 			{
 				m_fPosition = fAnimationLength;
 
@@ -863,7 +871,7 @@ void CAnimationController::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3d
 	}
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce)
+void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce,bool onPlayer)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -877,10 +885,16 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 		{
 			if (m_pAnimationTracks[k].m_bEnable)
 			{
-				if (5 == k || 2 == k || 4 == k)//collect attack die
+				//if (true == onPlayer)
 				{
-					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
+					if (5 == k || 2 == k || 4 == k)//player : collect attack die //monster : die
+						m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
 				}
+				//else
+				//{
+				//	if (3 == k)//player : collect attack die //monster : die
+				//		m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
+				//}
 
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
 				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect, dieOnce, k);
@@ -1196,16 +1210,17 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->SetTrackPosition(nAnimationTrack, fPosition);
 }
 
-void CGameObject::Animate(float fTimeElapsed)
+void CGameObject::Animate(float fTimeElapsed,bool onPlayer)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect, &onDie);
+	if (m_pSkinnedAnimationController) 
+		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect, &onDie,onPlayer);
 
-	//m_pSkinnedAnimationController->m_pAnimationSets->m_fLength
-
-	if (m_pSibling) m_pSibling->Animate(fTimeElapsed);
-	if (m_pChild) m_pChild->Animate(fTimeElapsed);
+	if (m_pSibling) 
+		m_pSibling->Animate(fTimeElapsed, onPlayer);
+	if (m_pChild) 
+		m_pChild->Animate(fTimeElapsed, onPlayer);
 
 }
 

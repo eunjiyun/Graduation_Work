@@ -581,66 +581,86 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	switch (type)
 	{
 	case 0:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3); //¼Õ¿¡ Ä®	
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //¼Õ¿¡ Ä®	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 1:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3);//»À´Ù±Í ´Ù¸®
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//»À´Ù±Í ´Ù¸®
 
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//±Í½Å
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->SetScale(1.0f, 1.0f, 1.0f);
-		break;
-	case 4:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 3); // ¸¶¼ú»ç
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->SetScale(1.0f, 1.0f, 1.0f);
-		break;
-	case 5:
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//¼Õ¿¡ ¹Ù´Ã
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
+
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
+	
+		Mon->SetScale(1.0f, 1.0f, 1.0f);
+		break;
+	case 4:
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // ¸¶¼ú»ç
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+
+		Mon->SetScale(1.0f, 1.0f, 1.0f);
+		break;
+	case 5:
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);// ¸Ó¸®¿¡ ¹Ù´Ã
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//¹Ù´Ã ÈÖµÎ¸£±â µý°É·Î
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//area attack? È­Àç¹ß»ý
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	default:
@@ -661,11 +681,21 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
 	for (auto& player : Players)
+	{
 		if (player->c_id > -1)
-			player->Animate(fTimeElapsed);
+		{
+			//cout << "player animate È£Ãâ true" << endl;
+			player->Animate(fTimeElapsed, true);
+		}
+	}
 	for (auto& monster : Monsters)
+	{
 		if (monster->c_id > -1)
-			monster->Animate(fTimeElapsed);
+		{
+			//cout << "monster animate È£Ãâ false" << endl;
+			monster->Animate(fTimeElapsed, false);
+		}
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()

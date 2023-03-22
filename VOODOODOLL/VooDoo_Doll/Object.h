@@ -259,7 +259,9 @@ public:
 	CAnimationTrack() {}
 	CAnimationTrack(const CAnimationTrack& other);
 	~CAnimationTrack();
-
+	/*static float start;
+	static float end;*/
+	float cycle = 0;
 public:
 	BOOL 							m_bEnable = true;//
 	float 							m_fSpeed = 1.0f;//
@@ -352,7 +354,7 @@ public:
 	void SetCallbackKey(int nAnimationTrack, int nKeyIndex, float fTime, void* pData);
 	void SetAnimationCallbackHandler(int nAnimationTrack, CAnimationCallbackHandler* pCallbackHandler);
 
-	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce);
+	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce,bool onPlayer);
 
 	void SetRootMotion(bool bRootMotion) { m_bRootMotion = bRootMotion; }
 
@@ -439,7 +441,7 @@ public:
 	virtual void BuildMaterials(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
 
 	virtual void OnPrepareAnimate() { }
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed,bool onPlayer);
 
 	virtual void OnPrepareRender() { }
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera = NULL);

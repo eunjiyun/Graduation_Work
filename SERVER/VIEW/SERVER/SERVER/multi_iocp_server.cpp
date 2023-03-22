@@ -175,7 +175,8 @@ void update_NPC()
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(&(*iter));
 				}
-				if ((*iter).is_alive == false) {
+
+				if ((*iter).is_alive == false) {//0322
 					MonsterPool.ReturnMemory(&(*iter));
 					PoolMonsters[i].erase(iter);
 					MonsterPool.PrintSize();

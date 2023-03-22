@@ -175,6 +175,8 @@ void SESSION::Update(float fTimeElapsed)
 			BulletPos = XMFLOAT3(5000, 5000, 5000);
 			break;
 		}
+		//else if(monster.HP <= 0)//0322
+		//	monster.direction = DIR_DIE;
 	}
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
@@ -342,7 +344,7 @@ void Monster::Update(float fTimeElapsed)
 		}
 		break;
 	case NPC_State::Dead:
-		 cur_animation_track = 0;
+		 cur_animation_track = 3;
 		 attack_timer -= fTimeElapsed;
 		 if (attack_timer <= 0) {
 			 SetState(NPC_State::Idle);

@@ -316,7 +316,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
-void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0228
+void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
 	if (0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track ||
 		3 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
@@ -416,7 +416,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
 		break;
 	}
-	case SC_MOVE_MONSTER: {
+	case SC_MOVE_MONSTER: {//0322
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
 		auto targetP = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->Chasing_PlayerID == Pl->c_id; });
