@@ -41,6 +41,7 @@ private:
 public:
 	char							m_pstrMeshName[64] = { 0 };//
 	BoundingBox						m_xmBoundingBox;//
+	BoundingOrientedBox				OBBox;//
 	XMFLOAT3* m_pxmf3Positions = NULL;//
 	XMFLOAT3* m_pxmf3Normals = NULL;//
 	XMFLOAT2* m_pxmf2TextureCoords = NULL;
@@ -105,7 +106,11 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT nSubset);
 	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 
+	XMVECTOR createObb(BoundingBox*, XMFLOAT4X4*);
+	FXMMATRIX transform3dmatFromQua(XMVECTOR,BoundingBox);
+	XMVECTOR ExtractBoundingBoxOrientation(FXMMATRIX transformMatrix);
 	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
+	
 	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList);
 
 public:

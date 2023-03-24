@@ -455,8 +455,6 @@ void CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLockedObject, CG
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
-		//cout << "2번 트루" << endl;
-
 		if (2 == whatPlayer)
 		{
 
@@ -500,8 +498,6 @@ void CTerrainPlayer::playerRun()
 		m_pSkinnedAnimationController->SetTrackEnable(3, true);
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
-
-		cout << "3번 트루" << endl;
 	}
 }
 void CTerrainPlayer::playerDie()
@@ -514,8 +510,6 @@ void CTerrainPlayer::playerDie()
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		m_pSkinnedAnimationController->SetTrackEnable(5, false);
-
-		//cout << "4번 트루" << endl;
 	}
 }
 
@@ -530,8 +524,6 @@ void CTerrainPlayer::playerCollect()
 		m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		m_pSkinnedAnimationController->SetTrackEnable(4, false);
 		m_pSkinnedAnimationController->SetTrackEnable(5, true);
-
-		//cout << "5번 트루" << endl;
 	}
 }
 
@@ -539,31 +531,6 @@ void CTerrainPlayer::playerCollect()
 void CTerrainPlayer::Update(float fTimeElapsed)
 {
 	CPlayer::Update(fTimeElapsed);
-
-	//if (m_pSkinnedAnimationController)
-	//{
-	//	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-	//	if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
-	//	{
-	//		if (false == m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
-	//			false ==onRun && //run 키를 떼면 idle 모드로 전환
-	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable &&
-	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
-	//			//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
-	//		{
-	//			m_pSkinnedAnimationController->SetTrackEnable(0, true);
-	//			m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	//			m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//			m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	//			m_pSkinnedAnimationController->SetTrackEnable(4, false);
-	//			m_pSkinnedAnimationController->SetTrackEnable(5, false);
-
-	//			m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-
-	//			//cout << "0번 트루" << endl;
-	//		}
-	//	}
-	//}
 }
 
 void CTerrainPlayer::otherPlayerUpdate()//0226
@@ -590,8 +557,6 @@ void CTerrainPlayer::otherPlayerUpdate()//0226
 				m_pSkinnedAnimationController->SetTrackEnable(5, false);
 
 				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-
-				//cout << "0번 트루00000" << endl;
 			}
 		}
 	}

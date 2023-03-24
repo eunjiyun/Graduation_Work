@@ -728,7 +728,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		{
 			end= fElapsedTime;
 			cycle = end - start;
-			cout << "cycle : " << cycle << endl;
+			//cout << "cycle : " << cycle << endl;
 			if (4 != trackNum || 4 == trackNum && true == *dieOnce)
 			{
 				m_fPosition = 0.0f;

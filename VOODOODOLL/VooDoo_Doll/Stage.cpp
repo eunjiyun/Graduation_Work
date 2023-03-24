@@ -529,7 +529,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 
 			//cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-			//	"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
+			//	"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;//0323
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall", 12))

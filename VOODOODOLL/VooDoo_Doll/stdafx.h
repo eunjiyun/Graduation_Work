@@ -23,6 +23,9 @@
 #include <fstream>
 #include <vector>
 #include <chrono>
+#include <DirectXMath.h>
+#include< cstdlib >
+
 
 //consol
 #ifdef UNICODE

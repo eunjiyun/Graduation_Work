@@ -424,10 +424,45 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 			pGameObject->SetMesh(0, pMesh);
 		}
+		
+		//cout << "Name: " << pGameObject->m_pstrName << " : ";
 
+		XMVECTOR q = pGameObject->m_ppMeshes[0]->createObb(&pGameObject->m_xmOOBB, &pGameObject->m_xmf4x4World);
+		XMFLOAT4 tmp;
+  		DirectX::XMStoreFloat4(&tmp,q );//0323
+		DirectX::XMStoreFloat4(&pGameObject->m_ppMeshes[0]->OBBox.Orientation,q);//0323
+
+		//FXMMATRIX transMat=pGameObject->m_ppMeshes[0]->transform3dmatFromQua(q, pGameObject->m_xmOOBB);
+		//XMVECTOR orien=pGameObject->m_ppMeshes[0]->ExtractBoundingBoxOrientation(transMat);
+		//DirectX::XMStoreFloat4(&pGameObject->m_ppMeshes[0]->OBBox.Orientation, orien);//0323
+
+		/*printf("Orientation: (%f, %f, %f, %f)\n", pGameObject->m_ppMeshes[0]->OBBox.Orientation.x,
+			pGameObject->m_ppMeshes[0]->OBBox.Orientation.y, pGameObject->m_ppMeshes[0]->OBBox.Orientation.z, pGameObject->m_ppMeshes[0]->OBBox.Orientation.w);*/
+
+		pGameObject->m_xmOOBB.Transform(pGameObject->m_xmOOBB, XMLoadFloat4x4(&pGameObject->m_xmf4x4World));
+		pGameObject->m_ppMeshes[0]->OBBox.Center = pGameObject->m_xmOOBB.Center;
+		pGameObject->m_ppMeshes[0]->OBBox.Extents= pGameObject->m_xmOOBB.Extents;
+		
+
+		//if (0 == strcmp("Stair_side_01_mesh", pGameObject->m_pstrName))
+		/*if (abs(round(10000*pGameObject->m_ppMeshes[0]->OBBox.Orientation.x)) == abs(round(10000 * tmp.x))
+			&& abs(round(10000 * pGameObject->m_ppMeshes[0]->OBBox.Orientation.y) )== abs(round(10000 * tmp.y))
+			&& abs(round(10000 * pGameObject->m_ppMeshes[0]->OBBox.Orientation.z)) == abs(round(10000 * tmp.z))
+			&& abs(round(10000 * pGameObject->m_ppMeshes[0]->OBBox.Orientation.w)) == abs(round(10000 * tmp.w)))
+		{ }
+		else*/
+		{
+			cout << i << " : Name: " << pGameObject->m_pstrName << endl;
+
+			//printf("Quaternion: (%f, %f, %f, %f)\n", tmp.x, tmp.y, tmp.z, tmp.w);
+			printf("Orientation: (%f, %f, %f, %f)", pGameObject->m_ppMeshes[0]->OBBox.Orientation.x,
+			pGameObject->m_ppMeshes[0]->OBBox.Orientation.y, pGameObject->m_ppMeshes[0]->OBBox.Orientation.z, pGameObject->m_ppMeshes[0]->OBBox.Orientation.w);
+
+			cout << "\nCenter: " << pGameObject->m_ppMeshes[0]->OBBox.Center.x << ", " << pGameObject->m_ppMeshes[0]->OBBox.Center.y << ", " << pGameObject->m_ppMeshes[0]->OBBox.Center.z <<
+				"\nExtents: " << pGameObject->m_ppMeshes[0]->OBBox.Extents.x << ", " << pGameObject->m_ppMeshes[0]->OBBox.Extents.y << ", " << pGameObject->m_ppMeshes[0]->OBBox.Extents.z << endl << endl << endl;
+		}
 		
 		ppGameObjects[i] = pGameObject;
-
 	}
 
 
