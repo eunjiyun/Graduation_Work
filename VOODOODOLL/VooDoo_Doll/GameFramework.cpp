@@ -493,11 +493,6 @@ void CGameFramework::BuildObjects()
 		Players.push_back(pAirplanePlayer);
 	}
 
-	
-
-
-
-
 	//23.02.22
 	m_ppBullets = new CGameObject * [BULLETS];
 
@@ -686,18 +681,12 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	for (auto& player : Players)
 	{
 		if (player->c_id > -1)
-		{
-			//cout << "player animate 호출 true" << endl;
 			player->Animate(fTimeElapsed, true);
-		}
 	}
 	for (auto& monster : Monsters)
 	{
 		if (monster->c_id > -1)
-		{
-			//cout << "monster animate 호출 false" << endl;
 			monster->Animate(fTimeElapsed, false);
-		}
 	}
 }
 

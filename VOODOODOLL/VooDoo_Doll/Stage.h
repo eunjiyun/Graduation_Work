@@ -54,6 +54,7 @@ class CStage
 public:
 	CStage();
 	~CStage();
+	int num = 0;
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);

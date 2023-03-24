@@ -510,9 +510,42 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 	BoundingBox pBox = m_pPlayer->m_xmOOBB;
 
-	for (int i = 0; i < m_ppShaders2[0]->m_nObjects - 1; i++)
+	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
 	{
 		BoundingBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
+
+		if (num < 965)
+		{
+			/*if (round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.x)
+				&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.y)
+				&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.z)
+
+				&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.x)
+				&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.y)
+				&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.z)
+				)
+			{
+			}
+			else*/
+			{
+				cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x << endl;
+				cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y << endl;
+				cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z << endl;
+
+				cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.x << endl;
+				cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.y << endl;
+				cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.z << endl << endl;
+
+				cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x << endl;
+				cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y << endl;
+				cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z << endl;
+
+				cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.x << endl;
+				cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.y << endl;
+				cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.z << endl << endl << endl;
+			}
+			num++;
+		}
 
 		if (pBox.Intersects(oBox))
 		{
