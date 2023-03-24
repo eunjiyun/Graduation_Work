@@ -24,6 +24,28 @@ CStage::~CStage()
 {
 }
 
+double GetDegreeWithTwoVectors(XMFLOAT3& v1, XMFLOAT3& v2)
+{
+	float dot = Vector3::DotProduct(v1, v2);
+	float v1Length = Vector3::Length(v1);
+	float v2Length = Vector3::Length(v2);
+
+	double angleRadian = acos(dot / (v1Length * v2Length));
+
+	return XMConvertToDegrees(angleRadian);
+}
+
+XMFLOAT3 RotatePointBaseOnPoint(XMFLOAT3& p1, XMFLOAT3& p2, float angle)
+{
+	XMFLOAT3 translatedP1 = XMFLOAT3(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z);
+
+	XMFLOAT4X4 RotationMatrix = Matrix4x4::RotationYawPitchRoll(0, angle, 0);
+	XMFLOAT3 rotatedP1 = Vector3::TransformCoord(translatedP1, RotationMatrix);
+	XMFLOAT3 finalP1 = XMFLOAT3(rotatedP1.x + p2.x, rotatedP1.y + p2.y, rotatedP1.z + p2.z);
+
+	return finalP1;
+}
+
 void CStage::BuildDefaultLightsAndMaterials()
 {
 	m_nLights = MAX_LIGHTS;
@@ -108,7 +130,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	//23.02.05
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0,288); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76->188
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 288); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 	//
 
@@ -496,27 +518,44 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		{
 			//if ((0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
 			//	|| 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Stair_step", 10)) && Vel.y <= 0) {
-			if (pBox.Center.y  > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
+			if (pBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = m_pPlayer->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
-				m_pPlayer->SetPosition(Pos);			
+				m_pPlayer->SetPosition(Pos);
 				m_pPlayer->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
 				m_pPlayer->onFloor = true;
 				continue;
 			}
-			//cout << Calculate_Direction(oBox, pBox).x << ", " << Calculate_Direction(oBox, pBox).y << ", " << Calculate_Direction(oBox, pBox).z << endl; // 충돌한 방향 벡터 출력 
+
 
 			//cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
 			//	"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
-			if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
-				if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
-				else ObjLook = { 0, 0, -1 };
+			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall", 12))
+			{
+				// 디폴트 슬라이딩 벡터 - 좌우 벽에서 계산이 꼬이는 문제가 있어 일단 땜빵
+				if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
+					if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+					else ObjLook = { 0, 0, -1 };
+				}
+				else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+				else ObjLook = { -1, 0, 0 };
 			}
-			else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
-			else ObjLook = { -1, 0, 0 };
+			else
+			{
+				// 회전한 오브젝트에도 적용되는 슬라이딩 벡터
 
+				float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
+				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
+
+				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
+					if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders2[0]->m_ppObjects[i]->GetLook();
+					else ObjLook = Vector3::ScalarProduct(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), -1);
+				}
+				else if (oBox.Center.x < RotatedPos.x) ObjLook = m_ppShaders2[0]->m_ppObjects[i]->GetRight();
+				else ObjLook = Vector3::ScalarProduct(m_ppShaders2[0]->m_ppObjects[i]->GetRight(), -1);
+			}
 			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
 				continue;
 

@@ -75,9 +75,11 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	short	character_num;
+	float	HP;
 	XMFLOAT3 Look, Up, Right, Pos;
 	bool overwrite;
 	DWORD direction;
+	XMFLOAT3 BulletPos;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
@@ -97,6 +99,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	short	id;
 	XMFLOAT3 Pos;
 	short HP;
+	bool is_alive;
 	short Chasing_PlayerID;
 	unsigned short animation_track; // 애니메이션 타입
 };

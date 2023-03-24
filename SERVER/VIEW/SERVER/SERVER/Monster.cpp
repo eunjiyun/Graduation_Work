@@ -1,11 +1,12 @@
 #include "Monster.h"
 
+
 Monster::Monster(const Monster& other)
 {
     lock_guard<mutex> ll{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    is_alive = other.is_alive;
+    alive = other.alive;
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -24,7 +25,7 @@ Monster& Monster::operator=(const Monster& other)
     lock_guard<mutex> l2{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    is_alive = other.is_alive;
+    alive = other.alive;
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -40,9 +41,11 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
 {
     Pos = _pos;
     room_num = _roomNum;
-    is_alive = true;
+    alive = true;
     BB = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(5, 3, 5));
     m_id = _id;
+    attack_timer = attack_cycle;
+    curState = NPC_State::Idle;
     switch (_type)
     {
     case 0: // ¼Õ¿¡ Ä®

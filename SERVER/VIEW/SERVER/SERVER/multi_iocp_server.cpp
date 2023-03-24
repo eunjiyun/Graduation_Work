@@ -34,7 +34,7 @@ void process_packet(int c_id, char* packet)
 				if (ST_INGAME != pl._state) continue;
 			}
 			if (pl._id == c_id) continue;
-			pl.send_add_player_packet(&clients[c_id / 4][c_id % 4]);
+			pl.send_add_player_packet(CL);
 			CL->send_add_player_packet(&pl);
 		}
 		break;
@@ -52,7 +52,7 @@ void process_packet(int c_id, char* packet)
 
 void worker_thread(HANDLE h_iocp)
 {
-	while (true) {
+	while (1) {
 		DWORD num_bytes;
 		ULONG_PTR key;
 		WSAOVERLAPPED* over = nullptr;
@@ -81,21 +81,22 @@ void worker_thread(HANDLE h_iocp)
 			if (client_id != -1) {
 				{
 					lock_guard<mutex> ll(CL->_s_lock);
-					CL->_state = ST_ALLOC;
+					//CL->_state = ST_ALLOC;
+					CL->Initialize(client_id, g_c_socket);
 				}
-				CL->_id = client_id;
-				CL->m_xmf3Position.x = -50;
-				CL->m_xmf3Position.y = 0;
-				CL->m_xmf3Position.z = 590;
-				CL->direction = 0;
-				CL->m_xmf3Up = XMFLOAT3{ 0,1,0 };
-				CL->m_xmf3Right = XMFLOAT3{ 1,0,0 };
-				CL->m_xmf3Look = XMFLOAT3{ 0,0,1 };
-				CL->_name[0] = 0;
-				CL->_prev_remain = 0;
-				CL->_socket = g_c_socket;
-				CL->cur_stage = 0;
-				CL->error_stack = 0;
+				//CL->_id = client_id;
+				//CL->m_xmf3Position.x = -50;
+				//CL->m_xmf3Position.y = 0;
+				//CL->m_xmf3Position.z = 590;
+				//CL->direction = 0;
+				//CL->m_xmf3Up = XMFLOAT3{ 0,1,0 };
+				//CL->m_xmf3Right = XMFLOAT3{ 1,0,0 };
+				//CL->m_xmf3Look = XMFLOAT3{ 0,0,1 };
+				//CL->_name[0] = 0;
+				//CL->_prev_remain = 0;
+				//CL->_socket = g_c_socket;
+				//CL->cur_stage = 0;
+				//CL->error_stack = 0;
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
 				CL->do_recv();
@@ -110,15 +111,15 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			SESSION* CL = getClient((int)key);
+			SESSION* CL = getClient((int)key);	
 			int remain_data = num_bytes + CL->_prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
 				int packet_size = p[0];
 				if (packet_size <= remain_data) {
 					process_packet(static_cast<int>(key), p);
-					p = p + packet_size;
-					remain_data = remain_data - packet_size;
+					p += packet_size;
+					remain_data -= packet_size;
 				}
 				else break;
 			}
@@ -169,15 +170,14 @@ void update_NPC()
 			auto iter = PoolMonsters[i].begin();
 			while (iter != PoolMonsters[i].end()) {
 				{
-					lock_guard<mutex> mm{ (*iter).m_lock };
-					(*iter).Update(m_NPCTimer.GetTimeElapsed());
+					lock_guard<mutex> mm{ (*iter)->m_lock }; 
+					(*iter)->Update(m_NPCTimer.GetTimeElapsed());
 				}
 				for (auto& cl : clients[i]) {
-					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(&(*iter));
+					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet((*iter));
 				}
-
-				if ((*iter).is_alive == false) {//0322
-					MonsterPool.ReturnMemory(&(*iter));
+				if ((*iter)->is_alive() == false) {//0322
+					MonsterPool.ReturnMemory((*iter));
 					PoolMonsters[i].erase(iter);
 					MonsterPool.PrintSize();
 				}
@@ -185,8 +185,8 @@ void update_NPC()
 					iter++;
 			}
 		}
+		this_thread::sleep_for(30ms);
 	}
-	this_thread::sleep_for(30ms);
 }
 
 int main()

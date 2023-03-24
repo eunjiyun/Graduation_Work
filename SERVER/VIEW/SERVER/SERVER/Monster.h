@@ -20,21 +20,22 @@ private:
     short view_range, type;
     array<float, 4> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
+    double attack_timer = 1.f;
+    bool alive = false;
 public:
     bool Move_Lock = false;
     stack<XMFLOAT3> roadToMove;
     short HP, power, speed;
     BoundingBox BB;
-    bool is_alive = true;
     XMFLOAT3 Pos;
     short cur_animation_track = 0;
     double attack_cycle = 2.35;
-    double attack_timer = 1.f;
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
     short target_id = -1; // 추적하는 플레이어 ID
     short m_id = -1;    // 몬스터 자체ID
+    float dead_timer = 3.f;
     mutable mutex m_lock;
-    Monster() { }
+    Monster() {}
     Monster(const Monster& other);
     Monster& operator=(const Monster& other);
     void Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos);
@@ -54,6 +55,11 @@ public:
     short GetSpeed() { return speed; }
     short GetPower() { return power; }
     void SetState(NPC_State st) { curState = st; }
+    NPC_State GetState() const { return curState; }
+    void SetAttackTimer(float time) { attack_timer = time; }
+    float GetAttackTimer() const { return attack_timer; }
+    bool is_alive() { return alive; }
+    void SetAlive(bool in) { alive = in; }
 };
 
 class MonsterInfo

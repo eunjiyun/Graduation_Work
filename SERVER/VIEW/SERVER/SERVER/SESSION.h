@@ -90,6 +90,19 @@ public:
 
 	~SESSION() {}
 
+	void Initialize(int id, SOCKET Socket)
+	{
+		_id = id;
+		m_xmf3Position = XMFLOAT3{ -50, 0, 590 };
+		direction = 0;
+		_prev_remain = 0;
+		m_xmf3Up = XMFLOAT3{ 0,1,0 };
+		m_xmf3Right = XMFLOAT3{ 1,0,0 };
+		m_xmf3Look = XMFLOAT3{ 0,0,1 };
+		_socket = Socket;
+		cur_stage = 0;
+		error_stack = 0;
+	}
 	void do_recv()
 	{
 		DWORD recv_flag = 0;

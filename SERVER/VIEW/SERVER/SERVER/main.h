@@ -8,7 +8,7 @@
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<array<Monster, MAX_MONSTER_PER_ROOM>, MAX_ROOM> monsters;
-array<vector<Monster>, MAX_ROOM> PoolMonsters;
+array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(10'000);
 array<vector<MonsterInfo>, 6> StagesInfo;
 
@@ -60,7 +60,7 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	p.type = SC_MOVE_MONSTER;
 	p.Pos = M->GetPosition();
 	p.HP = M->HP;
-	p.is_alive = M->is_alive;
+	p.is_alive = M->is_alive();
 	p.animation_track = M->cur_animation_track;
 	p.Chasing_PlayerID = M->target_id;
 	do_send(&p);
@@ -71,7 +71,7 @@ void Initialize_Monster(int roomNum, int stageNum)
 	for (auto& info : StagesInfo[stageNum - 1]) {
 		Monster* M = MonsterPool.GetMemory();
 		M->Initialize(roomNum, info.id, info.type, info.Pos);
-		PoolMonsters[roomNum].emplace_back(*M);
+		PoolMonsters[roomNum].emplace_back(M);
 		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
 			if (clients[roomNum][i]._state == ST_INGAME) {
 				clients[roomNum][i].cur_stage = stageNum;
@@ -137,9 +137,9 @@ void SESSION::Update(float fTimeElapsed)
 		{
 		case 0:
 			for (auto& monster : PoolMonsters[_id / 4]) {
-				if (monster.HP > 0 && BoundingBox(GetPosition(), { 10,3,10 }).Intersects(monster.BB))
+				if (monster->HP > 0 && BoundingBox(GetPosition(), { 15,1,15 }).Intersects(monster->BB))
 				{
-					monster.HP -= 100;
+					monster->HP -= 100;
 				}
 			}
 			break;
@@ -149,9 +149,9 @@ void SESSION::Update(float fTimeElapsed)
 			break;
 		case 2:
 			for (auto& monster : PoolMonsters[_id / 4]) {
-				if (monster.HP > 0 && BoundingBox(GetPosition(), { 10,3,10 }).Intersects(monster.BB))
+				if (monster->HP > 0 && BoundingBox(GetPosition(), { 5,1,5 }).Intersects(monster->BB))
 				{
-					monster.HP -= 50;
+					monster->HP -= 50;
 				}
 			}
 			break;
@@ -168,15 +168,13 @@ void SESSION::Update(float fTimeElapsed)
 
 	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, 10, false));
 	for (auto& monster : PoolMonsters[_id / 4]) {
-		if (monster.HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster.BB))
+		if (monster->HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster->BB))
 		{
-			cout << monster.m_id << "HIT\n";
-			monster.HP -= 200;
+
+			monster->HP -= 200;
 			BulletPos = XMFLOAT3(5000, 5000, 5000);
 			break;
 		}
-		//else if(monster.HP <= 0)//0322
-		//	monster.direction = DIR_DIE;
 	}
 }
 bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
@@ -226,7 +224,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			cout << start_Pos.x << ", " << start_Pos.y << ", " << start_Pos.z << "  to  " << dest_Pos.x << ", " << dest_Pos.y << ", " << dest_Pos.z << "추적 중지\n";
 			cur_animation_track = 0;
 			target_id = -1;
-			curState = NPC_State::Idle;
+			SetState(NPC_State::Idle);
 			return Pos;
 		}
 		iter = getNode(&openList);
@@ -280,23 +278,22 @@ int Monster::get_targetID()
 
 void Monster::Update(float fTimeElapsed)
 {
-	if (HP <= 0 && curState != NPC_State::Dead) {
-		curState = NPC_State::Dead;
-		attack_timer = 3.f;
+	if (HP <= 0 && GetState() != NPC_State::Dead) {
+		SetState(NPC_State::Dead);
 	}
 
-	switch (curState)
+	switch (GetState())
 	{
 	case NPC_State::Idle:
 		target_id = get_targetID();
 		if (target_id != -1) {
-			curState = NPC_State::Chase;
+			SetState(NPC_State::Chase);
 			cur_animation_track = 1;
 		}
 		break;
 	case NPC_State::Chase:
 		if (BB.Intersects(clients[room_num][target_id].m_xmOOBB)) {
-			curState = NPC_State::Attack;
+			SetState(NPC_State::Attack);
 			if (type != 2) {
 				cur_animation_track = 2;
 			}
@@ -323,33 +320,30 @@ void Monster::Update(float fTimeElapsed)
 	case NPC_State::Attack:
 		attack_timer -= fTimeElapsed;
 		if (clients[room_num][target_id].HP <= 0) {
-			curState = NPC_State::Idle;
+			SetState(NPC_State::Idle);
 			cur_animation_track = 0;
 			target_id = -1;
-			attack_timer = 1.f;
+			SetAttackTimer(attack_cycle);
 			return;
 		}
-		if (attack_timer <= 0) {
-			{
+		if (GetAttackTimer() <= 0) {
+			if (!BB.Intersects(clients[room_num][target_id].m_xmOOBB)) {
+				SetState(NPC_State::Chase);
+				cur_animation_track = 1;
+				SetAttackTimer(attack_cycle);
+			}
+			else {
 				lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
 				clients[room_num][target_id].HP -= GetPower();
-				cout << clients[room_num][target_id].HP << endl;
 			}
-			attack_timer = attack_cycle;
-		}
-		if (!BB.Intersects(clients[room_num][target_id].m_xmOOBB)) {
-			curState = NPC_State::Chase;
-			cur_animation_track = 1;
-			attack_timer = 1.f;
+			SetAttackTimer(attack_cycle);
 		}
 		break;
 	case NPC_State::Dead:
 		 cur_animation_track = 3;
-		 attack_timer -= fTimeElapsed;
-		 if (attack_timer <= 0) {
-			 //SetState(NPC_State::Idle);
-			 SetState(NPC_State::Dead);
-			 is_alive = false;
+		 dead_timer -= fTimeElapsed;
+		 if (dead_timer <= 0 ) {
+			 SetAlive(false);
 		 }
 		break;
 	default:
@@ -362,7 +356,7 @@ void InitializeStages()
 {
 	int ID_constructor = 0;
 	{	// 1stage
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < 4; ++i) {
 			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 650), 0, ID_constructor++));
 	
 		}
