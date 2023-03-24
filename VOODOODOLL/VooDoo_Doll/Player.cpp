@@ -275,6 +275,7 @@ void CPlayer::OnUpdateTransform()
 void CPlayer::UpdateBoundingBox()
 {
 	m_xmOOBB.Center = m_xmf3Position;
+	obBox.Center = m_xmf3Position;
 }
 
 void CPlayer::boundingAnimate(float fElapsedTime)
@@ -377,6 +378,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 3, 10));
+	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 3, 10), XMFLOAT4(-0, 0, -0,1) );
 
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
 }

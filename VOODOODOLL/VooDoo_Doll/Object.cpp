@@ -1437,10 +1437,10 @@ void CGameObject::Boundingbox_Transform()
 {
 	if (m_ppMeshes[0])
 	{
-		m_ppMeshes[0]->m_xmBoundingBox.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
+		/*m_ppMeshes[0]->m_xmBoundingBox.Transform(m_xmOOBB, XMLoadFloat4x4(&m_xmf4x4World));
 		m_ppMeshes[0]->OBBox.Center = m_xmOOBB.Center;
-		m_ppMeshes[0]->OBBox.Extents = m_xmOOBB.Extents;
-		//m_ppMeshes[0]->OBBox.Transform(m_ppMeshes[0]->OBBox, XMLoadFloat4x4(&m_xmf4x4World));
+		m_ppMeshes[0]->OBBox.Extents = m_xmOOBB.Extents;*/
+		m_ppMeshes[0]->OBBox.Transform(m_ppMeshes[0]->OBBox, XMLoadFloat4x4(&m_xmf4x4World));
 	}
 }
 

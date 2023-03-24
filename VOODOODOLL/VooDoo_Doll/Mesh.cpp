@@ -240,11 +240,15 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 		if (!strcmp(pstrToken, "<BoundingBox>:"))
 		{
-			nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(float), 3, pFile);
-			nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(float), 3, pFile);
+			/*nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(float), 3, pFile);
+			nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(float), 3, pFile);*/
 
-			OBBox.Center = m_xmBoundingBox.Center;
-			OBBox.Extents = m_xmBoundingBox.Extents;
+			nReads = (UINT)::fread(&OBBox.Center, sizeof(float), 3, pFile);
+			nReads = (UINT)::fread(&OBBox.Extents, sizeof(float), 3, pFile);
+			nReads = (UINT)::fread(&OBBox.Orientation, sizeof(float), 4, pFile);
+
+			/*OBBox.Center = m_xmBoundingBox.Center;
+			OBBox.Extents = m_xmBoundingBox.Extents;*/
 		}
 		else if (!strcmp(pstrToken, "<Vertices>:"))
 		{

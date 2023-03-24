@@ -398,6 +398,7 @@ public:
 
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;//
 	BoundingBox			m_xmOOBB = BoundingBox();// //
+	BoundingOrientedBox			obBox = BoundingOrientedBox();
 
 
 	bool						m_bActive = false;//
