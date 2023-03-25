@@ -106,11 +106,11 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 
-	short stage = (short)(GetPosition().z / 600);
+	//short stage = (short)(GetPosition().z / 600);
 
-	if (stage > cur_stage) {
-		Initialize_Monster(_id / 4, stage);
-	}
+	//if (stage > cur_stage) {
+	//	Initialize_Monster(_id / 4, stage);
+	//}
 }
 
 int get_new_client_id()

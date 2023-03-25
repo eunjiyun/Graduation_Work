@@ -516,52 +516,8 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 		BoundingBox aabbOBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
 		BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
-		//if (num < 965)
-		//{
-		//	/*if (round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.x)
-		//		&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.y)
-		//		&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.z)
-
-		//		&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.x)
-		//		&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.y)
-		//		&& round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z) == round(10000 * m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.z)
-		//		)
-		//	{
-		//	}
-		//	else*/
-
-		//	//Bedroom_wall_b_01_dense_mesh_(15)
-		//	if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh_(15)", 33))
-		//	{
-		//		//cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.x << endl;
-		//		//cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.y << endl;
-		//		//cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Center.z << endl;
-
-		//		cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.x << endl;
-		//		cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.y << endl;
-		//		cout << i << " c: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center.z << endl << endl;
-
-		//		/*cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.x << endl;
-		//		cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.y << endl;
-		//		cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB.Extents.z << endl;*/
-
-		//		cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.x << endl;
-		//		cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.y << endl;
-		//		cout << i << " e: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents.z << endl << endl ;
-
-		//		cout << i << " o: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " x: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Orientation.x << endl;
-		//		cout << i << " o: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " y: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Orientation.y << endl;
-		//		cout << i << " o: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Orientation.z << endl;
-		//		cout << i << " o: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << " z: " << m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Orientation.w << endl << endl << endl;
-		//		
-		//	}
-		//	num++;
-		//}
-
 		if (pBox.Intersects(oBox))
 		{
-			//if ((0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
-			//	|| 0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Stair_step", 10)) && Vel.y <= 0) {
 			if (pBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = m_pPlayer->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
@@ -571,26 +527,35 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				continue;
 			}
 
-			//if (1 == strcmp("Bedroom_wall_b_01_dense_mesh_(10)", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			//if (1 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh_(10)", 33))
-			//{
-			//	cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-			//		"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;//0323
-			//}
-
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall", 12))
 			{
+				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
+				XMVECTOR xmQuaternion = XMLoadFloat4(&oBox.Orientation);
+
+				// Rotate the vector using the quaternion
+				XMVECTOR rotatedVector = XMVector3Rotate(xmVector, xmQuaternion);
+
+				// Convert the rotated vector back to an XMFLOAT3
+				XMFLOAT3 realExtents;
+				XMStoreFloat3(&realExtents, rotatedVector);
+
+				realExtents.x = sqrtf(realExtents.x * realExtents.x);
+				realExtents.y = sqrtf(realExtents.y * realExtents.y);
+				realExtents.z = sqrtf(realExtents.z * realExtents.z);
+
+				
 				// 디폴트 슬라이딩 벡터 - 좌우 벽에서 계산이 꼬이는 문제가 있어 일단 땜빵
-				if (aabbOBox.Center.x - aabbOBox.Extents.x < aabbPBox.Center.x && aabbOBox.Center.x + aabbOBox.Extents.x > aabbPBox.Center.x) {
-					if (aabbOBox.Center.z < aabbPBox.Center.z) ObjLook = { 0,0,1 };
+				if (oBox.Center.x - realExtents.x < aabbPBox.Center.x && oBox.Center.x + realExtents.x > aabbPBox.Center.x) {
+					if (oBox.Center.z < aabbPBox.Center.z) ObjLook = { 0,0,1 };
 					else ObjLook = { 0, 0, -1 };
 				}
-				else if (aabbOBox.Center.x < aabbPBox.Center.x) ObjLook = { 1,0,0 };
+				else if (oBox.Center.x < aabbPBox.Center.x) ObjLook = { 1,0,0 };
 				else ObjLook = { -1, 0, 0 };
 
-				cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << aabbOBox.Center.x << ", " << aabbOBox.Center.y << ", " << aabbOBox.Center.z <<
-					"\nExtents: " << aabbOBox.Extents.x << ", " << aabbOBox.Extents.y << ", " << aabbOBox.Extents.z << endl;//0323
+				cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+					"\nExtents: " << realExtents.x << ", " << realExtents.y << ", " << realExtents.z << endl;//0323
+				Vector3::Print(ObjLook);
 			}
 			else
 			{

@@ -248,10 +248,6 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			{
 				nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(float), 3, pFile);
 				nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(float), 3, pFile);
-
-				m_xmBoundingBox.Extents.x *= 5;
-				//m_xmBoundingBox.Extents.y *= 5;
-				m_xmBoundingBox.Extents.z *= 5;
 			}
 
 			/*OBBox.Center = m_xmBoundingBox.Center;
