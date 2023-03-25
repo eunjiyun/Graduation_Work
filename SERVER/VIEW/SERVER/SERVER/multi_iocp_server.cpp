@@ -34,17 +34,24 @@ void process_packet(int c_id, char* packet)
 				if (ST_INGAME != pl._state) continue;
 			}
 			if (pl._id == c_id) continue;
-			pl.send_add_player_packet(CL);
+			pl.send_add_player_packet(CL);	
 			CL->send_add_player_packet(&pl);
 		}
 		break;
 	}
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		lock_guard <mutex> ll{ CL->_s_lock };
-		CL->CheckPosition(p->pos);
-		CL->direction = p->direction;
-		CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		{
+			lock_guard <mutex> ll{ CL->_s_lock };
+			CL->CheckPosition(p->pos);
+			CL->direction = p->direction;
+			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+			CL->Update();
+			if (CL->direction == DIR_DIE) CL->_state = ST_DEAD;
+		}
+		for (auto& cl : clients[c_id / 4]) {
+			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(CL);
+		}
 	}
 	}
 }
@@ -81,22 +88,9 @@ void worker_thread(HANDLE h_iocp)
 			if (client_id != -1) {
 				{
 					lock_guard<mutex> ll(CL->_s_lock);
-					//CL->_state = ST_ALLOC;
-					CL->Initialize(client_id, g_c_socket);
+					CL->_state = ST_ALLOC;
 				}
-				//CL->_id = client_id;
-				//CL->m_xmf3Position.x = -50;
-				//CL->m_xmf3Position.y = 0;
-				//CL->m_xmf3Position.z = 590;
-				//CL->direction = 0;
-				//CL->m_xmf3Up = XMFLOAT3{ 0,1,0 };
-				//CL->m_xmf3Right = XMFLOAT3{ 1,0,0 };
-				//CL->m_xmf3Look = XMFLOAT3{ 0,0,1 };
-				//CL->_name[0] = 0;
-				//CL->_prev_remain = 0;
-				//CL->_socket = g_c_socket;
-				//CL->cur_stage = 0;
-				//CL->error_stack = 0;
+				CL->Initialize(client_id, g_c_socket);
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
 				CL->do_recv();
@@ -131,7 +125,7 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_SEND:
-			delete ex_over;
+			OverPool.ReturnMemory(ex_over);
 			break;
 		}
 	}
@@ -139,18 +133,13 @@ void worker_thread(HANDLE h_iocp)
 
 void update_thread()
 {
-	m_PlayerTimer.Start();
+	//m_PlayerTimer.Start();
 	while (1)
 	{
-		m_PlayerTimer.Tick(10.f);
+		//m_PlayerTimer.Tick(10.f);
 		for (int i = 0; i < MAX_ROOM; ++i) {
 			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
 				if (clients[i][j]._state != ST_INGAME) continue;
-				{
-					lock_guard <mutex> ll{ clients[i][j]._s_lock };
-					clients[i][j].Update(m_PlayerTimer.GetTimeElapsed());
-					if (clients[i][j].direction == DIR_DIE) clients[i][j]._state = ST_DEAD;
-				}
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(&clients[i][j]);
 				}
@@ -162,16 +151,15 @@ void update_thread()
 
 void update_NPC()
 {
-	m_NPCTimer.Start();
 	while (1)
 	{
-		m_NPCTimer.Tick(30.0f);
+		//m_NPCTimer.Tick(30.0f);
 		for (int i = 0; i < MAX_ROOM; ++i) {
 			auto iter = PoolMonsters[i].begin();
 			while (iter != PoolMonsters[i].end()) {
 				{
 					lock_guard<mutex> mm{ (*iter)->m_lock }; 
-					(*iter)->Update(m_NPCTimer.GetTimeElapsed());
+					(*iter)->Update((float)(1.f/30.f));
 				}
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet((*iter));
@@ -187,6 +175,11 @@ void update_NPC()
 		}
 		this_thread::sleep_for(30ms);
 	}
+}
+
+void do_Timer()
+{
+
 }
 
 int main()
@@ -227,14 +220,14 @@ int main()
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 
 	vector <thread> worker_threads;
-	thread* update_player_t = new thread{ update_thread };
+	//thread* update_player_t = new thread{ update_thread };
 	thread* update_NPC_t = new thread{ update_NPC };
 	int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < num_threads - 2; ++i)
+	for (int i = 0; i < num_threads; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
-	update_player_t->join();
+	//update_player_t->join();
 	update_NPC_t->join();
 	closesocket(g_s_socket);
 	WSACleanup();

@@ -70,11 +70,11 @@ using namespace chrono;
 #define DIR_LEFT				0x04
 #define DIR_RIGHT				0x08
 #define DIR_RUN					0x10
-#define DIR_ATTACK				0x20
-#define DIR_DIE					0x40//¹®Á¦
+#define DIR_JUMP				0x20
+#define DIR_ATTACK				0x40
 #define DIR_COLLECT				0x80
 #define DIR_CHANGESTATE			0x100
-#define DIR_JUMP				0x200
+#define DIR_DIE					0x200
 
 
 

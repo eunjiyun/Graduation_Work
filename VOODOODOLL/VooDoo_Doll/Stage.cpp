@@ -553,8 +553,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				realExtents.y = sqrtf(realExtents.y * realExtents.y);
 				realExtents.z = sqrtf(realExtents.z * realExtents.z);
 
-
-
 				if (oBox.Center.x - realExtents.x < pBox.Center.x && oBox.Center.x + realExtents.x > pBox.Center.x) {
 					if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
 					else ObjLook = { 0, 0, -1 };

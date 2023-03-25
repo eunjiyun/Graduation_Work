@@ -51,7 +51,7 @@ void ProcessInput()
 			else if (pKeysBuffer[0x51] & 0xF0 && Old_Direction != DIR_CHANGESTATE) dwDirection = DIR_CHANGESTATE;//q change
 			else if (pKeysBuffer[0x5A] & 0xF0 && Old_Direction != DIR_ATTACK) dwDirection = DIR_ATTACK;//z Attack
 			else if (pKeysBuffer[0x43] & 0xF0 && Old_Direction != DIR_COLLECT) dwDirection = DIR_COLLECT;//c collect
-			else if (pKeysBuffer[0x4B] & 0xF0 && Old_Direction != DIR_DIE) dwDirection = DIR_DIE;//k die 
+			// else if (pKeysBuffer[0x4B] & 0xF0 && Old_Direction != DIR_DIE) dwDirection = DIR_DIE;//k die 
 		}
 	}
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -69,7 +69,7 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if (dwDirection || duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100 || cxDelta != 0.0f || cyDelta != 0.0f) {
+	if (dwDirection || duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 200 || cxDelta != 0.0f || cyDelta != 0.0f) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
@@ -167,7 +167,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-			SleepEx(1000.f / 30.f, true);
+			SleepEx(0, true);
 			ProcessInput();
 			gGameFramework.FrameAdvance();
 		}
@@ -258,6 +258,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
+		}
+		if (wParam == 'Z' || wParam == 'z')
+		{
+			CS_LOGIN_PACKET p;
+			p.size = sizeof(CS_LOGIN_PACKET);
+			p.type = CS_LOGIN;
+			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			delete start_data;
 		}
 		break;
 	case WM_KEYUP:

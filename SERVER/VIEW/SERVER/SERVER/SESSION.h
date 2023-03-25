@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include "protocol.h"
 #include "Monster.h"
+#include "MemoryPool.h"
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -35,6 +36,8 @@ public:
 		memcpy(_send_buf, packet, packet[0]);
 	}
 };
+
+CObjectPool<OVER_EXP> OverPool(100'000);
 
 enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD };
 class SESSION {
@@ -93,7 +96,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ 30, -100, 1560 };
+		m_xmf3Position = XMFLOAT3{ -50, -0, 0 };
 		direction = 0;
 		_prev_remain = 0;
 		m_xmf3Up = XMFLOAT3{ 0,1,0 };
@@ -115,7 +118,15 @@ public:
 
 	void do_send(void* packet)
 	{
-		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
+		OVER_EXP* sdata = OverPool.GetMemory();
+		char* p = reinterpret_cast<char*>(packet);
+		sdata->_wsabuf.len = p[0];
+		sdata->_wsabuf.buf = sdata->_send_buf;
+		ZeroMemory(&sdata->_over, sizeof(sdata->_over));
+		sdata->_comp_type = OP_SEND;
+		memcpy(sdata->_send_buf, p, p[0]);
+
+		// OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
 		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
@@ -233,7 +244,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void Update(float fTimeElapsed);
+	void Update();
 	void CheckPosition(XMFLOAT3 newPos);
 	// void CheckCollision(float fTimeElapsed);
 };
