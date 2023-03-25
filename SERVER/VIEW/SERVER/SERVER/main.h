@@ -91,7 +91,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		overwrite = true;
 		return;
 	}
-	else
+	/*else
 	{
 		for (MapObject*& object : Objects[(int)newPos.z / 600]) {
 			if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
@@ -99,7 +99,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 				return;
 			}
 		}
-	}
+	}*/
 
 
 	overwrite = false;

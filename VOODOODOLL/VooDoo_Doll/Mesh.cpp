@@ -240,12 +240,19 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 		if (!strcmp(pstrToken, "<BoundingBox>:"))
 		{
-			/*nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(float), 3, pFile);
-			nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(float), 3, pFile);*/
-
 			nReads = (UINT)::fread(&OBBox.Center, sizeof(float), 3, pFile);
 			nReads = (UINT)::fread(&OBBox.Extents, sizeof(float), 3, pFile);
 			nReads = (UINT)::fread(&OBBox.Orientation, sizeof(float), 4, pFile);
+
+			if (0 == strncmp(pstrFileName, "Bedroom_wall", 12))
+			{
+				nReads = (UINT)::fread(&m_xmBoundingBox.Center, sizeof(float), 3, pFile);
+				nReads = (UINT)::fread(&m_xmBoundingBox.Extents, sizeof(float), 3, pFile);
+
+				m_xmBoundingBox.Extents.x *= 5;
+				//m_xmBoundingBox.Extents.y *= 5;
+				m_xmBoundingBox.Extents.z *= 5;
+			}
 
 			/*OBBox.Center = m_xmBoundingBox.Center;
 			OBBox.Extents = m_xmBoundingBox.Extents;*/

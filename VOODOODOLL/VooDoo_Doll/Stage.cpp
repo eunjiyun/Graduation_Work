@@ -508,12 +508,12 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
 	XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-	//BoundingBox pBox = m_pPlayer->m_xmOOBB;
+	BoundingBox aabbPBox = m_pPlayer->m_xmOOBB;
 	BoundingOrientedBox pBox = m_pPlayer->obBox;
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
 	{
-		//BoundingBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
+		BoundingBox aabbOBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
 		BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
 		//if (num < 965)
@@ -573,21 +573,24 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 			//if (1 == strcmp("Bedroom_wall_b_01_dense_mesh_(10)", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
 			//if (1 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh_(10)", 33))
-			{
-				cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-					"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;//0323
-			}
+			//{
+			//	cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
+			//		"\nExtents: " << oBox.Extents.x << ", " << oBox.Extents.y << ", " << oBox.Extents.z << endl;//0323
+			//}
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall", 12))
 			{
 				// 디폴트 슬라이딩 벡터 - 좌우 벽에서 계산이 꼬이는 문제가 있어 일단 땜빵
-				if (oBox.Center.x - oBox.Extents.x < pBox.Center.x && oBox.Center.x + oBox.Extents.x > pBox.Center.x) {
-					if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+				if (aabbOBox.Center.x - aabbOBox.Extents.x < aabbPBox.Center.x && aabbOBox.Center.x + aabbOBox.Extents.x > aabbPBox.Center.x) {
+					if (aabbOBox.Center.z < aabbPBox.Center.z) ObjLook = { 0,0,1 };
 					else ObjLook = { 0, 0, -1 };
 				}
-				else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+				else if (aabbOBox.Center.x < aabbPBox.Center.x) ObjLook = { 1,0,0 };
 				else ObjLook = { -1, 0, 0 };
+
+				cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << aabbOBox.Center.x << ", " << aabbOBox.Center.y << ", " << aabbOBox.Center.z <<
+					"\nExtents: " << aabbOBox.Extents.x << ", " << aabbOBox.Extents.y << ", " << aabbOBox.Extents.z << endl;//0323
 			}
 			else
 			{
