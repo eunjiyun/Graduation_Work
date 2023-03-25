@@ -150,7 +150,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
 		m_ppShaders2[0]->m_ppObjects[i]->Boundingbox_Transform();
-
+		/*cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
+		cout << "Center: ";
+		Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
+		cout << "Extents: ";
+		Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
 	}
 
 	//BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
@@ -514,7 +518,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
 	{
-		BoundingBox aabbOBox = m_ppShaders2[0]->m_ppObjects[i]->m_xmOOBB;
 		BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
 		if (pBox.Intersects(oBox))

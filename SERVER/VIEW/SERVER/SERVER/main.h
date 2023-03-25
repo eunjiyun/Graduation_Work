@@ -91,15 +91,16 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		overwrite = true;
 		return;
 	}
-	/*else
-	{
-		for (MapObject*& object : Objects[(int)newPos.z / 600]) {
-			if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
-				overwrite = true;
-				return;
-			}
-		}
-	}*/
+	//else
+	//{
+	//	for (MapObject*& object : Objects[(int)newPos.z / 600]) {
+	//		if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
+	//			cout << object->m_pstrName << " COLLIDED\n";
+	//			overwrite = true;
+	//			return;
+	//		}
+	//	}
+	//}
 
 
 	overwrite = false;

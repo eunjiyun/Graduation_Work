@@ -6,7 +6,7 @@ class MapObject
 public:
     XMFLOAT4X4 m_xmf4x4World;
     char		m_pstrName[64] = { '\0' };
-    BoundingBox		m_xmOOBB = BoundingBox();
+    BoundingOrientedBox		m_xmOOBB = BoundingOrientedBox();
 
     MapObject() { m_xmf4x4World = Matrix4x4::Identity(); }
     MapObject(int nMaterials) { m_xmf4x4World = Matrix4x4::Identity(); }

@@ -93,7 +93,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, 0, 0 };
+		m_xmf3Position = XMFLOAT3{ 30, -100, 1560 };
 		direction = 0;
 		_prev_remain = 0;
 		m_xmf3Up = XMFLOAT3{ 0,1,0 };

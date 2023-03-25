@@ -42,6 +42,7 @@ void LoadMeshFromFile(MapObject& obj, char* pstrFileName)
         {
             nReads = (UINT)::fread(&obj.m_xmOOBB.Center, sizeof(float), 3, pFile);
             nReads = (UINT)::fread(&obj.m_xmOOBB.Extents, sizeof(float), 3, pFile);
+            nReads = (UINT)::fread(&obj.m_xmOOBB.Orientation, sizeof(float), 4, pFile);
             break;
         }
     }
@@ -173,8 +174,8 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
 
         pGameObject->m_xmOOBB.Transform(pGameObject->m_xmOOBB, XMLoadFloat4x4(&pGameObject->m_xmf4x4World));
 
-        //cout << "Name: " << pGameObject->m_pstrName << "\nCenter: " << pGameObject->m_xmOOBB.Center.x << ", " << pGameObject->m_xmOOBB.Center.y << ", " << pGameObject->m_xmOOBB.Center.z <<
-        //    "\nExtents: " << pGameObject->m_xmOOBB.Extents.x << ", " << pGameObject->m_xmOOBB.Extents.y << ", " << pGameObject->m_xmOOBB.Extents.z << endl;
+        /*cout << "Name: " << pGameObject->m_pstrName << "\nCenter: " << pGameObject->m_xmOOBB.Center.x << ", " << pGameObject->m_xmOOBB.Center.y << ", " << pGameObject->m_xmOOBB.Center.z <<
+            "\nExtents: " << pGameObject->m_xmOOBB.Extents.x << ", " << pGameObject->m_xmOOBB.Extents.y << ", " << pGameObject->m_xmOOBB.Extents.z << endl;*/
 
 
         ppGameObjects[i] = pGameObject;
