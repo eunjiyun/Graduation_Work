@@ -508,8 +508,9 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 {
 	XMFLOAT3 Vel = m_pPlayer->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-	BoundingBox aabbPBox = m_pPlayer->m_xmOOBB;
 	BoundingOrientedBox pBox = m_pPlayer->obBox;
+
+
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
 	{
@@ -527,8 +528,13 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				continue;
 			}
 
+
+
+			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
-			if (0 == strncmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall", 12))
+
+			// 디폴트 슬라이딩 벡터(회전이 없는 오브젝트에 사용)
+			if ((int)angle % 90 == 0)
 			{
 				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
 				XMVECTOR xmQuaternion = XMLoadFloat4(&oBox.Orientation);
@@ -544,24 +550,19 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
 				realExtents.y = sqrtf(realExtents.y * realExtents.y);
 				realExtents.z = sqrtf(realExtents.z * realExtents.z);
 
-				
-				// 디폴트 슬라이딩 벡터 - 좌우 벽에서 계산이 꼬이는 문제가 있어 일단 땜빵
-				if (oBox.Center.x - realExtents.x < aabbPBox.Center.x && oBox.Center.x + realExtents.x > aabbPBox.Center.x) {
-					if (oBox.Center.z < aabbPBox.Center.z) ObjLook = { 0,0,1 };
+
+
+				if (oBox.Center.x - realExtents.x < pBox.Center.x && oBox.Center.x + realExtents.x > pBox.Center.x) {
+					if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
 					else ObjLook = { 0, 0, -1 };
 				}
-				else if (oBox.Center.x < aabbPBox.Center.x) ObjLook = { 1,0,0 };
+				else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
 				else ObjLook = { -1, 0, 0 };
 
-				cout << "Name: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << "\nCenter: " << oBox.Center.x << ", " << oBox.Center.y << ", " << oBox.Center.z <<
-					"\nExtents: " << realExtents.x << ", " << realExtents.y << ", " << realExtents.z << endl;//0323
-				Vector3::Print(ObjLook);
 			}
 			else
 			{
-				// 회전한 오브젝트에도 적용되는 슬라이딩 벡터
-
-				float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
+				// 회전한 오브젝트에 적용되는 슬라이딩 벡터 - 위치 보간
 				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
 
 				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
