@@ -91,8 +91,8 @@ void Initialize_Monster(int roomNum, int stageNum)
 			if (clients[roomNum][i]._state == ST_INGAME) {
 				clients[roomNum][i].cur_stage = stageNum;
 				clients[roomNum][i].send_summon_monster_packet(M);
-				TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE, -1 };
-				timer_queue.push(ev);
+				//TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE, -1 };
+				//timer_queue.push(ev);
 				//cout << roomNum << "번 방 " << stageNum << " 스테이지 몬스터 소환\n";
 			}
 		}
@@ -234,7 +234,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 
 	openList.push_back(new A_star_Node(start_Pos, dest_Pos));
 	list<A_star_Node*>::iterator iter;
-	auto start_time = high_resolution_clock::now();
+	clock_t start_time = clock();
 	while (!openList.empty())
 	{
 		//if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() >= 1000)
@@ -253,7 +253,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
-					cout << "찾는 데 걸린 시간 - " << duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() << endl;
+					cout << "찾는 데 걸린 시간 - " << clock() - start_time << endl;
 					return S_Node->Pos;
 				}
 				roadToMove.push(S_Node->Pos);
