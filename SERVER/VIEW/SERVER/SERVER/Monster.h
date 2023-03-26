@@ -20,9 +20,9 @@ private:
     short view_range, type;
     array<float, 4> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
-    double attack_timer = 1.f;
     bool alive = false;
 public:
+    
     bool Move_Lock = false;
     stack<XMFLOAT3> roadToMove;
     short HP, power, speed;
@@ -34,6 +34,7 @@ public:
     short target_id = -1; // 추적하는 플레이어 ID
     short m_id = -1;    // 몬스터 자체ID
     float dead_timer = 3.f;
+    double attack_timer = 1.f;
     mutable mutex m_lock;
     Monster() {}
     Monster(const Monster& other);
@@ -70,7 +71,6 @@ public:
     short id;
     MonsterInfo(XMFLOAT3 _pos, short _type, int _id) : Pos(_pos), type(_type), id(_id) {}
 };
-
 
 
 

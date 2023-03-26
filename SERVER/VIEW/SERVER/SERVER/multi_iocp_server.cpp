@@ -9,6 +9,7 @@
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
+using namespace chrono;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
@@ -183,6 +184,27 @@ void worker_thread(HANDLE h_iocp)
 		case OP_SEND:
 			OverPool.ReturnMemory(ex_over);
 			break;
+		case OP_NPC_MOVE:
+			int roomNum = static_cast<int>(key) / 100;
+			short mon_id = static_cast<int>(key) % 100;
+			cout << "RoomNum - " << roomNum << ", m_id - " << mon_id << endl;
+			auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+			{
+				lock_guard<mutex> mm{ PoolMonsters[roomNum][mon_id]->m_lock };
+				monster_update(roomNum, mon_id);
+			}
+			for (auto& cl : clients[roomNum]) {
+				if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
+			}
+			if ((*iter)->is_alive() == false) {//0322
+				MonsterPool.ReturnMemory((*iter));
+				PoolMonsters[roomNum].erase(iter);
+				MonsterPool.PrintSize();
+			}
+			TIMER_EVENT ev{ key / 100, key % 100, high_resolution_clock::now() + 1s, EV_RANDOM_MOVE, 0 };
+			timer_queue.push(ev);
+			OverPool.ReturnMemory(ex_over);
+			break;
 		}
 	}
 }
@@ -235,7 +257,24 @@ void update_NPC()
 
 void do_Timer()
 {
-
+	while (1)
+	{
+		//this_thread::sleep_for(1ms);
+		TIMER_EVENT ev;
+		auto current_time = high_resolution_clock::now();
+		if (timer_queue.try_pop(ev))
+			if (ev.wakeup_time > current_time) {
+				timer_queue.push(ev);
+				continue;
+			}
+		switch (ev.event_id) {
+		case EV_RANDOM_MOVE:
+			OVER_EXP* ov = OverPool.GetMemory();
+			ov->_comp_type = OP_NPC_MOVE;
+			PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
+			break;
+		}
+	}
 }
 
 int main()
@@ -277,7 +316,8 @@ int main()
 
 	vector <thread> worker_threads;
 	//thread* update_player_t = new thread{ update_thread };
-	thread* update_NPC_t = new thread{ update_NPC };
+	//thread* update_NPC_t = new thread{ update_NPC };
+	thread* update_NPC_t = new thread{ do_Timer };
 	int num_threads = std::thread::hardware_concurrency();
 	for (int i = 0; i < num_threads; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);

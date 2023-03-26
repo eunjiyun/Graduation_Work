@@ -4,10 +4,25 @@
 #include "MemoryPool.h"
 #include "MapObject.h"
 #include "Monster.h"
+#include <concurrent_priority_queue.h>
 
+enum EVENT_TYPE { EV_RANDOM_MOVE };
+
+struct TIMER_EVENT {
+	int room_id;
+	int obj_id;
+	high_resolution_clock::time_point wakeup_time;
+	int event_id;
+	int target_id;
+	constexpr bool operator < (const TIMER_EVENT& _Left) const
+	{
+		return (wakeup_time > _Left.wakeup_time);
+	}
+};
+concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
-array<array<Monster, MAX_MONSTER_PER_ROOM>, MAX_ROOM> monsters;
+//array<array<Monster, MAX_MONSTER_PER_ROOM>, MAX_ROOM> monsters;
 array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(10'000);
 array<vector<MonsterInfo>, 6> StagesInfo;
@@ -76,7 +91,9 @@ void Initialize_Monster(int roomNum, int stageNum)
 			if (clients[roomNum][i]._state == ST_INGAME) {
 				clients[roomNum][i].cur_stage = stageNum;
 				clients[roomNum][i].send_summon_monster_packet(M);
-				cout << roomNum << "번 방 " << stageNum << " 스테이지 몬스터 소환\n";
+				TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE, -1 };
+				timer_queue.push(ev);
+				//cout << roomNum << "번 방 " << stageNum << " 스테이지 몬스터 소환\n";
 			}
 		}
 	}
@@ -381,5 +398,81 @@ void InitializeStages()
 	}
 	{	// 6stage
 
+	}
+}
+
+void monster_update(int roomNum, int monster_id)
+{
+	auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [monster_id](Monster* M) {return M->m_id == monster_id; });
+	if ((*iter)->HP <= 0 && (*iter)->GetState() != NPC_State::Dead) {
+		(*iter)->SetState(NPC_State::Dead);
+	}
+
+	switch ((*iter)->GetState())
+	{
+	case NPC_State::Idle:
+		(*iter)->target_id = (*iter)->get_targetID();
+		if ((*iter)->target_id != -1) {
+			(*iter)->SetState(NPC_State::Chase);
+			(*iter)->cur_animation_track = 1;
+		}
+		break;
+	case NPC_State::Chase:
+		if ((*iter)->BB.Intersects(clients[roomNum][(*iter)->target_id].m_xmOOBB)) {
+			(*iter)->SetState(NPC_State::Attack);
+			if ((*iter)->getType() != 2) {
+				(*iter)->cur_animation_track = 2;
+			}
+			(*iter)->roadToMove = stack<XMFLOAT3>(); // 스택 초기화
+		}
+		if (!(*iter)->roadToMove.empty())
+		{
+			(*iter)->Pos = (*iter)->roadToMove.top();
+			(*iter)->roadToMove.pop();
+		}
+		else {
+			int collide_range = (int)((*iter)->Pos.z / 600);
+			XMFLOAT3 newPos = Vector3::Add((*iter)->Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(clients[roomNum][(*iter)->target_id].GetPosition(), (*iter)->Pos))), (*iter)->GetSpeed(), false));
+			if (Objects[collide_range].end() == find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [newPos](MapObject* Obj) {return BoundingBox(newPos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); })) {
+				(*iter)->Pos = newPos;
+				(*iter)->BB.Center = (*iter)->Pos;
+			}
+			else {
+				(*iter)->Pos = (*iter)->Find_Direction((*iter)->Pos, clients[roomNum][(*iter)->target_id].GetPosition());
+				(*iter)->BB.Center = (*iter)->Pos;
+			}
+		}
+		break;
+	case NPC_State::Attack:
+		(*iter)->attack_timer -= 0.01;
+		if (clients[roomNum][(*iter)->target_id].HP <= 0) {
+			(*iter)->SetState(NPC_State::Idle);
+			(*iter)->cur_animation_track = 0;
+			(*iter)->target_id = -1;
+			(*iter)->SetAttackTimer((*iter)->attack_cycle);
+			return;
+		}
+		if ((*iter)->GetAttackTimer() <= 0) {
+			if (!(*iter)->BB.Intersects(clients[roomNum][(*iter)->target_id].m_xmOOBB)) {
+				(*iter)->SetState(NPC_State::Chase);
+				(*iter)->cur_animation_track = 1;
+				(*iter)->SetAttackTimer((*iter)->attack_cycle);
+			}
+			else {
+				lock_guard <mutex> ll{ clients[roomNum][(*iter)->target_id]._s_lock };
+				clients[roomNum][(*iter)->target_id].HP -= (*iter)->GetPower();
+			}
+			(*iter)->SetAttackTimer((*iter)->attack_cycle);
+		}
+		break;
+	case NPC_State::Dead:
+		(*iter)->cur_animation_track = 3;
+		(*iter)->dead_timer -= 0.01;
+		if ((*iter)->dead_timer <= 0) {
+			(*iter)->SetAlive(false);
+		}
+		break;
+	default:
+		break;
 	}
 }
