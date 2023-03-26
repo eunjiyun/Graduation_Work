@@ -34,6 +34,7 @@ protected:
 public:
 	CGameObject* m_ppBullet;
 	int c_id = -1;
+	short cur_weapon = 0;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
 	CLoadedModelInfo* tmp = NULL;

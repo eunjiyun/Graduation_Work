@@ -48,9 +48,9 @@ void ProcessInput()
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
 
-			else if (pKeysBuffer[0x51] & 0xF0 && Old_Direction != DIR_CHANGESTATE) dwDirection = DIR_CHANGESTATE;//q change
-			else if (pKeysBuffer[0x5A] & 0xF0 && Old_Direction != DIR_ATTACK) dwDirection = DIR_ATTACK;//z Attack
-			else if (pKeysBuffer[0x43] & 0xF0 && Old_Direction != DIR_COLLECT) dwDirection = DIR_COLLECT;//c collect
+			//else if (pKeysBuffer[0x51] & 0xF0 && Old_Direction != DIR_CHANGESTATE) dwDirection = DIR_CHANGESTATE;//q change
+			//else if (pKeysBuffer[0x5A] & 0xF0 && Old_Direction != DIR_ATTACK) dwDirection = DIR_ATTACK;//z Attack
+			//else if (pKeysBuffer[0x43] & 0xF0 && Old_Direction != DIR_COLLECT) dwDirection = DIR_COLLECT;//c collect
 			// else if (pKeysBuffer[0x4B] & 0xF0 && Old_Direction != DIR_DIE) dwDirection = DIR_DIE;//k die 
 		}
 	}
@@ -259,18 +259,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
+		break;
+	case WM_KEYUP:
+		if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onCollect && !gGameFramework.m_pPlayer->onDie)
 		if (wParam == 'Z' || wParam == 'z')
 		{
-			CS_LOGIN_PACKET p;
-			p.size = sizeof(CS_LOGIN_PACKET);
-			p.type = CS_LOGIN;
+			CS_ATTACK_PACKET p;
+			p.size = sizeof(CS_ATTACK_PACKET);
+			p.type = CS_ATTACK;
+			p.id = gGameFramework.m_pPlayer->c_id;
+			p.pos = gGameFramework.m_pPlayer->GetPosition();
 			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
 			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-			delete start_data;
 		}
-		break;
-	case WM_KEYUP:
+		else if (wParam == 'C' || wParam == 'c')
+		{
+			CS_COLLECT_PACKET p;
+			p.size = sizeof(CS_COLLECT_PACKET);
+			p.type = CS_COLLECT;
+			p.id = gGameFramework.m_pPlayer->c_id;
+			p.pos = gGameFramework.m_pPlayer->GetPosition();
+			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+		}
+		else if (wParam == 'Q' || wParam == 'q')
+		{
+			CS_CHANGEWEAPON_PACKET p;
+			p.size = sizeof(CS_CHANGEWEAPON_PACKET);
+			p.type = CS_CHANGEWEAPON;
+			p.id = gGameFramework.m_pPlayer->c_id;
+			p.cur_weaponType = gGameFramework.m_pPlayer->cur_weapon;
+			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+		}
 		break;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -336,10 +360,10 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 
 	
 	pl->onRun = p->direction & DIR_RUN;
-	if (p->direction & DIR_ATTACK) pl->onAttack = true;
-	else if (p->direction & DIR_DIE) pl->onDie = true;
-	else if (p->direction & DIR_COLLECT) pl->onCollect = true;
-	else if (p->direction & DIR_CHANGESTATE)
+	// if (p->direction & DIR_ATTACK) pl->onAttack = true;
+	if (p->direction & DIR_DIE) pl->onDie = true;
+	//else if (p->direction & DIR_COLLECT) pl->onCollect = true;
+	/*else if (p->direction & DIR_CHANGESTATE)
 	{
 		pl->m_pChild = pl->pAngrybotModels[p->character_num]->m_pModelRootObject;
 		pl->m_pSkinnedAnimationController = pl->AnimationControllers[p->character_num];
@@ -348,7 +372,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 			pl->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
 			pl->m_pSkinnedAnimationController->SetTrackEnable(i, false);
 		}
-	}
+	}*/
 
 
 	if (pl->onAttack) {
@@ -425,6 +449,35 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
 		(*iter)->SetPosition(packet->Pos);
 
+		break;
+	}
+	case CS_ATTACK: {
+		CS_ATTACK_PACKET* packet = reinterpret_cast<CS_ATTACK_PACKET*>(ptr);
+		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		(*iter)->onAttack = true;
+		break;
+	}
+	case CS_COLLECT: {
+		CS_COLLECT_PACKET* packet = reinterpret_cast<CS_COLLECT_PACKET*>(ptr);
+		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+		(*iter)->onCollect = true;
+		break;
+	}
+
+	case CS_CHANGEWEAPON: {
+		CS_CHANGEWEAPON_PACKET* packet = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(ptr);
+		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		(*iter)->m_pChild = (*iter)->pAngrybotModels[packet->cur_weaponType]->m_pModelRootObject;
+		(*iter)->m_pSkinnedAnimationController = (*iter)->AnimationControllers[packet->cur_weaponType];
+		for (int i = 0; i < 6; i++)
+		{
+			(*iter)->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
+			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(i, false);
+		}
 		break;
 	}
 	case SC_MOVE_MONSTER: {//0322

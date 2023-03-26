@@ -696,7 +696,6 @@ void CAnimationTrack::HandleCallback()
 float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum)//0228
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
-	//float end, cycle;
 	static float start;
 	static float end;
 
@@ -898,7 +897,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 
 				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
 				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect, dieOnce, k);
-
 
 				for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 				{

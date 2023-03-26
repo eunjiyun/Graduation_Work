@@ -68,10 +68,9 @@ struct CS_CHANGEWEAPON_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	int cur_weaponType;
+	short cur_weaponType;
 };
 constexpr short CS_CHANGEWEAPON_PACKET_SIZE = sizeof(CS_CHANGEWEAPON_PACKET);
-
 
 struct SC_LOGIN_INFO_PACKET {
 	unsigned char size;
@@ -101,7 +100,6 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short	character_num;
 	float	HP;
 	XMFLOAT3 Look, Up, Right, Pos;
 	bool overwrite;

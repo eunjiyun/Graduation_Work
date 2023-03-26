@@ -220,14 +220,14 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	auto start_time = high_resolution_clock::now();
 	while (!openList.empty())
 	{
-		if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() >= 1000)
-		{
-			cout << start_Pos.x << ", " << start_Pos.y << ", " << start_Pos.z << "  to  " << dest_Pos.x << ", " << dest_Pos.y << ", " << dest_Pos.z << "추적 중지\n";
-			cur_animation_track = 0;
-			target_id = -1;
-			SetState(NPC_State::Idle);
-			return Pos;
-		}
+		//if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() >= 1000)
+		//{
+		//	cout << start_Pos.x << ", " << start_Pos.y << ", " << start_Pos.z << "  to  " << dest_Pos.x << ", " << dest_Pos.y << ", " << dest_Pos.z << "추적 중지\n";
+		//	cur_animation_track = 0;
+		//	target_id = -1;
+		//	SetState(NPC_State::Idle);
+		//	return Pos;
+		//}
 		iter = getNode(&openList);
 		S_Node = *iter;
 		if (BoundingBox(S_Node->Pos, { 5,20,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
@@ -236,6 +236,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
+					cout << "찾는 데 걸린 시간 - " << duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() << endl;
 					return S_Node->Pos;
 				}
 				roadToMove.push(S_Node->Pos);

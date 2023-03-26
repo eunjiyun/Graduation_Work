@@ -151,10 +151,37 @@ public:
 		p.Up = Player->GetUpVector();
 		p.Pos = Player->GetPosition();
 		p.direction = Player->direction;
-		p.character_num = Player->character_num;
 		p.HP = Player->HP;
 		p.overwrite = Player->overwrite;
 		p.BulletPos = Player->BulletPos;
+		do_send(&p);
+	}
+
+	void send_attack_packet(SESSION* Player)
+	{
+		CS_ATTACK_PACKET p;
+		p.id = Player->_id;
+		p.size = sizeof(CS_ATTACK_PACKET);
+		p.type = CS_ATTACK;
+		do_send(&p);
+	}
+
+	void send_collect_packet(SESSION* Player)
+	{
+		CS_COLLECT_PACKET p;
+		p.id = Player->_id;
+		p.size = sizeof(CS_COLLECT_PACKET);
+		p.type = CS_COLLECT;
+		do_send(&p);
+	}
+
+	void send_changeweapon_packet(SESSION* Player)
+	{
+		CS_CHANGEWEAPON_PACKET p;
+		p.id = Player->_id;
+		p.size = sizeof(CS_CHANGEWEAPON_PACKET);
+		p.type = CS_CHANGEWEAPON;
+		p.cur_weaponType = Player->character_num;
 		do_send(&p);
 	}
 

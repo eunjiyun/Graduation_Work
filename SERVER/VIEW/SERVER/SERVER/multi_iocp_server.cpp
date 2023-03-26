@@ -34,7 +34,7 @@ void process_packet(int c_id, char* packet)
 				if (ST_INGAME != pl._state) continue;
 			}
 			if (pl._id == c_id) continue;
-			pl.send_add_player_packet(CL);	
+			pl.send_add_player_packet(CL);
 			CL->send_add_player_packet(&pl);
 		}
 		break;
@@ -52,6 +52,62 @@ void process_packet(int c_id, char* packet)
 		for (auto& cl : clients[c_id / 4]) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(CL);
 		}
+		break;
+	}
+	case CS_ATTACK: {
+		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
+		short type;
+		{
+			lock_guard<mutex> ll{ CL->_s_lock };
+			type = CL->character_num;
+		}
+		switch (type)
+		{
+		case 0:
+			for (auto& monster : PoolMonsters[CL->_id / 4]) {
+				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
+				{
+					lock_guard<mutex> mm{ monster->m_lock };
+					monster->HP -= 100;
+				}
+			}
+			break;
+		case 1:
+			CL->BulletPos = Vector3::Add(CL->GetPosition(), XMFLOAT3(0, 10, 0));
+			CL->BulletLook = CL->GetLookVector();
+			break;
+		case 2:
+			for (auto& monster : PoolMonsters[CL->_id / 4]) {
+				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
+				{
+					lock_guard<mutex> mm{ monster->m_lock };
+					monster->HP -= 50;
+				}
+			}
+			break;
+		}
+		for (auto& cl : clients[c_id / 4]) {
+			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_attack_packet(CL);
+		}
+		break;
+	}
+	case CS_COLLECT: {
+		CS_COLLECT_PACKET*p = reinterpret_cast<CS_COLLECT_PACKET*>(packet);
+		for (auto& cl : clients[c_id / 4]) {
+			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_collect_packet(CL);
+		}
+		break;
+	}
+	case CS_CHANGEWEAPON: {
+		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
+		{
+			lock_guard<mutex> ll{ CL->_s_lock };
+			CL->character_num = (CL->character_num + 1) % 3;
+		}
+		for (auto& cl : clients[c_id / 4]) {
+			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_changeweapon_packet(CL);
+		}
+		break;
 	}
 	}
 }
