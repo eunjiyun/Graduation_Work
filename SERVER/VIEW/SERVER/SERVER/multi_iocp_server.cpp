@@ -229,7 +229,7 @@ void update_thread()
 	}
 }
 
-void update_NPC()
+void update_NPC()//0326
 {
 	while (1)
 	{
@@ -239,7 +239,7 @@ void update_NPC()
 			while (iter != PoolMonsters[i].end()) {
 				{
 					lock_guard<mutex> mm{ (*iter)->m_lock }; 
-					(*iter)->Update(m_NPCTimer.GetTimeElapsed());
+					(*iter)->Update(m_NPCTimer.GetTimeElapsed() );
 				}
 				for (auto& cl : clients[i]) {
 					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet((*iter));

@@ -135,61 +135,6 @@ void CMesh::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pCont
 }
 
 
-XMVECTOR CMesh::createObb(BoundingBox* objObb, XMFLOAT4X4* worldMatrix)
-{
-	XMMATRIX xmWorld = XMLoadFloat4x4(worldMatrix);
-
-
-	// 박스의 로컬 변환 행렬 계산
-	XMMATRIX xmBoxLocal = XMMatrixScaling(objObb->Extents.x, objObb->Extents.y, objObb->Extents.z) *
-		XMMatrixTranslation(objObb->Center.x, objObb->Center.y, objObb->Center.z);
-
-	// 박스의 월드 변환 행렬 계산
-	XMMATRIX xmBoxWorld = xmBoxLocal * xmWorld;
-
-	// 박스의 쿼터니언 값 계산
-	XMVECTOR xmQuat = XMQuaternionRotationMatrix(xmBoxWorld);
-
-	// 결과 출력
-	XMFLOAT4 quat;
-	XMStoreFloat4(&quat, xmQuat);
-	//printf("Quaternion: (%f, %f, %f, %f)\n", quat.x, quat.y, quat.z, quat.w);
-
-	return xmQuat;
-}
-FXMMATRIX CMesh::transform3dmatFromQua(XMVECTOR q, BoundingBox boxObj)
-{
-	q = XMQuaternionNormalize(q); // 쿼터니언 정규화
-
-	// 회전 변환행렬 생성
-	XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(q);
-
-	// 이동 벡터, 스케일링 값 추가하여 전체 변환행렬 생성
-	XMMATRIX transformMatrix = rotationMatrix * XMMatrixScaling(boxObj.Extents.x, boxObj.Extents.y, boxObj.Extents.z) * XMMatrixTranslation(boxObj.Center.x, boxObj.Center.y, boxObj.Center.z);
-
-	return transformMatrix;
-}
-XMVECTOR CMesh::ExtractBoundingBoxOrientation(FXMMATRIX transformMatrix)
-{
-	// 변환 행렬로부터 스케일 값 추출
-	XMVECTOR scale = XMVector3Length(transformMatrix.r[0]);
-
-	// 변환 행렬로부터 회전 행렬을 추출
-	XMMATRIX rotationMatrix = XMMatrixIdentity();
-	rotationMatrix.r[0] = XMVector3Normalize(transformMatrix.r[0]);
-	rotationMatrix.r[1] = XMVector3Normalize(transformMatrix.r[1]);
-	rotationMatrix.r[2] = XMVector3Normalize(transformMatrix.r[2]);
-
-	// 회전 행렬로부터 쿼터니언 값을 추출
-	//XMVECTOR quaternion = XMQuaternionRotationMatrix(rotationMatrix);
-
-	XMVECTOR scaleTmp, rotationQuaternion, translation;
-	XMMatrixDecompose(&scaleTmp, &rotationQuaternion, &translation, rotationMatrix);
-
-	// 바운딩 박스의 오리엔테이션 값을 반환
-	return rotationQuaternion;
-}
-
 void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
 {
 #ifdef _WITH_TEXT_MESH

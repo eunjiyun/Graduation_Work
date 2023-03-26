@@ -22,7 +22,10 @@ private:
     NPC_State curState = NPC_State::Idle;
     bool alive = false;
 public:
-    
+
+    float g_distance = 150;
+    XMFLOAT3 MagicPos, MagicLook;
+
     bool Move_Lock = false;
     stack<XMFLOAT3> roadToMove;
     short HP, power, speed;

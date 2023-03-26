@@ -106,9 +106,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT nSubset);
 	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 
-	XMVECTOR createObb(BoundingBox*, XMFLOAT4X4*);
-	FXMMATRIX transform3dmatFromQua(XMVECTOR,BoundingBox);
-	XMVECTOR ExtractBoundingBoxOrientation(FXMMATRIX transformMatrix);
 	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
 	
 	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList);

@@ -259,9 +259,7 @@ public:
 	CAnimationTrack() {}
 	CAnimationTrack(const CAnimationTrack& other);
 	~CAnimationTrack();
-	/*static float start;
-	static float end;*/
-	float cycle = 0;
+	
 public:
 	BOOL 							m_bEnable = true;//
 	float 							m_fSpeed = 1.0f;//
@@ -285,7 +283,7 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
-	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum);
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum,bool onPlayer);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);

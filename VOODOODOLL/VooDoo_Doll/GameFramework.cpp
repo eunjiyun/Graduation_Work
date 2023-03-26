@@ -578,7 +578,9 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	pMonsterModel[type].pop();
 	switch (type)
 	{
-	case 0:
+	case 0://0326
+		Model = pMonsterModel[4].front();
+		pMonsterModel[4].pop();
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //¼Õ¿¡ Ä®	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);

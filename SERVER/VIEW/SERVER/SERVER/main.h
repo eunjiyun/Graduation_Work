@@ -81,7 +81,7 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	do_send(&p);
 }
 
-void Initialize_Monster(int roomNum, int stageNum)
+void Initialize_Monster(int roomNum, int stageNum)//0326
 {
 	for (auto& info : StagesInfo[stageNum - 1]) {
 		Monster* M = MonsterPool.GetMemory();
@@ -188,7 +188,6 @@ void SESSION::Update()
 	for (auto& monster : PoolMonsters[_id / 4]) {
 		if (monster->HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster->BB))
 		{
-
 			monster->HP -= 200;
 			BulletPos = XMFLOAT3(5000, 5000, 5000);
 			break;
@@ -264,12 +263,13 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
 
 			if (check_path(_Pos, CloseList) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
+
 				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
 			}
 		}
 		CloseList.push_back(S_Node->Pos);
 		openList.erase(iter);
-	}	
+	}
 	cur_animation_track = 0;
 	return Pos;
 }
@@ -301,6 +301,12 @@ void Monster::Update(float fTimeElapsed)
 		SetState(NPC_State::Dead);
 	}
 
+	// 몬스터와 플레이어 사이의 벡터
+	XMVECTOR distanceVector = XMLoadFloat3(&Pos) - XMLoadFloat3(&clients[room_num][target_id].GetPosition());
+
+	// 몬스터와 플레이어 사이의 거리 계산
+	g_distance = XMVectorGetX(XMVector3Length(distanceVector));
+
 	switch (GetState())
 	{
 	case NPC_State::Idle:
@@ -318,21 +324,47 @@ void Monster::Update(float fTimeElapsed)
 			}
 			roadToMove = stack<XMFLOAT3>(); // 스택 초기화
 		}
+		else
+		{
+			if (0 == type)
+			{
+				if (150 > g_distance)
+				{
+					SetState(NPC_State::Attack);
+					cur_animation_track = 2;
+				}
+				roadToMove = stack<XMFLOAT3>(); // 스택 초기화
+			}
+		}
 		if (!roadToMove.empty())
 		{
 			Pos = roadToMove.top();
 			roadToMove.pop();
 		}
 		else {
+
 			int collide_range = (int)(Pos.z / 600);
 			XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos))), speed, false));
-			if (Objects[collide_range].end() == find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [newPos](MapObject* Obj) {return BoundingBox(newPos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); })) {
-				Pos = newPos;
-				BB.Center = Pos;
+			if (0 == type)
+			{
+				//cout << "dis : " << g_distance << endl;
+
+				if (150 <= g_distance)//150이면 stop
+				{
+					Pos = newPos;
+					BB.Center = Pos;
+				}
 			}
-			else {
-				Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
-				BB.Center = Pos;
+			else
+			{
+				if (Objects[collide_range].end() == find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [newPos](MapObject* Obj) {return BoundingBox(newPos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); })) {
+					Pos = newPos;
+					BB.Center = Pos;
+				}
+				else {
+					Pos = Find_Direction(Pos, clients[room_num][target_id].GetPosition());
+					BB.Center = Pos;
+				}
 			}
 		}
 		break;
@@ -345,25 +377,69 @@ void Monster::Update(float fTimeElapsed)
 			SetAttackTimer(attack_cycle);
 			return;
 		}
-		if (GetAttackTimer() <= 0) {
-			if (!BB.Intersects(clients[room_num][target_id].m_xmOOBB)) {
-				SetState(NPC_State::Chase);
-				cur_animation_track = 1;
-				SetAttackTimer(attack_cycle);
+		if (GetAttackTimer() <= 0) {//0326
+			if (0 == type)
+			{
+				if (150 <= g_distance)//마법 공격x
+				{
+					SetState(NPC_State::Chase);
+					cur_animation_track = 1;
+					SetAttackTimer(attack_cycle);
+				}
+				else//마법 공격0
+				{
+					MagicPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
+					MagicLook = GetLookVector();
+
+					//XMFLOAT3 BulletPos, BulletLook;
+					MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 10, false));
+					cout << "MagicPos x: " << MagicPos.x <<"	pl x:"<< clients[room_num][target_id].GetPosition().x<<endl;
+					cout << "MagicPos y: " << MagicPos.y << "	pl y:" << clients[room_num][target_id].GetPosition().y << endl;
+					cout << "MagicPos z: " << MagicPos.z << "	pl z:" << clients[room_num][target_id].GetPosition().z << endl;
+					//for (auto& monster : PoolMonsters[_id / 4]) 
+					{
+						//if ( BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster->BB))
+						if (BoundingBox(MagicPos, { 200,200,200 }).Intersects(clients[room_num][target_id].m_xmOOBB))//몬스터BB말고 투명오브젝트 BB로 바꾸기
+						{
+							/*monster->HP -= 200;
+							BulletPos = XMFLOAT3(5000, 5000, 5000);
+							break;*/
+
+							lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
+							clients[room_num][target_id].HP -= GetPower();
+
+							cout << "plHP magic : " << clients[room_num][target_id].HP << endl;
+						}
+					}
+
+					/*lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
+					clients[room_num][target_id].HP -= GetPower();*/
+				}
 			}
-			else {
-				lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
-				clients[room_num][target_id].HP -= GetPower();
+			else
+			{
+				if (!BB.Intersects(clients[room_num][target_id].m_xmOOBB)) {//부딪히지x
+					SetState(NPC_State::Chase);
+					cur_animation_track = 1;
+					SetAttackTimer(attack_cycle);
+				}
+				else {//부딪혔을 때
+
+					lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
+					clients[room_num][target_id].HP -= GetPower();
+
+					cout << "plHP : " << clients[room_num][target_id].HP << endl;
+				}
 			}
 			SetAttackTimer(attack_cycle);
 		}
 		break;
 	case NPC_State::Dead:
-		 cur_animation_track = 3;
-		 dead_timer -= fTimeElapsed;
-		 if (dead_timer <= 0 ) {
-			 SetAlive(false);
-		 }
+		cur_animation_track = 3;
+		dead_timer -= fTimeElapsed;
+		if (dead_timer <= 0) {
+			SetAlive(false);
+		}
 		break;
 	default:
 		break;
@@ -377,7 +453,7 @@ void InitializeStages()
 	{	// 1stage
 		for (int i = 0; i < 4; ++i) {
 			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 650), 0, ID_constructor++));
-	
+
 		}
 	}
 	{	// 2stage
