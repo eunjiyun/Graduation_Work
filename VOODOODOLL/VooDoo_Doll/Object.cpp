@@ -1900,12 +1900,20 @@ void CRootMotionCallbackHandler::HandleCallback(void* pCallbackData, float fTrac
 //
 
 
-CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
+CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks,int chooseObj)
 {
 	CLoadedModelInfo* arrowModel = pModel;
 
-	if (!arrowModel)
-		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
+	if (1 == chooseObj)
+	{
+		if (!arrowModel)
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
+	}
+	else if (2 == chooseObj)
+	{
+		if (!arrowModel)
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+	}
 
 	SetChild(arrowModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, arrowModel);

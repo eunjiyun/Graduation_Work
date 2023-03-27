@@ -137,8 +137,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
 	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
-	monsterLight = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, arrow, 0);
+	monsterLight = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, arrow, 0,1);
 	if (arrow) delete arrow;
+
+	CLoadedModelInfo* cap = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Warlock_Cap.bin", NULL, 7);
+	hat = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, cap, 0, 2);
+	if (cap) delete cap;
+
+
+	
 
 	m_nShaders2 = 1;
 	m_ppShaders2 = new CShader * [m_nShaders2];
@@ -499,6 +506,9 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
 	monsterLight->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+
+	hat->SetPosition(-150, 0, 590);
+	hat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 
 	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);
 }

@@ -497,9 +497,15 @@ void CGameFramework::BuildObjects()
 	m_ppBullets = new CGameObject * [BULLETS];
 
 	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);
-	m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1);
+	m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1,1);
 	m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
+
+	m_ppCap = new CGameObject * [BULLETS];
+	CLoadedModelInfo* magicCap = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7);
+	m_ppCap[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), magicCap, 1, 2);
+	m_ppCap[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	m_ppCap[0]->SetScale(0.8f, 0.8f, 0.8f);//Warlock_cap
 
 	//for (int i = 0; i < BULLETS; i++)
 	for (int i = 0; i < 1; i++)
@@ -511,6 +517,7 @@ void CGameFramework::BuildObjects()
 	}
 
 	if (arrow) delete arrow;
+	if (magicCap) delete magicCap;
 
 
 	m_pStage->BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
@@ -791,6 +798,7 @@ void CGameFramework::FrameAdvance()
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			monster->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			//monster->m_ppHat->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
 

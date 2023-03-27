@@ -123,6 +123,7 @@ public:
 	_TCHAR						m_pszFrameRate[70];
 
 	CGameObject** m_ppBullets = NULL;//총알
+	CGameObject** m_ppCap = NULL;//마법모자
 	bool onFullScreen = false;
 };
 

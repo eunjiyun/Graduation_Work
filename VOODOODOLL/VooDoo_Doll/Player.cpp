@@ -334,7 +334,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 
 	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
-	m_ppBullet = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, arrow, 1);
+	m_ppBullet = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, arrow, 1,1);
 	m_ppBullet->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppBullet->SetScale(2.f, 2.f, 2.f);
 

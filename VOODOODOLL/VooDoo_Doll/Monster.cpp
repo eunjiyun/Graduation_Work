@@ -32,6 +32,17 @@ CMonster::CMonster(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 		//}
 		//
 
+		CLoadedModelInfo* cap = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+		m_ppHat = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, cap, 1, 2);
+		m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
+
+		m_ppHat->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+		m_ppHat->SetRotationSpeed(360.0f);
+		m_ppHat->SetMovingSpeed(120.0f);
+		m_ppHat->SetPosition(XMFLOAT3(5000, 5000, 5000));
+		if (cap) delete cap;
+
 		SetChild(_Model->m_pModelRootObject, true);
 		m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, _Model);
 	}
