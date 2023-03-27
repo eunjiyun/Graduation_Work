@@ -5,6 +5,7 @@
 #include "MapObject.h"
 #include "Monster.h"
 #include <concurrent_priority_queue.h>
+//#include <DirectXMath.h>
 
 enum EVENT_TYPE { EV_RANDOM_MOVE };
 
@@ -302,7 +303,7 @@ void Monster::Update(float fTimeElapsed)
 	}
 
 	// 몬스터와 플레이어 사이의 벡터
-	XMVECTOR distanceVector = XMLoadFloat3(&Pos) - XMLoadFloat3(&clients[room_num][target_id].GetPosition());
+	XMVECTOR distanceVector = DirectX::XMLoadFloat3(&Pos) - DirectX::XMLoadFloat3(&clients[room_num][target_id].GetPosition());
 
 	// 몬스터와 플레이어 사이의 거리 계산
 	g_distance = XMVectorGetX(XMVector3Length(distanceVector));
@@ -326,7 +327,7 @@ void Monster::Update(float fTimeElapsed)
 		}
 		else
 		{
-			if (4 == type)
+			if (0 == type)
 			{
 				if (150 > g_distance)
 				{
@@ -345,7 +346,7 @@ void Monster::Update(float fTimeElapsed)
 
 			int collide_range = (int)(Pos.z / 600);
 			XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos))), speed, false));
-			if (4 == type)
+			if (0 == type)
 			{
 				//cout << "dis : " << g_distance << endl;
 
@@ -378,7 +379,7 @@ void Monster::Update(float fTimeElapsed)
 			return;
 		}
 		if (GetAttackTimer() <= 0) {//0326
-			if (4 == type)
+			if (0 == type)
 			{
 				if (150 <= g_distance)//마법 공격x
 				{
@@ -391,29 +392,56 @@ void Monster::Update(float fTimeElapsed)
 					MagicPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
 					MagicLook = GetLookVector();
 
-					//XMFLOAT3 BulletPos, BulletLook;
 					MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 10, false));
-					cout << "MagicPos x: " << MagicPos.x <<"	pl x:"<< clients[room_num][target_id].GetPosition().x<<endl;
-					cout << "MagicPos y: " << MagicPos.y << "	pl y:" << clients[room_num][target_id].GetPosition().y << endl;
-					cout << "MagicPos z: " << MagicPos.z << "	pl z:" << clients[room_num][target_id].GetPosition().z << endl;
-					//for (auto& monster : PoolMonsters[_id / 4]) 
+		
+
+					if (BoundingBox(MagicPos, { 200,200,200 }).Intersects(clients[room_num][target_id].m_xmOOBB))
 					{
-						//if ( BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster->BB))
-						if (BoundingBox(MagicPos, { 200,200,200 }).Intersects(clients[room_num][target_id].m_xmOOBB))//몬스터BB말고 투명오브젝트 BB로 바꾸기
-						{
-							/*monster->HP -= 200;
-							BulletPos = XMFLOAT3(5000, 5000, 5000);
-							break;*/
+						lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
+						clients[room_num][target_id].HP -= GetPower();
+						
 
-							lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
-							clients[room_num][target_id].HP -= GetPower();
+						float plMass = 1.0f;
+						float magicMass = 20.0f;
+						XMFLOAT3 plPos = clients[room_num][target_id].GetPosition();
+						XMFLOAT3 magicTempPos = MagicPos;
+						//XMFLOAT3 magicTempLook = MagicLook;
 
-							cout << "plHP magic : " << clients[room_num][target_id].HP << endl;
-						}
+						// 플레이어와 마법의 벡터 방향을 구합니다.
+						XMVECTOR collisionDir = XMVectorSubtract(DirectX::XMLoadFloat3(&plPos), DirectX::XMLoadFloat3(&magicTempPos));
+						collisionDir = XMVector3Normalize(collisionDir);
+						//DirectX::XMLoadFloat3(&magicTempLook)= XMVector3Normalize(DirectX::XMLoadFloat3(&magicTempLook));
+
+						// 플레이어에 가해질 힘을 계산합니다.
+						float forceMagnitude = magicMass * 10.0f;
+						//XMVECTOR forceVector = XMVectorScale(DirectX::XMLoadFloat3(&magicTempLook), forceMagnitude);
+						XMVECTOR forceVector = XMVectorScale(collisionDir, forceMagnitude);
+
+						// 플레이어의 속도를 계산합니다.
+						float velocityMagnitude = forceMagnitude / plMass;
+						//XMVECTOR velocityVector = XMVectorScale(DirectX::XMLoadFloat3(&magicTempLook), velocityMagnitude);
+						XMVECTOR velocityVector = XMVectorScale(collisionDir, velocityMagnitude);
+
+						// 플레이어의 위치와 속도를 업데이트합니다.
+						DirectX::XMStoreFloat3(&clients[room_num][target_id].m_xmf3Position,XMVectorAdd(DirectX::XMLoadFloat3(&plPos), velocityVector));
+						//send_move_packet()
+						XMFLOAT3 velTmp;
+						DirectX::XMStoreFloat3(&velTmp, velocityVector);
+
+						cout << "velocityVector x: " << velTmp.x << endl;
+						cout << "velocityVector y: " << velTmp.y << endl;
+						cout << "velocityVector z: " << velTmp.z << endl;
+						cout << "plPos x:" << plPos.x << endl;
+						cout << "plPos x:" << plPos.y << endl;
+						cout << "plPos x:" << plPos.z << endl;// << endl << endl;
+
+						/*cout << "MagicPos x: " << MagicPos.x << "	pl x:" << clients[room_num][target_id].GetPosition().x << endl;
+						cout << "MagicPos y: " << MagicPos.y << "	pl y:" << clients[room_num][target_id].GetPosition().y << endl;
+						cout << "MagicPos z: " << MagicPos.z << "	pl z:" << clients[room_num][target_id].GetPosition().z << endl;*/
+						cout << "plHP magic : " << clients[room_num][target_id].HP << endl << endl << endl;
+
+						MagicPos = XMFLOAT3(5000, 5000, 5000);
 					}
-
-					/*lock_guard <mutex> ll{ clients[room_num][target_id]._s_lock };
-					clients[room_num][target_id].HP -= GetPower();*/
 				}
 			}
 			else

@@ -215,7 +215,7 @@ public:
 	}
 	void Rotate(float x, float y, float z)
 	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(DirectX::XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
 		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
