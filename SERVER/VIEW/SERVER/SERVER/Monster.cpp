@@ -42,8 +42,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     Pos = _pos;
     room_num = _roomNum;
     alive = true;
-    BB = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(5, 3, 5));
     m_id = _id;
+    BB = BoundingBox(_pos, XMFLOAT3(5, 3, 5));
     curState = NPC_State::Idle;
     switch (_type)
     {
@@ -93,7 +93,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         power = 70;
         view_range = 400;
         speed = 2;
-        attack_cycle = (56.f / 30.f); // 2.366667√ 
+        attack_cycle = (8.f / 3.f); // 2.666664√ 
         attack_timer = attack_cycle;
         dead_timer = 3.5f;
         break;

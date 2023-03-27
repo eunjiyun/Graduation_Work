@@ -422,12 +422,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.CreateOtherPlayer(packet->id, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
 	}
-	case SC_SUMMON_MONSTER: {
-		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-		cout << packet->monster_type << "type, " << packet->id << "number Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
-		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
-		break;
-	}
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
 		for (CPlayer*& player : gGameFramework.Players)
@@ -480,6 +474,12 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		}
 		break;
 	}
+	case SC_SUMMON_MONSTER: {
+		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
+		cout << packet->monster_type << "type, " << packet->id << "number Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
+		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
+		break;
+	}
 	case SC_MOVE_MONSTER: {//0322
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
@@ -507,6 +507,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		mtkLookAt._31 = -mtkLookAt._31;
 		(*iter)->m_xmf4x4ToParent = mtkLookAt;
 		(*iter)->SetPosition(packet->Pos);
+		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}
 	}

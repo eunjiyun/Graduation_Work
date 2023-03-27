@@ -24,7 +24,8 @@ private:
 public:
 
     float g_distance = 150;
-    XMFLOAT3 MagicPos, MagicLook;
+    XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
+    XMFLOAT3 MagicLook;
 
     bool Move_Lock = false;
     stack<XMFLOAT3> roadToMove;

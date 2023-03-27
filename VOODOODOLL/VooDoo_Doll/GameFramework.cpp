@@ -472,6 +472,10 @@ void CGameFramework::BuildObjects()
 		}
 	}
 
+	for (int i = 0; i < 6; i++) {
+		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
+	}
+
 
 #ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
@@ -494,30 +498,30 @@ void CGameFramework::BuildObjects()
 	}
 
 	//23.02.22
-	m_ppBullets = new CGameObject * [BULLETS];
+	//m_ppBullets = new CGameObject * [BULLETS];
 
-	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);
-	m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1,1);
-	m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
+	//CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);
+	//m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1,1);
+	//m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
 
-	m_ppCap = new CGameObject * [BULLETS];
-	CLoadedModelInfo* magicCap = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7);
-	m_ppCap[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), magicCap, 1, 2);
-	m_ppCap[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppCap[0]->SetScale(0.8f, 0.8f, 0.8f);//Warlock_cap
+	//m_ppCap = new CGameObject * [BULLETS];
+	//CLoadedModelInfo* magicCap = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7);
+	//m_ppCap[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), magicCap, 1, 2);
+	//m_ppCap[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//m_ppCap[0]->SetScale(0.8f, 0.8f, 0.8f);//Warlock_cap
 
-	//for (int i = 0; i < BULLETS; i++)
-	for (int i = 0; i < 1; i++)
-	{
-		m_ppBullets[i]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-		m_ppBullets[i]->SetRotationSpeed(360.0f);
-		m_ppBullets[i]->SetMovingSpeed(120.0f);
-		m_ppBullets[i]->SetActive(false);
-	}
+	////for (int i = 0; i < BULLETS; i++)
+	//for (int i = 0; i < 1; i++)
+	//{
+	//	m_ppBullets[i]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
+	//	m_ppBullets[i]->SetRotationSpeed(360.0f);
+	//	m_ppBullets[i]->SetMovingSpeed(120.0f);
+	//	m_ppBullets[i]->SetActive(false);
+	//}
 
-	if (arrow) delete arrow;
-	if (magicCap) delete magicCap;
+	//if (arrow) delete arrow;
+	//if (magicCap) delete magicCap;
 
 
 	m_pStage->BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
@@ -581,13 +585,12 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		return;
 	}
 	CMonster* Mon = nullptr;
+	CLoadedModelInfo* Hat = nullptr;
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
 	pMonsterModel[type].pop();
 	switch (type)
 	{
 	case 0://0326
-		Model = pMonsterModel[4].front();
-		pMonsterModel[4].pop();
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //손에 칼	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -649,10 +652,16 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+
+		Hat = MagiciansHat.front();
+		MagiciansHat.pop();
+		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Hat, 1, 2);
+		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
 
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
@@ -798,7 +807,7 @@ void CGameFramework::FrameAdvance()
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			monster->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-			//monster->m_ppHat->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			monster->m_ppHat->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
 

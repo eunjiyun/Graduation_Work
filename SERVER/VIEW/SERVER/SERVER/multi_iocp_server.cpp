@@ -186,25 +186,32 @@ void worker_thread(HANDLE h_iocp)
 			//OverPool.ReturnMemory(ex_over);
 			break;
 		case OP_NPC_MOVE:
-			clock_t start = clock();
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
 			auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
-			{
-				lock_guard<mutex> mm{ (*iter)->m_lock };
-				(*iter)->Update(0.03f);
-			}
-			for (auto& cl : clients[roomNum]) {
-				if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
-			}
-			if ((*iter)->is_alive() == false) {//0322
-				MonsterPool.ReturnMemory(*iter);
-				PoolMonsters[roomNum].erase(iter);
-				MonsterPool.PrintSize();
-			}
-			else {
-				TIMER_EVENT ev{ key / 100, key % 100, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE, 0 };
-				timer_queue.push(ev);
+			if (iter != PoolMonsters[roomNum].end()) {
+				if ((*iter)->is_alive()) {
+					{
+						{
+							lock_guard<mutex> mm{ (*iter)->m_lock };
+							//if ((*iter)->is_alive()) {
+							(*iter)->Update(0.03f);
+						}
+
+							for (auto& cl : clients[roomNum]) {
+								if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
+							}
+
+							TIMER_EVENT ev{ key / 100, key % 100, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE, 0 };
+							timer_queue.push(ev);
+						//}
+					}
+				}
+				else {
+					MonsterPool.ReturnMemory(*iter);
+					PoolMonsters[roomNum].erase(iter);
+					MonsterPool.PrintSize();
+				}
 			}
 			//OverPool.ReturnMemory(ex_over);
 			delete ex_over;

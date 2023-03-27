@@ -126,6 +126,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	short HP;
 	bool is_alive;
 	short Chasing_PlayerID;
+	XMFLOAT3 BulletPos;
 	unsigned short animation_track; // 애니메이션 타입
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);

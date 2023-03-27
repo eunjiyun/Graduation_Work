@@ -88,7 +88,7 @@ public:
 		onRun = false;
 		onChange = false;
 		character_num = 0;
-		HP = 3000;
+		HP = 7000;
 	}
 
 	~SESSION() {}
