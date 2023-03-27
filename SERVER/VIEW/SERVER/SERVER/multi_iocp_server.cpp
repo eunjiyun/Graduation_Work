@@ -190,21 +190,23 @@ void worker_thread(HANDLE h_iocp)
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
 			auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
-
-			PoolMonsters[roomNum][mon_id]->Update(m_NPCTimer.GetTimeElapsed());
-			
+			{
+				lock_guard<mutex> mm{ (*iter)->m_lock };
+				(*iter)->Update(0.03f);
+			}
 			for (auto& cl : clients[roomNum]) {
 				if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
 			}
 			if ((*iter)->is_alive() == false) {//0322
-				MonsterPool.ReturnMemory((*iter));
+				MonsterPool.ReturnMemory(*iter);
 				PoolMonsters[roomNum].erase(iter);
 				MonsterPool.PrintSize();
 			}
-			TIMER_EVENT ev{ key / 100, key % 100, high_resolution_clock::now() + 1s, EV_RANDOM_MOVE, 0 };
-			timer_queue.push(ev);
+			else {
+				TIMER_EVENT ev{ key / 100, key % 100, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE, 0 };
+				timer_queue.push(ev);
+			}
 			//OverPool.ReturnMemory(ex_over);
-			cout << "1 cycle - " << (double)(clock() - start) / CLOCKS_PER_SEC << endl;
 			delete ex_over;
 			break;
 		}
@@ -261,7 +263,7 @@ void do_Timer()
 {
 	while (1)
 	{
-		//this_thread::sleep_for(1ms);
+		this_thread::sleep_for(1ms);
 		TIMER_EVENT ev;
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
@@ -320,8 +322,8 @@ int main()
 
 	vector <thread> worker_threads;
 
-	thread* update_NPC_t = new thread{ update_NPC };
-	//thread* update_NPC_t = new thread{ do_Timer };
+	//thread* update_NPC_t = new thread{ update_NPC };
+	thread* update_NPC_t = new thread{ do_Timer };
 	int num_threads = std::thread::hardware_concurrency();
 	for (int i = 0; i < num_threads; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);

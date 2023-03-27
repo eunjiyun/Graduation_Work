@@ -91,8 +91,8 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 			if (clients[roomNum][i]._state == ST_INGAME) {
 				clients[roomNum][i].cur_stage = stageNum;
 				clients[roomNum][i].send_summon_monster_packet(M);
-				//TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE, -1 };
-				//timer_queue.push(ev);
+				TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE, -1 };
+				timer_queue.push(ev);
 				//cout << roomNum << "번 방 " << stageNum << " 스테이지 몬스터 소환\n";
 			}
 		}
@@ -326,7 +326,7 @@ void Monster::Update(float fTimeElapsed)
 		}
 		else
 		{
-			if (0 == type)
+			if (4 == type)
 			{
 				if (150 > g_distance)
 				{
@@ -345,7 +345,7 @@ void Monster::Update(float fTimeElapsed)
 
 			int collide_range = (int)(Pos.z / 600);
 			XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(clients[room_num][target_id].GetPosition(), Pos))), speed, false));
-			if (0 == type)
+			if (4 == type)
 			{
 				//cout << "dis : " << g_distance << endl;
 
@@ -378,7 +378,7 @@ void Monster::Update(float fTimeElapsed)
 			return;
 		}
 		if (GetAttackTimer() <= 0) {//0326
-			if (0 == type)
+			if (4 == type)
 			{
 				if (150 <= g_distance)//마법 공격x
 				{
@@ -463,11 +463,10 @@ void InitializeStages()
 	}
 	{	// 3stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 2, ID_constructor++));
+			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 3, ID_constructor++));
 		}
 	}
 	{	// 4stage
-
 	}
 	{	// 5stage
 

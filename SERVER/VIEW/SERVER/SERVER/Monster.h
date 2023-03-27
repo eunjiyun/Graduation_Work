@@ -32,12 +32,12 @@ public:
     BoundingBox BB;
     XMFLOAT3 Pos;
     short cur_animation_track = 0;
-    double attack_cycle = 2.35;
+    double attack_cycle = 0;
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
     short target_id = -1; // 추적하는 플레이어 ID
     short m_id = -1;    // 몬스터 자체ID
-    float dead_timer = 3.f;
-    double attack_timer = 1.f;
+    float dead_timer = 0;
+    double attack_timer = 0;
     mutable mutex m_lock;
     Monster() {}
     Monster(const Monster& other);

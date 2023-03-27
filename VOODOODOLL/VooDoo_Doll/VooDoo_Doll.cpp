@@ -409,7 +409,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 void ProcessPacket(char* ptr)//몬스터 생성
 {
 	switch (ptr[1]) {
-	case SC_LOGIN_INFO: {
+	case SC_LOGIN_INFO: { 
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
 		gGameFramework.m_pPlayer->SetPosition(packet->pos);
