@@ -47,8 +47,8 @@ public:
 	S_STATE _state;
 	short _id;
 	SOCKET _socket;
-	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity, m_xmf3Gravity;
-	float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
+	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right;// m_xmf3Velocity; , m_xmf3Gravity;
+	//float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
 	float HP;
 	DWORD direction;
 	char	_name[NAME_SIZE];
@@ -59,6 +59,7 @@ public:
 	bool onAttack, onCollect, onDie, onRun, onChange; // 중복입력을 막기 위한 bool 변수
 	short character_num;
 	bool overwrite;
+	steady_clock::time_point recent_recvedTime;
 	XMFLOAT3 BulletPos, BulletLook;
 public:
 	SESSION()
@@ -66,15 +67,15 @@ public:
 		_id = -1;
 		_socket = 0;
 		m_xmf3Position = { 0.f,0.f,0.f };
-		m_xmf3Velocity = { 0.f,0.f,0.f };
+		//m_xmf3Velocity = { 0.f,0.f,0.f };
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		m_xmf3Gravity = { 0.f, -6.0f, 0.f };
+		//m_xmf3Gravity = { 0.f, -6.0f, 0.f };
 		BulletPos = { 5000,5000,5000 };
-		m_fMaxVelocityY = 50.f;
-		m_fMaxVelocityXZ = 10.f;
-		m_fFriction = 30.f;
+		//m_fMaxVelocityY = 50.f;
+		//m_fMaxVelocityXZ = 10.f;
+		//m_fFriction = 30.f;
 		direction = 0;
 		cur_stage = 0;
 		_name[0] = 0;
@@ -105,6 +106,7 @@ public:
 		_socket = Socket;
 		cur_stage = 0;
 		error_stack = 0;
+		recent_recvedTime = high_resolution_clock::now();
 	}
 	void do_recv()
 	{
@@ -253,18 +255,18 @@ public:
 		return SlidingVec;
 	}
 
-	void Deceleration(float fTimeElapsed)
-	{
-		float fLength = Vector3::Length(m_xmf3Velocity);
-		float fDeceleration = (m_fFriction * fTimeElapsed);
-		if (fDeceleration > fLength)fDeceleration = fLength;
-		m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	//void Deceleration(float fTimeElapsed)
+	//{
+	//	float fLength = Vector3::Length(m_xmf3Velocity);
+	//	float fDeceleration = (m_fFriction * fTimeElapsed);
+	//	if (fDeceleration > fLength)fDeceleration = fLength;
+	//	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
 
-		UpdateBoundingBox();
-	}
+	//	UpdateBoundingBox();
+	//}
 
-	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
-	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
+	//const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
+	//void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z)); }
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }

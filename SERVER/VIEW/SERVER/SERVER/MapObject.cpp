@@ -104,38 +104,15 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
         pGameObject = new MapObject(nMaterials);
         strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
 
-        //MapObject* pObjectFound = NULL;
-        //for (int j = 0; j < i; j++)
-        //{
-        //	if (!strcmp(pstrGameObjectName, ppGameObjects[j]->m_pstrName))
-        //	{
-        //		pObjectFound = ppGameObjects[j];
-        //		////23.01.03
-        //		//ppGameObjects[j]->m_pMesh->m_xmBoundingBox.Center = ppGameObjects[j]->GetPosition();
-        //		////
-
-        //		//23.01.11
-        //		//pGameObject->SetMesh(ppGameObjects[j]->m_pMesh);
-        //		pGameObject->SetMesh(0, ppGameObjects[j]->m_ppMeshes[0]);
-        //		//
-        //		for (UINT k = 0; k < nMaterials; k++)
-        //		{
-        //			pGameObject->SetMaterial(k, ppGameObjects[j]->m_ppMaterials[k]);
-        //		}
-
-        //		break;
-        //	}
-        //}
-
 
         XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); XMFLOAT4 xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
         for (UINT k = 0; k < nMaterials; k++)
         {
 
-            //if (!pObjectFound) pGameObject->SetMaterial(k, rand() % MAX_Scene_MATERIALS);
+
 
             nReads = (UINT)::fread(&xmf4AlbedoColor, sizeof(float), 4, pFile);
-            //if (!pObjectFound) pGameObject->SetAlbedoColor(k, xmf4AlbedoColor);
+
 
             nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
             nReads = (UINT)::fread(pstrToken5, sizeof(char), nStrLength, pFile); //"<<AlbedoTextureName>:"
@@ -143,7 +120,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
             {
                 nReads = (UINT)::fread(&nAlbedoTextureStrLength, sizeof(BYTE), 1, pFile);
                 nReads = (UINT)::fread(strAlbedoTextureName, sizeof(char), nAlbedoTextureStrLength, pFile);
-                // pGameObject->Set_AlbedoTexture(k, pd3dDevice, pd3dCommandList, strAlbedoTextureName, nTextureNumber);
+
             }
 
             nReads = (UINT)::fread(&xmf4EmissionColor, sizeof(float), 4, pFile);
@@ -173,10 +150,6 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
         }
 
         pGameObject->m_xmOOBB.Transform(pGameObject->m_xmOOBB, XMLoadFloat4x4(&pGameObject->m_xmf4x4World));
-
-        /*cout << "Name: " << pGameObject->m_pstrName << "\nCenter: " << pGameObject->m_xmOOBB.Center.x << ", " << pGameObject->m_xmOOBB.Center.y << ", " << pGameObject->m_xmOOBB.Center.z <<
-            "\nExtents: " << pGameObject->m_xmOOBB.Extents.x << ", " << pGameObject->m_xmOOBB.Extents.y << ", " << pGameObject->m_xmOOBB.Extents.z << endl;*/
-
 
         ppGameObjects[i] = pGameObject;
 

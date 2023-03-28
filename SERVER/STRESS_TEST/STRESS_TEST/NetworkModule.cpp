@@ -167,7 +167,11 @@ void ProcessPacket(int ci, unsigned char packet[])
 	}
 	break;
 	case SC_MOVE_MONSTER:
-	{
+		break;
+	case CS_ATTACK: {
+		break;
+	}
+	case CS_COLLECT: {
 		break;
 	}
 	default: MessageBox(hWnd, L"Unknown Packet Type", L"ERROR", 0);
@@ -351,23 +355,43 @@ void Test_Thread()
 
 		for (int i = 0; i < num_connections; ++i) {
 			if (false == g_clients[i].connected) continue;
-			if (g_clients[i].last_move_time + 1s > high_resolution_clock::now()) continue;
-			g_clients[i].last_move_time = high_resolution_clock::now();
-			CS_MOVE_PACKET my_packet;
-			my_packet.size = sizeof(my_packet);
-			my_packet.type = CS_MOVE;
-			my_packet.direction = rand() % 16;
-			if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 1));
-			if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -1));
-			if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-1, 0, 0));
-			if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(1, 0, 0));
-			my_packet.pos = g_clients[i].pos;
-			my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
-			my_packet.id = i;
-			//my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
-			//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
-			//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
-			SendPacket(i, &my_packet);
+			//if (g_clients[i].last_move_time + 1s > high_resolution_clock::now()) continue;
+			//g_clients[i].last_move_time = high_resolution_clock::now();
+			short packet_type = rand() % 3;
+			if (packet_type == 0) {
+				CS_MOVE_PACKET my_packet;
+				my_packet.size = sizeof(my_packet);
+				my_packet.type = CS_MOVE;
+				my_packet.direction = rand() % 16;
+				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 1));
+				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -1));
+				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-1, 0, 0));
+				if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(1, 0, 0));
+				my_packet.pos = g_clients[i].pos;
+				my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
+				my_packet.id = i;
+				//my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
+				//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
+				//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
+				SendPacket(i, &my_packet);
+			}
+			else if (packet_type == 1) {
+					CS_ATTACK_PACKET my_packet_2;
+					my_packet_2.size = sizeof(CS_ATTACK_PACKET);
+					my_packet_2.type = CS_ATTACK;
+					my_packet_2.id = i;
+					my_packet_2.pos = g_clients[i].pos;
+					SendPacket(i, &my_packet_2);
+			}
+			else if (packet_type == 2) {
+				CS_COLLECT_PACKET my_packet_3;
+				my_packet_3.size = sizeof(CS_COLLECT_PACKET);
+				my_packet_3.type = CS_COLLECT;
+				my_packet_3.id = i;
+				my_packet_3.pos = g_clients[i].pos;
+				SendPacket(i, &my_packet_3);
+				break;
+			}
 		}
 	}
 }

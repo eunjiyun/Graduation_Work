@@ -40,19 +40,14 @@ void ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onDie && !gGameFramework.m_pPlayer->onCollect) {
+		//if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onDie && !gGameFramework.m_pPlayer->onCollect) {
 			if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
-
-			//else if (pKeysBuffer[0x51] & 0xF0 && Old_Direction != DIR_CHANGESTATE) dwDirection = DIR_CHANGESTATE;//q change
-			//else if (pKeysBuffer[0x5A] & 0xF0 && Old_Direction != DIR_ATTACK) dwDirection = DIR_ATTACK;//z Attack
-			//else if (pKeysBuffer[0x43] & 0xF0 && Old_Direction != DIR_COLLECT) dwDirection = DIR_COLLECT;//c collect
-			// else if (pKeysBuffer[0x4B] & 0xF0 && Old_Direction != DIR_DIE) dwDirection = DIR_DIE;//k die 
-		}
+		//}
 	}
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
@@ -69,7 +64,7 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if (dwDirection || duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 200 || cxDelta != 0.0f || cyDelta != 0.0f) {
+	if ( duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 200 || cxDelta != 0.0f || cyDelta != 0.0f) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
@@ -261,39 +256,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYUP:
-		if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onCollect && !gGameFramework.m_pPlayer->onDie)
-		if (wParam == 'Z' || wParam == 'z')
-		{
-			CS_ATTACK_PACKET p;
-			p.size = sizeof(CS_ATTACK_PACKET);
-			p.type = CS_ATTACK;
-			p.id = gGameFramework.m_pPlayer->c_id;
-			p.pos = gGameFramework.m_pPlayer->GetPosition();
-			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
-			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-		}
-		else if (wParam == 'C' || wParam == 'c')
-		{
-			CS_COLLECT_PACKET p;
-			p.size = sizeof(CS_COLLECT_PACKET);
-			p.type = CS_COLLECT;
-			p.id = gGameFramework.m_pPlayer->c_id;
-			p.pos = gGameFramework.m_pPlayer->GetPosition();
-			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
-			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-		}
-		else if (wParam == 'Q' || wParam == 'q')
-		{
-			CS_CHANGEWEAPON_PACKET p;
-			p.size = sizeof(CS_CHANGEWEAPON_PACKET);
-			p.type = CS_CHANGEWEAPON;
-			p.id = gGameFramework.m_pPlayer->c_id;
-			p.cur_weaponType = gGameFramework.m_pPlayer->cur_weapon;
-			OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-			int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
-			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+		if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onCollect && !gGameFramework.m_pPlayer->onDie) {
+			if (wParam == 'Z' || wParam == 'z')
+			{
+				CS_ATTACK_PACKET p;
+				p.size = sizeof(CS_ATTACK_PACKET);
+				p.type = CS_ATTACK;
+				p.id = gGameFramework.m_pPlayer->c_id;
+				p.pos = gGameFramework.m_pPlayer->GetPosition();
+				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			}
+			else if (wParam == 'C' || wParam == 'c')
+			{
+				CS_COLLECT_PACKET p;
+				p.size = sizeof(CS_COLLECT_PACKET);
+				p.type = CS_COLLECT;
+				p.id = gGameFramework.m_pPlayer->c_id;
+				p.pos = gGameFramework.m_pPlayer->GetPosition();
+				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			}
+			else if (wParam == 'Q' || wParam == 'q')
+			{
+				CS_CHANGEWEAPON_PACKET p;
+				p.size = sizeof(CS_CHANGEWEAPON_PACKET);
+				p.type = CS_CHANGEWEAPON;
+				p.id = gGameFramework.m_pPlayer->c_id;
+				p.cur_weaponType = gGameFramework.m_pPlayer->cur_weapon;
+				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			}
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -442,7 +438,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		ProcessAnimation(*iter, packet);
 		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
 		(*iter)->SetPosition(packet->Pos);
-
 		break;
 	}
 	case CS_ATTACK: {
@@ -496,9 +491,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			{
 				(*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
 				(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+
 			}
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
-
 		}
 		XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos),
 			Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));

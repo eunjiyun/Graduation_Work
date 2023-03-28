@@ -48,6 +48,7 @@ void process_packet(int c_id, char* packet)
 			CL->direction = p->direction;
 			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 			CL->Update();
+			
 			if (CL->direction == DIR_DIE) CL->_state = ST_DEAD;
 		}
 		for (auto& cl : clients[c_id / 4]) {
@@ -68,7 +69,7 @@ void process_packet(int c_id, char* packet)
 			for (auto& monster : PoolMonsters[CL->_id / 4]) {
 				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
 				{
-					lock_guard<mutex> mm{ monster->m_lock };
+					//lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 100;
 				}
 			}
@@ -81,7 +82,7 @@ void process_packet(int c_id, char* packet)
 			for (auto& monster : PoolMonsters[CL->_id / 4]) {
 				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
 				{
-					lock_guard<mutex> mm{ monster->m_lock };
+					//lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 50;
 				}
 			}
@@ -123,7 +124,7 @@ void worker_thread(HANDLE h_iocp)
 		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &key, &over, INFINITE);
 		OVER_EXP* ex_over = reinterpret_cast<OVER_EXP*>(over);
 		if (FALSE == ret) {
-			if (ex_over->_comp_type == OP_ACCEPT) cout << "Accept Error";
+			if (ex_over->_comp_type == OP_ACCEPT) { cout << "Accept Error"; exit(-1); }
 			else {
 				cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
@@ -151,11 +152,12 @@ void worker_thread(HANDLE h_iocp)
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
 				CL->do_recv();
-				g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 			}
 			else {
 				cout << "Max user exceeded.\n";
+				closesocket(g_c_socket);
 			}
+			g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 			ZeroMemory(&g_a_over._over, sizeof(g_a_over._over));
 			int addr_size = sizeof(SOCKADDR_IN);
 			AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
@@ -194,17 +196,15 @@ void worker_thread(HANDLE h_iocp)
 					{
 						{
 							lock_guard<mutex> mm{ (*iter)->m_lock };
-							//if ((*iter)->is_alive()) {
 							(*iter)->Update(0.03f);
 						}
 
-							for (auto& cl : clients[roomNum]) {
-								if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
-							}
+						for (auto& cl : clients[roomNum]) {
+							if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
+						}
 
-							TIMER_EVENT ev{ key / 100, key % 100, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE, 0 };
-							timer_queue.push(ev);
-						//}
+						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE };
+						timer_queue.push(ev);
 					}
 				}
 				else {
@@ -301,12 +301,11 @@ int main()
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
 			Objects[j].push_back(m_ppObjects[i]);
-		}		
+		}
 	}
-	delete m_ppObjects;
+	delete[] m_ppObjects;
 
 	InitializeStages();
-	m_NPCTimer.Tick(30.0f);
 
 	WSADATA WSAData;
 	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);

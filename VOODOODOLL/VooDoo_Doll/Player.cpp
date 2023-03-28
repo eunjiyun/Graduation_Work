@@ -274,7 +274,6 @@ void CPlayer::OnUpdateTransform()
 
 void CPlayer::UpdateBoundingBox()
 {
-	m_xmOOBB.Center = m_xmf3Position;
 	obBox.Center = m_xmf3Position;
 }
 
@@ -535,31 +534,34 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 	CPlayer::Update(fTimeElapsed);
 }
 
-void CTerrainPlayer::otherPlayerUpdate()//0226
+void CTerrainPlayer::otherPlayerUpdate(float fTimeElapsed)//0226
 {
-	if (m_pSkinnedAnimationController)
-	{
-		float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
-		if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
-		{
-			if (false == m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
-				false == m_pSkinnedAnimationController->m_pAnimationTracks[3].m_bEnable &&
-				false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable &&
-				false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
-				//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
-			{
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+	CPlayer::Move(xmf3Velocity, false);
 
-				if (false == m_pSkinnedAnimationController->m_pAnimationTracks[0].m_bEnable)
-					m_pSkinnedAnimationController->SetTrackEnable(0, true);
+	//if (m_pSkinnedAnimationController)
+	//{
+	//	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
+	//	if (::IsZero(fLength))//플레이어 좌표에 변화가 없을 때
+	//	{
+	//		if (false == m_pSkinnedAnimationController->m_pAnimationTracks[2].m_bEnable &&
+	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[3].m_bEnable &&
+	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable &&
+	//			false == m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
+	//			//if (!onAttack && !onRun && !onDie &&!onCollect)//플레이어가 공격 모드가 아닐 때
+	//		{
 
-				m_pSkinnedAnimationController->SetTrackEnable(1, false);
-				m_pSkinnedAnimationController->SetTrackEnable(2, false);
-				m_pSkinnedAnimationController->SetTrackEnable(3, false);
-				m_pSkinnedAnimationController->SetTrackEnable(4, false);
-				m_pSkinnedAnimationController->SetTrackEnable(5, false);
+	//			if (false == m_pSkinnedAnimationController->m_pAnimationTracks[0].m_bEnable)
+	//				m_pSkinnedAnimationController->SetTrackEnable(0, true);
 
-				m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-			}
-		}
-	}
+	//			m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(2, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(3, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(4, false);
+	//			m_pSkinnedAnimationController->SetTrackEnable(5, false);
+
+	//			m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+	//		}
+	//	}
+	//}
 }

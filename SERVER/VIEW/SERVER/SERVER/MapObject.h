@@ -45,3 +45,25 @@ void Transform_BoundingBox(BoundingBox* _BoundingBox, XMFLOAT4X4 _xmfWorld);
 
 void LoadMeshFromFile(MapObject& obj, char* pstrFileName);
 MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects);
+
+
+struct OcTreeNode
+{
+    vector<BoundingOrientedBox*> objects;
+    array<unique_ptr<OcTreeNode>, 8> children = { nullptr };
+    BoundingBox BB;
+
+    OcTreeNode(BoundingBox& _BB) : BB(_BB) {}
+
+    void insert(BoundingOrientedBox* OBB) {
+        objects.push_back(OBB);
+    }
+};
+
+class OcTree
+{
+public:
+
+private:
+    unique_ptr<OcTreeNode> Root;
+};
