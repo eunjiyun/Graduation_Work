@@ -129,16 +129,26 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	//23.02.05
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 288); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 588); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
-	//
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
 	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
 	monsterLight = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, arrow, 0,1);
 	if (arrow) delete arrow;
+
+	nParticle = 50;
+	particles = new CGameObject * [nParticle];
+
+	for (int i{}; i < nParticle; ++i)
+	{
+		//base나 base2 bin파일 쓸땐 마지막 인자를 7, bullet 생성자 안에서도 base2.bin으로
+		particles[i] = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, 1, 3);
+		particles[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		particles[i]->SetPosition(-50.0f+i%5*3, -12+i/5*3, 590.0f);
+		particles[i]->SetScale(1.0f, 1.0f, 1.0f);
+	}
 	
 
 	m_nShaders2 = 1;
@@ -169,13 +179,6 @@ void CStage::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
-
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
-	}
-
 
 	if (m_ppShaders2)
 	{
@@ -465,6 +468,9 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	m_pPlayer->boundingAnimate(fTimeElapsed);
 	m_ppShaders2[0]->AnimateObjects(fTimeElapsed);
 
+	for(int i{};i<nParticle;++i)
+		particles[i]->Animate(fTimeElapsed,false);
+
 	if (m_pLights)
 	{
 		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
@@ -500,6 +506,9 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
 	monsterLight->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+
+	for(int i{};i<nParticle;++i)
+		particles[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 
 	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);
 }

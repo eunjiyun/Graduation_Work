@@ -121,10 +121,10 @@ public:
 
 	float								m_fElapsedTime = 0.0f;
 
-	int									m_nGameObjects = 0;
-	CGameObject** m_ppGameObjects = NULL;
-
 	CGameObject* monsterLight = NULL;
+
+	int nParticle = 50;
+	CGameObject** particles = NULL;
 
 	XMFLOAT3							m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
