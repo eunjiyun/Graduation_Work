@@ -178,10 +178,6 @@ void CPlayer::Update(float fTimeElapsed)
 
 	Rotate(cxDelta, cyDelta, czDelta);
 	Move(xmf3Velocity, false);
-	// 
-	//if (m_pPlayerUpdatedContext) OnPlayerUpdateCallback(fTimeElapsed);
-
-
 
 }
 

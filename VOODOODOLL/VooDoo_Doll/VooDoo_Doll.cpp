@@ -64,13 +64,14 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if ( duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 200 || cxDelta != 0.0f || cyDelta != 0.0f) {
+	if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 150 || cxDelta != 0.0f || cyDelta != 0.0f) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
 		p.pos = gGameFramework.m_pPlayer->GetPosition();
+		p.vel = gGameFramework.m_pPlayer->GetVelocity();
 		if (cxDelta || cyDelta)
 		{
 			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
@@ -163,8 +164,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		else
 		{
 			SleepEx(0, true);
-			ProcessInput();
 			gGameFramework.FrameAdvance();
+			ProcessInput();
 		}
 	}
 
@@ -436,8 +437,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetRightVector(packet->Right);
 		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
 		ProcessAnimation(*iter, packet);
-		if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
+		//if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
+		(*iter)->SetVelocity(packet->vel);
 		(*iter)->SetPosition(packet->Pos);
+
 		break;
 	}
 	case CS_ATTACK: {

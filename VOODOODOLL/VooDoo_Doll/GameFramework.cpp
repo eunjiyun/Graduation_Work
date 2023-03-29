@@ -698,8 +698,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 
 	for (auto& player : Players)
 	{
-		if (player->c_id > -1)
+		if (player->c_id > -1) {
+			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
+		}
 	}
 	for (auto& monster : Monsters)
 	{
@@ -742,10 +744,18 @@ void CGameFramework::FrameAdvance()
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 
-
-	m_pPlayer->Update(fTimeElapsed);
-	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed);
-	m_pPlayer->Deceleration(fTimeElapsed);
+	//m_pPlayer->Update(fTimeElapsed);
+	for (auto& player : Players) {
+		//if (player == m_pPlayer)
+			player->Update(fTimeElapsed);
+		//else
+		//	player->otherPlayerUpdate(fTimeElapsed);
+	}
+	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, Players);
+	for (auto& player : Players) {
+		player->Deceleration(fTimeElapsed);
+	}
+	//m_pPlayer->Deceleration(fTimeElapsed);
 
 
 	//if(2==whatPlayer&&true== m_pPlayer->onAttack)

@@ -47,7 +47,7 @@ public:
 	S_STATE _state;
 	short _id;
 	SOCKET _socket;
-	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right;// m_xmf3Velocity; , m_xmf3Gravity;
+	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
 	//float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
 	float HP;
 	DWORD direction;
@@ -67,7 +67,7 @@ public:
 		_id = -1;
 		_socket = 0;
 		m_xmf3Position = { 0.f,0.f,0.f };
-		//m_xmf3Velocity = { 0.f,0.f,0.f };
+		m_xmf3Velocity = { 0.f,0.f,0.f };
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
@@ -156,6 +156,7 @@ public:
 		p.HP = Player->HP;
 		p.overwrite = Player->overwrite;
 		p.BulletPos = Player->BulletPos;
+		p.vel = Player->GetVelocity();
 		do_send(&p);
 	}
 
@@ -265,8 +266,8 @@ public:
 	//	UpdateBoundingBox();
 	//}
 
-	//const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
-	//void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
+	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
+	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z)); }
 	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }

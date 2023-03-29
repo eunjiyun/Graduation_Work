@@ -48,7 +48,7 @@ void process_packet(int c_id, char* packet)
 			CL->direction = p->direction;
 			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 			CL->Update();
-			
+			CL->SetVelocity(p->vel);
 			if (CL->direction == DIR_DIE) CL->_state = ST_DEAD;
 		}
 		for (auto& cl : clients[c_id / 4]) {

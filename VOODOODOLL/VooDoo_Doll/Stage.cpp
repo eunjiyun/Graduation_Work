@@ -464,8 +464,6 @@ bool CStage::ProcessInput(UCHAR* pKeysBuffer)
 void CStage::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
-
-	m_pPlayer->boundingAnimate(fTimeElapsed);
 	m_ppShaders2[0]->AnimateObjects(fTimeElapsed);
 
 	for(int i{};i<nParticle;++i)
@@ -518,81 +516,82 @@ void CStage::UpdateBoundingBox()
 
 }
 
-void CStage::CheckObjectByObjectCollisions(float fTimeElapsed)
+void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, vector<CPlayer*>& Players)
 {
-	XMFLOAT3 Vel = m_pPlayer->GetVelocity();
-	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-	BoundingOrientedBox pBox = m_pPlayer->obBox;
+	for (auto& player : Players) {
+		if (player->c_id < 0) continue;
+		XMFLOAT3 Vel = player->GetVelocity();
+		XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
+		BoundingOrientedBox pBox = player->obBox;
 
-
-
-	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
-	{
-		BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
-
-		if (pBox.Intersects(oBox))
+		for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
 		{
-			if (pBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
-				XMFLOAT3 Pos = m_pPlayer->GetPosition();
-				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
-				m_pPlayer->SetPosition(Pos);
-				m_pPlayer->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
-				m_pPlayer->onFloor = true;
-				continue;
-			}
+			BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
-
-
-			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
-			XMFLOAT3 ObjLook = { 0,0,0 };
-
-			// 디폴트 슬라이딩 벡터(회전이 없는 오브젝트에 사용)
-			if ((int)angle % 90 == 0)
+			if (pBox.Intersects(oBox))
 			{
-				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
-				XMVECTOR xmQuaternion = XMLoadFloat4(&oBox.Orientation);
-
-				// Rotate the vector using the quaternion
-				XMVECTOR rotatedVector = XMVector3Rotate(xmVector, xmQuaternion);
-
-				// Convert the rotated vector back to an XMFLOAT3
-				XMFLOAT3 realExtents;
-				XMStoreFloat3(&realExtents, rotatedVector);
-
-				realExtents.x = sqrtf(realExtents.x * realExtents.x);
-				realExtents.y = sqrtf(realExtents.y * realExtents.y);
-				realExtents.z = sqrtf(realExtents.z * realExtents.z);
-
-				if (oBox.Center.x - realExtents.x < pBox.Center.x && oBox.Center.x + realExtents.x > pBox.Center.x) {
-					if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
-					else ObjLook = { 0, 0, -1 };
+				if (pBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
+					XMFLOAT3 Pos = player->GetPosition();
+					Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
+					player->SetPosition(Pos);
+					player->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
+					player->onFloor = true;
+					continue;
 				}
-				else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
-				else ObjLook = { -1, 0, 0 };
+
+
+
+				float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
+				XMFLOAT3 ObjLook = { 0,0,0 };
+
+				// 디폴트 슬라이딩 벡터(회전이 없는 오브젝트에 사용)
+				if ((int)angle % 90 == 0)
+				{
+					XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
+					XMVECTOR xmQuaternion = XMLoadFloat4(&oBox.Orientation);
+
+					// Rotate the vector using the quaternion
+					XMVECTOR rotatedVector = XMVector3Rotate(xmVector, xmQuaternion);
+
+					// Convert the rotated vector back to an XMFLOAT3
+					XMFLOAT3 realExtents;
+					XMStoreFloat3(&realExtents, rotatedVector);
+
+					realExtents.x = sqrtf(realExtents.x * realExtents.x);
+					realExtents.y = sqrtf(realExtents.y * realExtents.y);
+					realExtents.z = sqrtf(realExtents.z * realExtents.z);
+
+					if (oBox.Center.x - realExtents.x < pBox.Center.x && oBox.Center.x + realExtents.x > pBox.Center.x) {
+						if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+						else ObjLook = { 0, 0, -1 };
+					}
+					else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+					else ObjLook = { -1, 0, 0 };
+
+				}
+				else
+				{
+					// 회전한 오브젝트에 적용되는 슬라이딩 벡터 - 위치 보간
+					XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
+
+					if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
+						if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders2[0]->m_ppObjects[i]->GetLook();
+						else ObjLook = Vector3::ScalarProduct(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), -1);
+					}
+					else if (oBox.Center.x < RotatedPos.x) ObjLook = m_ppShaders2[0]->m_ppObjects[i]->GetRight();
+					else ObjLook = Vector3::ScalarProduct(m_ppShaders2[0]->m_ppObjects[i]->GetRight(), -1);
+				}
+				if (Vector3::DotProduct(MovVec, ObjLook) > 0)
+					continue;
+
+				XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
+
+				player->Move(ReflectVec, false);
+
+				MovVec = GetReflectVec(ObjLook, MovVec);
+				player->Move(MovVec, false);
 
 			}
-			else
-			{
-				// 회전한 오브젝트에 적용되는 슬라이딩 벡터 - 위치 보간
-				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
-
-				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
-					if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders2[0]->m_ppObjects[i]->GetLook();
-					else ObjLook = Vector3::ScalarProduct(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), -1);
-				}
-				else if (oBox.Center.x < RotatedPos.x) ObjLook = m_ppShaders2[0]->m_ppObjects[i]->GetRight();
-				else ObjLook = Vector3::ScalarProduct(m_ppShaders2[0]->m_ppObjects[i]->GetRight(), -1);
-			}
-			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
-				continue;
-
-			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
-
-			m_pPlayer->Move(ReflectVec, false);
-
-			MovVec = GetReflectVec(ObjLook, MovVec);
-			m_pPlayer->Move(MovVec, false);
-
 		}
 	}
 }
