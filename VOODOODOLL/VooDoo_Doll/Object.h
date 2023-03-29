@@ -283,7 +283,7 @@ public:
 	void SetWeight(float fWeight) { m_fWeight = fWeight; }
 
 	void SetPosition(float fPosition) { m_fPosition = fPosition; }
-	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum,bool onPlayer);
+	float UpdatePosition(float fTrackPosition, float fTrackElapsedTime, float fAnimationLength);
 
 	void SetCallbackKeys(int nCallbackKeys);
 	void SetCallbackKey(int nKeyIndex, float fTime, void* pData);
@@ -352,7 +352,7 @@ public:
 	void SetCallbackKey(int nAnimationTrack, int nKeyIndex, float fTime, void* pData);
 	void SetAnimationCallbackHandler(int nAnimationTrack, CAnimationCallbackHandler* pCallbackHandler);
 
-	void AdvanceTime(float fElapsedTime, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce,bool onPlayer);
+	void AdvanceTime(float fElapsedTime, short curTrack, CGameObject* pRootGameObject);
 
 	void SetRootMotion(bool bRootMotion) { m_bRootMotion = bRootMotion; }
 
@@ -404,9 +404,9 @@ public:
 	bool onRun = false;//
 	bool onDie = false;
 	bool onCollect = false;//
+	bool onAct = false;
 	bool dieOnce = false;//
 	bool onFloor = false;
-	//bool onChange = false;
 	int plWhat = 1;
 
 	int c_id = -1;//monster id //

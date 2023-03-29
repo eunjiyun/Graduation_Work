@@ -693,13 +693,12 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength, bool* onAttack, bool* onCollect, bool* dieOnce, int trackNum, bool onPlayer)//0228
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)//0228
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 
 	static float start;
 	static float end;
-
 	switch (m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
@@ -717,34 +716,20 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 
 			}
 		}
-		//			m_fPosition = fmod(fTrackPosition, m_pfKeyFrameTimes[m_nKeyFrames-1]); // m_fPosition = fTrackPosition - int(fTrackPosition / m_pfKeyFrameTimes[m_nKeyFrames-1]) * m_pfKeyFrameTimes[m_nKeyFrames-1];
-		//			m_fPosition = fmod(fTrackPosition, m_fLength); //if (m_fPosition < 0) m_fPosition += m_fLength;
-		//			m_fPosition = fTrackPosition - int(fTrackPosition / m_fLength) * m_fLength;
 		break;
 	}
 
 	case ANIMATION_TYPE_ONCE://0228
-
-		if (m_fPosition == fAnimationLength && 1 == m_bEnable)//BOOL bool
+		if (m_fPosition == fAnimationLength && m_bEnable)//BOOL bool
 		{
-			if (4 != trackNum || 4 == trackNum && true == *dieOnce)
-			{
-				m_fPosition = 0.0f;
-			}
-
+			m_fPosition = 0.0f;
 		}
-		else if (2 == trackNum || 5 == trackNum || 4 == trackNum && true == *dieOnce)
-		{
+		else {
 			m_fPosition = fTrackPosition + fTrackElapsedTime;
 			if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
 			{
 				m_fPosition = fAnimationLength;
-
-				if (true == *onAttack || true == *onCollect)
-					SetEnable(false);
-				if (true == *onAttack) *onAttack = false;
-				if (true == *onCollect) *onCollect = false;
-				if (true == *dieOnce) *dieOnce = false;//여기서 공격 애니메이션을 끄진 않고 또 공격 애니메이션이 처음부터 시작하는 걸 방지
+				SetEnable(false);
 			}
 		}
 		break;
@@ -866,7 +851,7 @@ void CAnimationController::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3d
 	}
 }
 
-void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGameObject, bool* onAttack, bool* onCollect, bool* dieOnce, bool onPlayer)
+void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGameObject* pRootGameObject)
 {
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
@@ -874,27 +859,21 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, CGameObject* pRootGam
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
-
-		for (int k = 0; k < m_nAnimationTracks; k++)
-			//for (int k = 0; k <4; k++)
+		if (m_pAnimationTracks[curTrack].m_bEnable)
 		{
-			if (m_pAnimationTracks[k].m_bEnable)
-			{
-
-				if (5 == k || 2 == k || 4 == k)//player : collect attack die //monster : die
-					m_pAnimationTracks[k].m_nType = ANIMATION_TYPE_ONCE;
-
-				CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[k].m_nAnimationSet];
-				float fPosition = m_pAnimationTracks[k].UpdatePosition(m_pAnimationTracks[k].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength, onAttack, onCollect, dieOnce, k, onPlayer);
-
+			if (5 == curTrack || 2 == curTrack || 4 == curTrack)//player : collect attack die //monster : die
+				m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_ONCE;
+			CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[curTrack].m_nAnimationSet];
+			if (pAnimationSet != nullptr) {
+				float fPosition = m_pAnimationTracks[curTrack].UpdatePosition(m_pAnimationTracks[curTrack].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength);
 				for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 				{
 					XMFLOAT4X4 xmf4x4Transform = m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent;
 					XMFLOAT4X4 xmf4x4TrackTransform = pAnimationSet->GetSRT(j, fPosition);
-					xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[k].m_fWeight));
+					xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[curTrack].m_fWeight));
 					m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
 				}
-				m_pAnimationTracks[k].HandleCallback();
+				m_pAnimationTracks[curTrack].HandleCallback();
 			}
 		}
 
@@ -1201,9 +1180,13 @@ void CGameObject::Animate(float fTimeElapsed, bool onPlayer)
 {
 	OnPrepareRender();
 
-	if (m_pSkinnedAnimationController)
-		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, this, &onAttack, &onCollect, &onDie, onPlayer);
-
+	if (m_pSkinnedAnimationController) {
+		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, m_pSkinnedAnimationController->Cur_Animation_Track, this);
+		if (m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
+			m_pSkinnedAnimationController->SetTrackEnable(0, true);
+			onAct = false;
+		}
+	}
 	if (m_pSibling)
 		m_pSibling->Animate(fTimeElapsed, onPlayer);
 	if (m_pChild)

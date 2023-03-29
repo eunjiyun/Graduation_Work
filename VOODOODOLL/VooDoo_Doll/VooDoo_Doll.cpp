@@ -41,15 +41,17 @@ void ProcessInput()
 	if (::GetKeyboardState(pKeysBuffer))
 	{
 		//if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onDie && !gGameFramework.m_pPlayer->onCollect) {
+		if (!gGameFramework.m_pPlayer->onAct) {
 			if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
 			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
-		//}
+		}
 	}
 	float cxDelta = 0.0f, cyDelta = 0.0f;
+
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
 	if (GetCapture() == gGameFramework.Get_HWND())
 	{
@@ -60,7 +62,6 @@ void ProcessInput()
 		cyDelta = (float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f;
 		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
 	}
-
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
@@ -84,7 +85,6 @@ void ProcessInput()
 				gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
 				gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
 			}
-
 		}
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
@@ -257,7 +257,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYUP:
-		if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onCollect && !gGameFramework.m_pPlayer->onDie) {
+		if (!gGameFramework.m_pPlayer->onAct) {
 			if (wParam == 'Z' || wParam == 'z')
 			{
 				CS_ATTACK_PACKET p;
@@ -349,11 +349,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
-	if (0 == pl->m_pSkinnedAnimationController->Cur_Animation_Track || 1 == pl->m_pSkinnedAnimationController->Cur_Animation_Track ||
-		3 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
-		pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+	if (pl->m_pSkinnedAnimationController->Cur_Animation_Track == 2 || pl->m_pSkinnedAnimationController->Cur_Animation_Track == 4
+		|| pl->m_pSkinnedAnimationController->Cur_Animation_Track == 5)
+		return;
 
-	XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
+	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+
+	//XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
 	
 	pl->onRun = p->direction & DIR_RUN;
@@ -372,24 +374,22 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 	}*/
 
 
-	if (pl->onAttack) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		return;
-	}
-	else if (pl->onRun) {
+	//if (pl->onAttack) {
+	//	pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	//	return;
+	//}
+	if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
 		return;
 	}
-	else if (pl->onDie) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
-		return;
-	}
-	else if (pl->onCollect) {
-		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-		return;
-	}
-
-
+	//else if (pl->onDie) {
+	//	pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
+	//	return;
+	//}
+	//else if (pl->onCollect) {
+	//	pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+	//	return;
+	//}
 	else if (!pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable) {
 		if (p->direction) {
 			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
@@ -446,17 +446,19 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case CS_ATTACK: {
 		CS_ATTACK_PACKET* packet = reinterpret_cast<CS_ATTACK_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		(*iter)->onAct = true;
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		(*iter)->onAttack = true;
+		//(*iter)->onAttack = true;
 		break;
 	}
 	case CS_COLLECT: {
 		CS_COLLECT_PACKET* packet = reinterpret_cast<CS_COLLECT_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		(*iter)->onAct = true;
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-		(*iter)->onCollect = true;
+		//(*iter)->onCollect = true;
 		break;
 	}
 
@@ -470,6 +472,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(i, false);
 		}
+		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		break;
 	}
 	case SC_SUMMON_MONSTER: {

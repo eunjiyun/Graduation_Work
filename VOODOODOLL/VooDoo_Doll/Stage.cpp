@@ -138,17 +138,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	monsterLight = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, arrow, 0,1);
 	if (arrow) delete arrow;
 
-	nParticle = 50;
-	particles = new CGameObject * [nParticle];
-
-	for (int i{}; i < nParticle; ++i)
-	{
-		//base나 base2 bin파일 쓸땐 마지막 인자를 7, bullet 생성자 안에서도 base2.bin으로
-		particles[i] = new CBulletObject(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, 1, 3);
-		particles[i]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		particles[i]->SetPosition(-50.0f+i%5*3, -12+i/5*3, 590.0f);
-		particles[i]->SetScale(1.0f, 1.0f, 1.0f);
-	}
 	
 
 	m_nShaders2 = 1;
@@ -466,8 +455,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	m_fElapsedTime = fTimeElapsed;
 	m_ppShaders2[0]->AnimateObjects(fTimeElapsed);
 
-	for(int i{};i<nParticle;++i)
-		particles[i]->Animate(fTimeElapsed,false);
 
 	if (m_pLights)
 	{
@@ -504,9 +491,6 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
 	monsterLight->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-
-	for(int i{};i<nParticle;++i)
-		particles[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 
 	m_ppShaders2[0]->Render(pd3dCommandList, pCamera);
 }
