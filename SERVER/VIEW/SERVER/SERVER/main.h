@@ -28,7 +28,8 @@ array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(10'000);
 array<vector<MonsterInfo>, 6> StagesInfo;
 
-
+clock_t check_pathTime;
+clock_t check_openListTime;
 
 MapObject** m_ppObjects = 0;
 vector<MapObject*> Objects[6] = {};
@@ -199,15 +200,19 @@ void SESSION::Update()
 	}
 	recent_recvedTime = high_resolution_clock::now();
 }
-bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList)
+bool check_path(XMFLOAT3 _pos, vector<XMFLOAT3> CloseList, BoundingBox& check_box)
 {
+	auto start = clock();
 	int collide_range = (int)(_pos.z / 600);
-	BoundingBox CheckBox = BoundingBox(_pos, { 5,3,5 });
+	check_box.Center = _pos;
 
 	if ((CloseList.end() != find_if(CloseList.begin(), CloseList.end(), [&_pos](XMFLOAT3 pos_) {return Vector3::Compare(_pos, pos_); })) ||
-		Objects[collide_range].end() != find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [&_pos](MapObject* Obj) {return BoundingBox(_pos, { 5,3,5 }).Intersects(Obj->m_xmOOBB); }))
+		Objects[collide_range].end() != find_if(Objects[collide_range].begin(), Objects[collide_range].end(), [&_pos, check_box](MapObject* Obj) {return check_box.Intersects(Obj->m_xmOOBB); })) {
+		check_pathTime += (clock() - start);
 		return false;
+	}
 
+	check_pathTime += (clock() - start);
 	return true;
 }
 list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
@@ -216,6 +221,7 @@ list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
 }
 bool check_openList(XMFLOAT3 _Pos, float _G, A_star_Node* s_node, list<A_star_Node*>* m_List)
 {
+	auto start = clock();
 	auto iter = find_if((*m_List).begin(), (*m_List).end(), [&_Pos](A_star_Node* N) {return Vector3::Compare2D(_Pos, N->Pos); });
 	if (iter != (*m_List).end()) {
 		if ((*iter)->G > _G) {
@@ -223,8 +229,11 @@ bool check_openList(XMFLOAT3 _Pos, float _G, A_star_Node* s_node, list<A_star_No
 			(*iter)->F = (*iter)->G + (*iter)->H;
 			(*iter)->parent = s_node;
 		}
+		check_openListTime += (clock() - start);
 		return false;
 	}
+
+	check_openListTime += (clock() - start);
 	return true;
 }
 
@@ -238,26 +247,22 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 
 	openList.push_back(new A_star_Node(start_Pos, dest_Pos));
 	list<A_star_Node*>::iterator iter;
-	clock_t start_time = clock();
+	BoundingBox CheckBox = BoundingBox(start_Pos, { 5,3,5 });
 	while (!openList.empty())
 	{
-		//if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() >= 1000)
-		//{
-		//	cout << start_Pos.x << ", " << start_Pos.y << ", " << start_Pos.z << "  to  " << dest_Pos.x << ", " << dest_Pos.y << ", " << dest_Pos.z << "추적 중지\n";
-		//	cur_animation_track = 0;
-		//	target_id = -1;
-		//	SetState(NPC_State::Idle);
-		//	return Pos;
-		//}
 		iter = getNode(&openList);
 		S_Node = *iter;
 		if (BoundingBox(S_Node->Pos, { 5,20,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
 		{
+			clock_t start_time = clock();
 			while (S_Node->parent != nullptr)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
-					cout << "찾는 데 걸린 시간 - " << clock() - start_time << endl;
+					cout << "check_pathTime - " << check_pathTime << endl;
+					cout << "check_openListTime - " << check_openListTime << endl;
+					check_pathTime = clock_t();
+					check_openListTime = clock_t();
 					return S_Node->Pos;
 				}
 				roadToMove.push(S_Node->Pos);
@@ -267,7 +272,7 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
 
-			if (check_path(_Pos, CloseList) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
+			if (check_path(_Pos, CloseList, CheckBox) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, &openList)) {
 
 				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
 			}
@@ -402,7 +407,8 @@ void Monster::Update(float fTimeElapsed)
 		}
 		break;
 	case NPC_State::Dead:
-		cur_animation_track = 3;
+		if (type != 2)
+			cur_animation_track = 3;
 		dead_timer -= fTimeElapsed;
 		if (dead_timer <= 0) {
 			SetAlive(false);
@@ -418,20 +424,20 @@ void InitializeStages()
 {
 	int ID_constructor = 0;
 	{	// 1stage
-		for (int i = 0; i < 3; ++i) {
+		for (int i = 0; i < 1; ++i) {
 			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 650), i, ID_constructor++));
 		}
 	}
-	{	// 2stage
-		for (int i = 0; i < 3; ++i) {
-			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 1000), 1, ID_constructor++));
-		}
-	}
-	{	// 3stage
-		for (int i = 0; i < 3; ++i) {
-			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 2, ID_constructor++));
-		}
-	}
+	//{	// 2stage
+	//	for (int i = 0; i < 3; ++i) {
+	//		StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 1000), 1, ID_constructor++));
+	//	}
+	//}
+	//{	// 3stage
+	//	for (int i = 0; i < 3; ++i) {
+	//		StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 2, ID_constructor++));
+	//	}
+	//}
 	{	// 4stage
 	}
 	{	// 5stage
