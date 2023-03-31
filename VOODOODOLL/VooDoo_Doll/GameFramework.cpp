@@ -572,6 +572,7 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 			player->SetLookVector(Look);
 			player->SetUpVector(Up);
 			player->SetRightVector(Right);
+			player->curTime = high_resolution_clock::now();
 			cout << player->c_id << endl;
 			break;
 		}
@@ -746,14 +747,13 @@ void CGameFramework::FrameAdvance()
 
 	//m_pPlayer->Update(fTimeElapsed);
 	for (auto& player : Players) {
-		//if (player == m_pPlayer)
+		if (player->c_id > -1) {
 			player->Update(fTimeElapsed);
-		//else
-		//	player->otherPlayerUpdate(fTimeElapsed);
-	}
-	m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, Players);
-	for (auto& player : Players) {
-		player->Deceleration(fTimeElapsed);
+
+			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
+
+			player->Deceleration(fTimeElapsed);
+		}
 	}
 	//m_pPlayer->Deceleration(fTimeElapsed);
 

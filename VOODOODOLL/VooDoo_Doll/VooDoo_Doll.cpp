@@ -437,9 +437,26 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetRightVector(packet->Right);
 		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
 		ProcessAnimation(*iter, packet);
-		//if ((*iter) == gGameFramework.m_pPlayer && packet->overwrite == false) break;
+
+
+		float FPS = duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->curTime).count() / 1000.f;
+		
+		XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
+		float distance = Vector3::Length(deltaPos);
+		float speed = distance / (FPS > 0.f ? FPS : 1.f);
+		float interpolationRate = clamp(speed / 100.f, 0.f, 1.f);
+
+		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, interpolationRate, false));
 		(*iter)->SetVelocity(packet->vel);
-		(*iter)->SetPosition(packet->Pos);
+		(*iter)->SetPosition(targetPos);
+		//if (packet->Pos.x != targetPos.x || packet->Pos.z != targetPos.z) {
+		//	cout << "packet - ";
+		//	Vector3::Print(packet->Pos);
+		//	cout << "interpolated - ";
+		//	Vector3::Print(targetPos);
+		//}
+		(*iter)->curTime = high_resolution_clock::now();
+
 
 		break;
 	}
@@ -449,7 +466,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->onAct = true;
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		//(*iter)->onAttack = true;
 		break;
 	}
 	case CS_COLLECT: {
@@ -458,7 +474,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->onAct = true;
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-		//(*iter)->onCollect = true;
 		break;
 	}
 

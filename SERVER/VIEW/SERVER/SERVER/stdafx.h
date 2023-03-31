@@ -39,6 +39,7 @@ using namespace DirectX::PackedVector;
 #include<vector>
 #include <array>
 #include <set>
+#include <unordered_map>
 #include <queue>
 #include <stack>
 #include <algorithm>
@@ -207,12 +208,12 @@ namespace Vector3
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
 
-	inline bool Compare2D(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	inline bool Compare2D(const XMFLOAT3& xmf3Vector1, const XMFLOAT3& xmf3Vector2)
 	{
 		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.z == xmf3Vector2.z);
 	}
 
-	inline bool Compare(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	inline bool Compare(const XMFLOAT3& xmf3Vector1, const XMFLOAT3& xmf3Vector2)
 	{
 		return (xmf3Vector1.x == xmf3Vector2.x && xmf3Vector1.y == xmf3Vector2.y && xmf3Vector1.z == xmf3Vector2.z);
 	}
