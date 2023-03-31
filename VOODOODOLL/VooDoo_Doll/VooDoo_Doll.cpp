@@ -46,7 +46,7 @@ void ProcessInput()
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-			if (pKeysBuffer[0x58] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
+			if (pKeysBuffer[0x10] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
 		}
 	}
@@ -65,7 +65,7 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 150 || cxDelta != 0.0f || cyDelta != 0.0f) {
+	if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100 || cxDelta != 0.0f || cyDelta != 0.0f) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
@@ -89,7 +89,7 @@ void ProcessInput()
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-		Old_Direction = dwDirection;
+		// Old_Direction = dwDirection;
 		elapsedTime = high_resolution_clock::now();
 	}
 }
@@ -255,8 +255,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
-		break;
-	case WM_KEYUP:
 		if (!gGameFramework.m_pPlayer->onAct) {
 			if (wParam == 'Z' || wParam == 'z')
 			{
@@ -293,6 +291,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		break;
+		break;
+	case WM_KEYUP:
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_SIZE:
@@ -349,47 +349,16 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
-	if (pl->m_pSkinnedAnimationController->Cur_Animation_Track == 2 || pl->m_pSkinnedAnimationController->Cur_Animation_Track == 4
-		|| pl->m_pSkinnedAnimationController->Cur_Animation_Track == 5)
-		return;
-
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-
-	//XMFLOAT3 Cmp = Vector3::Subtract(pl->GetPosition(), p->Pos);
 
 	
 	pl->onRun = p->direction & DIR_RUN;
-	// if (p->direction & DIR_ATTACK) pl->onAttack = true;
+
 	if (p->direction & DIR_DIE) pl->onDie = true;
-	//else if (p->direction & DIR_COLLECT) pl->onCollect = true;
-	/*else if (p->direction & DIR_CHANGESTATE)
-	{
-		pl->m_pChild = pl->pAngrybotModels[p->character_num]->m_pModelRootObject;
-		pl->m_pSkinnedAnimationController = pl->AnimationControllers[p->character_num];
-		for (int i = 0; i < 6; i++)
-		{
-			pl->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
-			pl->m_pSkinnedAnimationController->SetTrackEnable(i, false);
-		}
-	}*/
-
-
-	//if (pl->onAttack) {
-	//	pl->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	//	return;
-	//}
 	if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
 		return;
 	}
-	//else if (pl->onDie) {
-	//	pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
-	//	return;
-	//}
-	//else if (pl->onCollect) {
-	//	pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-	//	return;
-	//}
 	else if (!pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable) {
 		if (p->direction) {
 			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
@@ -436,7 +405,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetUpVector(packet->Up);
 		(*iter)->SetRightVector(packet->Right);
 		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
-		ProcessAnimation(*iter, packet);
+		if ((*iter)->onAct == false)
+			ProcessAnimation(*iter, packet);
 
 
 		float FPS = duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->curTime).count() / 1000.f;

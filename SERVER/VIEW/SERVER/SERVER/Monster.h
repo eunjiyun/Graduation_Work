@@ -39,6 +39,7 @@ public:
     short m_id = -1;    // 몬스터 자체ID
     float dead_timer = 0;
     float attack_timer = 0;
+    bool attacked = false;
     mutable mutex m_lock;
     Monster() {}
     Monster(const Monster& other);
