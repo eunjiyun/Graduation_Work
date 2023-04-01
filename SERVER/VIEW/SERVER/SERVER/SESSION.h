@@ -48,7 +48,6 @@ public:
 	short _id;
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
-	//float m_fMaxVelocityXZ, m_fMaxVelocityY, m_fFriction;
 	float HP;
 	DWORD direction;
 	char	_name[NAME_SIZE];
@@ -59,7 +58,7 @@ public:
 	bool onAttack, onCollect, onDie, onRun, onChange; // 중복입력을 막기 위한 bool 변수
 	short character_num;
 	bool overwrite;
-	steady_clock::time_point recent_recvedTime;
+	high_resolution_clock::time_point recent_recvedTime;
 	XMFLOAT3 BulletPos, BulletLook;
 public:
 	SESSION()
@@ -71,11 +70,7 @@ public:
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		//m_xmf3Gravity = { 0.f, -6.0f, 0.f };
 		BulletPos = { 5000,5000,5000 };
-		//m_fMaxVelocityY = 50.f;
-		//m_fMaxVelocityXZ = 10.f;
-		//m_fFriction = 30.f;
 		direction = 0;
 		cur_stage = 0;
 		_name[0] = 0;
@@ -97,7 +92,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, -0, 0 };
+		m_xmf3Position = XMFLOAT3{ -50, -0, 590 };
 		direction = 0;
 		_prev_remain = 0;
 		m_xmf3Up = XMFLOAT3{ 0,1,0 };
@@ -276,6 +271,5 @@ public:
 
 	void Update();
 	void CheckPosition(XMFLOAT3 newPos);
-	// void CheckCollision(float fTimeElapsed);
 };
 

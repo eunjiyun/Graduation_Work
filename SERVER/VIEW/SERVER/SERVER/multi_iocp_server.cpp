@@ -15,7 +15,6 @@ using namespace chrono;
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
 CGameTimer m_NPCTimer;
-CGameTimer m_PlayerTimer;
 HANDLE h_iocp;
 
 void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode) {
@@ -73,7 +72,6 @@ void process_packet(int c_id, char* packet)
 			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 			CL->Update();
 			CL->SetVelocity(p->vel);
-			if (CL->direction == DIR_DIE) CL->_state = ST_DEAD;
 		}
 		for (auto& cl : clients[c_id / 4]) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(CL);
@@ -91,10 +89,12 @@ void process_packet(int c_id, char* packet)
 		{
 		case 0:
 			for (auto& monster : PoolMonsters[CL->_id / 4]) {
-				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
+				if (monster->HP > 0 &&  BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
 				{
 					lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 100;
+					if (monster->HP <= 0)
+						monster->SetState(NPC_State::Dead);
 				}
 			}
 			break;
@@ -108,6 +108,8 @@ void process_packet(int c_id, char* packet)
 				{
 					lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 50;
+					if (monster->HP <= 0)
+						monster->SetState(NPC_State::Dead);
 				}
 			}
 			break;

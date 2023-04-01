@@ -735,6 +735,13 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		break;
 	case ANIMATION_TYPE_PINGPONG:
 		break;
+	case ANIMATION_TYPE_DEAD:
+		m_fPosition = fTrackPosition + fTrackElapsedTime;
+		if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
+		{
+			m_fPosition = fAnimationLength;
+		}
+		break;
 	}
 
 	return(m_fPosition);
@@ -861,8 +868,10 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 
 		if (m_pAnimationTracks[curTrack].m_bEnable)
 		{
-			if (5 == curTrack || 2 == curTrack || 4 == curTrack)//player : collect attack die //monster : die
+			if (5 == curTrack || 2 == curTrack)//player : collect attack
 				m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_ONCE;
+			else if (4 == curTrack)//player : die 
+				m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_DEAD;
 			CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[curTrack].m_nAnimationSet];
 			if (pAnimationSet != nullptr) {
 				float fPosition = m_pAnimationTracks[curTrack].UpdatePosition(m_pAnimationTracks[curTrack].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength);

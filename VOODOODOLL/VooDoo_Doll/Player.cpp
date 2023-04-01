@@ -176,6 +176,7 @@ void CPlayer::Update(float fTimeElapsed)
 
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
+
 	Rotate(cxDelta, cyDelta, czDelta);
 	Move(xmf3Velocity, false);
 

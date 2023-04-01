@@ -5,7 +5,6 @@
 #include "MapObject.h"
 #include "Monster.h"
 #include <concurrent_priority_queue.h>
-//#include <DirectXMath.h>
 
 enum EVENT_TYPE { EV_RANDOM_MOVE };
 
@@ -23,7 +22,6 @@ struct TIMER_EVENT {
 concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
-//array<array<Monster, MAX_MONSTER_PER_ROOM>, MAX_ROOM> monsters;
 array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(10'000);
 array<vector<MonsterInfo>, 6> StagesInfo;
@@ -154,14 +152,16 @@ void SESSION::Update()
 		direction = DIR_DIE;
 	}
 	float ElapsedTime = duration_cast<milliseconds>(high_resolution_clock::now() - recent_recvedTime).count() / 1000.f;
-
-	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, ElapsedTime * 10, false));
+	
+	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, ElapsedTime * 100, false));
 	for (auto& monster : PoolMonsters[_id / 4]) {
 		if (monster->HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster->BB))
 		{
 			{
 				lock_guard<mutex> mm{ monster->m_lock };
 				monster->HP -= 200;
+				if (monster->HP <= 0)
+					monster->SetState(NPC_State::Dead);
 			}
 			BulletPos = XMFLOAT3(5000, 5000, 5000);
 			break;
@@ -233,11 +233,11 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
-					cout << "check_pathTime - " << check_pathTime << endl;
-					cout << "check_openListTime - " << check_openListTime << endl;
-					cout << "Whole Time - " << clock() - start_time << endl;
-					check_pathTime = clock_t();
-					check_openListTime = clock_t();
+					//cout << "check_pathTime - " << check_pathTime << endl;
+					//cout << "check_openListTime - " << check_openListTime << endl;
+					//cout << "Whole Time - " << clock() - start_time << endl;
+					//check_pathTime = clock_t();
+					//check_openListTime = clock_t();
 					return S_Node->Pos;
 				}
 				roadToMove.push(S_Node->Pos);
@@ -282,9 +282,6 @@ int Monster::get_targetID()
 
 void Monster::Update(float fTimeElapsed)
 {
-	if (HP <= 0 && GetState() != NPC_State::Dead) {
-		SetState(NPC_State::Dead);
-	}
 
 	const auto& targetPlayer = &clients[room_num][target_id];
 	// 몬스터와 플레이어 사이의 벡터
@@ -301,6 +298,10 @@ void Monster::Update(float fTimeElapsed)
 			targetPlayer->HP -= GetPower();
 			MagicPos.x = 5000;
 			cout << "plHP : " << targetPlayer->HP << endl;
+			if (targetPlayer->HP <= 0) {
+				targetPlayer->direction = DIR_DIE;
+				targetPlayer->_state = ST_DEAD;
+			}
 		}
 	}
 	switch (GetState())
@@ -349,7 +350,7 @@ void Monster::Update(float fTimeElapsed)
 		break;
 	case NPC_State::Attack:
 		attack_timer -= fTimeElapsed;
-		if (targetPlayer->HP <= 0) {
+		if (targetPlayer->_state == ST_DEAD) {
 			SetState(NPC_State::Idle);
 			cur_animation_track = 0;
 			target_id = -1;
@@ -364,8 +365,11 @@ void Monster::Update(float fTimeElapsed)
 			else if (20 > g_distance) {
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
-
 				cout << "plHP : " << targetPlayer->HP << endl;
+				if (targetPlayer->HP <= 0) {
+					targetPlayer->direction = DIR_DIE;
+					targetPlayer->_state = ST_DEAD;
+				}
 			}
 			attacked = true;
 			break;

@@ -46,14 +46,14 @@ void ProcessInput()
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
 			if (pKeysBuffer[0x44] & 0xF0) dwDirection |= DIR_RIGHT;//d
-			if (pKeysBuffer[0x10] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;//x run
+			if (pKeysBuffer[0x10] & 0xF0 && dwDirection) dwDirection |= DIR_RUN;// Shift run
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
 		}
 	}
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
-	if (GetCapture() == gGameFramework.Get_HWND())
+	if (GetCapture() == gGameFramework.Get_HWND()) 
 	{
 		::SetCursor(NULL);
 		POINT ptCursorPos;
@@ -165,7 +165,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		{
 			SleepEx(0, true);
 			gGameFramework.FrameAdvance();
-			ProcessInput();
+			if (gGameFramework.m_pPlayer->alive)
+				ProcessInput();
 		}
 	}
 
@@ -351,23 +352,29 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
-	
+
 	pl->onRun = p->direction & DIR_RUN;
 
-	if (p->direction & DIR_DIE) pl->onDie = true;
+
 	if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
 		return;
 	}
-	else if (!pl->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_bEnable) {
-		if (p->direction) {
-			pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		}
-		else
-		{
-			pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-			pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-		}
+
+	if (p->direction & DIR_DIE) {
+		pl->onAct = true;
+		pl->alive = false;
+		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
+		return;
+	}
+
+	if (p->direction) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	}
+	else
+	{
+		pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 	}
 
 }
@@ -409,18 +416,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			ProcessAnimation(*iter, packet);
 
 
-		float FPS = duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->curTime).count() / 1000.f;
-		
-		XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
-		float distance = Vector3::Length(deltaPos);
-		float speed = distance / (FPS > 0.f ? FPS : 1.f);
-		float interpolationRate = clamp(speed / 100.f, 0.f, 1.f);
+		//float FPS = duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->curTime).count() / 1000.f;
 
-		interpolationRate = (interpolationRate < 0.1f) ? 0.1f : interpolationRate;
-		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, interpolationRate, false));
+		XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
+
+		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
 		(*iter)->SetVelocity(packet->vel);
 		(*iter)->SetPosition(targetPos);
-
 		(*iter)->curTime = high_resolution_clock::now();
 
 
