@@ -416,15 +416,11 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		float speed = distance / (FPS > 0.f ? FPS : 1.f);
 		float interpolationRate = clamp(speed / 100.f, 0.f, 1.f);
 
+		interpolationRate = (interpolationRate < 0.1f) ? 0.1f : interpolationRate;
 		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, interpolationRate, false));
 		(*iter)->SetVelocity(packet->vel);
 		(*iter)->SetPosition(targetPos);
-		//if (packet->Pos.x != targetPos.x || packet->Pos.z != targetPos.z) {
-		//	cout << "packet - ";
-		//	Vector3::Print(packet->Pos);
-		//	cout << "interpolated - ";
-		//	Vector3::Print(targetPos);
-		//}
+
 		(*iter)->curTime = high_resolution_clock::now();
 
 

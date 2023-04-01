@@ -81,7 +81,7 @@ public:
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 3, 10));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 4, 10));
 		error_stack = 0;
 		onAttack = false;
 		onCollect = false;
@@ -89,7 +89,7 @@ public:
 		onRun = false;
 		onChange = false;
 		character_num = 0;
-		HP = 7000;
+		HP = 10000;
 	}
 
 	~SESSION() {}

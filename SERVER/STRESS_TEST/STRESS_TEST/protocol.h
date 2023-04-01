@@ -1,5 +1,3 @@
-// protocol.h
-
 constexpr int PORT_NUM = 3500;
 constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
@@ -43,8 +41,11 @@ struct CS_MOVE_PACKET {
 	char	type;
 	DWORD	direction = 0;
 	short	id;
-	float cxDelta, cyDelta, czDelta;
+	float cxDelta = 0.f;
+	float cyDelta = 0.f;
+	float czDelta = 0.f;
 	XMFLOAT3 pos;
+	XMFLOAT3 vel;
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 
@@ -105,6 +106,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	bool overwrite;
 	DWORD direction;
 	XMFLOAT3 BulletPos;
+	XMFLOAT3 vel;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
