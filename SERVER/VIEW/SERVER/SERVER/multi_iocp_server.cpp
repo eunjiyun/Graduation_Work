@@ -4,7 +4,6 @@
 #include <mutex>
 #include <unordered_set>
 #include "main.h"
-#include "Timer.h"
 #include <sqlext.h>
 
 #pragma comment(lib, "WS2_32.lib")
@@ -14,7 +13,6 @@ using namespace chrono;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
-CGameTimer m_NPCTimer;
 HANDLE h_iocp;
 
 void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode) {
@@ -71,8 +69,8 @@ void process_packet(int c_id, char* packet)
 			CL->direction = p->direction;
 			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 			CL->Update();
-			CL->SetVelocity(p->vel);
 		}
+		CL->SetVelocity(p->vel);
 		for (auto& cl : clients[c_id / 4]) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(CL);
 		}
@@ -80,12 +78,7 @@ void process_packet(int c_id, char* packet)
 	}
 	case CS_ATTACK: {
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
-		short type;
-		{
-			lock_guard<mutex> ll{ CL->_s_lock };
-			type = CL->character_num;
-		}
-		switch (type)
+		switch (CL->character_num)
 		{
 		case 0:
 			for (auto& monster : PoolMonsters[CL->_id / 4]) {
@@ -246,51 +239,50 @@ void worker_thread(HANDLE h_iocp)
 	}
 }
 
-void update_thread()
-{
-	//m_PlayerTimer.Start();
-	while (1)
-	{
-		//m_PlayerTimer.Tick(10.f);
-		for (int i = 0; i < MAX_ROOM; ++i) {
-			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
-				if (clients[i][j]._state != ST_INGAME) continue;
-				for (auto& cl : clients[i]) {
-					if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(&clients[i][j]);
-				}
-			}
-		}
-		this_thread::sleep_for(100ms); // 0.1초당 한번 패킷 전달
-	}
-}
-
-void update_NPC()//0326
-{
-	while (1)
-	{
-		m_NPCTimer.Tick(30.0f);
-		for (int i = 0; i < MAX_ROOM; ++i) {
-			auto iter = PoolMonsters[i].begin();
-			while (iter != PoolMonsters[i].end()) {
-				{
-					lock_guard<mutex> mm{ (*iter)->m_lock }; 
-					(*iter)->Update(m_NPCTimer.GetTimeElapsed() );
-				}
-				for (auto& cl : clients[i]) {
-					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet((*iter));
-				}
-				if ((*iter)->is_alive() == false) {//0322
-					MonsterPool.ReturnMemory((*iter));
-					PoolMonsters[i].erase(iter);
-					MonsterPool.PrintSize();
-				}
-				else
-					iter++;
-			}
-		}
-		this_thread::sleep_for(30ms);
-	}
-}
+//void update_thread()
+//{
+//	//m_PlayerTimer.Start();
+//	while (1)
+//	{
+//		//m_PlayerTimer.Tick(10.f);
+//		for (int i = 0; i < MAX_ROOM; ++i) {
+//			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
+//				if (clients[i][j]._state != ST_INGAME) continue;
+//				for (auto& cl : clients[i]) {
+//					if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(&clients[i][j]);
+//				}
+//			}
+//		}
+//		this_thread::sleep_for(100ms); // 0.1초당 한번 패킷 전달
+//	}
+//}
+//
+//void update_NPC()//0326
+//{
+//	while (1)
+//	{
+//		for (int i = 0; i < MAX_ROOM; ++i) {
+//			auto iter = PoolMonsters[i].begin();
+//			while (iter != PoolMonsters[i].end()) {
+//				{
+//					lock_guard<mutex> mm{ (*iter)->m_lock }; 
+//					(*iter)->Update(m_NPCTimer.GetTimeElapsed() );
+//				}
+//				for (auto& cl : clients[i]) {
+//					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet((*iter));
+//				}
+//				if ((*iter)->is_alive() == false) {//0322
+//					MonsterPool.ReturnMemory((*iter));
+//					PoolMonsters[i].erase(iter);
+//					MonsterPool.PrintSize();
+//				}
+//				else
+//					iter++;
+//			}
+//		}
+//		this_thread::sleep_for(30ms);
+//	}
+//}
 
 void do_Timer()
 {

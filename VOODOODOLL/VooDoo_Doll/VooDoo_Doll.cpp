@@ -31,6 +31,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance);
 BOOL InitInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags);
+void CALLBACK send_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags);
 
 void do_recv();
 
@@ -87,9 +89,8 @@ void ProcessInput()
 			}
 		}
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
+		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
-		// Old_Direction = dwDirection;
 		elapsedTime = high_resolution_clock::now();
 	}
 }
@@ -143,9 +144,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	p.size = sizeof(CS_LOGIN_PACKET);
 	p.type = CS_LOGIN;
 	OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-	ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+	ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
 	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-	delete start_data;
 #pragma endregion 
 
 
@@ -265,7 +265,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				p.id = gGameFramework.m_pPlayer->c_id;
 				p.pos = gGameFramework.m_pPlayer->GetPosition();
 				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
 			else if (wParam == 'C' || wParam == 'c')
@@ -276,7 +276,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				p.id = gGameFramework.m_pPlayer->c_id;
 				p.pos = gGameFramework.m_pPlayer->GetPosition();
 				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
 			else if (wParam == 'Q' || wParam == 'q')
@@ -287,7 +287,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				p.id = gGameFramework.m_pPlayer->c_id;
 				p.cur_weaponType = gGameFramework.m_pPlayer->cur_weapon;
 				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, 0);
+				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
 		}
@@ -497,6 +497,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 }
 
+
+void CALLBACK send_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags)
+{
+	OVER_EXP* ex_over = reinterpret_cast<OVER_EXP*>(over);
+
+	delete ex_over;
+}
 
 void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags)
 {
