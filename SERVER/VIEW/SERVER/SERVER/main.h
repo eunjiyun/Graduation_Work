@@ -26,11 +26,11 @@ array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(10'000);
 array<vector<MonsterInfo>, 6> StagesInfo;
 
-clock_t check_pathTime;
-clock_t check_openListTime;
+int check_pathTime = 0;
+int check_openListTime = 0;
 
 MapObject** m_ppObjects = 0;
-vector<MapObject*> Objects[6] = {};
+unordered_set<MapObject*> Objects[6] = {};
 int m_nObjects = 0;
 
 SESSION* getClient(int c_id)
@@ -111,7 +111,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	}
 	else
 	{
-		for (MapObject*& object : Objects[(int)newPos.z / 600]) {
+		for (auto& object : Objects[(int)newPos.z / 600]) {
 			if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
 				cout << object->m_pstrName << " COLLIDED\n";
 				m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
@@ -169,39 +169,42 @@ void SESSION::Update()
 	}
 	recent_recvedTime = high_resolution_clock::now();
 }
-bool check_path(const XMFLOAT3& _pos, vector<XMFLOAT3>& CloseList, BoundingBox& check_box)
+bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box)
 {
 	auto start = clock();
 	int collide_range = (int)(_pos.z / 600);
 	check_box.Center = _pos;
 
-	if (CloseList.end() != find_if(CloseList.begin(), CloseList.end(), [&_pos](XMFLOAT3 pos_) {return Vector3::Compare(_pos, pos_); })) {
+	if (CloseList.find(_pos) != CloseList.end()) {
 		check_pathTime += (clock() - start);
 		return false;
 	}
-	for (auto& obj : Objects[collide_range])
-		if (obj->m_xmOOBB.Contains(XMLoadFloat3(&_pos))) {
-			check_pathTime += (clock() - start);
-			return false;
-		}
+	if (Objects[collide_range].end() != find_if(Objects[collide_range].begin(), Objects[collide_range].end(), 
+		[_pos](MapObject* MO) {return MO->m_xmOOBB.Contains(XMLoadFloat3(&_pos)); }))
+	{
+		check_pathTime += (clock() - start);
+		return false;
+	}
 
 	check_pathTime += (clock() - start);
 	return true;
 }
 
-list<A_star_Node*>::iterator getNode(list<A_star_Node*>* m_List)
+unordered_map<XMFLOAT3, A_star_Node*, XMFLOAT3Hash, XMFLOAT3Equal>::iterator getNode(unordered_map<XMFLOAT3, A_star_Node*, XMFLOAT3Hash, XMFLOAT3Equal>* m_List)
 {
-	return min_element(m_List->begin(), m_List->end(), [](A_star_Node* N1, A_star_Node* N2) {return N1->F < N2->F; });
+	return min_element(m_List->begin(), m_List->end(), 
+		[](const pair<const XMFLOAT3, A_star_Node*>& p1, const pair<const XMFLOAT3, A_star_Node*>& p2) {return p1.second->F < p2.second->F; });
 }
-bool check_openList(XMFLOAT3& _Pos, float _G, A_star_Node* s_node, list<A_star_Node*>& m_List)
+
+bool check_openList(XMFLOAT3& _Pos, float _G, A_star_Node* s_node, unordered_map<XMFLOAT3, A_star_Node*, XMFLOAT3Hash, XMFLOAT3Equal>& m_List)
 {
 	auto start = clock();
-	auto iter = find_if(m_List.begin(), m_List.end(), [&_Pos](A_star_Node* N) {return Vector3::Compare2D(_Pos, N->Pos); });
+	auto iter = m_List.find(_Pos);
 	if (iter != m_List.end()) {
-		if ((*iter)->G > _G) {
-			(*iter)->G = _G;
-			(*iter)->F = (*iter)->G + (*iter)->H;
-			(*iter)->parent = s_node;
+		if ((*iter).second->G > _G) {
+			(*iter).second->G = _G;
+			(*iter).second->F = (*iter).second->G + (*iter).second->H;
+			(*iter).second->parent = s_node;
 		}
 		check_openListTime += (clock() - start);
 		return false;
@@ -215,29 +218,32 @@ float nx[8]{ -1,1,0,0, -1, -1, 1, 1 };
 float nz[8]{ 0,0,1,-1, -1, 1, -1, 1 };
 XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
-	vector<XMFLOAT3> CloseList{};
-	list<A_star_Node*> openList;
-	A_star_Node* S_Node;
-	clock_t start_time = clock();
+	unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal> closelist{};
 
-	openList.push_back(new A_star_Node(start_Pos, dest_Pos));
-	list<A_star_Node*>::iterator iter;
+	unordered_map<XMFLOAT3, A_star_Node*, XMFLOAT3Hash, XMFLOAT3Equal> openlist;
+
+	A_star_Node* S_Node;
+	check_pathTime = 0;
+	check_openListTime = 0;
+
+	openlist.emplace(start_Pos, new A_star_Node(start_Pos, dest_Pos));
+	unordered_map<XMFLOAT3, A_star_Node*, XMFLOAT3Hash, XMFLOAT3Equal>::iterator iter;
 	BoundingBox CheckBox = BoundingBox(start_Pos, { 5,3,5 });
-	while (!openList.empty())
+	while (!openlist.empty())
 	{
-		iter = getNode(&openList);
-		S_Node = *iter;
+		iter = getNode(&openlist);
+		S_Node = (*iter).second;
+
 		if (BoundingBox(S_Node->Pos, { 5,20,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
 		{
+			clock_t start_time = clock();
 			while (S_Node->parent != nullptr)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
-					//cout << "check_pathTime - " << check_pathTime << endl;
-					//cout << "check_openListTime - " << check_openListTime << endl;
-					//cout << "Whole Time - " << clock() - start_time << endl;
-					//check_pathTime = clock_t();
-					//check_openListTime = clock_t();
+					cout << "check_pathTime - " << check_pathTime << endl;
+					cout << "check_openListTime - " << check_openListTime << endl;
+					cout << "Find and Pop Time - " << clock() - start_time << endl;
 					return S_Node->Pos;
 				}
 				roadToMove.push(S_Node->Pos);
@@ -247,14 +253,16 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
 
-			if (check_path(_Pos, CloseList, CheckBox) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, openList)) {
+			if (check_path(_Pos, closelist, CheckBox) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, openlist)) {
 
-				openList.push_back(new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
+				openlist.emplace(_Pos, new A_star_Node(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
 			}
 		}
-		CloseList.push_back(S_Node->Pos);
-		openList.erase(iter);
+		closelist.insert(S_Node->Pos);
+		//CloseList.push_back(S_Node->Pos);
+		openlist.erase(iter);
 	}
+	cout << "추적실패\n";
 	cur_animation_track = 0;
 	return Pos;
 }
@@ -409,7 +417,7 @@ void InitializeStages()
 	int ID_constructor = 0;
 	{	// 1stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 650), 4, ID_constructor++));
+			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 4, ID_constructor++));
 		}
 	}
 	{	// 2stage

@@ -407,7 +407,7 @@ int main()
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
-			Objects[j].push_back(m_ppObjects[i]);
+			Objects[j].emplace(m_ppObjects[i]);
 		}
 	}
 	delete[] m_ppObjects;

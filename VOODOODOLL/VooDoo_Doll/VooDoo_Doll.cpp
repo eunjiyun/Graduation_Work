@@ -42,7 +42,6 @@ void ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		//if (!gGameFramework.m_pPlayer->onAttack && !gGameFramework.m_pPlayer->onDie && !gGameFramework.m_pPlayer->onCollect) {
 		if (!gGameFramework.m_pPlayer->onAct) {
 			if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
@@ -264,8 +263,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				p.type = CS_ATTACK;
 				p.id = gGameFramework.m_pPlayer->c_id;
 				p.pos = gGameFramework.m_pPlayer->GetPosition();
-				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+				OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
 			else if (wParam == 'C' || wParam == 'c')
@@ -275,8 +274,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				p.type = CS_COLLECT;
 				p.id = gGameFramework.m_pPlayer->c_id;
 				p.pos = gGameFramework.m_pPlayer->GetPosition();
-				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+				OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
 			else if (wParam == 'Q' || wParam == 'q')
@@ -286,8 +285,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				p.type = CS_CHANGEWEAPON;
 				p.id = gGameFramework.m_pPlayer->c_id;
 				p.cur_weaponType = gGameFramework.m_pPlayer->cur_weapon;
-				OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
 		}
@@ -368,7 +367,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 		return;
 	}
 
-	if (p->direction) {
+	if (p->vel.z != 0) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	}
 	else
@@ -397,11 +396,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
-		for (CPlayer*& player : gGameFramework.Players)
-			if (player->c_id == packet->id) {
-				player->c_id = -1;
-				cout << "client[" << packet->id << "] Disconnected\n";
-			}
+		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		(*iter)->c_id = -1;
+		cout << "client[" << packet->id << "] Disconnected\n";
 		break;
 	}
 	case SC_MOVE_PLAYER: {
@@ -475,21 +472,18 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
-
-			if (3 != (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track)
-			{
-				(*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
-				(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-
-			}
+			(*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
+			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 		}
-		XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos),
-			Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));
-		mtkLookAt._11 = -mtkLookAt._11;
-		mtkLookAt._21 = -mtkLookAt._21;
-		mtkLookAt._31 = -mtkLookAt._31;
-		(*iter)->m_xmf4x4ToParent = mtkLookAt;
+		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != 3) {
+			XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos),
+				Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));
+			mtkLookAt._11 = -mtkLookAt._11;
+			mtkLookAt._21 = -mtkLookAt._21;
+			mtkLookAt._31 = -mtkLookAt._31;
+			(*iter)->m_xmf4x4ToParent = mtkLookAt;
+		}
 		(*iter)->SetPosition(packet->Pos);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;

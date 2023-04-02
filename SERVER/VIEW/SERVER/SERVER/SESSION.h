@@ -149,7 +149,6 @@ public:
 		p.Pos = Player->GetPosition();
 		p.direction = Player->direction;
 		p.HP = Player->HP;
-		p.overwrite = Player->overwrite;
 		p.BulletPos = Player->BulletPos;
 		p.vel = Player->GetVelocity();
 		do_send(&p);

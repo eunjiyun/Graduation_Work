@@ -315,5 +315,20 @@ namespace Matrix4x4
 //	}
 //}
 
+struct XMFLOAT3Hash {
+	size_t operator()(const XMFLOAT3& v) const {
+		size_t h1 = std::hash<float>{}(v.x);
+		size_t h2 = std::hash<float>{}(v.y);
+		size_t h3 = std::hash<float>{}(v.z);
+		return h1 ^ (h2 << 1) ^ (h3 << 2);
+	}
+};
+
+struct XMFLOAT3Equal {
+	bool operator()(const XMFLOAT3& v1, const XMFLOAT3& v2) const {
+		return Vector3::Compare(v1, v2);
+	}
+};
+
 
 
