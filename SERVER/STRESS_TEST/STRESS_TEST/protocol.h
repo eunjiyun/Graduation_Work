@@ -1,3 +1,5 @@
+// protocol.h
+
 constexpr int PORT_NUM = 3500;
 constexpr int BUF_SIZE = 512;
 constexpr int NAME_SIZE = 20;
@@ -11,6 +13,8 @@ constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
 
 constexpr int VIEW_RANGE = 4;
+constexpr int STAGE_SIZE = 600;
+
 
 // Packet ID
 constexpr char CS_LOGIN = 0;
@@ -103,7 +107,6 @@ struct SC_MOVE_PLAYER_PACKET {
 	short	id;
 	float	HP;
 	XMFLOAT3 Look, Up, Right, Pos;
-	bool overwrite;
 	DWORD direction;
 	XMFLOAT3 BulletPos;
 	XMFLOAT3 vel;

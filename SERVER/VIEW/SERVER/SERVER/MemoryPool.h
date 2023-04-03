@@ -58,10 +58,10 @@ public:
     float F = 0;
     float G = 0;
     float H = 0;
-    A_star_Node* parent = nullptr;
+    shared_ptr<A_star_Node> parent = nullptr;
     XMFLOAT3 Pos = { 0,0,0 };
     A_star_Node() {}
-    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, A_star_Node* node = nullptr)
+    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, shared_ptr<A_star_Node> node = nullptr)
     {
         Pos = _Pos;
         G = _G;
@@ -71,7 +71,7 @@ public:
             parent = node;
         }
     }
-    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, A_star_Node* node = nullptr)
+    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, shared_ptr<A_star_Node> node = nullptr)
     {
         Pos = _Pos;
         G = _G;

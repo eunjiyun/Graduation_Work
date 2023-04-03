@@ -320,7 +320,7 @@ struct XMFLOAT3Hash {
 		size_t h1 = std::hash<float>{}(v.x);
 		size_t h2 = std::hash<float>{}(v.y);
 		size_t h3 = std::hash<float>{}(v.z);
-		return h1 ^ (h2 << 1) ^ (h3 << 2);
+		return h1 ^ (h2 << 1) ^ (h3 << 2);	// XOR 연산자로 해시 합성
 	}
 };
 

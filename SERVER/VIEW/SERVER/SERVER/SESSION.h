@@ -114,13 +114,15 @@ public:
 	}
 
 	void do_send(void* packet)
-	{
-		//OVER_EXP* sdata = OverPool.GetMemory();
+	{		
 		//char* p = reinterpret_cast<char*>(packet);
+
+		//OVER_EXP* sdata = OverPool.GetMemory();
 		//sdata->_wsabuf.len = p[0];
 		//sdata->_wsabuf.buf = sdata->_send_buf;
 		//ZeroMemory(&sdata->_over, sizeof(sdata->_over));
 		//sdata->_comp_type = OP_SEND;
+
 		//memcpy(sdata->_send_buf, p, p[0]);
 
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };

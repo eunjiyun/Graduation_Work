@@ -41,6 +41,7 @@ void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCod
 void process_packet(int c_id, char* packet)
 {
 	SESSION* CL = getClient(c_id);
+	array<SESSION, MAX_USER_PER_ROOM>* Room = getRoom(c_id);
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
@@ -50,7 +51,7 @@ void process_packet(int c_id, char* packet)
 			lock_guard<mutex> ll{ CL->_s_lock };
 			CL->_state = ST_INGAME;
 		}
-		for (auto& pl : clients[c_id / 4]) {
+		for (auto& pl : *Room) {
 			{
 				lock_guard<mutex> ll(pl._s_lock);
 				if (ST_INGAME != pl._state) continue;
@@ -68,35 +69,37 @@ void process_packet(int c_id, char* packet)
 			CL->CheckPosition(p->pos);
 			CL->direction = p->direction;
 			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+			CL->SetVelocity(p->vel);
 			CL->Update();
 		}
-		CL->SetVelocity(p->vel);
-		for (auto& cl : clients[c_id / 4]) {
+		for (auto& cl : *Room) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(CL);
 		}
 		break;
 	}
 	case CS_ATTACK: {
+		vector<Monster*> Monsters = *getMonsters(CL->_id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		switch (CL->character_num)
 		{
 		case 0:
-			for (auto& monster : PoolMonsters[CL->_id / 4]) {
+			for (auto& monster : Monsters) {
 				if (monster->HP > 0 &&  BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
 				{
 					lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 100;
 					if (monster->HP <= 0)
-						monster->SetState(NPC_State::Dead);
+						monster->SetState(NPC_State::Dead);					
 				}
 			}
+			
 			break;
 		case 1:
 			CL->BulletPos = Vector3::Add(CL->GetPosition(), XMFLOAT3(0, 10, 0));
 			CL->BulletLook = CL->GetLookVector();
 			break;
 		case 2:
-			for (auto& monster : PoolMonsters[CL->_id / 4]) {
+			for (auto& monster : Monsters) {
 				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
 				{
 					lock_guard<mutex> mm{ monster->m_lock };
@@ -107,14 +110,14 @@ void process_packet(int c_id, char* packet)
 			}
 			break;
 		}
-		for (auto& cl : clients[c_id / 4]) {
+		for (auto& cl : *Room) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_attack_packet(CL);
 		}
 		break;
 	}
 	case CS_COLLECT: {
 		CS_COLLECT_PACKET*p = reinterpret_cast<CS_COLLECT_PACKET*>(packet);
-		for (auto& cl : clients[c_id / 4]) {
+		for (auto& cl : *Room) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_collect_packet(CL);
 		}
 		break;
@@ -125,7 +128,7 @@ void process_packet(int c_id, char* packet)
 			lock_guard<mutex> ll{ CL->_s_lock };
 			CL->character_num = (CL->character_num + 1) % 3;
 		}
-		for (auto& cl : clients[c_id / 4]) {
+		for (auto& cl : *Room) {
 			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_changeweapon_packet(CL);
 		}
 		break;
@@ -204,7 +207,6 @@ void worker_thread(HANDLE h_iocp)
 		}
 		case OP_SEND:
 			delete ex_over;
-			//OverPool.ReturnMemory(ex_over);
 			break;
 		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
@@ -232,7 +234,6 @@ void worker_thread(HANDLE h_iocp)
 					MonsterPool.PrintSize();
 				}
 			}
-			//OverPool.ReturnMemory(ex_over);
 			delete ex_over;
 			break;
 		}
@@ -297,8 +298,7 @@ void do_Timer()
 				continue;
 			}
 			switch (ev.event_id) {
-			case EV_RANDOM_MOVE:
-				//OVER_EXP* ov = OverPool.GetMemory();
+			case EV_RANDOM_MOVE:			
 				OVER_EXP* ov = new OVER_EXP;
 				ov->_comp_type = OP_NPC_MOVE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
