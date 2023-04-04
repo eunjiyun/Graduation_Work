@@ -5,6 +5,7 @@
 #include "MapObject.h"
 #include "Monster.h"
 #include <concurrent_priority_queue.h>
+#include <concurrent_unordered_map.h>
 
 enum EVENT_TYPE { EV_RANDOM_MOVE };
 
@@ -23,14 +24,13 @@ concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<vector<Monster*>, MAX_ROOM> PoolMonsters;
-CObjectPool<Monster> MonsterPool(10'000);
+CObjectPool<Monster> MonsterPool(50'000);
 array<vector<MonsterInfo>, 6> StagesInfo;
 
 int check_pathTime = 0;
 int check_openListTime = 0;
 
 MapObject** m_ppObjects = 0;
-//unordered_set<MapObject*> Objects[6] = {};
 array<unordered_set<MapObject*>, 6> Objects;
 int m_nObjects = 0;
 
@@ -127,12 +127,18 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	}
 	else
 	{
-		for (auto& object : *getPartialObjects(newPos)) {
-			if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
-				cout << object->m_pstrName << " COLLIDED\n";
-				m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
-				return;
+		try {
+			for (auto& object : Objects.at((int)newPos.z / STAGE_SIZE)) {
+				if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
+					m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
+					return;
+				}
 			}
+		}
+		catch (const exception& e) {
+			cout << "위치 에러\n";
+			disconnect(_id);
+			return;
 		}
 	}
 
@@ -275,7 +281,6 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			}
 		}
 		closelist.insert(S_Node->Pos);
-		//CloseList.push_back(S_Node->Pos);
 		openlist.erase(iter);
 	}
 	cout << "추적실패\n";

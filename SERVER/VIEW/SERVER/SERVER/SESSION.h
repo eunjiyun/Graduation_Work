@@ -37,7 +37,74 @@ public:
 	}
 };
 
-CObjectPool<OVER_EXP> OverPool(100'000);
+
+class OVERLAPPEDPOOL {
+private:
+	queue<OVER_EXP*> objectQueue;
+	mutex pool_lock;
+public:
+	OVERLAPPEDPOOL(size_t MemorySize)
+	{
+		for (int i = 0; i < MemorySize; ++i) {
+			objectQueue.push(new OVER_EXP());
+		}
+	}
+	~OVERLAPPEDPOOL() {} // 풀이 소멸되면 서버가 그냥 끝난 거
+
+	OVER_EXP* GetMemory()
+	{
+		OVER_EXP* mem = nullptr;
+		{
+			lock_guard<mutex> ll{ pool_lock };
+			if (!objectQueue.empty()) {
+				mem = objectQueue.front();
+				objectQueue.pop();
+			}
+		}
+		if (mem == nullptr) {
+			throw runtime_error("FAILED TO ALLOCATE OVER_EXP IN POOL\n");
+		}
+		mem->_wsabuf.len = BUF_SIZE;
+		mem->_wsabuf.buf = mem->_send_buf;
+		ZeroMemory(&mem->_over, sizeof(mem->_over));
+		return mem;
+	}
+
+	OVER_EXP* GetMemory(char* packet)
+	{
+		OVER_EXP* mem = nullptr;
+		{
+			lock_guard<mutex> ll{ pool_lock };
+			if (!objectQueue.empty()) {
+				mem = objectQueue.front();
+				objectQueue.pop();
+			}
+		}
+		if (mem == nullptr) {
+			throw runtime_error("FAILED TO ALLOCATE OVER_EXP IN POOL\n");
+		}
+		mem->_wsabuf.len = packet[0];
+		mem->_wsabuf.buf = mem->_send_buf;
+		ZeroMemory(&mem->_over, sizeof(mem->_over));
+		mem->_comp_type = OP_SEND;
+		memcpy(mem->_send_buf, packet, packet[0]);
+		return mem;
+	}
+	void ReturnMemory(OVER_EXP* Mem)
+	{
+		lock_guard<mutex> ll{ pool_lock };
+		objectQueue.push(Mem);
+	}
+	void PrintSize()
+	{
+		cout << "CurrentSize - " << objectQueue.size() << endl;
+	}
+};
+
+
+
+//CObjectPool<OVER_EXP> OverPool(100'000);
+OVERLAPPEDPOOL OverPool(200'000);
 
 enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD };
 class SESSION {
@@ -55,9 +122,7 @@ public:
 	BoundingBox m_xmOOBB;
 	short cur_stage;
 	short error_stack;
-	bool onAttack, onCollect, onDie, onRun, onChange; // 중복입력을 막기 위한 bool 변수
 	short character_num;
-	bool overwrite;
 	high_resolution_clock::time_point recent_recvedTime;
 	XMFLOAT3 BulletPos, BulletLook;
 public:
@@ -78,11 +143,6 @@ public:
 		_prev_remain = 0;
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 4, 10));
 		error_stack = 0;
-		onAttack = false;
-		onCollect = false;
-		onDie = false;
-		onRun = false;
-		onChange = false;
 		character_num = 0;
 		HP = 10000;
 	}
@@ -115,17 +175,8 @@ public:
 
 	void do_send(void* packet)
 	{		
-		//char* p = reinterpret_cast<char*>(packet);
-
-		//OVER_EXP* sdata = OverPool.GetMemory();
-		//sdata->_wsabuf.len = p[0];
-		//sdata->_wsabuf.buf = sdata->_send_buf;
-		//ZeroMemory(&sdata->_over, sizeof(sdata->_over));
-		//sdata->_comp_type = OP_SEND;
-
-		//memcpy(sdata->_send_buf, p, p[0]);
-
-		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
+		OVER_EXP* sdata = OverPool.GetMemory(reinterpret_cast<char*>(packet));
+		//OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
 		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
@@ -221,16 +272,16 @@ public:
 		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 	}
-	void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
-	{
-		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		onAttack = dwDirection & DIR_ATTACK && !onAttack;
-		onDie = dwDirection & DIR_DIE && !onDie;
-		onCollect = dwDirection & DIR_COLLECT && !onCollect;
-		onRun = dwDirection & DIR_RUN && !onRun;
-		onChange = dwDirection & DIR_CHANGESTATE && !onChange;
-		character_num = (character_num + onChange) % 3;
-	}
+	//void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
+	//{
+	//	XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
+	//	onAttack = dwDirection & DIR_ATTACK && !onAttack;
+	//	onDie = dwDirection & DIR_DIE && !onDie;
+	//	onCollect = dwDirection & DIR_COLLECT && !onCollect;
+	//	onRun = dwDirection & DIR_RUN && !onRun;
+	//	onChange = dwDirection & DIR_CHANGESTATE && !onChange;
+	//	character_num = (character_num + onChange) % 3;
+	//}
 
 	void Move(const XMFLOAT3& xmf3Shift)
 	{

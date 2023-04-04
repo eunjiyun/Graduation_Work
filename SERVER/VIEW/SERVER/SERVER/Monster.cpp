@@ -55,7 +55,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         speed = 2;
         attack_cycle = (71.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
-        dead_timer = 3.5f;
+        dead_timer = 3.3f;
         break;
     case 1: // 뼈다귀 다리
         type = 1;
@@ -65,7 +65,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         speed = 3;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
-        dead_timer = 3.5f;
+        dead_timer = 3.3f;
         break;
     case 2: // 귀신
         type = 2;
@@ -75,7 +75,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         speed = 4;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
-        dead_timer = 3.5f;
+        dead_timer = 3.3f;
         break;
     case 3:
         type = 3;
@@ -85,7 +85,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         speed = 2;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
-        dead_timer = 3.5f;
+        dead_timer = 3.3f;
         break;
     case 4: // 마술사
         type = 4;
@@ -95,7 +95,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         speed = 2;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;
-        dead_timer = 3.5f;
+        dead_timer = 3.3f;
         break;
     case 5:
         type = 5;
@@ -105,7 +105,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         speed = 2;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
-        dead_timer = 3.5f;
+        dead_timer = 3.3f;
         break;
     }
 }

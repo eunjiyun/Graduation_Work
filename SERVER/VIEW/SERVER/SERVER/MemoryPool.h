@@ -15,6 +15,7 @@ template<class T>
 class CObjectPool {
 private:
     queue<T*> objectQueue;
+    mutex pool_lock;
 public:
     CObjectPool(size_t MemorySize)
     {
@@ -30,17 +31,18 @@ public:
     {
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
-            for (int i = 0; i< 500; ++i)
+            for (int i = 0; i < 500; ++i)
                 objectQueue.push(new T());
         }
 
+        lock_guard<mutex> ll{ pool_lock };
         auto front = objectQueue.front();
         objectQueue.pop();
-
         return front;
     }
     void ReturnMemory(T* Mem)
     {
+        lock_guard<mutex> ll{ pool_lock };
         objectQueue.push(Mem);
     }
     void PrintSize()

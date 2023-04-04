@@ -1191,10 +1191,6 @@ void CGameObject::Animate(float fTimeElapsed, bool onPlayer)
 
 	if (m_pSkinnedAnimationController) {
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, m_pSkinnedAnimationController->Cur_Animation_Track, this);
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
-			m_pSkinnedAnimationController->SetTrackEnable(0, true);
-			onAct = false;
-		}
 	}
 	if (m_pSibling)
 		m_pSibling->Animate(fTimeElapsed, onPlayer);

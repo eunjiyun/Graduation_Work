@@ -255,7 +255,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
-		if (!gGameFramework.m_pPlayer->onAct) {
+		if (gGameFramework.m_pPlayer->onAct == false) {
 			if (wParam == 'Z' || wParam == 'z')
 			{
 				CS_ATTACK_PACKET p;
@@ -266,6 +266,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+				gGameFramework.m_pPlayer->onAct = true;
+				cout << "Z SEND\n";
 			}
 			else if (wParam == 'C' || wParam == 'c')
 			{
@@ -277,6 +279,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+				gGameFramework.m_pPlayer->onAct = true;
+				cout << "C SEND\n";
 			}
 			else if (wParam == 'Q' || wParam == 'q')
 			{
@@ -288,6 +292,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+				gGameFramework.m_pPlayer->onAct = true;
+				cout << "q SEND\n";
 			}
 		}
 		break;
@@ -428,7 +434,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case CS_ATTACK: {
 		CS_ATTACK_PACKET* packet = reinterpret_cast<CS_ATTACK_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
-		(*iter)->onAct = true;
+
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 		break;
@@ -436,7 +442,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case CS_COLLECT: {
 		CS_COLLECT_PACKET* packet = reinterpret_cast<CS_COLLECT_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
-		(*iter)->onAct = true;
+
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
 		break;
@@ -453,6 +459,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(i, false);
 		}
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		(*iter)->onAct = false;
 		break;
 	}
 	case SC_SUMMON_MONSTER: {

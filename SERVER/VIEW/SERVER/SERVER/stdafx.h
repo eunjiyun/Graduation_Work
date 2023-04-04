@@ -46,10 +46,12 @@ using namespace DirectX::PackedVector;
 #include <type_traits>
 #include<utility>
 #include <chrono>
+#include <atomic>
 
 using namespace std;
 using namespace chrono;
 //
+
 
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480

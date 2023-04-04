@@ -37,6 +37,90 @@ void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCod
 	}
 }
 
+void DB_Thread()
+{
+	SQLHENV henv;
+	SQLHDBC hdbc;
+	SQLHSTMT hstmt = 0;
+	SQLRETURN retcode;
+	SQLWCHAR szUser_Name[NAME_SIZE];
+	SQLINTEGER dUser_id, dUser_PlayTime;
+
+	setlocale(LC_ALL, "korean");
+
+	SQLLEN cbName = 0, cbID = 0, cbLevel = 0;
+
+	// Allocate environment handle  
+	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+
+	// Set the ODBC version environment attribute  
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+
+		// Allocate connection handle  
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+
+			// Set login timeout to 5 seconds  
+			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+
+				// Connect to data source  
+				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
+
+				// Allocate statement handle  
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+
+					printf("ODBC Connect OK \n");
+
+					//SELECT 다음에 오는건 항목들, FROM 다음에 오는건 테이블 이름, ORDER BY 다음에 오는건 sorting 할 것. 지금은 user_name으로 정렬.
+					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT ID, Name, PlayTime FROM user_data ORDER BY 3", SQL_NTS);
+					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+						printf("Select OK \n");
+
+						// Bind columns 1, 2, and 3  
+						retcode = SQLBindCol(hstmt, 1, SQL_C_LONG, &dUser_id, 100, &cbID);
+						retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, szUser_Name, NAME_SIZE, &cbName);
+						retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &dUser_PlayTime, 100, &cbLevel);
+
+						// Fetch and print each row of data. On an error, display a message and exit.  
+						for (int i = 0; ; i++) {
+							retcode = SQLFetch(hstmt);
+							if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+							{
+								//replace wprintf with printf
+								//%S with %ls
+								//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
+								//but variadic argument 2 has type 'SQLWCHAR *'
+								//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
+								wprintf(L"%d: %d %s %d\n", i + 1, dUser_id, szUser_Name, dUser_PlayTime);
+							}
+							else
+								break;
+						}
+					}
+
+					// Process data  
+					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						SQLCancel(hstmt);
+						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+					}
+
+					SQLDisconnect(hdbc);
+				}
+
+				SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+			}
+		}
+		SQLFreeHandle(SQL_HANDLE_ENV, henv);
+	}
+
+	system("pause");
+}
 
 void process_packet(int c_id, char* packet)
 {
@@ -125,7 +209,7 @@ void process_packet(int c_id, char* packet)
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
 		{
-			lock_guard<mutex> ll{ CL->_s_lock };
+			//lock_guard<mutex> ll{ CL->_s_lock };
 			CL->character_num = (CL->character_num + 1) % 3;
 		}
 		for (auto& cl : *Room) {
@@ -150,14 +234,14 @@ void worker_thread(HANDLE h_iocp)
 			else {
 				cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
-				if (ex_over->_comp_type == OP_SEND) delete ex_over;
+				if (ex_over->_comp_type == OP_SEND) OverPool.ReturnMemory(ex_over);
 				continue;
 			}
 		}
 
 		if ((0 == num_bytes) && ((ex_over->_comp_type == OP_RECV) || (ex_over->_comp_type == OP_SEND))) {
 			disconnect(static_cast<int>(key));
-			if (ex_over->_comp_type == OP_SEND) delete ex_over;
+			if (ex_over->_comp_type == OP_SEND) OverPool.ReturnMemory(ex_over);
 			continue;
 		}
 
@@ -206,7 +290,9 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_SEND:
-			delete ex_over;
+			OverPool.ReturnMemory(ex_over);
+			OverPool.PrintSize();
+			//delete ex_over;
 			break;
 		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
@@ -216,7 +302,7 @@ void worker_thread(HANDLE h_iocp)
 				if ((*iter)->is_alive()) {
 					{
 						{
-							lock_guard<mutex> mm{ (*iter)->m_lock };
+							//lock_guard<mutex> mm{ (*iter)->m_lock }; // NPC의 경우 타이머 큐 25ms 휴식으로 한번에 여러 스레드가 접근하는 경우가 별로 없어 lock이 필요없을 것으로 보임
 							(*iter)->Update(0.03f);
 						}
 
@@ -224,7 +310,7 @@ void worker_thread(HANDLE h_iocp)
 							if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
 						}
 
-						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE };
+						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 25ms, EV_RANDOM_MOVE };
 						timer_queue.push(ev);
 					}
 				}
@@ -234,7 +320,7 @@ void worker_thread(HANDLE h_iocp)
 					MonsterPool.PrintSize();
 				}
 			}
-			delete ex_over;
+			OverPool.ReturnMemory(ex_over);
 			break;
 		}
 	}
@@ -299,7 +385,8 @@ void do_Timer()
 			}
 			switch (ev.event_id) {
 			case EV_RANDOM_MOVE:			
-				OVER_EXP* ov = new OVER_EXP;
+				//OVER_EXP* ov = new OVER_EXP;
+				OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
 				break;
@@ -308,90 +395,7 @@ void do_Timer()
 	}
 }
 
-void DB_Thread()
-{
-	SQLHENV henv;
-	SQLHDBC hdbc;
-	SQLHSTMT hstmt = 0;
-	SQLRETURN retcode;
-	SQLWCHAR szUser_Name[NAME_SIZE];
-	SQLINTEGER dUser_id, dUser_PlayTime;
 
-	setlocale(LC_ALL, "korean");
-
-	SQLLEN cbName = 0, cbID = 0, cbLevel = 0;
-
-	// Allocate environment handle  
-	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-
-	// Set the ODBC version environment attribute  
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
-
-		// Allocate connection handle  
-		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-
-			// Set login timeout to 5 seconds  
-			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
-
-				// Connect to data source  
-				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-
-				// Allocate statement handle  
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-
-					printf("ODBC Connect OK \n");
-
-					//SELECT 다음에 오는건 항목들, FROM 다음에 오는건 테이블 이름, ORDER BY 다음에 오는건 sorting 할 것. 지금은 user_name으로 정렬.
-					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT ID, Name, PlayTime FROM user_data ORDER BY 3", SQL_NTS);
-					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-
-						printf("Select OK \n");
-
-						// Bind columns 1, 2, and 3  
-						retcode = SQLBindCol(hstmt, 1, SQL_C_LONG, &dUser_id, 100, &cbID);
-						retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, szUser_Name, NAME_SIZE, &cbName);
-						retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &dUser_PlayTime, 100, &cbLevel);
-
-						// Fetch and print each row of data. On an error, display a message and exit.  
-						for (int i = 0; ; i++) {
-							retcode = SQLFetch(hstmt);
-							if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
-							{
-								//replace wprintf with printf
-								//%S with %ls
-								//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
-								//but variadic argument 2 has type 'SQLWCHAR *'
-								//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-								wprintf(L"%d: %d %s %d\n", i + 1, dUser_id, szUser_Name, dUser_PlayTime);
-							}
-							else
-								break;
-						}
-					}
-
-					// Process data  
-					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						SQLCancel(hstmt);
-						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-					}
-
-					SQLDisconnect(hdbc);
-				}
-
-				SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-			}
-		}
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-	}
-
-	system("pause");
-}
 
 
 int main()
