@@ -122,14 +122,14 @@ void DB_Thread()
 	system("pause");
 }
 
-void process_packet(int c_id, char* packet)
+void process_packet(const int c_id, char* packet)
 {
 	SESSION* CL = getClient(c_id);
 	array<SESSION, MAX_USER_PER_ROOM>* Room = getRoom(c_id);
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		strcpy_s(CL->_name, p->name);
+		//strcpy_s(CL->_name, p->name);
 		CL->send_login_info_packet();
 		{
 			lock_guard<mutex> ll{ CL->_s_lock };
@@ -407,8 +407,8 @@ int main()
 		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
 			|| 0 == strncmp(m_ppObjects[i]->m_pstrName, "Stair_step", 10))
 			continue;
-		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
-		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / 600;
+		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
+		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
 			Objects[j].emplace(m_ppObjects[i]);
 		}

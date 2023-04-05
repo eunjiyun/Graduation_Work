@@ -687,6 +687,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	{
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(5, 3, 5));
 		Mon->SetPosition(Pos);
 		Monsters.push_back(Mon);
 	}
@@ -749,6 +750,7 @@ void CGameFramework::FrameAdvance()
 		if (player->c_id > -1) {
 			player->Update(fTimeElapsed);
 
+			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
 
 			player->Deceleration(fTimeElapsed);

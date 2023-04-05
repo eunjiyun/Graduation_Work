@@ -34,7 +34,7 @@ constexpr char SC_MOVE_MONSTER = 10;
 struct CS_LOGIN_PACKET {
 	unsigned char size;
 	char	type;
-	char	name[NAME_SIZE];
+	//char	name[NAME_SIZE];
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 

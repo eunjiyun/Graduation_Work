@@ -502,10 +502,10 @@ void CStage::UpdateBoundingBox()
 
 void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 {
-
 	XMFLOAT3 Vel = pl->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 	BoundingOrientedBox pBox = pl->obBox;
+
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
 	{
@@ -578,6 +578,59 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 	}
 }
 
+void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector<CMonster*>& monsters, vector<CPlayer*>& players) {
+
+	XMFLOAT3 Vel = pl->GetVelocity();
+	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
+	BoundingOrientedBox pBox = pl->obBox;
+
+	for (const auto& monster : monsters) {
+		if (pBox.Intersects(monster->m_xmOOBB)) {
+			XMFLOAT3 ObjLook = { 0,0,0 };
+
+
+			if (monster->m_xmOOBB.Center.x - monster->m_xmOOBB.Extents.x < pBox.Center.x && monster->m_xmOOBB.Center.x + monster->m_xmOOBB.Extents.x > pBox.Center.x) {
+				if (monster->m_xmOOBB.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+				else ObjLook = { 0, 0, -1 };
+			}
+			else if (monster->m_xmOOBB.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+			else ObjLook = { -1, 0, 0 };
+			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
+				continue;
+
+			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
+
+			pl->Move(ReflectVec, false);
+
+			MovVec = GetReflectVec(ObjLook, MovVec);
+			pl->Move(MovVec, false);
+		}
+	}
+
+	for (auto& player : players) {
+		if (player->c_id == pl->c_id) continue;
+		if (pBox.Intersects(player->obBox)) {
+			XMFLOAT3 ObjLook = { 0,0,0 };
+
+
+			if (player->obBox.Center.x - player->obBox.Extents.x < pBox.Center.x && player->obBox.Center.x + player->obBox.Extents.x > pBox.Center.x) {
+				if (player->obBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+				else ObjLook = { 0, 0, -1 };
+			}
+			else if (player->obBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+			else ObjLook = { -1, 0, 0 };
+			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
+				continue;
+
+			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
+
+			pl->Move(ReflectVec, false);
+
+			MovVec = GetReflectVec(ObjLook, MovVec);
+			pl->Move(MovVec, false);
+		}
+	}
+}
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
 	float Dot = Vector3::DotProduct(MovVec, ObjLook);
@@ -641,27 +694,3 @@ XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBo
 	return xmf3Direction;
 }
 
-XMFLOAT3 CStage::Get_BoundingBoxVertex(BoundingBox& pBoundingbox, int nIndex)
-{
-	assert(nIndex >= 0 && nIndex <= 7);
-	XMFLOAT3		xmfVertex;
-	XMVECTOR	xmvCenter = XMLoadFloat3(&pBoundingbox.Center);
-	XMVECTOR	xmvExtents = XMLoadFloat3(&pBoundingbox.Extents);
-
-	static const XMVECTORF32 s_vCorners[] =
-	{
-		{ -1.0f, -1.0f, -1.0f, 0.0f },
-		{ -1.0f, -1.0f,  1.0f, 0.0f },
-		{ -1.0f,  1.0f, -1.0f, 0.0f },
-		{ -1.0f,  1.0f,  1.0f, 0.0f },
-		{  1.0f, -1.0f, -1.0f, 0.0f },
-		{  1.0f, -1.0f,  1.0f, 0.0f },
-		{  1.0f,  1.0f, -1.0f, 0.0f },
-		{  1.0f,  1.0f,  1.0f, 0.0f }
-	};
-
-	xmvCenter = XMVectorAdd(xmvCenter, XMVectorMultiply(xmvExtents, s_vCorners[nIndex]));
-
-	XMStoreFloat3(&xmfVertex, xmvCenter);
-	return xmfVertex;
-}

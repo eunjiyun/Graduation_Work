@@ -487,6 +487,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_xmf4x4ToParent = mtkLookAt;
 		}
 		(*iter)->SetPosition(packet->Pos);
+		(*iter)->m_xmOOBB.Center = packet->Pos;
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}

@@ -14,7 +14,6 @@ struct TIMER_EVENT {
 	int obj_id;
 	high_resolution_clock::time_point wakeup_time;
 	int event_id;
-	int target_id;
 	constexpr bool operator < (const TIMER_EVENT& _Left) const
 	{
 		return (wakeup_time > _Left.wakeup_time);
@@ -111,7 +110,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				//cout << roomNum << "번 방 " << M->m_id << "ID의 " << M->getType() << "타입 몬스터 소환\n";
 			}
 		}
-		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE, -1 };
+		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE};
 		timer_queue.push(ev);
 	}
 }
@@ -119,8 +118,10 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// 이동속도가 말도 안되게 빠른 경우 체크
+	static const float max_distance = 100.f;
 	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
-	if (sqrtf(Distance.x * Distance.x + Distance.z * Distance.z) > 100.f) {
+	float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
+	if (distance_squared > max_distance * max_distance) {
 		cout << "client[" << _id << "] 에러 포인트 감지\n";
 		m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 		return;
@@ -128,8 +129,8 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	else
 	{
 		try {
-			for (auto& object : Objects.at((int)newPos.z / STAGE_SIZE)) {
-				if (object->m_xmOOBB.Contains(BoundingBox(newPos, { FLT_EPSILON,FLT_EPSILON ,FLT_EPSILON }))) {
+			for (const auto& object : Objects.at((int)newPos.z / STAGE_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 excetion을 호출한다
+				if (object->m_xmOOBB.Contains(XMLoadFloat3(&newPos))) {
 					m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 					return;
 				}

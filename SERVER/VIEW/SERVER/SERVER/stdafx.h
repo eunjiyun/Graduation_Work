@@ -40,6 +40,7 @@ using namespace DirectX::PackedVector;
 #include <array>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <queue>
 #include <stack>
 #include <algorithm>
@@ -47,6 +48,7 @@ using namespace DirectX::PackedVector;
 #include<utility>
 #include <chrono>
 #include <atomic>
+#include <random>
 
 using namespace std;
 using namespace chrono;

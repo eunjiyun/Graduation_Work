@@ -29,7 +29,8 @@ public:
 
     bool Move_Lock = false;
     stack<XMFLOAT3> roadToMove;
-    short HP, power, speed;
+    short HP, power;
+    float speed;
     BoundingBox BB;
     XMFLOAT3 Pos;
     short cur_animation_track = 0;
@@ -58,7 +59,7 @@ public:
     XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
     XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
     XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
-    short GetSpeed() { return speed; }
+    float GetSpeed() { return speed; }
     short GetPower() { return power; }
     void SetState(NPC_State st) { curState = st; }
     NPC_State GetState() const { return curState; }

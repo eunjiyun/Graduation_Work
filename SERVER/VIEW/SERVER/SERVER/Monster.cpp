@@ -39,6 +39,9 @@ Monster& Monster::operator=(const Monster& other)
 
 void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
 {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<float> dis(0.0f, 0.5f);
     Pos = _pos;
     room_num = _roomNum;
     alive = true;
@@ -52,7 +55,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 200;
         power = 30;
         view_range = 500;
-        speed = 2;
+        speed = 1.75f + dis(gen);
         attack_cycle = (71.f / 30.f); // 2.366667段
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -62,7 +65,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 100;
         power = 30;
         view_range = 500;
-        speed = 3;
+        speed = 2.75f + dis(gen);
         attack_cycle = (56.f / 30.f); // 2.366667段
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -72,7 +75,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 50;
         view_range = 500;
-        speed = 4;
+        speed = 2.75f + dis(gen);
         attack_cycle = (56.f / 30.f); // 2.366667段
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -82,7 +85,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 70;
         view_range = 400;
-        speed = 2;
+        speed = 1.75f + dis(gen);
         attack_cycle = (56.f / 30.f); // 2.366667段
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -92,7 +95,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 70;
         view_range = 400;
-        speed = 2;
+        speed = 1.75f + dis(gen);
         attack_cycle = (8.f / 3.f); // 2.666664段
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -102,7 +105,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 500;
         power = 70;
         view_range = 400;
-        speed = 2;
+        speed = 1.75f + dis(gen);
         attack_cycle = (56.f / 30.f); // 2.366667段
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -111,7 +114,6 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
 }
 
 void Monster::Move(XMFLOAT3 m_Shift)
-
 {
     Pos = Vector3::Add(Pos, m_Shift);
     BB.Center = Pos;

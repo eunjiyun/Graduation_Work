@@ -6,6 +6,8 @@
 
 #include "Shader.h"
 #include "Player.h"
+#include "Monster.h"
+
 
 #define MAX_LIGHTS						16 
 #define POINT_LIGHT						1
@@ -79,11 +81,11 @@ public:
 
 	void UpdateBoundingBox();
 	void CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& Pl);
+	void CheckMoveObjectsCollisions(float TimeElapsed, CPlayer*& pl, vector<CMonster*>& monsters, vector<CPlayer*>& players);
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec);
 
 	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);
 
-	XMFLOAT3 Get_BoundingBoxVertex(BoundingBox& pBoundingbox, int nIndex);
 
 	CPlayer* m_pPlayer = NULL;
 
