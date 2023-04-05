@@ -136,11 +136,11 @@ void process_packet(int c_id, char* packet)
 			CL->_state = ST_INGAME;
 		}
 		for (auto& pl : *Room) {
+			if (pl._id == c_id) continue;
 			{
 				lock_guard<mutex> ll(pl._s_lock);
 				if (ST_INGAME != pl._state) continue;
-			}
-			if (pl._id == c_id) continue;
+			} 
 			pl.send_add_player_packet(CL);
 			CL->send_add_player_packet(&pl);
 		}
@@ -291,7 +291,6 @@ void worker_thread(HANDLE h_iocp)
 		}
 		case OP_SEND:
 			OverPool.ReturnMemory(ex_over);
-			OverPool.PrintSize();
 			//delete ex_over;
 			break;
 		case OP_NPC_MOVE:
@@ -302,7 +301,7 @@ void worker_thread(HANDLE h_iocp)
 				if ((*iter)->is_alive()) {
 					{
 						{
-							//lock_guard<mutex> mm{ (*iter)->m_lock }; // NPC의 경우 타이머 큐 25ms 휴식으로 한번에 여러 스레드가 접근하는 경우가 별로 없어 lock이 필요없을 것으로 보임
+							lock_guard<mutex> mm{ (*iter)->m_lock }; 
 							(*iter)->Update(0.03f);
 						}
 

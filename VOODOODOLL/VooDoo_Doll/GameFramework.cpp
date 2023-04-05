@@ -702,10 +702,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		if (player->c_id > -1) {
 			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
-			if (player->m_pSkinnedAnimationController->m_pAnimationTracks[player->m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
-				player->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-				player->onAct = false;
-			}
 		}
 	}
 	for (auto& monster : Monsters)

@@ -437,8 +437,8 @@ void GetPointCloud(int* size, float** points)
 	int index = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
-			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.z) * 4;
-			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x) * 4;
+			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.z) / 4;
+			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x) + 100;
 			index++;
 		}
 
