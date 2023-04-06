@@ -129,7 +129,6 @@ void process_packet(const int c_id, char* packet)
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		//strcpy_s(CL->_name, p->name);
 		CL->send_login_info_packet();
 		{
 			lock_guard<mutex> ll{ CL->_s_lock };
@@ -410,7 +409,7 @@ int main()
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
-			Objects[j].emplace(m_ppObjects[i]);
+			Objects[j].emplace_back(m_ppObjects[i]);
 		}
 	}
 	delete[] m_ppObjects;

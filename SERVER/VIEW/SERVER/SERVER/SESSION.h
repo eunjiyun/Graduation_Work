@@ -49,7 +49,7 @@ public:
 			objectQueue.push(new OVER_EXP());
 		}
 	}
-	~OVERLAPPEDPOOL() {} // 풀이 소멸되면 서버가 그냥 끝난 거
+	~OVERLAPPEDPOOL() { while(!objectQueue.empty()) objectQueue.pop(); }
 
 	OVER_EXP* GetMemory()
 	{
@@ -136,6 +136,7 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		BulletPos = { 5000,5000,5000 };
+		BulletLook = { 0,0,1 };
 		direction = 0;
 		cur_stage = 0;
 		_name[0] = 0;
@@ -152,7 +153,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, -0, 590 };
+		m_xmf3Position = XMFLOAT3{ -50, 0, 0 };
 		direction = 0;
 		_prev_remain = 0;
 		m_xmf3Up = XMFLOAT3{ 0,1,0 };

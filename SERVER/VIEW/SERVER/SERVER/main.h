@@ -24,13 +24,13 @@ concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(50'000);
-array<vector<MonsterInfo>, 6> StagesInfo;
+array<vector<MonsterInfo>, 10> StagesInfo;
 
 int check_pathTime = 0;
 int check_openListTime = 0;
 
 MapObject** m_ppObjects = 0;
-array<unordered_set<MapObject*>, 6> Objects;
+array<vector< MapObject*>, 10> Objects;
 int m_nObjects = 0;
 
 SESSION* getClient(int c_id)
@@ -48,7 +48,7 @@ vector<Monster*>* getMonsters(int c_id)
 	return &PoolMonsters[c_id / 4];
 }
 
-unordered_set<MapObject*>* getPartialObjects(XMFLOAT3 Pos)
+vector<MapObject*>* getPartialObjects(XMFLOAT3 Pos)
 {
 	return &Objects[(int)Pos.z / STAGE_SIZE];
 }
@@ -147,11 +147,11 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 
-	short stage = (short)(GetPosition().z / STAGE_SIZE);
+	//short stage = (short)(GetPosition().z / STAGE_SIZE);
 
-	if (stage > cur_stage) {
-		Initialize_Monster(_id / 4, stage);
-	}
+	//if (stage > cur_stage) {
+	//	Initialize_Monster(_id / 4, stage);
+	//}
 }
 
 int get_new_client_id()
@@ -439,17 +439,17 @@ void InitializeStages()
 	int ID_constructor = 0;
 	{	// 1stage
 		for (int i = 0; i < 5; ++i) {
-			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-150.f + rand() % 300, -17.5, 600), 0, ID_constructor++));
+			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-150.f + rand() % 300, -59, 600), 0, ID_constructor++));
 		}
 	}
 	{	// 2stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -17.5, 1000), 1, ID_constructor++));
+			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -59, 1000), 1, ID_constructor++));
 		}
 	}
 	{	// 3stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -17.5, 1900), 4, ID_constructor++));
+			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -59, 1900), 4, ID_constructor++));
 		}
 	}
 	{	// 4stage

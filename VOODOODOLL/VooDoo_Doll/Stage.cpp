@@ -547,7 +547,17 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-
+			cout << "Name - " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
+			cout << "Center - ";
+			Vector3::Print(oBox.Center);
+			cout << "Extents - ";
+			Vector3::Print(oBox.Extents);
+			cout << "Look - ";
+			Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetLook());
+			cout << "Right - ";
+			Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetRight());
+			cout << "Up - ";
+			Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetUp());
 
 			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
