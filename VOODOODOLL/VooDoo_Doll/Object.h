@@ -375,6 +375,7 @@ public:
 
 public:
 	char							m_pstrName[64] = { '\0' };// //
+	char							m_pstrTextureName[64] = { '\0' };
 	CMesh** m_ppMeshes;// //
 	int								m_nMeshes;//
 	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle;//

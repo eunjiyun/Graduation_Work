@@ -309,9 +309,8 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	::fopen_s(&pFile, pstrFileName, "rb");
 	::rewind(pFile);
 
-	char		strAlbedoTextureName[64] = { '\0' };
+
 	char		strEmissionTextureName[64] = { '\0' };
-	BYTE	nAlbedoTextureStrLength = 0;
 	BYTE	nEmissionTextureStrLength = 0;
 
 	char pstrToken1[64] = { '\0' };
@@ -391,9 +390,23 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			nReads = (UINT)::fread(pstrToken5, sizeof(char), nStrLength, pFile); //"<<AlbedoTextureName>:"
 			if (0 == strcmp(pstrToken5, "<AlbedoTextureName>:"))
 			{
+				char		strAlbedoTextureName[64] = { '\0' };
+				BYTE	nAlbedoTextureStrLength = 0;
+
 				nReads = (UINT)::fread(&nAlbedoTextureStrLength, sizeof(BYTE), 1, pFile);
 				nReads = (UINT)::fread(strAlbedoTextureName, sizeof(char), nAlbedoTextureStrLength, pFile);
-				//pGameObject->SetAlbedoTexture(k, pd3dDevice, pd3dCommandList, strAlbedoTextureName, nTextureNumber);
+
+				pGameObject->m_ppMaterials[0] = new CMaterial(1);
+
+				char			pstrFilePath1[64] = { '\0' };
+				TCHAR	pwstrTextureName[64] = { '/0' };
+
+				strcpy_s(pstrFilePath1, 64, "Models/Texture/");
+				strcpy_s(pstrFilePath1 + 15, 64 - 15, strAlbedoTextureName);
+				strcpy_s(pstrFilePath1 + 15 + strlen(strAlbedoTextureName), 64 - 15 - strlen(strAlbedoTextureName), ".dds");
+
+				strcpy_s(pGameObject->m_pstrTextureName, 64, pstrFilePath1);
+				cout << i << "	: " << pGameObject->m_pstrTextureName << endl;
 			}
 
 
@@ -425,7 +438,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			pGameObject->SetMesh(0, pMesh);
 		}
 		
-		//cout << "Name: " << pGameObject->m_pstrName << " : ";
+		//cout << "Name: " << pGameObject->m_pstrName << " : "m_pstrTextureName;
 
 
 		/*printf("Orientation: (%f, %f, %f, %f)\n", pGameObject->m_ppMeshes[0]->OBBox.Orientation.x,

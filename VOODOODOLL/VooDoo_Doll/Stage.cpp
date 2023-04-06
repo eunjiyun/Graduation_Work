@@ -129,7 +129,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 588); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 2000); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
@@ -146,6 +146,29 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);//
 	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_d3dCbvGPUDescriptorStartHandle, m_pd3dCbvSrvDescriptorHeap, "Models/Scene.bin");
 	m_ppShaders2[0] = pObjectShader;
+
+	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
+	{
+		cout << i << "	: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName << endl;
+
+		if (0 != strcmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, ""))
+		{
+			TCHAR	pwstrTextureName[64] = {};
+			size_t		nConverted = 0;
+
+			mbstowcs_s(&nConverted, pwstrTextureName, 64, m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, _TRUNCATE);
+
+			CMaterial* pMaterial = new CMaterial(1);
+			pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+			pMaterial->m_ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 2);
+			pMaterial->m_ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+
+			CreateShaderResourceViews(pd3dDevice, pMaterial->m_ppTextures[0], 0, 3);
+
+			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(0, pMaterial);
+
+		}
+	}
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
@@ -416,11 +439,15 @@ void CStage::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 		for (int i = 0; i < nTextures; i++)
 		{
 			ID3D12Resource* pShaderResource = pTexture->GetResource(i);
-			D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
-			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);//0307 pShaderResource°¡ null
-			m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
-			pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
-			m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+			if (pShaderResource)
+			{
+				D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
+				pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);//0307 pShaderResource°¡ null
+				m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+				pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
+				m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+			}
+			
 		}
 	}
 	int nRootParameters = pTexture->GetRootParameters();
