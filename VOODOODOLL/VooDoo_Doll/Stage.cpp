@@ -154,7 +154,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		if (0 != strcmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, ""))
 		{
 			
-
 			TCHAR	pwstrTextureName[64] = {};
 			size_t		nConverted = 0;
 
@@ -182,9 +181,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
 	}
 
-	//BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
-	//BuildLightsAndMaterials();
-	//
+
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
