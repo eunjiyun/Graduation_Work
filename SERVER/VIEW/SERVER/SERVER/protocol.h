@@ -13,7 +13,7 @@ constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
 
 constexpr int VIEW_RANGE = 4;
-constexpr int STAGE_SIZE = 600;
+constexpr int STAGE_SIZE = 985;
 
 
 // Packet ID

@@ -142,10 +142,10 @@ public:
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(10, 4, 10));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
 		error_stack = 0;
 		character_num = 0;
-		HP = 10000;
+		HP = 100;
 	}
 
 	~SESSION() {}

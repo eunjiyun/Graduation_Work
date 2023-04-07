@@ -147,11 +147,11 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 
-	//short stage = (short)(GetPosition().z / STAGE_SIZE);
+	short stage = (short)((GetPosition().z  + 240 + STAGE_SIZE / 2.f) / STAGE_SIZE);
 
-	//if (stage > cur_stage) {
-	//	Initialize_Monster(_id / 4, stage);
-	//}
+	if (stage > cur_stage) {
+		Initialize_Monster(_id / 4, stage);
+	}
 }
 
 int get_new_client_id()
@@ -439,17 +439,17 @@ void InitializeStages()
 	int ID_constructor = 0;
 	{	// 1stage
 		for (int i = 0; i < 5; ++i) {
-			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-150.f + rand() % 300, -59, 600), 0, ID_constructor++));
+			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-150.f + rand() % 300, -50, 600), 0, ID_constructor++));
 		}
 	}
 	{	// 2stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -59, 1000), 1, ID_constructor++));
+			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-100.f + i * 50, -50, 1000), 1, ID_constructor++));
 		}
 	}
 	{	// 3stage
 		for (int i = 0; i < 3; ++i) {
-			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -59, 1900), 4, ID_constructor++));
+			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(100.f + i * 10, -50, 1900), 4, ID_constructor++));
 		}
 	}
 	{	// 4stage
