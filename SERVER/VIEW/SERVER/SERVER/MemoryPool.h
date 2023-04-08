@@ -23,10 +23,8 @@ public:
             objectQueue.push(new T());
         }
     }
-    ~CObjectPool()
-    {
-        objectQueue = queue<T*>();
-    }
+    ~CObjectPool() { while (!objectQueue.empty()) objectQueue.pop(); }
+
     T* GetMemory()
     {
         if (objectQueue.empty()) {

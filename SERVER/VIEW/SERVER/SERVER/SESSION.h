@@ -111,12 +111,12 @@ class SESSION {
 	OVER_EXP _recv_over;
 public:
 	mutex _s_lock;
-	S_STATE _state;
+	atomic<S_STATE> _state;
 	short _id;
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
 	float HP;
-	DWORD direction;
+	atomic<DWORD> direction;
 	char	_name[NAME_SIZE];
 	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
@@ -201,7 +201,7 @@ public:
 		p.Right = Player->GetRightVector();
 		p.Up = Player->GetUpVector();
 		p.Pos = Player->GetPosition();
-		p.direction = Player->direction;
+		p.direction = Player->direction.load();
 		p.HP = Player->HP;
 		p.BulletPos = Player->BulletPos;
 		p.vel = Player->GetVelocity();

@@ -364,6 +364,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 	if (p->direction & DIR_DIE) {
 		pl->onAct = true;
 		pl->alive = false;
+		pl->cxDelta = pl->cyDelta = pl->czDelta = 0;
 		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		return;
 	}

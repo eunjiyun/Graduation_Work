@@ -27,7 +27,6 @@ public:
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook;
 
-    bool Move_Lock = false;
     stack<XMFLOAT3> roadToMove;
     short HP, power;
     float speed;

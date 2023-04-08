@@ -4,8 +4,7 @@
 #include "MemoryPool.h"
 #include "MapObject.h"
 #include "Monster.h"
-#include <concurrent_priority_queue.h>
-#include <concurrent_unordered_map.h>
+
 
 enum EVENT_TYPE { EV_RANDOM_MOVE };
 
@@ -19,19 +18,24 @@ struct TIMER_EVENT {
 		return (wakeup_time > _Left.wakeup_time);
 	}
 };
-concurrency::concurrent_priority_queue<TIMER_EVENT> timer_queue;
+concurrent_priority_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<vector<Monster*>, MAX_ROOM> PoolMonsters;
+//concurrent_vector<atomic<shared_ptr<Monster>>> Concurrent_Monsters;
+
+
+
+
+
 CObjectPool<Monster> MonsterPool(50'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
 
 int check_pathTime = 0;
 int check_openListTime = 0;
 
-MapObject** m_ppObjects = 0;
 array<vector< MapObject*>, 10> Objects;
-int m_nObjects = 0;
+
 
 SESSION* getClient(int c_id)
 {
@@ -57,18 +61,17 @@ vector<MapObject*>* getPartialObjects(XMFLOAT3 Pos)
 void disconnect(int c_id)
 {
 	for (auto& pl : *getRoom(c_id)) {
-		{
-			lock_guard<mutex> ll(pl._s_lock);
-			if (ST_INGAME != pl._state) continue;
-		}
+
+		if (ST_INGAME != pl._state.load() && ST_DEAD != pl._state.load()) continue;
+
 		if (pl._id == c_id) continue;
 		pl.send_remove_player_packet(c_id);
 	}
 	SESSION* CL = getClient(c_id);
 	closesocket(CL->_socket);
 
-	lock_guard<mutex> ll(CL->_s_lock);
-	CL->_state = ST_FREE;
+	//lock_guard<mutex> ll(CL->_s_lock);
+	CL->_state.store(ST_FREE);
 }
 
 void SESSION::send_summon_monster_packet(Monster* M)
@@ -104,7 +107,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 		M->Initialize(roomNum, info.id, info.type, info.Pos);
 		PoolMonsters[roomNum].emplace_back(M);
 		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-			if (clients[roomNum][i]._state == ST_INGAME || clients[roomNum][i]._state == ST_DEAD) {
+			if (clients[roomNum][i]._state.load() == ST_INGAME || clients[roomNum][i]._state.load() == ST_DEAD) {
 				clients[roomNum][i].cur_stage = stageNum;
 				clients[roomNum][i].send_summon_monster_packet(M);
 				//cout << roomNum << "번 방 " << M->m_id << "ID의 " << M->getType() << "타입 몬스터 소환\n";
@@ -126,6 +129,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 		return;
 	}
+	
 	else
 	{
 		try {
@@ -158,8 +162,8 @@ int get_new_client_id()
 {
 	for (int i = 0; i < MAX_ROOM; ++i) {
 		for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
-			lock_guard <mutex> ll{ clients[i][j]._s_lock };
-			if (clients[i][j]._state == ST_FREE)
+			//lock_guard <mutex> ll{ clients[i][j]._s_lock };
+			if (clients[i][j]._state.load() == ST_FREE)
 				return i * 4 + j;
 		}
 	}
@@ -172,20 +176,21 @@ void SESSION::Update()
 {
 	if (HP <= 0)
 	{
-		direction = DIR_DIE;
+		direction.store(DIR_DIE);
+		_state.store(ST_DEAD);
+		return;
 	}
 	float ElapsedTime = duration_cast<milliseconds>(high_resolution_clock::now() - recent_recvedTime).count() / 1000.f;
-	
+
 	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, ElapsedTime * 100, false));
 	for (auto& monster : PoolMonsters[_id / 4]) {
+		lock_guard<mutex> mm{ monster->m_lock };
 		if (monster->HP > 0 && BoundingBox(BulletPos, { 10,10,10 }).Intersects(monster->BB))
 		{
-			{
-				lock_guard<mutex> mm{ monster->m_lock };
-				monster->HP -= 200;
-				if (monster->HP <= 0)
-					monster->SetState(NPC_State::Dead);
-			}
+			monster->HP -= 200;
+			if (monster->HP <= 0)
+				monster->SetState(NPC_State::Dead);
+
 			BulletPos = XMFLOAT3(5000, 5000, 5000);
 			break;
 		}
@@ -250,11 +255,11 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	check_openListTime = 0;
 
 	openlist.emplace(start_Pos, new A_star_Node(start_Pos, dest_Pos));
-	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>::iterator iter;
+	//unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>::iterator iter;
 	BoundingBox CheckBox = BoundingBox(start_Pos, { 5,3,5 });
 	while (!openlist.empty())
 	{
-		iter = getNode(&openlist);
+		auto iter = getNode(&openlist);
 		S_Node = (*iter).second;
 
 		if (BoundingBox(S_Node->Pos, { 5,20,5 }).Intersects(clients[room_num][target_id].m_xmOOBB))
@@ -285,14 +290,16 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 		openlist.erase(iter);
 	}
 	cout << "추적실패\n";
+	SetState(NPC_State::Idle);
 	cur_animation_track = 0;
+	target_id = -1;
 	return Pos;
 }
 
 int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-		if (clients[room_num][i]._state != ST_INGAME) {
+		if (clients[room_num][i]._state.load() != ST_INGAME) {
 			distances[i] = view_range;
 			continue;
 		}
@@ -328,10 +335,6 @@ void Monster::Update(float fTimeElapsed)
 			targetPlayer->HP -= GetPower();
 			MagicPos.x = 5000;
 			cout << "plHP : " << targetPlayer->HP << endl;
-			if (targetPlayer->HP <= 0) {
-				targetPlayer->direction = DIR_DIE;
-				targetPlayer->_state = ST_DEAD;
-			}
 		}
 	}
 	switch (GetState())
@@ -344,6 +347,12 @@ void Monster::Update(float fTimeElapsed)
 		}
 		break;
 	case NPC_State::Chase:
+		if (targetPlayer->_state == ST_DEAD) {
+			SetState(NPC_State::Idle);
+			cur_animation_track = 0;
+			target_id = -1;
+			break;
+		}
 		if ((4 == type && 150 >= g_distance) || 20 >= g_distance)
 		{
 			SetState(NPC_State::Attack);
@@ -396,10 +405,6 @@ void Monster::Update(float fTimeElapsed)
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
 				cout << "plHP : " << targetPlayer->HP << endl;
-				if (targetPlayer->HP <= 0) {
-					targetPlayer->direction = DIR_DIE;
-					targetPlayer->_state = ST_DEAD;
-				}
 			}
 			attacked = true;
 			break;
@@ -439,7 +444,7 @@ void InitializeStages()
 	int ID_constructor = 0;
 	{	// 1stage
 		for (int i = 0; i < 5; ++i) {
-			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-150.f + rand() % 300, -50, 600), 0, ID_constructor++));
+			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-150.f + rand() % 300, -50, 600), 4, ID_constructor++));
 		}
 	}
 	{	// 2stage
