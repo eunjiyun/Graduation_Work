@@ -54,16 +54,21 @@ public:
 	OVER_EXP* GetMemory()
 	{
 		OVER_EXP* mem = nullptr;
+
+		if (objectQueue.empty()) {
+			cout << "추가요청이 호출됨\n";
+			lock_guard<mutex> ll{ pool_lock };
+			for (int i = 0; i < 5000; ++i)
+				objectQueue.push(new OVER_EXP());
+		}
+
 		{
 			lock_guard<mutex> ll{ pool_lock };
-			if (!objectQueue.empty()) {
-				mem = objectQueue.front();
-				objectQueue.pop();
-			}
+			mem = objectQueue.front();
+			objectQueue.pop();
 		}
-		if (mem == nullptr) {
-			throw runtime_error("FAILED TO ALLOCATE OVER_EXP IN POOL\n");
-		}
+
+
 		mem->_wsabuf.len = BUF_SIZE;
 		mem->_wsabuf.buf = mem->_send_buf;
 		ZeroMemory(&mem->_over, sizeof(mem->_over));
@@ -73,16 +78,19 @@ public:
 	OVER_EXP* GetMemory(char* packet)
 	{
 		OVER_EXP* mem = nullptr;
+
+		if (objectQueue.empty()) {
+			cout << "추가요청이 호출됨\n";
+			lock_guard<mutex> ll{ pool_lock };
+			for (int i = 0; i < 5000; ++i)
+				objectQueue.push(new OVER_EXP());
+		}
 		{
 			lock_guard<mutex> ll{ pool_lock };
-			if (!objectQueue.empty()) {
-				mem = objectQueue.front();
-				objectQueue.pop();
-			}
+			mem = objectQueue.front();
+			objectQueue.pop();
 		}
-		if (mem == nullptr) {
-			throw runtime_error("FAILED TO ALLOCATE OVER_EXP IN POOL\n");
-		}
+
 		mem->_wsabuf.len = packet[0];
 		mem->_wsabuf.buf = mem->_send_buf;
 		ZeroMemory(&mem->_over, sizeof(mem->_over));
@@ -106,7 +114,7 @@ public:
 //CObjectPool<OVER_EXP> OverPool(100'000);
 OVERLAPPEDPOOL OverPool(200'000);
 
-enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD };
+enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD, ST_CRASHED };
 class SESSION {
 	OVER_EXP _recv_over;
 public:
@@ -145,7 +153,7 @@ public:
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
 		error_stack = 0;
 		character_num = 0;
-		HP = 100;
+		HP = 500;
 	}
 
 	~SESSION() {}
@@ -153,7 +161,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, 0, 0 };
+		m_xmf3Position = XMFLOAT3{ -50, -290, 950 };
 		direction = 0;
 		_prev_remain = 0;
 		m_xmf3Up = XMFLOAT3{ 0,1,0 };
@@ -171,7 +179,7 @@ public:
 		_recv_over._wsabuf.len = BUF_SIZE - _prev_remain;
 		_recv_over._wsabuf.buf = _recv_over._send_buf + _prev_remain;
 		int ret = WSARecv(_socket, &_recv_over._wsabuf, 1, 0, &recv_flag, &_recv_over._over, 0);
-		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSARecv()");
+		//if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSARecv()");
 	}
 
 	void do_send(void* packet)
@@ -179,7 +187,7 @@ public:
 		OVER_EXP* sdata = OverPool.GetMemory(reinterpret_cast<char*>(packet));
 		//OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
 		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
-		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
+		//if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
 	void send_login_info_packet()
 	{

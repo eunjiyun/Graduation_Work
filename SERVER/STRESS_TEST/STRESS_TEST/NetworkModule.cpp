@@ -56,8 +56,15 @@ struct CLIENT {
 	high_resolution_clock::time_point last_move_time;
 };
 
+struct MONSTER {
+	XMFLOAT3 pos;
+	atomic_bool connected;
+
+};
+
 array<int, MAX_CLIENTS> client_map;
 array<CLIENT, MAX_CLIENTS> g_clients;
+array<MONSTER, MAX_CLIENTS> g_monsters;
 atomic_int num_connections;
 atomic_int client_to_close;
 atomic_int active_clients;
@@ -68,6 +75,7 @@ vector <thread*> worker_threads;
 thread test_thread;
 
 float point_cloud[MAX_TEST * 2];
+float point_cloud_2[MAX_TEST * 2];
 
 // 나중에 NPC까지 추가 확장 용
 struct ALIEN {
@@ -163,15 +171,24 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case SC_SUMMON_MONSTER:
 	{
 		SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
-		cout << ci << "클라이언트의 화면에" << p->id << "몬스터 소환\n";
+		//cout << ci << "클라이언트의 화면에" << p->id << "몬스터 소환\n";
+		g_monsters[p->room_num * 10 + p->id].connected = true;
+		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
 	}
 	break;
-	case SC_MOVE_MONSTER:
+	case SC_MOVE_MONSTER: 
+	{
+		SC_MOVE_MONSTER_PACKET* p = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(packet);
+		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
 		break;
+	}
 	case CS_ATTACK: {
 		break;
 	}
 	case CS_COLLECT: {
+		break;
+	}
+	case CS_CHANGEWEAPON: {
 		break;
 	}
 	default: MessageBox(hWnd, L"Unknown Packet Type", L"ERROR", 0);
@@ -355,18 +372,18 @@ void Test_Thread()
 
 		for (int i = 0; i < num_connections; ++i) {
 			if (false == g_clients[i].connected) continue;
-			//if (g_clients[i].last_move_time + 1s > high_resolution_clock::now()) continue;
-			//g_clients[i].last_move_time = high_resolution_clock::now();
+			if (g_clients[i].last_move_time + 30ms > high_resolution_clock::now()) continue;
+			g_clients[i].last_move_time = high_resolution_clock::now();
 			short packet_type = rand() % 3;
 			if (packet_type == 0) {
 				CS_MOVE_PACKET my_packet;
 				my_packet.size = sizeof(my_packet);
 				my_packet.type = CS_MOVE;
 				my_packet.direction = rand() % 16;
-				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 1));
-				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -1));
-				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-1, 0, 0));
-				if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(1, 0, 0));
+				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
+				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
+				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
+				if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(3, 0, 0));
 				my_packet.pos = g_clients[i].pos;
 				my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
 				my_packet.id = i;
@@ -376,22 +393,22 @@ void Test_Thread()
 				SendPacket(i, &my_packet);
 			}
 			else if (packet_type == 1) {
-					CS_ATTACK_PACKET my_packet_2;
-					my_packet_2.size = sizeof(CS_ATTACK_PACKET);
-					my_packet_2.type = CS_ATTACK;
-					my_packet_2.id = i;
-					my_packet_2.pos = g_clients[i].pos;
-					SendPacket(i, &my_packet_2);
+				CS_ATTACK_PACKET my_packet_2;
+				my_packet_2.size = sizeof(CS_ATTACK_PACKET);
+				my_packet_2.type = CS_ATTACK;
+				my_packet_2.id = i;
+				my_packet_2.pos = g_clients[i].pos;
+				SendPacket(i, &my_packet_2);
 			}
-			else if (packet_type == 2) {
-				CS_COLLECT_PACKET my_packet_3;
-				my_packet_3.size = sizeof(CS_COLLECT_PACKET);
-				my_packet_3.type = CS_COLLECT;
-				my_packet_3.id = i;
-				my_packet_3.pos = g_clients[i].pos;
-				SendPacket(i, &my_packet_3);
-				break;
-			}
+			//else if (packet_type == 2) {
+			//	CS_COLLECT_PACKET my_packet_3;
+			//	my_packet_3.size = sizeof(CS_COLLECT_PACKET);
+			//	my_packet_3.type = CS_COLLECT;
+			//	my_packet_3.id = i;
+			//	my_packet_3.pos = g_clients[i].pos;
+			//	SendPacket(i, &my_packet_3);
+			//	break;
+			//}
 		}
 	}
 }
@@ -432,17 +449,28 @@ void Do_Network()
 	return;
 }
 
-void GetPointCloud(int* size, float** points)
+void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 {
 	int index = 0;
+	int index_2 = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
 			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.z) / 4;
-			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x) + 100;
+			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x) + 200;
 			index++;
+		}
+
+	for (int i = 0; i < MAX_CLIENTS; ++i)
+		if (g_monsters[i].connected == true)
+		{
+			point_cloud_2[index_2 * 2] = static_cast<float>(g_monsters[i].pos.z) / 4;
+			point_cloud_2[index_2 * 2 + 1] = static_cast<float>(g_monsters[i].pos.x) + 200;
+			index_2++;
 		}
 
 	*size = index;
 	*points = point_cloud;
+	*size_2 = index_2;
+	*points_2 = point_cloud_2;
 }
 

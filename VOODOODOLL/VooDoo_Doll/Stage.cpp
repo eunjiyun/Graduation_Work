@@ -147,30 +147,30 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_d3dCbvGPUDescriptorStartHandle, m_pd3dCbvSrvDescriptorHeap, "Models/Scene.bin");
 	m_ppShaders2[0] = pObjectShader;
 
-	//for (int i = 0; i < 200; ++i)
-	//{
-	//	cout << i << "	: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName << endl;
+	for (int i = 0; i < 200; ++i)
+	{
+		//cout << i << "	: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName << endl;
 
-	//	if (0 != strcmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, ""))
-	//	{
-	//		
-	//		TCHAR	pwstrTextureName[64] = {};
-	//		size_t		nConverted = 0;
+		if (0 != strcmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, ""))
+		{
+			
+			TCHAR	pwstrTextureName[64] = {};
+			size_t		nConverted = 0;
 
-	//		mbstowcs_s(&nConverted, pwstrTextureName, 64, m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, _TRUNCATE);
+			mbstowcs_s(&nConverted, pwstrTextureName, 64, m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, _TRUNCATE);
 
-	//		CMaterial* pMaterial = new CMaterial(1);
-	//		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	//		pMaterial->m_ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 2);
-	//		pMaterial->m_ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+			CMaterial* pMaterial = new CMaterial(1);
+			pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+			pMaterial->m_ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 2);
+			pMaterial->m_ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
 
-	//		CreateShaderResourceViews(pd3dDevice, pMaterial->m_ppTextures[0], 0, 3);
-	//		// Assign the material to the object's mesh
-	//		m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(0, pMaterial);
-	//		/*m_ppShaders2[0]->m_ppObjects[i]->m_ppMaterials[0]->SetTexture(pMaterial->m_ppTextures[0]);*/
+			CreateShaderResourceViews(pd3dDevice, pMaterial->m_ppTextures[0], 0, 3);
+			// Assign the material to the object's mesh
+			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(0, pMaterial);
+			/*m_ppShaders2[0]->m_ppObjects[i]->m_ppMaterials[0]->SetTexture(pMaterial->m_ppTextures[0]);*/
 
-	//	}
-	//}
+		}
+	}
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
 		m_ppShaders2[0]->m_ppObjects[i]->Boundingbox_Transform();

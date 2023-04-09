@@ -406,7 +406,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 				strcpy_s(pstrFilePath1 + 15 + strlen(strAlbedoTextureName), 64 - 15 - strlen(strAlbedoTextureName), ".dds");
 
 				strcpy_s(pGameObject->m_pstrTextureName, 64, pstrFilePath1);
-				cout << i << "	: " << pGameObject->m_pstrTextureName << endl;
+				//cout << i << "	: " << pGameObject->m_pstrTextureName << endl;
 			}
 
 
@@ -421,7 +421,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			{
 				nReads = (UINT)::fread(&nEmissionTextureStrLength, sizeof(BYTE), 1, pFile);
 				nReads = (UINT)::fread(strEmissionTextureName, sizeof(char), nEmissionTextureStrLength, pFile);
-				cout << pstrToken6 << strEmissionTextureName << endl << endl;
+				//cout << pstrToken6 << strEmissionTextureName << endl << endl;
 			}
 		}
 

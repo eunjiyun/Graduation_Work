@@ -29,12 +29,13 @@ public:
     {
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
+            lock_guard<mutex> ll{ pool_lock };
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(new T());
         }
-
+        
         lock_guard<mutex> ll{ pool_lock };
-        auto front = objectQueue.front();
+        auto& front = objectQueue.front();
         objectQueue.pop();
         return front;
     }
@@ -52,7 +53,7 @@ public:
 
 
 
-class A_star_Node //: public CMemoryPool<A_star_Node>
+class A_star_Node
 {
 public:
     float F = 0;
@@ -83,5 +84,43 @@ public:
     }
 };
 
+
+class AStar_Pool {
+private:
+    queue<shared_ptr<A_star_Node>> objectQueue;
+    mutex pool_lock;
+public:
+    AStar_Pool()
+    {
+        for (int i = 0; i < 1000; ++i) {
+            objectQueue.push(make_shared<A_star_Node>());
+        }
+    }
+    ~AStar_Pool() { while (!objectQueue.empty()) objectQueue.pop(); }
+
+    shared_ptr<A_star_Node> GetMemory()
+    {
+        if (objectQueue.empty()) {
+            cout << "추가요청이 호출됨\n";
+            lock_guard<mutex> ll{ pool_lock };
+            for (int i = 0; i < 500; ++i)
+                objectQueue.push(make_shared<A_star_Node>());
+        }
+
+        lock_guard<mutex> ll{ pool_lock };
+        auto& front = objectQueue.front();
+        objectQueue.pop();
+        return front;
+    }
+    void ReturnMemory(shared_ptr<A_star_Node> Mem)
+    {
+        lock_guard<mutex> ll{ pool_lock };
+        objectQueue.push(Mem);
+    }
+    void PrintSize()
+    {
+        cout << "CurrentSize - " << objectQueue.size() << endl;
+    }
+};
 
 

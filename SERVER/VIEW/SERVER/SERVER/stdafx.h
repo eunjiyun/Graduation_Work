@@ -53,7 +53,7 @@ using namespace DirectX::PackedVector;
 #include <concurrent_priority_queue.h>
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
-
+#include <mutex>
 using namespace std;
 using namespace chrono;
 using namespace concurrency;

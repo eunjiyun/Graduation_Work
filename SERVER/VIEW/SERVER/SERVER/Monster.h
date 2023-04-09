@@ -1,7 +1,8 @@
 #pragma once
 #include "stdafx.h"
-#include <mutex>
+#include "MemoryPool.h"
 
+#define BULLET_SIZE XMFLOAT3{10,10,10}
 
 enum class NPC_State
 {
@@ -21,6 +22,7 @@ private:
     array<float, 4> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
     bool alive = false;
+    //AStar_Pool _Pool;
 public:
 
     float g_distance = 150;
@@ -40,8 +42,8 @@ public:
     float dead_timer = 0;
     float attack_timer = 0;
     bool attacked = false;
-    mutable mutex m_lock;
-    Monster() {}
+    mutable mutex m_lock; // const 함수에서 lock을 사용하기 위해 mutable로 선언
+    Monster() { }
     Monster(const Monster& other);
     Monster& operator=(const Monster& other);
     void Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos);

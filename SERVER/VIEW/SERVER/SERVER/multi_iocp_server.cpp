@@ -33,8 +33,8 @@ int main()
 	/*	if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
 			|| 0 == strncmp(m_ppObjects[i]->m_pstrName, "Stair_step", 10))
 			continue;*/
-		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
-		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
+		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
+		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
 			Objects[j].emplace_back(m_ppObjects[i]);
 		}
@@ -189,39 +189,45 @@ void DB_Thread()
 
 void process_packet(const int c_id, char* packet)
 {
-	SESSION* CL = getClient(c_id);
-	array<SESSION, MAX_USER_PER_ROOM>* Room = getRoom(c_id);
+	SESSION& CL = getClient(c_id);
+	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom(c_id);
+	if (CL._state.load() == ST_DEAD) {
+
+		disconnect(CL._id);
+		cout << CL._id << "CHEAT DETECTED\n";
+		return;
+	}
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		CL->send_login_info_packet();
-		CL->_state.store(ST_INGAME);	
-		for (auto& pl : *Room) {
+		CL.send_login_info_packet();
+		CL._state.store(ST_INGAME);	
+		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
-			pl.send_add_player_packet(CL);
-			CL->send_add_player_packet(&pl);
+			pl.send_add_player_packet(&CL);
+			CL.send_add_player_packet(&pl);
 		}
 		break;
 	}
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		CL->direction.store(p->direction);
-		CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-		CL->SetVelocity(p->vel);
-		CL->Update();
+		CL.direction.store(p->direction);
+		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		CL.SetVelocity(p->vel);
+		CL.Update();
 		{
-			lock_guard <mutex> ll{ CL->_s_lock };
-			CL->CheckPosition(p->pos);
+			lock_guard <mutex> ll{ CL._s_lock };
+			CL.CheckPosition(p->pos);
 		}
-		for (auto& cl : *Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(CL);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
 		}
 		break;
 	}
 	case CS_ATTACK: {
-		vector<Monster*> Monsters = *getMonsters(CL->_id);
+		vector<Monster*>& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
-		switch (CL->character_num)
+		switch (CL.character_num)
 		{
 		case 0:
 			for (auto& monster : Monsters) {
@@ -236,8 +242,8 @@ void process_packet(const int c_id, char* packet)
 
 			break;
 		case 1:
-			CL->BulletLook = CL->GetLookVector();
-			CL->BulletPos = Vector3::Add(CL->GetPosition(), XMFLOAT3(0, 10, 0));
+			CL.BulletLook = CL.GetLookVector();
+			CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
 			break;
 		case 2:
 			for (auto& monster : Monsters) {
@@ -251,24 +257,24 @@ void process_packet(const int c_id, char* packet)
 			}
 			break;
 		}
-		for (auto& cl : *Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(CL);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
 		break;
 	}
 	case CS_COLLECT: {
 		CS_COLLECT_PACKET* p = reinterpret_cast<CS_COLLECT_PACKET*>(packet);
-		for (auto& cl : *Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_collect_packet(CL);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_collect_packet(&CL);
 		}
 		break;
 	}
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
-		CL->character_num = (CL->character_num + 1) % 3;
+		CL.character_num = (CL.character_num + 1) % 3;
 		
-		for (auto& cl : *Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(CL);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
 		break;
 	}
@@ -303,13 +309,13 @@ void worker_thread(HANDLE h_iocp)
 		switch (ex_over->_comp_type) {
 		case OP_ACCEPT: {
 			int client_id = get_new_client_id();
-			SESSION* CL = getClient(client_id);
+			SESSION& CL = getClient(client_id);
 			if (client_id != -1) {
-				CL->_state.store(ST_ALLOC);
-				CL->Initialize(client_id, g_c_socket);
+				CL._state.store(ST_ALLOC);
+				CL.Initialize(client_id, g_c_socket);
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
-				CL->do_recv();
+				CL.do_recv();
 			}
 			else {
 				cout << "Max user exceeded.\n";
@@ -322,8 +328,8 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			SESSION* CL = getClient((int)key);
-			int remain_data = num_bytes + CL->_prev_remain;
+			SESSION& CL = getClient((int)key);
+			int remain_data = num_bytes + CL._prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
 				int packet_size = p[0];
@@ -331,14 +337,14 @@ void worker_thread(HANDLE h_iocp)
 					process_packet(static_cast<int>(key), p);
 					p += packet_size;
 					remain_data -= packet_size;
-				}
+				} 
 				else break;
 			}
-			CL->_prev_remain = remain_data;
+			CL._prev_remain = remain_data;
 			if (remain_data > 0) {
 				memcpy(ex_over->_send_buf, p, remain_data);
 			}
-			CL->do_recv();
+			CL.do_recv();
 			break;
 		}
 		case OP_SEND:
