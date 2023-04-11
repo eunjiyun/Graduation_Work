@@ -28,8 +28,9 @@ public:
     float g_distance = 150;
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook;
-
+    high_resolution_clock::time_point recent_recvedTime;
     stack<XMFLOAT3> roadToMove;
+    
     short HP, power;
     float speed;
     BoundingBox BB;

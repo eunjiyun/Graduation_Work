@@ -48,6 +48,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     m_id = _id;
     BB = BoundingBox(_pos, XMFLOAT3(9, 9, 9));
     curState = NPC_State::Idle;
+    recent_recvedTime = high_resolution_clock::now();
     switch (_type)
     {
     case 0: // 손에 칼
@@ -55,7 +56,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 200;
         power = 30;
         view_range = 900;
-        speed = 1.75f + dis(gen);
+        speed = 3.f;
         attack_cycle = (71.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -65,7 +66,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 100;
         power = 30;
         view_range = 300;
-        speed = 2.75f + dis(gen);
+        speed = 3.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -75,7 +76,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 50;
         view_range = 300;
-        speed = 2.75f + dis(gen);
+        speed = 3.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -85,7 +86,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 70;
         view_range = 300;
-        speed = 1.75f + dis(gen);
+        speed = 2.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -95,7 +96,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 70;
         view_range = 300;
-        speed = 1.75f + dis(gen);
+        speed = 2.f;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -105,7 +106,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 500;
         power = 70;
         view_range = 300;
-        speed = 1.75f + dis(gen);
+        speed = 2.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;

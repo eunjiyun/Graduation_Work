@@ -153,7 +153,7 @@ public:
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
 		error_stack = 0;
 		character_num = 0;
-		HP = 500;
+		HP = 5000;
 	}
 
 	~SESSION() {}
@@ -162,15 +162,21 @@ public:
 	{
 		_id = id;
 		m_xmf3Position = XMFLOAT3{ -50, -290, 950 };
+		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
-		m_xmf3Up = XMFLOAT3{ 0,1,0 };
-		m_xmf3Right = XMFLOAT3{ 1,0,0 };
-		m_xmf3Look = XMFLOAT3{ 0,0,1 };
+		m_xmf3Up = { 0,1,0 };
+		m_xmf3Right = { 1,0,0 };
+		m_xmf3Look = { 0,0,1 };
 		_socket = Socket;
 		cur_stage = 0;
 		error_stack = 0;
+		BulletPos = { 5000,5000,5000 };
+		BulletLook = { 0,0,1 };
 		recent_recvedTime = high_resolution_clock::now();
+		_state = ST_FREE;
+		character_num = 0;
+		HP = 500;
 	}
 	void do_recv()
 	{

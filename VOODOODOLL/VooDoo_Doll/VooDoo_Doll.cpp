@@ -415,8 +415,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			ProcessAnimation(*iter, packet);
 
 
-		//float FPS = duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->curTime).count() / 1000.f;
-
 		XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
 
 		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
@@ -479,9 +477,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 		}
-		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != 3) {
-			XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos),
-				Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));
+		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1) {
+			XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH((*iter)->GetPosition(),
+				packet->Pos, XMFLOAT3(0, 1, 0));
 			mtkLookAt._11 = -mtkLookAt._11;
 			mtkLookAt._21 = -mtkLookAt._21;
 			mtkLookAt._31 = -mtkLookAt._31;

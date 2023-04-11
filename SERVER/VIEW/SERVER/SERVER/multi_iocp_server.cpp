@@ -337,7 +337,7 @@ void worker_thread(HANDLE h_iocp)
 					process_packet(static_cast<int>(key), p);
 					p += packet_size;
 					remain_data -= packet_size;
-				} 
+				}
 				else break;
 			}
 			CL._prev_remain = remain_data;
@@ -361,15 +361,16 @@ void worker_thread(HANDLE h_iocp)
 					{
 						{
 							lock_guard<mutex> mm{ (*iter)->m_lock };
-							(*iter)->Update(0.03f);
+							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
 						}
 
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
 
-						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 25ms, EV_RANDOM_MOVE };
+						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE };
 						timer_queue.push(ev);
+						(*iter)->recent_recvedTime = high_resolution_clock::now();
 					}
 				}
 				else {

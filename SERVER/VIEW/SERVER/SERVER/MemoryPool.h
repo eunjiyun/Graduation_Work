@@ -23,7 +23,15 @@ public:
             objectQueue.push(new T());
         }
     }
-    ~CObjectPool() { while (!objectQueue.empty()) objectQueue.pop(); }
+    ~CObjectPool()
+    {
+        while (!objectQueue.empty())
+        {
+            auto front = objectQueue.front();
+            delete front;
+            objectQueue.pop();
+        }
+    }
 
     T* GetMemory()
     {
@@ -59,10 +67,10 @@ public:
     float F = 0;
     float G = 0;
     float H = 0;
-    shared_ptr<A_star_Node> parent = nullptr;
+   shared_ptr<A_star_Node> parent = nullptr;
     XMFLOAT3 Pos = { 0,0,0 };
     A_star_Node() {}
-    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, shared_ptr<A_star_Node> node = nullptr)
+    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
     {
         Pos = _Pos;
         G = _G;
@@ -72,7 +80,7 @@ public:
             parent = node;
         }
     }
-    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, shared_ptr<A_star_Node> node = nullptr)
+    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
     {
         Pos = _Pos;
         G = _G;
@@ -84,6 +92,11 @@ public:
     }
 };
 
+struct CompareNodes {
+    bool operator()(const shared_ptr<A_star_Node>& n1, const shared_ptr<A_star_Node>& n2) {
+        return n1->F < n2->F;
+    }
+};
 
 class AStar_Pool {
 private:
@@ -92,28 +105,40 @@ private:
 public:
     AStar_Pool()
     {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 4000; ++i) {
             objectQueue.push(make_shared<A_star_Node>());
         }
     }
-    ~AStar_Pool() { while (!objectQueue.empty()) objectQueue.pop(); }
-
-    shared_ptr<A_star_Node> GetMemory()
+    ~AStar_Pool() 
     {
+    }
+
+   shared_ptr<A_star_Node> GetMemory(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
+    {
+        lock_guard<mutex> ll{ pool_lock };
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
-            lock_guard<mutex> ll{ pool_lock };
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(make_shared<A_star_Node>());
         }
+        if (!objectQueue.empty()) {
+            auto& front = objectQueue.front();
+            objectQueue.pop();
 
-        lock_guard<mutex> ll{ pool_lock };
-        auto& front = objectQueue.front();
-        objectQueue.pop();
-        return front;
+            front->Initialize(_Pos, _Dest_Pos, _G, node);
+
+            return front;
+        }
+        else {
+            return nullptr;
+        }
     }
+
     void ReturnMemory(shared_ptr<A_star_Node> Mem)
     {
+        Mem->parent = nullptr;
+        Mem->Pos = { 0,0,0 };
+        Mem->G = Mem->H = Mem->F = 0;
         lock_guard<mutex> ll{ pool_lock };
         objectQueue.push(Mem);
     }
