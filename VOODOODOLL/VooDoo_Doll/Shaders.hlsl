@@ -1,6 +1,3 @@
-#define MAX_MATERIALS		10 
-
-
 struct MATERIAL
 {
 	float4					m_cAmbient;
@@ -25,6 +22,16 @@ cbuffer cbGameObjectInfo : register(b2)
 
 #include "Light.hlsl"
 
+struct CB_TOOBJECTSPACE
+{
+	matrix		mtxToTexture;
+	float4		f4Position;
+};
+
+cbuffer cbToLightSpace : register(b6)
+{
+	CB_TOOBJECTSPACE gcbToLightSpaces[MAX_SHADOW_LIGHTS];
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +74,8 @@ struct VS_STANDARD_OUTPUT
 	float3 bitangentW : BITANGENT;
 	float2 uv : TEXCOORD;
 };
+
+
 
 VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
@@ -141,19 +150,6 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 {
 	VS_STANDARD_OUTPUT output;
 
-	//output.positionW = float3(0.0f, 0.0f, 0.0f);
-	//output.normalW = float3(0.0f, 0.0f, 0.0f);
-	//output.tangentW = float3(0.0f, 0.0f, 0.0f);
-	//output.bitangentW = float3(0.0f, 0.0f, 0.0f);
-	//matrix mtxVertexToBoneWorld;
-	//for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
-	//{
-	//	mtxVertexToBoneWorld = mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
-	//	output.positionW += input.weights[i] * mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
-	//	output.normalW += input.weights[i] * mul(input.normal, (float3x3)mtxVertexToBoneWorld);
-	//	output.tangentW += input.weights[i] * mul(input.tangent, (float3x3)mtxVertexToBoneWorld);
-	//	output.bitangentW += input.weights[i] * mul(input.bitangent, (float3x3)mtxVertexToBoneWorld);
-	//}
 	float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
 	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
 	{
@@ -165,8 +161,6 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	output.tangentW = mul(input.tangent, (float3x3)mtxVertexToBoneWorld).xyz;
 	output.bitangentW = mul(input.bitangent, (float3x3)mtxVertexToBoneWorld).xyz;
 
-	//	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
-
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
@@ -174,3 +168,89 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct VS_LIGHTING_INPUT
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+};
+
+struct VS_LIGHTING_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL;
+};
+
+VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+{
+	VS_LIGHTING_OUTPUT output;
+
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+
+	return(output);
+}
+
+float4 PSLighting(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	input.normalW = normalize(input.normalW);
+
+	return(float4(input.normalW * 0.5f + 0.5f, 1.0f));
+}
+//===============================================================================================================
+
+struct PS_DEPTH_OUTPUT
+{
+	float fzPosition : SV_Target;
+	float fDepth : SV_Depth;
+};
+
+PS_DEPTH_OUTPUT PSDepthWriteShader(VS_LIGHTING_OUTPUT input)
+{
+	PS_DEPTH_OUTPUT output;
+
+	output.fzPosition = input.position.z;
+	output.fDepth = input.position.z;
+
+	return(output);
+}
+
+//=======================================================================================================================
+struct VS_SHADOW_MAP_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL;
+
+	float4 uvs[MAX_SHADOW_LIGHTS] : TEXCOORD0;
+};
+
+VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
+{
+	VS_SHADOW_MAP_OUTPUT output = (VS_SHADOW_MAP_OUTPUT)0;
+
+	float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.positionW = positionW.xyz;
+	output.position = mul(mul(positionW, gmtxView), gmtxProjection);
+	output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
+
+	for (int i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	{
+		if (gcbToLightSpaces[i].f4Position.w != 0.0f)
+			output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
+	}
+
+
+	return(output);
+}
+
+float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
+{
+	float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs);
+
+	return(cIllumination);
+}
+//===================================================================================================================================
+

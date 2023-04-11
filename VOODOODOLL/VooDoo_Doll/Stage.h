@@ -14,6 +14,16 @@
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
 
+struct SHADOWMATERIAL
+{
+	XMFLOAT4				m_xmf4Ambient;
+	XMFLOAT4				m_xmf4Diffuse;
+	XMFLOAT4				m_xmf4Specular; //(r,g,b,a=power)
+	XMFLOAT4				m_xmf4Emissive;
+};
+
+
+
 struct LIGHT
 {
 	XMFLOAT4							m_xmf4Ambient;
@@ -21,7 +31,7 @@ struct LIGHT
 	XMFLOAT4							m_xmf4Specular;
 	XMFLOAT3							m_xmf3Position;
 	float 								m_fFalloff;
-	XMFLOAT3							m_xmf3Direction;
+	XMFLOAT3							m_xmf3Direction;//0316 이게0 0 0이면 xmmatrixlooktolh 에서 오류
 	float 								m_fTheta; //cos(m_fTheta)
 	XMFLOAT3							m_xmf3Attenuation;
 	float								m_fPhi; //cos(m_fPhi)
@@ -56,7 +66,6 @@ class CStage
 public:
 	CStage();
 	~CStage();
-	int num = 0;
 
 	bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
 	bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
@@ -74,6 +83,8 @@ public:
 
 	bool ProcessInput(UCHAR* pKeysBuffer);
 	void AnimateObjects(float fTimeElapsed);
+	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players);
+	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
 	void ReleaseUploadBuffers();
@@ -88,11 +99,13 @@ public:
 
 
 	CPlayer* m_pPlayer = NULL;
+	float							m_fLightRotationAngle = 0.0f;
+	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 
 protected:
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 
-	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
+	
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
@@ -104,6 +117,8 @@ protected:
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorNextHandle;
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dSrvCPUDescriptorNextHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dSrvGPUDescriptorNextHandle;
+
+	
 
 public:
 	static void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
@@ -129,6 +144,8 @@ public:
 	XMFLOAT3							m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	LIGHT* m_pLights = NULL;
+	LIGHTS* m_pShadowLights = NULL;
+
 	int									m_nLights = 0;
 	MATERIALS* m_pMaterials = NULL;
 	ID3D12Resource* m_pd3dcbMaterials = NULL;
@@ -153,4 +170,11 @@ public:
 	XMFLOAT4X4					m_xmf4x4World = Matrix4x4::Identity();
 
 	int whatPlayer = 1;
+
+	CShadowMapShader* m_pShadowShader = NULL;
+	CDepthRenderShader* m_pDepthRenderShader = NULL;
+
+public:
+	CShader** m_ppShaders = NULL;
+	int								m_nShaders = 0;
 };

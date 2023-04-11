@@ -25,8 +25,11 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 		m_pnResourceTypes = new UINT[m_nTextures];
 		m_pdxgiBufferFormats = new DXGI_FORMAT[m_nTextures];
 		m_pnBufferElements = new int[m_nTextures];
+		for (int i = 0; i < m_nTextures; i++) m_pnBufferElements[i] = 0;
 	}
 	m_nRootParameters = nRootParameters;
+
+
 	if (nRootParameters > 0) m_pnRootParameterIndices = new UINT[nRootParameters];
 
 	m_nSamplers = nSamplers;
@@ -280,11 +283,11 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
 	m_pStandardShader = new CStandardShader();
-	m_pStandardShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pStandardShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_pSkinnedAnimationShader = new CSkinnedAnimationStandardShader();
-	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
@@ -1083,7 +1086,11 @@ void CGameObject::SetMesh(int nIndex, CMesh* pMesh)
 	else
 	{
 		m_ppMeshes = new CMesh * [1];
+
+		/*if (m_ppMeshes[nIndex] == NULL)
+			m_ppMeshes[nIndex] = new CMesh();*/
 	}
+
 	m_ppMeshes[nIndex] = pMesh;
 
 	if (m_ppMeshes[nIndex])
@@ -1105,8 +1112,18 @@ void CGameObject::SetShader(int nMaterial, CShader* pShader)
 
 void CGameObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 {
-	if (m_ppMaterials[nMaterial])
-		m_ppMaterials[nMaterial]->Release();
+	if (m_ppMaterials)
+	{
+		if (m_ppMaterials[nMaterial])
+			m_ppMaterials[nMaterial]->Release();
+	}
+	else
+	{
+		m_ppMaterials = new CMaterial * [1];
+
+		/*if (m_ppMeshes[nIndex] == NULL)
+			m_ppMeshes[nIndex] = new CMesh();*/
+	}
 
 	m_ppMaterials[nMaterial] = pMaterial;
 
@@ -1215,7 +1232,7 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, bool shadow, CCamera* pCamera)
 {
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1231,7 +1248,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 				if (m_ppMaterials[i])
 				{
 					if (m_ppMaterials[i]->m_pShader)
+					{
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, false);
+					}
 
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
 				}
@@ -1265,6 +1284,10 @@ void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Graphics
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
@@ -1272,6 +1295,8 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+
+	//if (m_pMaterial) pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pMaterial->m_nReflection, 16);
 }
 
 
@@ -1560,7 +1585,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fGlossyReflection), sizeof(float), 1, pInFile);
 		}
-		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1
+		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1  0313
 		{
 			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose, 1);
 		}
@@ -1665,15 +1690,15 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 					OutputDebugString(pstrDebug);
 #endif
 				}
+				}
 			}
-		}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-	}
+		}
 	return(pGameObject);
-}
+	}
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 {
@@ -1722,7 +1747,7 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 				OutputDebugString(pstrDebug);
 #endif
 			}
-		}
+			}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -1763,8 +1788,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			break;
 		}
-				}
-			}
+		}
+	}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
@@ -1843,7 +1868,12 @@ void CGameObject::SetRotationAxis(XMFLOAT3& xmf3RotationAxis)
 {
 	m_xmf3RotationAxis = Vector3::Normalize(xmf3RotationAxis);
 }
-
+void CGameObject::SetMaterial(CMaterial* pMaterial)
+{
+	if (m_pMaterial) m_pMaterial->Release();
+	m_pMaterial = pMaterial;
+	if (m_pMaterial) m_pMaterial->AddRef();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1892,19 +1922,23 @@ void CRootMotionCallbackHandler::HandleCallback(void* pCallbackData, float fTrac
 //
 
 
-CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks,int chooseObj)
+
+CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks, int chooseObj)
 {
 	CLoadedModelInfo* arrowModel = pModel;
 
 	if (1 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon.bin", NULL, 7);
 	}
+
 	else if (2 == chooseObj)
 	{
 		if (!arrowModel)
 			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+		//arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/wizard_cap.bin", NULL, 7);
+		//arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/lancer_cap.bin", NULL, 7);
 	}
 	else if (3 == chooseObj)
 	{
@@ -1994,3 +2028,5 @@ void CBulletObject::Reset()
 
 	m_bActive = false;
 }
+
+

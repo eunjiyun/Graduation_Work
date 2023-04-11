@@ -112,6 +112,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 
 	hAccelTable = ::LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VOODOODOLL));
 
+
 #pragma region SERVER ACCESS
 
 	WSADATA WSAData;
@@ -162,7 +163,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
+
 			SleepEx(0, true);
+
 			gGameFramework.FrameAdvance();
 			if (gGameFramework.m_pPlayer->alive)
 				ProcessInput();
@@ -247,8 +250,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				gGameFramework.wakeUp = true;
 		}
 		break;
-		//
-
+		
 	case WM_KEYDOWN:
 		if (wParam == 'L' || wParam == 'l')//full screen
 		{
