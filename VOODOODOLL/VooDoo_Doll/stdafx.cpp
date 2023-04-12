@@ -352,11 +352,13 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
 		nReads = (UINT)::fread(pstrToken4, sizeof(char), nStrLength, pFile); //"<Materials>:"
 		nReads = (UINT)::fread(&nMaterials, sizeof(int), 1, pFile);
-
 		pGameObject = new CGameObject(nMaterials);
 		strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
 
+		pGameObject->m_ppMaterials = new CMaterial * [nMaterials];
 
+		for (int m = 0; m < nMaterials; m++) 
+			pGameObject->m_ppMaterials[m] = NULL;
 
 		CGameObject* pObjectFound = NULL;
 		for (int j = 0; j < i; j++)
@@ -392,11 +394,13 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 			{
 				char		strAlbedoTextureName[64] = { '\0' };
 				BYTE	nAlbedoTextureStrLength = 0;
+				size_t		nConverted = 0;
 
 				nReads = (UINT)::fread(&nAlbedoTextureStrLength, sizeof(BYTE), 1, pFile);
 				nReads = (UINT)::fread(strAlbedoTextureName, sizeof(char), nAlbedoTextureStrLength, pFile);
 
-				pGameObject->m_ppMaterials[0] = new CMaterial(1);
+
+				pGameObject->m_ppMaterials[k] = new CMaterial(1);
 
 				char			pstrFilePath1[64] = { '\0' };
 				TCHAR	pwstrTextureName[64] = { '/0' };
@@ -404,9 +408,9 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 				strcpy_s(pstrFilePath1, 64, "Models/Texture/");
 				strcpy_s(pstrFilePath1 + 15, 64 - 15, strAlbedoTextureName);
 				strcpy_s(pstrFilePath1 + 15 + strlen(strAlbedoTextureName), 64 - 15 - strlen(strAlbedoTextureName), ".dds");
+				mbstowcs_s(&nConverted, pGameObject->m_ppMaterials[k]->m_ppstrTextureNames[0], pstrFilePath1, _TRUNCATE);
 
-				strcpy_s(pGameObject->m_pstrTextureName, 64, pstrFilePath1);
-				cout << i << "	: " << pGameObject->m_pstrTextureName << endl;
+				cout << i << "	|	" << k << "	: " << pstrFilePath1 << endl;
 			}
 
 

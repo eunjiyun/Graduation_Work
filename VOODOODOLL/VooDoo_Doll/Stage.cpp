@@ -129,7 +129,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 {
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1000); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 1500); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
@@ -147,30 +147,24 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, m_d3dCbvGPUDescriptorStartHandle, m_pd3dCbvSrvDescriptorHeap, "Models/Scene.bin");
 	m_ppShaders2[0] = pObjectShader;
 
-	for (int i = 0; i < 200; ++i)
+	for (int i = 0; i <180; ++i)
 	{
-		cout << i << "	: " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName << endl;
-
-		if (0 != strcmp(m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, ""))
+		for (UINT k = 0; k < m_ppShaders2[0]->m_ppObjects[i]->m_nMaterials; k++)
 		{
-			
-			TCHAR	pwstrTextureName[64] = {};
-			size_t		nConverted = 0;
-
-			mbstowcs_s(&nConverted, pwstrTextureName, 64, m_ppShaders2[0]->m_ppObjects[i]->m_pstrTextureName, _TRUNCATE);
 
 			CMaterial* pMaterial = new CMaterial(1);
 			pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 			pMaterial->m_ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 2);
-			pMaterial->m_ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, pwstrTextureName, RESOURCE_TEXTURE2D, 0);
+			pMaterial->m_ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, m_ppShaders2[0]->m_ppObjects[i]->m_ppMaterials[k]->m_ppstrTextureNames[0], RESOURCE_TEXTURE2D, 0);
+
 
 			CreateShaderResourceViews(pd3dDevice, pMaterial->m_ppTextures[0], 0, 3);
 			// Assign the material to the object's mesh
-			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(0, pMaterial);
+			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			/*m_ppShaders2[0]->m_ppObjects[i]->m_ppMaterials[0]->SetTexture(pMaterial->m_ppTextures[0]);*/
-
 		}
 	}
+
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
 		m_ppShaders2[0]->m_ppObjects[i]->Boundingbox_Transform();
@@ -434,7 +428,7 @@ void CStage::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 
 	if (pTexture)
 	{
-		int nTextures = pTexture->GetTextures();
+		int nTextures = pTexture->GetTextures(); 
 		for (int i = 0; i < nTextures; i++)
 		{
 			ID3D12Resource* pShaderResource = pTexture->GetResource(i);

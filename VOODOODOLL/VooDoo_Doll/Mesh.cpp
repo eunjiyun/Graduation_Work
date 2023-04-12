@@ -258,13 +258,13 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	m_pd3dVertexBufferViews[0].StrideInBytes = sizeof(XMFLOAT3);
 	m_pd3dVertexBufferViews[0].SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 
-	m_pd3dVertexBufferViews[1].BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
-	m_pd3dVertexBufferViews[1].StrideInBytes = sizeof(XMFLOAT3);
-	m_pd3dVertexBufferViews[1].SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
+	m_pd3dVertexBufferViews[1].BufferLocation = m_pd3dTextureCoordsBuffer->GetGPUVirtualAddress();
+	m_pd3dVertexBufferViews[1].StrideInBytes = sizeof(XMFLOAT2);
+	m_pd3dVertexBufferViews[1].SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
 
-	m_pd3dVertexBufferViews[2].BufferLocation = m_pd3dTextureCoordsBuffer->GetGPUVirtualAddress();
-	m_pd3dVertexBufferViews[2].StrideInBytes = sizeof(XMFLOAT2);
-	m_pd3dVertexBufferViews[2].SizeInBytes = sizeof(XMFLOAT2) * m_nVertices;
+	m_pd3dVertexBufferViews[2].BufferLocation = m_pd3dNormalBuffer->GetGPUVirtualAddress();
+	m_pd3dVertexBufferViews[2].StrideInBytes = sizeof(XMFLOAT3);
+	m_pd3dVertexBufferViews[2].SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 
 	m_ppd3dIndexBuffers = new ID3D12Resource * [m_nSubsets];
 	m_ppd3dIndexUploadBuffers = new ID3D12Resource * [m_nSubsets];
