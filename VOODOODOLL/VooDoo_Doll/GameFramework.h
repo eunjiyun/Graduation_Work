@@ -61,7 +61,6 @@ public:
 	SCENEID m_eCurrentScene;
 	SCENEID m_ePrevScene;
 
-
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;
@@ -87,7 +86,7 @@ private:
 
 	ID3D12CommandAllocator* m_pd3dCommandAllocator = NULL;
 	ID3D12CommandQueue* m_pd3dCommandQueue = NULL;
-	static ID3D12GraphicsCommandList* m_pd3dCommandList;// = NULL;
+	ID3D12GraphicsCommandList* m_pd3dCommandList = NULL;
 
 	ID3D12Fence* m_pd3dFence = NULL;
 	UINT64						m_nFenceValues[m_nSwapChainBuffers];
@@ -97,8 +96,6 @@ public:
 	bool wakeUp = true;
 	int whatPlayer = 1;
 	CGameObject* m_pLockedObject = NULL;
-	CBoxShader* pBoxShader = NULL;
-	CBoxShader* pBoxShaderMon = NULL;
 
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	queue<CLoadedModelInfo*> MagiciansHat;
@@ -111,8 +108,6 @@ public:
 	CGameTimer					m_GameTimer;
 
 	CStage* m_pStage = NULL;
-	LIGHT* m_pLights = NULL;
-
 
 	CLogin* m_pLogin = NULL;
 
