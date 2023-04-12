@@ -24,9 +24,9 @@ array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<vector<Monster*>, MAX_ROOM> PoolMonsters;
 
 
-CObjectPool<Monster> MonsterPool(50'000);
+CObjectPool<Monster> MonsterPool(20'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
-
+mutex mtx;
 int check_pathTime = 0;
 int check_openListTime = 0;
 
@@ -113,6 +113,7 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 
 void Initialize_Monster(int roomNum, int stageNum)//0326
 {
+	unique_lock<mutex> lock(mtx);
 	for (auto& info : StagesInfo[stageNum - 1]) {
 		Monster* M = MonsterPool.GetMemory();
 		M->Initialize(roomNum, info.id, info.type, info.Pos);
@@ -126,6 +127,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE};
 		timer_queue.push(ev);
 	}
+	lock.unlock();
 }
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
@@ -135,7 +137,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
 	float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
 	if (distance_squared > max_distance * max_distance) {
-		cout << "client[" << _id << "] 에러 포인트 감지\n";
+		//cout << "client[" << _id << "] 에러 포인트 감지\n";
 		m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 		return;
 	}
@@ -208,17 +210,22 @@ void SESSION::Update()
 }
 
 
-bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box)
+bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box)
 {
 	auto start = clock();
-	int collide_range = (int)(_pos.z / AREA_SIZE);
+	int collide_range_z = (int)(_pos.z / AREA_SIZE);
+	if (collide_range_z < 0 || collide_range_z > 42 ) {
+		return false;
+	}
 	check_box.Center = _pos;
 
 	if (CloseList.find(_pos) != CloseList.end()) {
 		return false;
 	}
+
+
 	try {
-		if (Objects[collide_range].end() != find_if(Objects[collide_range].begin(), Objects[collide_range].end(),
+		if (Objects[collide_range_z].end() != find_if(Objects[collide_range_z].begin(), Objects[collide_range_z].end(),
 			[check_box](MapObject* MO) {return MO->m_xmOOBB.Intersects(check_box); }))
 		{
 			return false;
@@ -257,6 +264,7 @@ float nx[8]{ -1,1,0,0, -1, -1, 1, 1 };
 float nz[8]{ 0,0,1,-1, -1, 1, -1, 1 };
 XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
+	auto start = high_resolution_clock::now();
 	if (dest_Pos.y - start_Pos.y >= 2.f)
 	{
 		SetState(NPC_State::Idle);
@@ -266,41 +274,41 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	}
 
 	unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal> closelist{};
-	priority_queue<shared_ptr<A_star_Node>, vector<shared_ptr<A_star_Node>>, CompareNodes> openlist;
+	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal> openlist;
+	//priority_queue<shared_ptr<A_star_Node>, vector<shared_ptr<A_star_Node>>, CompareNodes> openlist;
 	shared_ptr<A_star_Node> S_Node;
 	check_pathTime = 0;
 	check_openListTime = 0;
 
 
 	//openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos));
-	openlist.emplace(make_shared<A_star_Node>(start_Pos, dest_Pos));
+	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos));
 
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
 	{
-		S_Node = openlist.top();
-		openlist.pop();
+		auto iter = getNode(openlist);
+		S_Node = (*iter).second;
 
 		if (clients[room_num][target_id].m_xmOOBB.Contains(XMLoadFloat3(&S_Node->Pos)))
 		{
 			while (S_Node->parent != nullptr)
 			{
 				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
-				{
+				{	
 					return S_Node->Pos;
 				}
-				roadToMove.push(S_Node->Pos);
 				S_Node = S_Node->parent;
 			}
 		}
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
-			if (check_path(_Pos, closelist, CheckBox)) {
-				openlist.emplace(make_shared<A_star_Node>(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
+			if (check_path(_Pos, closelist, CheckBox) && check_openList(_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node, openlist)) {
+				openlist.emplace(_Pos, make_shared<A_star_Node>(_Pos, dest_Pos, S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i])), S_Node));
 			}
 		}
 		closelist.insert(S_Node->Pos);
-		//openlist.erase(iter);
+		openlist.erase(iter);
 	}
 	cout << "Trace Failed\n";
 	SetState(NPC_State::Idle);
@@ -348,7 +356,7 @@ void Monster::Update(float fTimeElapsed)
 			lock_guard <mutex> ll{ targetPlayer->_s_lock };
 			targetPlayer->HP -= GetPower();
 			MagicPos.x = 5000;
-			cout << "plHP : " << targetPlayer->HP << endl;
+			//cout << "plHP : " << targetPlayer->HP << endl;
 		}
 	}
 	switch (GetState())
@@ -366,42 +374,42 @@ void Monster::Update(float fTimeElapsed)
 			SetState(NPC_State::Idle);
 			cur_animation_track = 0;
 			target_id = -1;
-			roadToMove = stack<XMFLOAT3>();
+			//roadToMove = stack<XMFLOAT3>();
 			break;
 		}
 		if ((4 == type && 150 >= g_distance) || 20 >= g_distance)
 		{
 			SetState(NPC_State::Attack);
 			cur_animation_track = (type != 2) ? 2 : cur_animation_track;
-			roadToMove = stack<XMFLOAT3>();
+			//roadToMove = stack<XMFLOAT3>();
 			break;
 		}
 
-		if (!roadToMove.empty()) 
-		{
-			Pos = roadToMove.top();
-			roadToMove.pop();
+		//if (!roadToMove.empty()) 
+		//{
+		//	Pos = roadToMove.top();
+		//	roadToMove.pop();
+		//}
+		//else {
+		const int collide_range = (int)(Pos.z / AREA_SIZE);
+		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos))), speed, false));
+
+		bool collide = false;
+		for (const auto& obj : Objects[collide_range]) {
+			if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
+				collide = true;
+				break;
+			}
+		}
+		if (collide) {
+			Pos = Find_Direction(Pos, targetPlayer->GetPosition());
+			BB.Center = Pos;
 		}
 		else {
-			const int collide_range = (int)(Pos.z / AREA_SIZE);
-			const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos))), speed, false));
-
-			bool collide = false;
-			for (const auto& obj : Objects[collide_range]) {
-				if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
-					collide = true;
-					break;
-				}
-			}
-			if (collide) {
-				Pos = Find_Direction(Pos, targetPlayer->GetPosition());
-				BB.Center = Pos;
-			}
-			else {
-				Pos = newPos;
-				BB.Center = Pos;
-			}
+			Pos = newPos;
+			BB.Center = Pos;
 		}
+		//}
 	}
 		break;
 	case NPC_State::Attack: {
@@ -421,7 +429,7 @@ void Monster::Update(float fTimeElapsed)
 			else if (20 > g_distance) {
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
-				cout << "plHP : " << targetPlayer->HP << endl;
+				//cout << "plHP : " << targetPlayer->HP << endl;
 			}
 			attacked = true;
 			break;
@@ -460,10 +468,13 @@ void Monster::Update(float fTimeElapsed)
 
 void InitializeStages()
 {
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_real_distribution<float> dis(0.0f, 100.f);
 	int ID_constructor = 0;
 	{	// 1stage
-		for (int i = 0; i < 5; ++i) {
-			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-27.f + rand() % 100, -292, 1460), 0, ID_constructor++));
+		for (int i = 0; i < 4; ++i) {
+			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-27.f + dis(gen), -292, 1460), 0, ID_constructor++));
 		}
 	}
 	{	// 2stage

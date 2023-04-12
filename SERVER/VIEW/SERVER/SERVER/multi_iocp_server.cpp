@@ -29,10 +29,8 @@ int main()
 
 	int m_nObjects = 0;
 	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
+
 	for (int i = 0; i < m_nObjects; i++) {
-	/*	if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
-			|| 0 == strncmp(m_ppObjects[i]->m_pstrName, "Stair_step", 10))
-			continue;*/
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
@@ -63,15 +61,17 @@ int main()
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 
 	vector <thread> worker_threads;
-
-	thread* update_NPC_t = new thread{ do_Timer };
-	//thread* DB_t = new thread{ DB_Thread };
+	vector <thread> timer_threads;
 	int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < num_threads; ++i)
+	for (int i = 0; i < 2; ++i)
+		timer_threads.emplace_back(do_Timer);
+	//thread* DB_t = new thread{ DB_Thread };
+	for (int i = 0; i < num_threads - 2; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
-	update_NPC_t->join();
+	for (auto& th : timer_threads)
+		th.join();
 	//DB_t->join();
 	closesocket(g_s_socket);
 	WSACleanup();
@@ -367,7 +367,6 @@ void worker_thread(HANDLE h_iocp)
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
-
 						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE };
 						timer_queue.push(ev);
 						(*iter)->recent_recvedTime = high_resolution_clock::now();
@@ -391,7 +390,7 @@ void do_Timer()
 {
 	while (1)
 	{
-		this_thread::sleep_for(1ms);
+		this_thread::sleep_for(10ns);
 		TIMER_EVENT ev;
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
@@ -410,3 +409,4 @@ void do_Timer()
 		}
 	}
 }
+

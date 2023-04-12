@@ -14,6 +14,12 @@ Monster::Monster(const Monster& other)
     power = other.power;
     view_range = other.view_range;
     speed = other.speed;
+    curState = other.curState;
+    recent_recvedTime = other.recent_recvedTime;
+    distances = other.distances;
+    cur_animation_track = other.cur_animation_track;
+    target_id = other.target_id;
+    attacked = other.attacked;
 }
 
 Monster& Monster::operator=(const Monster& other)
@@ -33,15 +39,17 @@ Monster& Monster::operator=(const Monster& other)
     power = other.power;
     view_range = other.view_range;
     speed = other.speed;
-
+    curState = other.curState;
+    recent_recvedTime = other.recent_recvedTime;
+    distances = other.distances;
+    cur_animation_track = other.cur_animation_track;
+    target_id = other.target_id;
+    attacked = other.attacked;
     return *this;
 }
 
 void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos) 
 {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<float> dis(0.0f, 0.5f);
     Pos = _pos;
     room_num = _roomNum;
     alive = true;
@@ -49,6 +57,10 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     BB = BoundingBox(_pos, XMFLOAT3(9, 9, 9));
     curState = NPC_State::Idle;
     recent_recvedTime = high_resolution_clock::now();
+    distances = { 10000.f };
+    cur_animation_track = 0;
+    target_id = -1;
+    attacked = false;
     switch (_type)
     {
     case 0: // ¼Õ¿¡ Ä®

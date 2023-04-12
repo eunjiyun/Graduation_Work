@@ -54,12 +54,13 @@ struct CLIENT {
 	int prev_packet_data;
 	int curr_packet_size;
 	high_resolution_clock::time_point last_move_time;
+	high_resolution_clock::time_point last_recved_time;
 };
 
 struct MONSTER {
 	XMFLOAT3 pos;
 	atomic_bool connected;
-
+	high_resolution_clock::time_point last_recved_time;
 };
 
 array<int, MAX_CLIENTS> client_map;
@@ -139,14 +140,12 @@ void ProcessPacket(int ci, unsigned char packet[])
 			if (-1 != my_id) {
 				g_clients[my_id].pos = move_packet->Pos;
 			}
-			//if (ci == my_id) {
-			//	if (0 != move_packet->move_time) {
-			//		auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - move_packet->move_time;
-
-			//		if (global_delay < d_ms) global_delay++;
-			//		else if (global_delay > d_ms) global_delay--;
-			//	}
-			//}
+			if (ci == my_id) {
+				auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_clients[my_id].last_recved_time).count();
+				if (global_delay < d_ms) global_delay++;
+				else if (global_delay > d_ms) global_delay--;
+				g_clients[my_id].last_recved_time = high_resolution_clock::now();
+			}
 		}
 	}
 					   break;
@@ -171,7 +170,7 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case SC_SUMMON_MONSTER:
 	{
 		SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
-		//cout << ci << "클라이언트의 화면에" << p->id << "몬스터 소환\n";
+		cout << ci << "클라이언트의 화면에" << p->id << "몬스터 소환\n";
 		g_monsters[p->room_num * 10 + p->id].connected = true;
 		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
 	}
@@ -179,7 +178,18 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case SC_MOVE_MONSTER: 
 	{
 		SC_MOVE_MONSTER_PACKET* p = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(packet);
+		if (p->is_alive == false) {
+			g_monsters[p->room_num * 10 + p->id].connected = false;
+			break;
+		}
 		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
+		if (ci == 1) {
+			auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_monsters[p->id].last_recved_time).count();
+			if (global_delay < d_ms) global_delay++;
+			else if (global_delay > d_ms) global_delay--;
+			g_monsters[p->id].last_recved_time = high_resolution_clock::now();
+		}
+		
 		break;
 	}
 	case CS_ATTACK: {
@@ -372,14 +382,14 @@ void Test_Thread()
 
 		for (int i = 0; i < num_connections; ++i) {
 			if (false == g_clients[i].connected) continue;
-			if (g_clients[i].last_move_time + 30ms > high_resolution_clock::now()) continue;
+			if (g_clients[i].last_move_time + 50ms > high_resolution_clock::now()) continue;
 			g_clients[i].last_move_time = high_resolution_clock::now();
+			CS_MOVE_PACKET my_packet;
+			my_packet.size = sizeof(my_packet);
+			my_packet.type = CS_MOVE;
+			my_packet.direction = rand() % 16;
 			short packet_type = rand() % 3;
-			if (packet_type == 0) {
-				CS_MOVE_PACKET my_packet;
-				my_packet.size = sizeof(my_packet);
-				my_packet.type = CS_MOVE;
-				my_packet.direction = rand() % 16;
+			//if (packet_type == 0) {
 				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
 				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
 				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
@@ -391,15 +401,15 @@ void Test_Thread()
 				//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
 				//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
 				SendPacket(i, &my_packet);
-			}
-			else if (packet_type == 1) {
-				CS_ATTACK_PACKET my_packet_2;
-				my_packet_2.size = sizeof(CS_ATTACK_PACKET);
-				my_packet_2.type = CS_ATTACK;
-				my_packet_2.id = i;
-				my_packet_2.pos = g_clients[i].pos;
-				SendPacket(i, &my_packet_2);
-			}
+			//}
+			//else if (packet_type == 1) {
+			//	CS_ATTACK_PACKET my_packet_2;
+			//	my_packet_2.size = sizeof(CS_ATTACK_PACKET);
+			//	my_packet_2.type = CS_ATTACK;
+			//	my_packet_2.id = i;
+			//	my_packet_2.pos = g_clients[i].pos;
+			//	SendPacket(i, &my_packet_2);
+			//}
 			//else if (packet_type == 2) {
 			//	CS_COLLECT_PACKET my_packet_3;
 			//	my_packet_3.size = sizeof(CS_COLLECT_PACKET);

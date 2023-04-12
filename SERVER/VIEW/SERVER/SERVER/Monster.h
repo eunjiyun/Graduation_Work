@@ -29,7 +29,7 @@ public:
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook;
     high_resolution_clock::time_point recent_recvedTime;
-    stack<XMFLOAT3> roadToMove;
+    //stack<XMFLOAT3> roadToMove;
     
     short HP, power;
     float speed;
@@ -46,6 +46,7 @@ public:
     mutable mutex m_lock; // const 함수에서 lock을 사용하기 위해 mutable로 선언
     Monster() { }
     Monster(const Monster& other);
+    ~Monster() {}
     Monster& operator=(const Monster& other);
     void Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos);
     short getType()
@@ -69,6 +70,7 @@ public:
     float GetAttackTimer() const { return attack_timer; }
     bool is_alive() { return alive; }
     void SetAlive(bool in) { alive = in; }
+    bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box);
 };
 
 class MonsterInfo

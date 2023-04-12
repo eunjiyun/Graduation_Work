@@ -102,7 +102,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
         nReads = (UINT)::fread(&nMaterials, sizeof(int), 1, pFile);
 
         pGameObject = new MapObject(nMaterials);
-        strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
+        //strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
 
 
         XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); XMFLOAT4 xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);

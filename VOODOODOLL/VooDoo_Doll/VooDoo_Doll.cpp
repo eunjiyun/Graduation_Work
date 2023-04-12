@@ -485,6 +485,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			mtkLookAt._31 = -mtkLookAt._31;
 			(*iter)->m_xmf4x4ToParent = mtkLookAt;
 		}
+		
+
+		/*XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
+
+		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
+		(*iter)->SetPosition(targetPos);
+		(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), 10, false);*/
 		(*iter)->SetPosition(packet->Pos);
 		(*iter)->m_xmOOBB.Center = packet->Pos;
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);

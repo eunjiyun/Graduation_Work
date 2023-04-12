@@ -111,7 +111,6 @@ public:
 
 
 
-//CObjectPool<OVER_EXP> OverPool(100'000);
 OVERLAPPEDPOOL OverPool(200'000);
 
 enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD, ST_CRASHED };
@@ -161,7 +160,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, -290, 950 };
+		m_xmf3Position = XMFLOAT3{ -50, -292, 980 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;

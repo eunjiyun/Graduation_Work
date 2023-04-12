@@ -602,7 +602,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-
+		Mon->speed = 3.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 1:
@@ -617,7 +617,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-
+		Mon->speed = 3.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
@@ -627,7 +627,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		
+		Mon->speed = 3.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
@@ -643,7 +643,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
-	
+		Mon->speed = 2.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
@@ -663,7 +663,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Hat, 1, 2);
 		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
-
+		Mon->speed = 2.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 5:
@@ -677,7 +677,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//¹Ù´Ã ÈÖµÎ¸£±â µý°É·Î
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		
+		Mon->speed = 2.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	default:
@@ -756,6 +756,9 @@ void CGameFramework::FrameAdvance()
 			player->Deceleration(fTimeElapsed);
 		}
 	}
+	//for (auto& monster : Monsters) {
+	//	monster->Update(fTimeElapsed);
+	//}
 
 	AnimateObjects(fTimeElapsed);
 

@@ -1,11 +1,18 @@
 #pragma once
 #include "stdafx.h"
 
+
+// 맵 범위
+// X범위 -360~~~~~~~~~~~120      너비 500
+// Y범위 -292~~~~~~~~~~~200      너비 600
+// Z범위 -300~~~~~~~~~~~4100     너비 4500
+
+
 class MapObject
 {
 public:
     XMFLOAT4X4 m_xmf4x4World;
-    char		m_pstrName[64] = { '\0' };
+    //char		m_pstrName[64] = { '\0' };
     BoundingOrientedBox		m_xmOOBB = BoundingOrientedBox();
 
     MapObject() { m_xmf4x4World = Matrix4x4::Identity(); }

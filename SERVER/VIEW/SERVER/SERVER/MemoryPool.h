@@ -35,21 +35,19 @@ public:
 
     T* GetMemory()
     {
+        //lock_guard<mutex> ll{ pool_lock };
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
-            lock_guard<mutex> ll{ pool_lock };
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(new T());
         }
-        
-        lock_guard<mutex> ll{ pool_lock };
         auto& front = objectQueue.front();
         objectQueue.pop();
         return front;
     }
     void ReturnMemory(T* Mem)
     {
-        lock_guard<mutex> ll{ pool_lock };
+        //lock_guard<mutex> ll{ pool_lock };
         objectQueue.push(Mem);
     }
     void PrintSize()

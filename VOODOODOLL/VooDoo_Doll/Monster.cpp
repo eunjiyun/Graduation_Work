@@ -51,3 +51,10 @@ CMonster::CMonster(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 CMonster::~CMonster()
 {
 }
+
+void CMonster::Update(float fTimeElapsed)
+{
+	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+
+	Move(xmf3Velocity);
+}
