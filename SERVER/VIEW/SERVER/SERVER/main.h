@@ -99,20 +99,20 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 
 void Initialize_Monster(int roomNum, int stageNum)//0326
 {
-	for (auto& info : StagesInfo[stageNum - 1]) {
-		Monster* M = MonsterPool.GetMemory();
-		M->Initialize(roomNum, info.id, info.type, info.Pos);
-		PoolMonsters[roomNum].emplace_back(M);
-		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-			if (clients[roomNum][i]._state == ST_INGAME || clients[roomNum][i]._state == ST_DEAD) {
-				clients[roomNum][i].cur_stage = stageNum;
-				clients[roomNum][i].send_summon_monster_packet(M);
-				//cout << roomNum << "번 방 " << M->m_id << "ID의 " << M->getType() << "타입 몬스터 소환\n";
-			}
-		}
-		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE};
-		timer_queue.push(ev);
-	}
+//	for (auto& info : StagesInfo[stageNum - 1]) {
+//		Monster* M = MonsterPool.GetMemory();
+//		M->Initialize(roomNum, info.id, info.type, info.Pos);
+//		PoolMonsters[roomNum].emplace_back(M);
+//		for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
+//			if (clients[roomNum][i]._state == ST_INGAME || clients[roomNum][i]._state == ST_DEAD) {
+//				clients[roomNum][i].cur_stage = stageNum;
+//				clients[roomNum][i].send_summon_monster_packet(M);
+//				//cout << roomNum << "번 방 " << M->m_id << "ID의 " << M->getType() << "타입 몬스터 소환\n";
+//			}
+//		}
+//		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE};
+//		timer_queue.push(ev);
+//	}
 }
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
