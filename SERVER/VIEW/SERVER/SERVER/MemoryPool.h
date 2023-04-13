@@ -5,12 +5,6 @@
 #include "stdafx.h"
 
 
-using namespace std;
-typedef unsigned char UCHAR;
-typedef unsigned int UINT;
-
-#define USEPOOL 0
-
 template<class T>
 class CObjectPool {
 private:
@@ -65,7 +59,7 @@ public:
     float F = 0;
     float G = 0;
     float H = 0;
-   shared_ptr<A_star_Node> parent = nullptr;
+   shared_ptr<A_star_Node> parent;
     XMFLOAT3 Pos = { 0,0,0 };
     A_star_Node() {}
     A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
@@ -87,12 +81,6 @@ public:
         if (node) {
             parent = node;
         }
-    }
-};
-
-struct CompareNodes {
-    bool operator()(const shared_ptr<A_star_Node>& n1, const shared_ptr<A_star_Node>& n2) {
-        return n1->F < n2->F;
     }
 };
 
@@ -134,7 +122,7 @@ public:
 
     void ReturnMemory(shared_ptr<A_star_Node> Mem)
     {
-        Mem->parent = nullptr;
+        Mem->parent.reset();
         Mem->Pos = { 0,0,0 };
         Mem->G = Mem->H = Mem->F = 0;
         lock_guard<mutex> ll{ pool_lock };

@@ -9,7 +9,8 @@ constexpr short MAX_USER_PER_ROOM = 4;
 constexpr short MAX_MONSTER_PER_ROOM = 10;
 constexpr short W_WIDTH = 400;
 constexpr short W_HEIGHT = 400;
-constexpr short VIEW_RANGE = 4;
+constexpr short MELEEATTACK_RANGE = 5;
+constexpr short LONGRANGETTACK_RANGE = 150;
 constexpr short STAGE_SIZE = 985;
 constexpr short AREA_SIZE = 100;
 

@@ -258,7 +258,8 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSigna
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 	//cout << c_id << endl;
-	if (nCameraMode == THIRD_PERSON_CAMERA) CGameObject::Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	//if (nCameraMode == THIRD_PERSON_CAMERA)
+		CGameObject::Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
 
 void CPlayer::OnUpdateTransform()
@@ -390,10 +391,10 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 	switch (nNewCameraMode)
 	{
 	case FIRST_PERSON_CAMERA:
-		SetFriction(250.0f);
-		SetGravity(XMFLOAT3(0.0f, -400.0f, 0.0f));
-		SetMaxVelocityXZ(300.0f);
-		SetMaxVelocityY(400.0f);
+		SetFriction(50.0f);
+		SetGravity(XMFLOAT3(0.0f, -5.0f, 0.0f));
+		SetMaxVelocityXZ(10.0f);
+		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 0.0f));

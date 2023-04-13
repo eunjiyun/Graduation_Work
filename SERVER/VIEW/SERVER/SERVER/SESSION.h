@@ -127,7 +127,7 @@ public:
 	char	_name[NAME_SIZE];
 	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
-	short cur_stage;
+	atomic<short> cur_stage;
 	short error_stack;
 	short character_num;
 	high_resolution_clock::time_point recent_recvedTime;
@@ -175,7 +175,7 @@ public:
 		recent_recvedTime = high_resolution_clock::now();
 		_state = ST_FREE;
 		character_num = 0;
-		HP = 500;
+		HP = 5000;
 	}
 	void do_recv()
 	{

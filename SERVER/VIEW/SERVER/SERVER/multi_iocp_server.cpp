@@ -22,6 +22,7 @@ void process_packet(const int c_id, char* packet);
 void worker_thread(HANDLE h_iocp);
 void do_Timer();
 
+
 int main()
 {
 	wcout.imbue(locale("korean"));
@@ -37,7 +38,28 @@ int main()
 			Objects[j].emplace_back(m_ppObjects[i]);
 		}
 	}
+
+	//bool col = false;
+	//for (float j = 4080; j >= -240; j--) {
+	//	for (float i = -360; i < 120; i++) {
+	//		for (int k = 0; k < m_nObjects; k++) {
+	//			if ((0 == strncmp(m_ppObjects[k]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[k]->m_pstrName, "Ceiling_concrete_base_mesh", 26)) || 
+	//				m_ppObjects[k]->GetPosition().y > -100)
+	//				continue;
+	//			if (m_ppObjects[k]->m_xmOOBB.Intersects(BoundingBox(XMFLOAT3{ i,-292,j }, XMFLOAT3(15, 12, 8)))) {
+	//				col = true;
+	//				break;
+	//			}
+	//		}
+	//		if (col) cout << "0";
+	//		else cout << "1";
+	//		col = false;
+	//	}
+	//	cout << endl;
+	//}
+
 	delete[] m_ppObjects;
+
 
 	InitializeStages();
 
@@ -66,13 +88,16 @@ int main()
 	for (int i = 0; i < 2; ++i)
 		timer_threads.emplace_back(do_Timer);
 	//thread* DB_t = new thread{ DB_Thread };
-	for (int i = 0; i < num_threads - 2; ++i)
+	for (int i = 0; i < num_threads - 1; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
 	for (auto& th : timer_threads)
 		th.join();
 	//DB_t->join();
+	MonsterPool.PrintSize();
+	OverPool.PrintSize();
+
 	closesocket(g_s_socket);
 	WSACleanup();
 }
@@ -201,7 +226,7 @@ void process_packet(const int c_id, char* packet)
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		CL.send_login_info_packet();
-		CL._state.store(ST_INGAME);	
+		CL._state.store(ST_INGAME);
 		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
 			pl.send_add_player_packet(&CL);
@@ -225,11 +250,13 @@ void process_packet(const int c_id, char* packet)
 		break;
 	}
 	case CS_ATTACK: {
-		vector<Monster*>& Monsters = getMonsters(CL._id);
+		safe_vector<Monster*>& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		switch (CL.character_num)
 		{
 		case 0:
+		{
+			lock_guard<mutex> vec_lock{ Monsters.v_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
@@ -239,23 +266,28 @@ void process_packet(const int c_id, char* packet)
 						monster->SetState(NPC_State::Dead);
 				}
 			}
-
 			break;
+		}
 		case 1:
+		{
 			CL.BulletLook = CL.GetLookVector();
 			CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
 			break;
+		}
 		case 2:
+		{
+			lock_guard<mutex> vec_lock{ Monsters.v_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
-				{	
+				{
 					monster->HP -= 50;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
 				}
 			}
 			break;
+		}
 		}
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
@@ -272,7 +304,7 @@ void process_packet(const int c_id, char* packet)
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
 		CL.character_num = (CL.character_num + 1) % 3;
-		
+
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
@@ -349,33 +381,33 @@ void worker_thread(HANDLE h_iocp)
 		}
 		case OP_SEND:
 			OverPool.ReturnMemory(ex_over);
-			//OverPool.PrintSize();
-			//delete ex_over;
 			break;
 		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
-			auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+			vector<Monster*>::iterator iter;
+			{
+				lock_guard<mutex> vec_lock{ PoolMonsters[roomNum].v_lock };
+				iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+			}
 			if (iter != PoolMonsters[roomNum].end()) {
 				if ((*iter)->is_alive()) {
 					{
 						{
 							lock_guard<mutex> mm{ (*iter)->m_lock };
 							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
+							(*iter)->recent_recvedTime = high_resolution_clock::now();
 						}
-
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
-						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 30ms, EV_RANDOM_MOVE };
+						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_RANDOM_MOVE };
 						timer_queue.push(ev);
-						(*iter)->recent_recvedTime = high_resolution_clock::now();
 					}
 				}
 				else {
 					MonsterPool.ReturnMemory(*iter);
 					PoolMonsters[roomNum].erase(iter);
-					//MonsterPool.PrintSize();
 				}
 			}
 			OverPool.ReturnMemory(ex_over);
@@ -390,7 +422,6 @@ void do_Timer()
 {
 	while (1)
 	{
-		this_thread::sleep_for(10ns);
 		TIMER_EVENT ev;
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
@@ -400,7 +431,6 @@ void do_Timer()
 			}
 			switch (ev.event_id) {
 			case EV_RANDOM_MOVE:
-				//OVER_EXP* ov = new OVER_EXP;
 				OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);

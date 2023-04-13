@@ -383,7 +383,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 void ProcessPacket(char* ptr)//몬스터 생성
 {
 	switch (ptr[1]) {
-	case SC_LOGIN_INFO: { 
+	case SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
 		gGameFramework.m_pPlayer->SetPosition(packet->pos);
@@ -484,16 +484,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			mtkLookAt._21 = -mtkLookAt._21;
 			mtkLookAt._31 = -mtkLookAt._31;
 			(*iter)->m_xmf4x4ToParent = mtkLookAt;
+			XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
+
+			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
+			(*iter)->SetPosition(targetPos);
+			(*iter)->m_xmOOBB.Center = targetPos;
+			(*iter)->m_xmf3Velocity = Vector3::Normalize(deltaPos);
+			(*iter)->SetPosition(targetPos);
 		}
-		
-
-		/*XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
-
-		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
-		(*iter)->SetPosition(targetPos);
-		(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), 10, false);*/
-		(*iter)->SetPosition(packet->Pos);
-		(*iter)->m_xmOOBB.Center = packet->Pos;
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}

@@ -756,9 +756,9 @@ void CGameFramework::FrameAdvance()
 			player->Deceleration(fTimeElapsed);
 		}
 	}
-	//for (auto& monster : Monsters) {
-	//	monster->Update(fTimeElapsed);
-	//}
+	for (auto& monster : Monsters) {
+		monster->Update(fTimeElapsed);
+	}
 
 	AnimateObjects(fTimeElapsed);
 

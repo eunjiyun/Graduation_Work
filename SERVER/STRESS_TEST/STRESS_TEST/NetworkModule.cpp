@@ -141,10 +141,11 @@ void ProcessPacket(int ci, unsigned char packet[])
 				g_clients[my_id].pos = move_packet->Pos;
 			}
 			if (ci == my_id) {
-				auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_clients[my_id].last_recved_time).count();
-				if (global_delay < d_ms) global_delay++;
-				else if (global_delay > d_ms) global_delay--;
-				g_clients[my_id].last_recved_time = high_resolution_clock::now();
+			//	auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_clients[my_id].last_recved_time).count();
+			//	if (global_delay < d_ms) global_delay++;
+			//	else if (global_delay > d_ms) global_delay--;
+			//	g_clients[my_id].last_recved_time = high_resolution_clock::now();
+				if (move_packet->HP <= 0) { DisconnectClient(my_id); }
 			}
 		}
 	}
@@ -170,9 +171,10 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case SC_SUMMON_MONSTER:
 	{
 		SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
-		cout << ci << "클라이언트의 화면에" << p->id << "몬스터 소환\n";
+		cout <<  p->room_num << "몬스터 소환\n";
 		g_monsters[p->room_num * 10 + p->id].connected = true;
 		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
+		g_monsters[p->room_num * 10 + p->id].last_recved_time = high_resolution_clock::now();
 	}
 	break;
 	case SC_MOVE_MONSTER: 
@@ -183,11 +185,11 @@ void ProcessPacket(int ci, unsigned char packet[])
 			break;
 		}
 		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
-		if (ci == 1) {
-			auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_monsters[p->id].last_recved_time).count();
+		if (ci % 4 == 1) {
+			auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_monsters[p->room_num * 10 + p->id].last_recved_time).count();
 			if (global_delay < d_ms) global_delay++;
 			else if (global_delay > d_ms) global_delay--;
-			g_monsters[p->id].last_recved_time = high_resolution_clock::now();
+			g_monsters[p->room_num * 10 + p->id].last_recved_time = high_resolution_clock::now();
 		}
 		
 		break;
@@ -286,8 +288,8 @@ void Worker_Thread()
 	}
 }
 
-constexpr int DELAY_LIMIT = 100;
-constexpr int DELAY_LIMIT2 = 150;
+constexpr int DELAY_LIMIT = 200;
+constexpr int DELAY_LIMIT2 = 300;
 constexpr int ACCEPT_DELY = 50;
 
 void Adjust_Number_Of_Client()
@@ -389,7 +391,7 @@ void Test_Thread()
 			my_packet.type = CS_MOVE;
 			my_packet.direction = rand() % 16;
 			short packet_type = rand() % 3;
-			//if (packet_type == 0) {
+			if (packet_type == 0) {
 				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
 				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
 				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
@@ -401,15 +403,15 @@ void Test_Thread()
 				//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
 				//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
 				SendPacket(i, &my_packet);
-			//}
-			//else if (packet_type == 1) {
-			//	CS_ATTACK_PACKET my_packet_2;
-			//	my_packet_2.size = sizeof(CS_ATTACK_PACKET);
-			//	my_packet_2.type = CS_ATTACK;
-			//	my_packet_2.id = i;
-			//	my_packet_2.pos = g_clients[i].pos;
-			//	SendPacket(i, &my_packet_2);
-			//}
+			}
+			else if (packet_type == 1) {
+				CS_ATTACK_PACKET my_packet_2;
+				my_packet_2.size = sizeof(CS_ATTACK_PACKET);
+				my_packet_2.type = CS_ATTACK;
+				my_packet_2.id = i;
+				my_packet_2.pos = g_clients[i].pos;
+				SendPacket(i, &my_packet_2);
+			}
 			//else if (packet_type == 2) {
 			//	CS_COLLECT_PACKET my_packet_3;
 			//	my_packet_3.size = sizeof(CS_COLLECT_PACKET);

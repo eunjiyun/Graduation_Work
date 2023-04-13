@@ -73,6 +73,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
     int	nTextureNumber = 0;
     int iCount = 0;
 
+
     nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
     nReads = (UINT)::fread(pstrToken1, sizeof(char), nStrLength, pFile); //"<GameObjects>:"
     nReads = (UINT)::fread(pnGameObjects, sizeof(int), 1, pFile);
@@ -102,7 +103,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
         nReads = (UINT)::fread(&nMaterials, sizeof(int), 1, pFile);
 
         pGameObject = new MapObject(nMaterials);
-        //strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
+        strcpy_s(pGameObject->m_pstrName, 64, pstrGameObjectName);
 
 
         XMFLOAT4 xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f); XMFLOAT4 xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
