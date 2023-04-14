@@ -364,15 +364,15 @@ public:
 };
 
 template<typename T>
-class safe_vector : public vector<T>
+class threadsafe_vector : public vector<T>
 {
 public:
 	void emplace_back(const T& value) {
 		lock_guard<mutex> _vec_lock{ v_lock };
 		vector<T>::emplace_back(value);
 	}
-	void erase(vector<T>::const_iterator iter) {
-		lock_guard<mutex> _vec_lock{ v_lock };
+	void erase(typename vector<T>::const_iterator iter) {
+		//lock_guard<mutex> _vec_lock{ v_lock };
 		vector<T>::erase(iter);
 	}
 	mutable mutex v_lock;

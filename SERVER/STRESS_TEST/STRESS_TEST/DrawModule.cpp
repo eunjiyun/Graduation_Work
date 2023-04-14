@@ -139,8 +139,10 @@ int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	glColor3f(1, 1, 0);
 	// Position The Text On The Screen
 	glRasterPos2f(0.0f, 0.00f);
-	glPrint("STRESS TEST [%d]", (int)active_clients);	// Print GL Text To The Screen
+	glPrint("Current User : [%d]", (int)active_clients);	// Print GL Text To The Screen
 	glRasterPos2f(0.0f, 0.05f);
+	glPrint("Current Monster : [%d]", (int)active_monsters);	// Print GL Text To The Screen
+	glRasterPos2f(0.0f, 0.10f);
 	glPrint("Delay : %dms", global_delay);
 
 	glColor3f(1, 1, 1);

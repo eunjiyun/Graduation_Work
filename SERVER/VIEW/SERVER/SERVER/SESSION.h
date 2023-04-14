@@ -49,7 +49,13 @@ public:
 			objectQueue.push(new OVER_EXP());
 		}
 	}
-	~OVERLAPPEDPOOL() { while(!objectQueue.empty()) objectQueue.pop(); }
+	~OVERLAPPEDPOOL()
+	{
+		while (!objectQueue.empty()) {
+			//auto front = objectQueue.front();
+			objectQueue.pop();
+		}
+	}
 
 	OVER_EXP* GetMemory()
 	{
@@ -68,10 +74,6 @@ public:
 			objectQueue.pop();
 		}
 
-
-		mem->_wsabuf.len = BUF_SIZE;
-		mem->_wsabuf.buf = mem->_send_buf;
-		ZeroMemory(&mem->_over, sizeof(mem->_over));
 		return mem;
 	}
 
@@ -92,14 +94,18 @@ public:
 		}
 
 		mem->_wsabuf.len = packet[0];
-		mem->_wsabuf.buf = mem->_send_buf;
-		ZeroMemory(&mem->_over, sizeof(mem->_over));
+		//mem->_wsabuf.buf = mem->_send_buf;
+		//ZeroMemory(&mem->_over, sizeof(mem->_over));
 		mem->_comp_type = OP_SEND;
 		memcpy(mem->_send_buf, packet, packet[0]);
 		return mem;
 	}
 	void ReturnMemory(OVER_EXP* Mem)
 	{
+		ZeroMemory(&Mem->_over, sizeof(Mem->_over));
+		Mem->_wsabuf.len = BUF_SIZE;
+		Mem->_wsabuf.buf = Mem->_send_buf;
+		Mem->_comp_type = OP_RECV;
 		lock_guard<mutex> ll{ pool_lock };
 		objectQueue.push(Mem);
 	}
@@ -152,7 +158,7 @@ public:
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
 		error_stack = 0;
 		character_num = 0;
-		HP = 5000;
+		HP = 50000;
 	}
 
 	~SESSION() {}

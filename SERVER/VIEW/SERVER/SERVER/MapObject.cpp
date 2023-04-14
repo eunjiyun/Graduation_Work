@@ -152,6 +152,11 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
 
         pGameObject->m_xmOOBB.Transform(pGameObject->m_xmOOBB, XMLoadFloat4x4(&pGameObject->m_xmf4x4World));
 
+        //cout << pGameObject->m_pstrName << endl;
+        //Vector3::Print(pGameObject->m_xmOOBB.Center);
+        //Vector3::Print(pGameObject->m_xmOOBB.Extents);
+        //cout << endl;
+
         ppGameObjects[i] = pGameObject;
 
     }

@@ -69,6 +69,7 @@ array<MONSTER, MAX_CLIENTS> g_monsters;
 atomic_int num_connections;
 atomic_int client_to_close;
 atomic_int active_clients;
+atomic_int active_monsters;
 
 int			global_delay;				// ms단위, 1000이 넘으면 클라이언트 증가 종료
 
@@ -170,28 +171,33 @@ void ProcessPacket(int ci, unsigned char packet[])
 	break;
 	case SC_SUMMON_MONSTER:
 	{
-		SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
-		cout <<  p->room_num << "몬스터 소환\n";
-		g_monsters[p->room_num * 10 + p->id].connected = true;
-		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
-		g_monsters[p->room_num * 10 + p->id].last_recved_time = high_resolution_clock::now();
+		if (ci % 4 == 1) {
+			SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
+			//cout << p->room_num << "몬스터 소환\n";
+			g_monsters[p->room_num * 10 + p->id].connected = true;
+			active_monsters++;
+			g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
+			g_monsters[p->room_num * 10 + p->id].last_recved_time = high_resolution_clock::now();
+		}
 	}
 	break;
 	case SC_MOVE_MONSTER: 
 	{
-		SC_MOVE_MONSTER_PACKET* p = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(packet);
-		if (p->is_alive == false) {
-			g_monsters[p->room_num * 10 + p->id].connected = false;
-			break;
-		}
-		g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
 		if (ci % 4 == 1) {
+			SC_MOVE_MONSTER_PACKET* p = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(packet);
+			if (p->is_alive == false) {
+				g_monsters[p->room_num * 10 + p->id].connected = false;
+				active_monsters--;
+				break;
+			}
+			g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
+
 			auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_monsters[p->room_num * 10 + p->id].last_recved_time).count();
 			if (global_delay < d_ms) global_delay++;
 			else if (global_delay > d_ms) global_delay--;
 			g_monsters[p->room_num * 10 + p->id].last_recved_time = high_resolution_clock::now();
 		}
-		
+
 		break;
 	}
 	case CS_ATTACK: {

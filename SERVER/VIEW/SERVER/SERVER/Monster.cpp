@@ -54,7 +54,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     room_num = _roomNum;
     alive = true;
     m_id = _id;
-    BB = BoundingBox(_pos, XMFLOAT3(9, 9, 9));
+    BB = BoundingBox(_pos, XMFLOAT3(12, 12, 12));
     curState = NPC_State::Idle;
     recent_recvedTime = high_resolution_clock::now();
     distances = { 10000.f };
@@ -65,7 +65,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     {
     case 0: // ¼Õ¿¡ Ä®
         type = 0;
-        HP = 200;
+        HP = 500;
         power = 30;
         view_range = 900;
         speed = 3.f;

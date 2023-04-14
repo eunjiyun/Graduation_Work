@@ -21,7 +21,7 @@ struct TIMER_EVENT {
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
 mutex mtx;
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
-array<safe_vector<Monster*>, MAX_ROOM> PoolMonsters;
+array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
 
 
 CObjectPool<Monster> MonsterPool(20'000);
@@ -43,7 +43,7 @@ array<SESSION, MAX_USER_PER_ROOM>& getRoom(int c_id)
 	return clients[c_id / 4];
 }
 
-safe_vector<Monster*>& getMonsters(int c_id)
+threadsafe_vector<Monster*>& getMonsters(int c_id)
 {
 	return PoolMonsters[c_id / 4];
 }
@@ -68,10 +68,10 @@ void disconnect(int c_id)
 	SESSION& CL = getClient(c_id);
 	closesocket(CL._socket);
 
-	if (in_game) // ���� �� �ȿ� ����� �ִٸ� 
+	if (in_game) // ���� �� �ȿ� �����?�ִٸ� 
 		CL._state.store(ST_CRASHED);
 
-	else { // ���� ����ٸ� ���Ϳ� �÷��̾� �����̳� ��� ����
+	else { // ���� ����ٸ�?���Ϳ� �÷��̾� �����̳� ���?����
 		for (auto& pl : getRoom(c_id)) {
 			pl._state.store(ST_FREE);
 		}
@@ -130,7 +130,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
-	// �̵��ӵ��� ���� �ȵǰ� ���� ��� üũ
+	// �̵��ӵ��� ���� �ȵǰ� ���� ���?üũ
 	static const float max_distance = 100.f;
 	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
 	float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
@@ -143,7 +143,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	else
 	{
 		try {
-			for (const auto& object : Objects.at((int)newPos.z / AREA_SIZE)) {	// array�� ����Լ� at�� �߸��� �ε����� �����ϸ� excetion�� ȣ���Ѵ�
+			for (const auto& object : Objects.at((int)newPos.z / AREA_SIZE)) {	// array�� ����Լ�?at�� �߸��� �ε����� �����ϸ� excetion�� ȣ���Ѵ�
 				if (object->m_xmOOBB.Contains(XMLoadFloat3(&newPos))) {
 					m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 					return;
@@ -231,7 +231,6 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3H
 	}
 	catch (const exception& e)
 	{
-		cout << "��ġ ����\n";
 		return false;
 	}
 	return true;
@@ -239,8 +238,21 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3H
 
 unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>::iterator getNode(unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>& m_List)
 {
-	return min_element(m_List.begin(), m_List.end(), 
-		[](const pair<const XMFLOAT3, shared_ptr<A_star_Node>>& p1, const pair<const XMFLOAT3, shared_ptr<A_star_Node>>& p2) {return p1.second->F < p2.second->F; });
+	try {
+		return min_element(m_List.begin(), m_List.end(),
+			[](const pair<const XMFLOAT3, shared_ptr<A_star_Node>>& p1, const pair<const XMFLOAT3, shared_ptr<A_star_Node>>& p2)
+			{
+				if (p1.second->F && p2.second->F)
+					return p1.second->F < p2.second->F;
+				else {
+					return false;
+				}
+			});
+	}
+	catch (const exception& e) {
+		cout << "openlist access error - " << e.what() << endl;
+		return m_List.end();
+	}
 }
 
 bool check_openList(XMFLOAT3& _Pos, float _G, shared_ptr<A_star_Node> s_node, unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>& m_List)
@@ -275,31 +287,33 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 	check_pathTime = 0;
 	check_openListTime = 0;
 
-	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos));
+	openlist.emplace(start_Pos, shared_ptr<A_star_Node>(new A_star_Node(start_Pos, dest_Pos, 0, nullptr)));
 
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
 	{
 		auto iter = getNode(openlist);
+		if (iter == openlist.end()) { cout << "GetNode ERROR\n"; break; }
+
 		S_Node = (*iter).second;
 
 		//if (clients[room_num][target_id].m_xmOOBB.Intersects(BoundingBox(S_Node->Pos, BB.Extents)))
 		if (Vector3::Length(Vector3::Subtract(clients[room_num][target_id].GetPosition(), S_Node->Pos)) < 30)
 		{
-			while (S_Node->parent.lock() != nullptr)
+			while (S_Node->parent != nullptr)
 			{
-				if (Vector3::Compare2D(S_Node->parent.lock()->Pos, start_Pos))
+				if (Vector3::Compare2D(S_Node->parent->Pos, start_Pos))
 				{
 					return S_Node->Pos;
 				}
-				S_Node = S_Node->parent.lock();
+				S_Node = S_Node->parent;
 			}
 		}
 		for (int i = 0; i < 8; i++) {
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
 			float _G = S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i]));
 			if (check_path(_Pos, closelist, CheckBox) && check_openList(_Pos, _G, S_Node, openlist)) {
-				openlist.emplace(_Pos, make_shared<A_star_Node>(_Pos, dest_Pos, _G, S_Node));
+				openlist.emplace(_Pos, shared_ptr<A_star_Node>(new A_star_Node(_Pos, dest_Pos, _G, S_Node)));
 			}
 		}
 		closelist.insert(S_Node->Pos);
@@ -341,7 +355,7 @@ void Monster::Update(float fTimeElapsed)
 	// ���Ϳ� �÷��̾� ������ ����
 	XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
 
-	// ���Ϳ� �÷��̾� ������ �Ÿ� ���
+	// ���Ϳ� �÷��̾� ������ �Ÿ� ���?
 	g_distance = Vector3::Length(distanceVector);
 	if (4 == type && MagicPos.x != 5000) {
 		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 5, false));

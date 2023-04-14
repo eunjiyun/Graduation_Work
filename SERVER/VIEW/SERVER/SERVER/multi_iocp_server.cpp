@@ -32,6 +32,8 @@ int main()
 	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
 
 	for (int i = 0; i < m_nObjects; i++) {
+		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) ||
+			0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh", 26)) continue;
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
@@ -250,7 +252,7 @@ void process_packet(const int c_id, char* packet)
 		break;
 	}
 	case CS_ATTACK: {
-		safe_vector<Monster*>& Monsters = getMonsters(CL._id);
+		threadsafe_vector<Monster*>& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		switch (CL.character_num)
 		{
@@ -385,29 +387,30 @@ void worker_thread(HANDLE h_iocp)
 		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
-			vector<Monster*>::iterator iter;
+			//vector<Monster*>::iterator iter;
 			{
 				lock_guard<mutex> vec_lock{ PoolMonsters[roomNum].v_lock };
-				iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
-			}
-			if (iter != PoolMonsters[roomNum].end()) {
-				if ((*iter)->is_alive()) {
-					{
+				auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+
+				if (iter != PoolMonsters[roomNum].end()) {
+					if ((*iter)->is_alive()) {
 						{
-							lock_guard<mutex> mm{ (*iter)->m_lock };
-							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
-							(*iter)->recent_recvedTime = high_resolution_clock::now();
+							{
+								lock_guard<mutex> mm{ (*iter)->m_lock };
+								(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
+								(*iter)->recent_recvedTime = high_resolution_clock::now();
+							}
+							for (auto& cl : clients[roomNum]) {
+								if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
+							}
+							TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_RANDOM_MOVE };
+							timer_queue.push(ev);
 						}
-						for (auto& cl : clients[roomNum]) {
-							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
-						}
-						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_RANDOM_MOVE };
-						timer_queue.push(ev);
 					}
-				}
-				else {
-					MonsterPool.ReturnMemory(*iter);
-					PoolMonsters[roomNum].erase(iter);
+					else {
+						MonsterPool.ReturnMemory(*iter);
+						PoolMonsters[roomNum].erase(iter);
+					}
 				}
 			}
 			OverPool.ReturnMemory(ex_over);
