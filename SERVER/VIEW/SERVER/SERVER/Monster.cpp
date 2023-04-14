@@ -14,6 +14,12 @@ Monster::Monster(const Monster& other)
     power = other.power;
     view_range = other.view_range;
     speed = other.speed;
+    curState = other.curState;
+    recent_recvedTime = other.recent_recvedTime;
+    distances = other.distances;
+    cur_animation_track = other.cur_animation_track;
+    target_id = other.target_id;
+    attacked = other.attacked;
 }
 
 Monster& Monster::operator=(const Monster& other)
@@ -33,29 +39,36 @@ Monster& Monster::operator=(const Monster& other)
     power = other.power;
     view_range = other.view_range;
     speed = other.speed;
-
+    curState = other.curState;
+    recent_recvedTime = other.recent_recvedTime;
+    distances = other.distances;
+    cur_animation_track = other.cur_animation_track;
+    target_id = other.target_id;
+    attacked = other.attacked;
     return *this;
 }
 
-void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
+void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos) 
 {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<float> dis(0.0f, 0.5f);
     Pos = _pos;
     room_num = _roomNum;
     alive = true;
     m_id = _id;
-    BB = BoundingBox(_pos, XMFLOAT3(5, 3, 5));
+    BB = BoundingBox(_pos, XMFLOAT3(9, 9, 9));
     curState = NPC_State::Idle;
+    recent_recvedTime = high_resolution_clock::now();
+    distances = { 10000.f };
+    cur_animation_track = 0;
+    target_id = -1;
+    attacked = false;
     switch (_type)
     {
     case 0: // 손에 칼
         type = 0;
         HP = 200;
         power = 30;
-        view_range = 500;
-        speed = 1.75f + dis(gen);
+        view_range = 900;
+        speed = 3.f;
         attack_cycle = (71.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -64,8 +77,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 1;
         HP = 100;
         power = 30;
-        view_range = 500;
-        speed = 2.75f + dis(gen);
+        view_range = 300;
+        speed = 3.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -74,8 +87,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 2;
         HP = 50;
         power = 50;
-        view_range = 500;
-        speed = 2.75f + dis(gen);
+        view_range = 300;
+        speed = 3.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -84,8 +97,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 3;
         HP = 50;
         power = 70;
-        view_range = 400;
-        speed = 1.75f + dis(gen);
+        view_range = 300;
+        speed = 2.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -94,8 +107,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 4;
         HP = 50;
         power = 70;
-        view_range = 400;
-        speed = 1.75f + dis(gen);
+        view_range = 300;
+        speed = 2.f;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -104,8 +117,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 5;
         HP = 500;
         power = 70;
-        view_range = 400;
-        speed = 1.75f + dis(gen);
+        view_range = 300;
+        speed = 2.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;

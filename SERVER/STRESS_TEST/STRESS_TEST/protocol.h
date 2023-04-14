@@ -118,6 +118,7 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short room_num;
 	short monster_type;
 	XMFLOAT3 Pos;
 };
@@ -127,6 +128,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short room_num;
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;

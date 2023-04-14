@@ -73,6 +73,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
     int	nTextureNumber = 0;
     int iCount = 0;
 
+
     nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
     nReads = (UINT)::fread(pstrToken1, sizeof(char), nStrLength, pFile); //"<GameObjects>:"
     nReads = (UINT)::fread(pnGameObjects, sizeof(int), 1, pFile);

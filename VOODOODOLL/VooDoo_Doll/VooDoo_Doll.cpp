@@ -364,6 +364,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 	if (p->direction & DIR_DIE) {
 		pl->onAct = true;
 		pl->alive = false;
+		pl->cxDelta = pl->cyDelta = pl->czDelta = 0;
 		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		return;
 	}
@@ -382,7 +383,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 void ProcessPacket(char* ptr)//몬스터 생성
 {
 	switch (ptr[1]) {
-	case SC_LOGIN_INFO: { 
+	case SC_LOGIN_INFO: {
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
 		gGameFramework.m_pPlayer->SetPosition(packet->pos);
@@ -413,8 +414,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		if ((*iter)->onAct == false)
 			ProcessAnimation(*iter, packet);
 
-
-		//float FPS = duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->curTime).count() / 1000.f;
 
 		XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
 
@@ -478,16 +477,21 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 		}
-		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != 3) {
-			XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(Vector3::RemoveY(packet->Pos),
-				Vector3::RemoveY((*targetP)->GetPosition()), XMFLOAT3(0, 1, 0));
+		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1) {
+			XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH((*iter)->GetPosition(),
+				packet->Pos, XMFLOAT3(0, 1, 0));
 			mtkLookAt._11 = -mtkLookAt._11;
 			mtkLookAt._21 = -mtkLookAt._21;
 			mtkLookAt._31 = -mtkLookAt._31;
 			(*iter)->m_xmf4x4ToParent = mtkLookAt;
+			XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
+
+			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
+			(*iter)->SetPosition(targetPos);
+			(*iter)->m_xmOOBB.Center = targetPos;
+			(*iter)->m_xmf3Velocity = Vector3::Normalize(deltaPos);
+			(*iter)->SetPosition(targetPos);
 		}
-		(*iter)->SetPosition(packet->Pos);
-		(*iter)->m_xmOOBB.Center = packet->Pos;
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}

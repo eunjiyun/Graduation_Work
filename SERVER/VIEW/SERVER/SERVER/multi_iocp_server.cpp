@@ -8,12 +8,102 @@
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
+
 using namespace std;
 using namespace chrono;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
 HANDLE h_iocp;
+
+void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode);
+void DB_Thread();
+void process_packet(const int c_id, char* packet);
+void worker_thread(HANDLE h_iocp);
+void do_Timer();
+
+
+int main()
+{
+	wcout.imbue(locale("korean"));
+	setlocale(LC_ALL, "korean");
+
+	int m_nObjects = 0;
+	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
+
+	for (int i = 0; i < m_nObjects; i++) {
+		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
+		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
+		for (int j = collide_range_min; j <= collide_range_max; j++) {
+			Objects[j].emplace_back(m_ppObjects[i]);
+		}
+	}
+
+	//bool col = false;
+	//for (float j = 4080; j >= -240; j--) {
+	//	for (float i = -360; i < 120; i++) {
+	//		for (int k = 0; k < m_nObjects; k++) {
+	//			if ((0 == strncmp(m_ppObjects[k]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[k]->m_pstrName, "Ceiling_concrete_base_mesh", 26)) || 
+	//				m_ppObjects[k]->GetPosition().y > -100)
+	//				continue;
+	//			if (m_ppObjects[k]->m_xmOOBB.Intersects(BoundingBox(XMFLOAT3{ i,-292,j }, XMFLOAT3(15, 12, 8)))) {
+	//				col = true;
+	//				break;
+	//			}
+	//		}
+	//		if (col) cout << "0";
+	//		else cout << "1";
+	//		col = false;
+	//	}
+	//	cout << endl;
+	//}
+
+	delete[] m_ppObjects;
+
+
+	InitializeStages();
+
+	WSADATA WSAData;
+	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
+	if (ErrorStatus == SOCKET_ERROR) return 0;
+	g_s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	SOCKADDR_IN server_addr;
+	memset(&server_addr, 0, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(PORT_NUM);
+	server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
+	bind(g_s_socket, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
+	listen(g_s_socket, SOMAXCONN);
+	SOCKADDR_IN cl_addr;
+	int addr_size = sizeof(cl_addr);
+	h_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_s_socket), h_iocp, 9999, 0);
+	g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	g_a_over._comp_type = OP_ACCEPT;
+	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
+
+	vector <thread> worker_threads;
+	vector <thread> timer_threads;
+	int num_threads = std::thread::hardware_concurrency();
+	for (int i = 0; i < 2; ++i)
+		timer_threads.emplace_back(do_Timer);
+	//thread* DB_t = new thread{ DB_Thread };
+	for (int i = 0; i < num_threads - 1; ++i)
+		worker_threads.emplace_back(worker_thread, h_iocp);
+	for (auto& th : worker_threads)
+		th.join();
+	for (auto& th : timer_threads)
+		th.join();
+	//DB_t->join();
+	MonsterPool.PrintSize();
+	OverPool.PrintSize();
+
+	closesocket(g_s_socket);
+	WSACleanup();
+}
+
+
+
 
 void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode) {
 	SQLSMALLINT iRec = 0;
@@ -124,68 +214,73 @@ void DB_Thread()
 
 void process_packet(const int c_id, char* packet)
 {
-	SESSION* CL = getClient(c_id);
-	array<SESSION, MAX_USER_PER_ROOM>* Room = getRoom(c_id);
+	SESSION& CL = getClient(c_id);
+	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom(c_id);
+	if (CL._state.load() == ST_DEAD) {
+
+		disconnect(CL._id);
+		cout << CL._id << "CHEAT DETECTED\n";
+		return;
+	}
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		CL->send_login_info_packet();
-		{
-			lock_guard<mutex> ll{ CL->_s_lock };
-			CL->_state = ST_INGAME;
-		}
-		for (auto& pl : *Room) {
-			if (pl._id == c_id) continue;
-			{
-				lock_guard<mutex> ll(pl._s_lock);
-				if (ST_INGAME != pl._state) continue;
-			} 
-			pl.send_add_player_packet(CL);
-			CL->send_add_player_packet(&pl);
+		CL.send_login_info_packet();
+		CL._state.store(ST_INGAME);
+		for (auto& pl : Room) {
+			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
+			pl.send_add_player_packet(&CL);
+			CL.send_add_player_packet(&pl);
 		}
 		break;
 	}
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
+		CL.direction.store(p->direction);
+		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		CL.SetVelocity(p->vel);
+		CL.Update();
 		{
-			lock_guard <mutex> ll{ CL->_s_lock };
-			CL->CheckPosition(p->pos);
-			CL->direction = p->direction;
-			CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-			CL->SetVelocity(p->vel);
-			CL->Update();
+			lock_guard <mutex> ll{ CL._s_lock };
+			CL.CheckPosition(p->pos);
 		}
-		for (auto& cl : *Room) {
-			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(CL);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
 		}
 		break;
 	}
 	case CS_ATTACK: {
-		vector<Monster*> Monsters = *getMonsters(CL->_id);
+		safe_vector<Monster*>& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
-		switch (CL->character_num)
+		switch (CL.character_num)
 		{
 		case 0:
+		{
+			lock_guard<mutex> vec_lock{ Monsters.v_lock };
 			for (auto& monster : Monsters) {
-				if (monster->HP > 0 &&  BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
+				lock_guard<mutex> mm{ monster->m_lock };
+				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
 				{
-					lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 100;
 					if (monster->HP <= 0)
-						monster->SetState(NPC_State::Dead);					
+						monster->SetState(NPC_State::Dead);
 				}
 			}
-			
 			break;
+		}
 		case 1:
-			CL->BulletPos = Vector3::Add(CL->GetPosition(), XMFLOAT3(0, 10, 0));
-			CL->BulletLook = CL->GetLookVector();
+		{
+			CL.BulletLook = CL.GetLookVector();
+			CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
 			break;
+		}
 		case 2:
+		{
+			lock_guard<mutex> vec_lock{ Monsters.v_lock };
 			for (auto& monster : Monsters) {
+				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
 				{
-					lock_guard<mutex> mm{ monster->m_lock };
 					monster->HP -= 50;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
@@ -193,26 +288,25 @@ void process_packet(const int c_id, char* packet)
 			}
 			break;
 		}
-		for (auto& cl : *Room) {
-			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_attack_packet(CL);
+		}
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
 		break;
 	}
 	case CS_COLLECT: {
-		CS_COLLECT_PACKET*p = reinterpret_cast<CS_COLLECT_PACKET*>(packet);
-		for (auto& cl : *Room) {
-			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_collect_packet(CL);
+		CS_COLLECT_PACKET* p = reinterpret_cast<CS_COLLECT_PACKET*>(packet);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_collect_packet(&CL);
 		}
 		break;
 	}
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
-		{
-			//lock_guard<mutex> ll{ CL->_s_lock };
-			CL->character_num = (CL->character_num + 1) % 3;
-		}
-		for (auto& cl : *Room) {
-			if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_changeweapon_packet(CL);
+		CL.character_num = (CL.character_num + 1) % 3;
+
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
 		break;
 	}
@@ -247,16 +341,13 @@ void worker_thread(HANDLE h_iocp)
 		switch (ex_over->_comp_type) {
 		case OP_ACCEPT: {
 			int client_id = get_new_client_id();
-			SESSION* CL = getClient(client_id);
+			SESSION& CL = getClient(client_id);
 			if (client_id != -1) {
-				{
-					lock_guard<mutex> ll(CL->_s_lock);
-					CL->_state = ST_ALLOC;
-				}
-				CL->Initialize(client_id, g_c_socket);
+				CL._state.store(ST_ALLOC);
+				CL.Initialize(client_id, g_c_socket);
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
-				CL->do_recv();
+				CL.do_recv();
 			}
 			else {
 				cout << "Max user exceeded.\n";
@@ -269,8 +360,8 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			SESSION* CL = getClient((int)key);	
-			int remain_data = num_bytes + CL->_prev_remain;
+			SESSION& CL = getClient((int)key);
+			int remain_data = num_bytes + CL._prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
 				int packet_size = p[0];
@@ -281,41 +372,42 @@ void worker_thread(HANDLE h_iocp)
 				}
 				else break;
 			}
-			CL->_prev_remain = remain_data;
+			CL._prev_remain = remain_data;
 			if (remain_data > 0) {
 				memcpy(ex_over->_send_buf, p, remain_data);
 			}
-			CL->do_recv();
+			CL.do_recv();
 			break;
 		}
 		case OP_SEND:
 			OverPool.ReturnMemory(ex_over);
-			//delete ex_over;
 			break;
 		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
-			auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+			vector<Monster*>::iterator iter;
+			{
+				lock_guard<mutex> vec_lock{ PoolMonsters[roomNum].v_lock };
+				iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+			}
 			if (iter != PoolMonsters[roomNum].end()) {
 				if ((*iter)->is_alive()) {
 					{
 						{
-							lock_guard<mutex> mm{ (*iter)->m_lock }; 
-							(*iter)->Update(0.03f);
+							lock_guard<mutex> mm{ (*iter)->m_lock };
+							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
+							(*iter)->recent_recvedTime = high_resolution_clock::now();
 						}
-
 						for (auto& cl : clients[roomNum]) {
-							if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet(*iter);
+							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
-
-						TIMER_EVENT ev{ roomNum, mon_id, high_resolution_clock::now() + 25ms, EV_RANDOM_MOVE };
+						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_RANDOM_MOVE };
 						timer_queue.push(ev);
 					}
 				}
 				else {
 					MonsterPool.ReturnMemory(*iter);
 					PoolMonsters[roomNum].erase(iter);
-					MonsterPool.PrintSize();
 				}
 			}
 			OverPool.ReturnMemory(ex_over);
@@ -324,56 +416,12 @@ void worker_thread(HANDLE h_iocp)
 	}
 }
 
-//void update_thread()
-//{
-//	//m_PlayerTimer.Start();
-//	while (1)
-//	{
-//		//m_PlayerTimer.Tick(10.f);
-//		for (int i = 0; i < MAX_ROOM; ++i) {
-//			for (int j = 0; j < MAX_USER_PER_ROOM; ++j) {
-//				if (clients[i][j]._state != ST_INGAME) continue;
-//				for (auto& cl : clients[i]) {
-//					if (cl._state == ST_INGAME || cl._state == ST_DEAD)  cl.send_move_packet(&clients[i][j]);
-//				}
-//			}
-//		}
-//		this_thread::sleep_for(100ms); // 0.1초당 한번 패킷 전달
-//	}
-//}
-//
-//void update_NPC()//0326
-//{
-//	while (1)
-//	{
-//		for (int i = 0; i < MAX_ROOM; ++i) {
-//			auto iter = PoolMonsters[i].begin();
-//			while (iter != PoolMonsters[i].end()) {
-//				{
-//					lock_guard<mutex> mm{ (*iter)->m_lock }; 
-//					(*iter)->Update(m_NPCTimer.GetTimeElapsed() );
-//				}
-//				for (auto& cl : clients[i]) {
-//					if (cl._state == ST_INGAME || cl._state == ST_DEAD) cl.send_NPCUpdate_packet((*iter));
-//				}
-//				if ((*iter)->is_alive() == false) {//0322
-//					MonsterPool.ReturnMemory((*iter));
-//					PoolMonsters[i].erase(iter);
-//					MonsterPool.PrintSize();
-//				}
-//				else
-//					iter++;
-//			}
-//		}
-//		this_thread::sleep_for(30ms);
-//	}
-//}
+
 
 void do_Timer()
 {
 	while (1)
 	{
-		this_thread::sleep_for(1ms);
 		TIMER_EVENT ev;
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
@@ -382,8 +430,7 @@ void do_Timer()
 				continue;
 			}
 			switch (ev.event_id) {
-			case EV_RANDOM_MOVE:			
-				//OVER_EXP* ov = new OVER_EXP;
+			case EV_RANDOM_MOVE:
 				OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
@@ -393,60 +440,3 @@ void do_Timer()
 	}
 }
 
-
-
-
-int main()
-{
-	wcout.imbue(locale("korean"));
-	setlocale(LC_ALL, "korean");
-
-	m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
-	for (int i = 0; i < m_nObjects; i++) {
-		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_base_mesh", 17)
-			|| 0 == strncmp(m_ppObjects[i]->m_pstrName, "Stair_step", 10))
-			continue;
-		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
-		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / STAGE_SIZE;
-		for (int j = collide_range_min; j <= collide_range_max; j++) {
-			Objects[j].emplace_back(m_ppObjects[i]);
-		}
-	}
-	delete[] m_ppObjects;
-
-	InitializeStages();
-
-	WSADATA WSAData;
-	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
-	if (ErrorStatus == SOCKET_ERROR) return 0;
-	g_s_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	SOCKADDR_IN server_addr;
-	memset(&server_addr, 0, sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(PORT_NUM);
-	server_addr.sin_addr.S_un.S_addr = INADDR_ANY;
-	bind(g_s_socket, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
-	listen(g_s_socket, SOMAXCONN);
-	SOCKADDR_IN cl_addr;
-	int addr_size = sizeof(cl_addr);
-	h_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_s_socket), h_iocp, 9999, 0);
-	g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-	g_a_over._comp_type = OP_ACCEPT;
-	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
-
-	vector <thread> worker_threads;
-
-	//thread* update_NPC_t = new thread{ update_NPC };
-	thread* update_NPC_t = new thread{ do_Timer };
-	//thread* DB_t = new thread{ DB_Thread };
-	int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < num_threads; ++i)
-		worker_threads.emplace_back(worker_thread, h_iocp);
-	for (auto& th : worker_threads)
-		th.join();
-	update_NPC_t->join();
-	//DB_t->join();
-	closesocket(g_s_socket);
-	WSACleanup();
-}

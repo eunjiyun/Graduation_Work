@@ -127,8 +127,10 @@ int InitGL(GLvoid)										// All Setup For OpenGL Goes Here
 int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 {
 	int size = 0;
+	int size_2 = 0;
 	float* points = nullptr;
-	GetPointCloud(&size, &points);
+	float* points_2 = nullptr;
+	GetPointCloud(&size, &size_2, &points, &points_2);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();									// Reset The Current Modelview Matrix
@@ -151,6 +153,17 @@ int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 
 		x = points[i * 2] / 200.0f - 1.25f;
 		y = 1.25f - points[i * 2 + 1] / 200.0f;
+		z = -1.0f;
+		glVertex3f(x, y, z);
+	}
+
+	glColor3f(1, 0, 0);
+	for (int i = 0; i < size_2; i++)
+	{
+		float x, y, z;
+
+		x = points_2[i * 2] / 200.0f - 1.25f;
+		y = 1.25f - points_2[i * 2 + 1] / 200.0f;
 		z = -1.0f;
 		glVertex3f(x, y, z);
 	}

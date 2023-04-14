@@ -54,16 +54,21 @@ public:
 	OVER_EXP* GetMemory()
 	{
 		OVER_EXP* mem = nullptr;
+
+		if (objectQueue.empty()) {
+			cout << "추가요청이 호출됨\n";
+			lock_guard<mutex> ll{ pool_lock };
+			for (int i = 0; i < 5000; ++i)
+				objectQueue.push(new OVER_EXP());
+		}
+
 		{
 			lock_guard<mutex> ll{ pool_lock };
-			if (!objectQueue.empty()) {
-				mem = objectQueue.front();
-				objectQueue.pop();
-			}
+			mem = objectQueue.front();
+			objectQueue.pop();
 		}
-		if (mem == nullptr) {
-			throw runtime_error("FAILED TO ALLOCATE OVER_EXP IN POOL\n");
-		}
+
+
 		mem->_wsabuf.len = BUF_SIZE;
 		mem->_wsabuf.buf = mem->_send_buf;
 		ZeroMemory(&mem->_over, sizeof(mem->_over));
@@ -73,16 +78,19 @@ public:
 	OVER_EXP* GetMemory(char* packet)
 	{
 		OVER_EXP* mem = nullptr;
+
+		if (objectQueue.empty()) {
+			cout << "추가요청이 호출됨\n";
+			lock_guard<mutex> ll{ pool_lock };
+			for (int i = 0; i < 5000; ++i)
+				objectQueue.push(new OVER_EXP());
+		}
 		{
 			lock_guard<mutex> ll{ pool_lock };
-			if (!objectQueue.empty()) {
-				mem = objectQueue.front();
-				objectQueue.pop();
-			}
+			mem = objectQueue.front();
+			objectQueue.pop();
 		}
-		if (mem == nullptr) {
-			throw runtime_error("FAILED TO ALLOCATE OVER_EXP IN POOL\n");
-		}
+
 		mem->_wsabuf.len = packet[0];
 		mem->_wsabuf.buf = mem->_send_buf;
 		ZeroMemory(&mem->_over, sizeof(mem->_over));
@@ -103,24 +111,23 @@ public:
 
 
 
-//CObjectPool<OVER_EXP> OverPool(100'000);
 OVERLAPPEDPOOL OverPool(200'000);
 
-enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD };
+enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD, ST_CRASHED };
 class SESSION {
 	OVER_EXP _recv_over;
 public:
 	mutex _s_lock;
-	S_STATE _state;
+	atomic<S_STATE> _state;
 	short _id;
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
 	float HP;
-	DWORD direction;
+	atomic<DWORD> direction;
 	char	_name[NAME_SIZE];
 	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
-	short cur_stage;
+	atomic<short> cur_stage;
 	short error_stack;
 	short character_num;
 	high_resolution_clock::time_point recent_recvedTime;
@@ -145,7 +152,7 @@ public:
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
 		error_stack = 0;
 		character_num = 0;
-		HP = 100;
+		HP = 5000;
 	}
 
 	~SESSION() {}
@@ -153,16 +160,22 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, 0, 0 };
+		m_xmf3Position = XMFLOAT3{ -50, -292, 980 };
+		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
-		m_xmf3Up = XMFLOAT3{ 0,1,0 };
-		m_xmf3Right = XMFLOAT3{ 1,0,0 };
-		m_xmf3Look = XMFLOAT3{ 0,0,1 };
+		m_xmf3Up = { 0,1,0 };
+		m_xmf3Right = { 1,0,0 };
+		m_xmf3Look = { 0,0,1 };
 		_socket = Socket;
 		cur_stage = 0;
 		error_stack = 0;
+		BulletPos = { 5000,5000,5000 };
+		BulletLook = { 0,0,1 };
 		recent_recvedTime = high_resolution_clock::now();
+		_state = ST_FREE;
+		character_num = 0;
+		HP = 5000;
 	}
 	void do_recv()
 	{
@@ -171,7 +184,7 @@ public:
 		_recv_over._wsabuf.len = BUF_SIZE - _prev_remain;
 		_recv_over._wsabuf.buf = _recv_over._send_buf + _prev_remain;
 		int ret = WSARecv(_socket, &_recv_over._wsabuf, 1, 0, &recv_flag, &_recv_over._over, 0);
-		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSARecv()");
+		//if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSARecv()");
 	}
 
 	void do_send(void* packet)
@@ -179,7 +192,7 @@ public:
 		OVER_EXP* sdata = OverPool.GetMemory(reinterpret_cast<char*>(packet));
 		//OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
 		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
-		if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
+		//if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
 	void send_login_info_packet()
 	{
@@ -201,7 +214,7 @@ public:
 		p.Right = Player->GetRightVector();
 		p.Up = Player->GetUpVector();
 		p.Pos = Player->GetPosition();
-		p.direction = Player->direction;
+		p.direction = Player->direction.load();
 		p.HP = Player->HP;
 		p.BulletPos = Player->BulletPos;
 		p.vel = Player->GetVelocity();

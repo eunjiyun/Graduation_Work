@@ -1,20 +1,18 @@
 // protocol.h
 
-constexpr int PORT_NUM = 3500;
-constexpr int BUF_SIZE = 512;
-constexpr int NAME_SIZE = 20;
-
-constexpr int MAX_USER = 10000;
-constexpr int MAX_ROOM = 2500;
-constexpr int MAX_USER_PER_ROOM = 4;
-constexpr int MAX_MONSTER_PER_ROOM = 10;
-
-constexpr int W_WIDTH = 400;
-constexpr int W_HEIGHT = 400;
-
-constexpr int VIEW_RANGE = 4;
-constexpr int STAGE_SIZE = 985;
-
+constexpr short PORT_NUM = 3500;
+constexpr short BUF_SIZE = 512;
+constexpr short NAME_SIZE = 20;
+constexpr short MAX_USER = 10000;
+constexpr short MAX_ROOM = 2500;
+constexpr short MAX_USER_PER_ROOM = 4;
+constexpr short MAX_MONSTER_PER_ROOM = 10;
+constexpr short W_WIDTH = 400;
+constexpr short W_HEIGHT = 400;
+constexpr short MELEEATTACK_RANGE = 5;
+constexpr short LONGRANGETTACK_RANGE = 150;
+constexpr short STAGE_SIZE = 985;
+constexpr short AREA_SIZE = 100;
 
 // Packet ID
 constexpr char CS_LOGIN = 0;
@@ -118,6 +116,7 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
 	short monster_type;
 	XMFLOAT3 Pos;
 };
@@ -127,6 +126,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;

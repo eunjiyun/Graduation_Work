@@ -5,12 +5,6 @@
 #include "stdafx.h"
 
 
-using namespace std;
-typedef unsigned char UCHAR;
-typedef unsigned int UINT;
-
-#define USEPOOL 0
-
 template<class T>
 class CObjectPool {
 private:
@@ -25,24 +19,29 @@ public:
     }
     ~CObjectPool()
     {
-        objectQueue = queue<T*>();
+        while (!objectQueue.empty())
+        {
+            auto front = objectQueue.front();
+            delete front;
+            objectQueue.pop();
+        }
     }
+
     T* GetMemory()
     {
+        //lock_guard<mutex> ll{ pool_lock };
         if (objectQueue.empty()) {
             cout << "추가요청이 호출됨\n";
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(new T());
         }
-
-        lock_guard<mutex> ll{ pool_lock };
-        auto front = objectQueue.front();
+        auto& front = objectQueue.front();
         objectQueue.pop();
         return front;
     }
     void ReturnMemory(T* Mem)
     {
-        lock_guard<mutex> ll{ pool_lock };
+        //lock_guard<mutex> ll{ pool_lock };
         objectQueue.push(Mem);
     }
     void PrintSize()
@@ -54,16 +53,16 @@ public:
 
 
 
-class A_star_Node //: public CMemoryPool<A_star_Node>
+class A_star_Node
 {
 public:
     float F = 0;
     float G = 0;
     float H = 0;
-    shared_ptr<A_star_Node> parent = nullptr;
+   shared_ptr<A_star_Node> parent;
     XMFLOAT3 Pos = { 0,0,0 };
     A_star_Node() {}
-    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, shared_ptr<A_star_Node> node = nullptr)
+    A_star_Node(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
     {
         Pos = _Pos;
         G = _G;
@@ -73,7 +72,7 @@ public:
             parent = node;
         }
     }
-    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0, shared_ptr<A_star_Node> node = nullptr)
+    void Initialize(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
     {
         Pos = _Pos;
         G = _G;
@@ -85,5 +84,54 @@ public:
     }
 };
 
+class AStar_Pool {
+private:
+    queue<shared_ptr<A_star_Node>> objectQueue;
+    mutex pool_lock;
+public:
+    AStar_Pool()
+    {
+        for (int i = 0; i < 4000; ++i) {
+            objectQueue.push(make_shared<A_star_Node>());
+        }
+    }
+    ~AStar_Pool() 
+    {
+    }
+
+   shared_ptr<A_star_Node> GetMemory(XMFLOAT3 _Pos, XMFLOAT3 _Dest_Pos, float _G = 0,shared_ptr<A_star_Node> node = nullptr)
+    {
+        lock_guard<mutex> ll{ pool_lock };
+        if (objectQueue.empty()) {
+            cout << "추가요청이 호출됨\n";
+            for (int i = 0; i < 500; ++i)
+                objectQueue.push(make_shared<A_star_Node>());
+        }
+        if (!objectQueue.empty()) {
+            auto& front = objectQueue.front();
+            objectQueue.pop();
+
+            front->Initialize(_Pos, _Dest_Pos, _G, node);
+
+            return front;
+        }
+        else {
+            return nullptr;
+        }
+    }
+
+    void ReturnMemory(shared_ptr<A_star_Node> Mem)
+    {
+        Mem->parent.reset();
+        Mem->Pos = { 0,0,0 };
+        Mem->G = Mem->H = Mem->F = 0;
+        lock_guard<mutex> ll{ pool_lock };
+        objectQueue.push(Mem);
+    }
+    void PrintSize()
+    {
+        cout << "CurrentSize - " << objectQueue.size() << endl;
+    }
+};
 
 

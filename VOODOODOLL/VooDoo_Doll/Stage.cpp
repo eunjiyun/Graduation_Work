@@ -359,7 +359,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 void CStage::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
@@ -430,7 +430,7 @@ void CStage::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 		{
 			ID3D12Resource* pShaderResource = pTexture->GetResource(i);
 			D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
-			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);//0307 pShaderResource°¡ null
+			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);//0307 pShaderResourceï¿½ï¿½ null
 			m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 			pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
 			m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
@@ -498,7 +498,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
-	UpdateShaderVariables(pd3dCommandList);//ÀÎÇüÀÌ ±î¸Ä°Ô
+	UpdateShaderVariables(pd3dCommandList);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä°ï¿½
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
@@ -535,22 +535,22 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			cout << "Name - " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
-			cout << "Center - ";
-			Vector3::Print(oBox.Center);
-			cout << "Extents - ";
-			Vector3::Print(oBox.Extents);
-			cout << "Look - ";
-			Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetLook());
-			cout << "Right - ";
-			Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetRight());
-			cout << "Up - ";
-			Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetUp());
+			//cout << "Name - " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
+			//cout << "Center - ";
+			//Vector3::Print(oBox.Center);
+			//cout << "Extents - ";
+			//Vector3::Print(oBox.Extents);
+			//cout << "Look - ";
+			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetLook());
+			//cout << "Right - ";
+			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetRight());
+			//cout << "Up - ";
+			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetUp());
 
 			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
-			// µðÆúÆ® ½½¶óÀÌµù º¤ÅÍ(È¸ÀüÀÌ ¾ø´Â ¿ÀºêÁ§Æ®¿¡ »ç¿ë)
+			// ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½(È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½)
 			if ((int)angle % 90 == 0)
 			{
 				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
@@ -577,7 +577,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			}
 			else
 			{
-				// È¸ÀüÇÑ ¿ÀºêÁ§Æ®¿¡ Àû¿ëµÇ´Â ½½¶óÀÌµù º¤ÅÍ - À§Ä¡ º¸°£
+				// È¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½
 				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
 
 				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
@@ -631,7 +631,7 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 	}
 
 	for (auto& player : players) {
-		if (player->c_id == pl->c_id) continue;
+		if (player->c_id == pl->c_id || player->alive == false) continue;
 		if (pBox.Intersects(player->obBox)) {
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
@@ -674,7 +674,7 @@ XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBo
 
 	if (bIntersect)
 	{
-		return XMFLOAT3(0, 0, 0); // Ãæµ¹ÇÏÁö ¾ÊÀ½
+		return XMFLOAT3(0, 0, 0); // ï¿½æµ¹ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	}
 
 	XMFLOAT3 xmf3Direction = { 0,0,0 };
