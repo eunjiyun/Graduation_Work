@@ -535,18 +535,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			//cout << "Name - " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
-			//cout << "Center - ";
-			//Vector3::Print(oBox.Center);
-			//cout << "Extents - ";
-			//Vector3::Print(oBox.Extents);
-			//cout << "Look - ";
-			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetLook());
-			//cout << "Right - ";
-			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetRight());
-			//cout << "Up - ";
-			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetUp());
-
 			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
@@ -653,6 +641,38 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 			pl->Move(MovVec, false);
 		}
 	}
+}
+void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm)
+{
+	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
+	XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
+	XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
+	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
+	xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
+	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
+	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
+
+	XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
+	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+
+	XMFLOAT3 dir = Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(pl->GetPosition(), cm->GetPosition())), 0.1,false);
+	dir.y = 0;
+	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
+	{
+		BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+		while (oBox.Contains(XMLoadFloat3(&xmf3Position)))
+		{
+			xmf3Position = Vector3::Add(xmf3Position, dir);
+		}
+	}
+
+	DWORD nCurrentCameraMode = cm->GetMode();
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)
+		cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
+
+
+	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) cm->SetLookAt(pl->GetPosition());
+	cm->RegenerateViewMatrix();
 }
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
