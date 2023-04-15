@@ -143,7 +143,9 @@ int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	glRasterPos2f(0.0f, 0.05f);
 	glPrint("Current Monster : [%d]", (int)active_monsters);	// Print GL Text To The Screen
 	glRasterPos2f(0.0f, 0.10f);
-	glPrint("Delay : %dms", global_delay);
+	glPrint("Player Delay : %dms", player_delay);
+	glRasterPos2f(0.0f, 0.15f);
+	glPrint("Monster Delay : %dms", monster_delay);
 
 	glColor3f(1, 1, 1);
 

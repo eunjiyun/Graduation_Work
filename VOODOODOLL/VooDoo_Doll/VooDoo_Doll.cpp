@@ -408,8 +408,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
 		if (iter == gGameFramework.Players.end()) break;
 		(*iter)->SetLookVector(packet->Look);
-		(*iter)->SetUpVector(packet->Up);
 		(*iter)->SetRightVector(packet->Right);
+		(*iter)->SetUpVector(Vector3::CrossProduct((*iter)->GetLookVector(), (*iter)->GetRightVector(), true));
 		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
 		if ((*iter)->onAct == false)
 			ProcessAnimation(*iter, packet);

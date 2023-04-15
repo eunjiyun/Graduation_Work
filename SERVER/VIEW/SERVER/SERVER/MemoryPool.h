@@ -31,7 +31,7 @@ public:
     {
         //lock_guard<mutex> ll{ pool_lock };
         if (objectQueue.empty()) {
-            cout << "추가요청이 호출됨\n";
+            cout << "ObjectPool called add memory request\n";
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(new T());
         }
@@ -103,7 +103,7 @@ public:
     {
         lock_guard<mutex> ll{ pool_lock };
         if (objectQueue.empty()) {
-            cout << "추가요청이 호출됨\n";
+            cout << "AStar_Pool called add memory request\n";
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(make_shared<A_star_Node>());
         }

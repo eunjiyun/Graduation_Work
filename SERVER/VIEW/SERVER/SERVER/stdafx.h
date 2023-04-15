@@ -55,6 +55,7 @@ using namespace DirectX::PackedVector;
 #include <concurrent_unordered_map.h>
 #include <concurrent_vector.h>
 #include <mutex>
+#include <shared_mutex>
 using namespace std;
 using namespace chrono;
 using namespace concurrency;
@@ -368,12 +369,14 @@ class threadsafe_vector : public vector<T>
 {
 public:
 	void emplace_back(const T& value) {
-		lock_guard<mutex> _vec_lock{ v_lock };
+		// lock_guard<mutex> _vec_lock{ v_lock };
+		unique_lock<shared_mutex> vec_lock{ v_shared_lock };
 		vector<T>::emplace_back(value);
 	}
 	void erase(typename vector<T>::const_iterator iter) {
-		//lock_guard<mutex> _vec_lock{ v_lock };
+		//lock_guard<mutex> vec_lock{ v_lock };
 		vector<T>::erase(iter);
 	}
-	mutable mutex v_lock;
+	//mutable mutex v_lock;
+	mutable shared_mutex v_shared_lock;
 };

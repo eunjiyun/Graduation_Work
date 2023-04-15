@@ -413,7 +413,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 				strcpy_s(pstrFilePath1 + 15 + strlen(strAlbedoTextureName), 64 - 15 - strlen(strAlbedoTextureName), ".dds");
 				mbstowcs_s(&nConverted, pGameObject->m_ppMaterials[k]->m_ppstrTextureNames[0], pstrFilePath1, _TRUNCATE);
 
-				cout << i << "	|	" << k << "	: " << pstrFilePath1 << endl;
+				//cout << i << "	|	" << k << "	: " << pstrFilePath1 << endl;
 			}
 
 

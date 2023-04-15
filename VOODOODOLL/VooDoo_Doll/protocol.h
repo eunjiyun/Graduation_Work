@@ -88,7 +88,7 @@ struct SC_ADD_PLAYER_PACKET {
 	char	type;
 	short	id;
 	XMFLOAT3 Pos, Look, Right, Up;
-	char	name[NAME_SIZE];
+	//char	name[NAME_SIZE];
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);
 
@@ -104,7 +104,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	float	HP;
-	XMFLOAT3 Look, Up, Right, Pos;
+	XMFLOAT3 Look, Right, Pos;
 	DWORD direction;
 	XMFLOAT3 BulletPos;
 	XMFLOAT3 vel;

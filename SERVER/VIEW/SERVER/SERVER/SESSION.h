@@ -82,7 +82,7 @@ public:
 		OVER_EXP* mem = nullptr;
 
 		if (objectQueue.empty()) {
-			cout << "추가요청이 호출됨\n";
+			cout << "OverlappedPool called add memory request\n";
 			lock_guard<mutex> ll{ pool_lock };
 			for (int i = 0; i < 5000; ++i)
 				objectQueue.push(new OVER_EXP());
@@ -130,7 +130,7 @@ public:
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
 	float HP;
 	atomic<DWORD> direction;
-	char	_name[NAME_SIZE];
+	//char	_name[NAME_SIZE];
 	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
 	atomic<short> cur_stage;
@@ -149,16 +149,16 @@ public:
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
 		BulletPos = { 5000,5000,5000 };
-		BulletLook = { 0,0,1 };
+		BulletLook = { 0,0,0 };
 		direction = 0;
 		cur_stage = 0;
-		_name[0] = 0;
+		//_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 4, 8));
 		error_stack = 0;
 		character_num = 0;
-		HP = 50000;
+		HP = 0;
 	}
 
 	~SESSION() {}
@@ -166,7 +166,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, -292, 980 };
+		m_xmf3Position = XMFLOAT3{ -50, -300, 980 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -218,7 +218,6 @@ public:
 
 		p.Look = Player->GetLookVector();
 		p.Right = Player->GetRightVector();
-		p.Up = Player->GetUpVector();
 		p.Pos = Player->GetPosition();
 		p.direction = Player->direction.load();
 		p.HP = Player->HP;
@@ -260,7 +259,7 @@ public:
 		SC_ADD_PLAYER_PACKET add_packet;
 		add_packet.id = Player->_id;
 
-		strcpy_s(add_packet.name, Player->_name);
+		//strcpy_s(add_packet.name, Player->_name);
 		add_packet.size = sizeof(add_packet);
 		add_packet.type = SC_ADD_PLAYER;
 		add_packet.Look = Player->m_xmf3Look;
@@ -290,24 +289,12 @@ public:
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+		//m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 	}
-	//void Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
-	//{
-	//	XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-	//	onAttack = dwDirection & DIR_ATTACK && !onAttack;
-	//	onDie = dwDirection & DIR_DIE && !onDie;
-	//	onCollect = dwDirection & DIR_COLLECT && !onCollect;
-	//	onRun = dwDirection & DIR_RUN && !onRun;
-	//	onChange = dwDirection & DIR_CHANGESTATE && !onChange;
-	//	character_num = (character_num + onChange) % 3;
-	//}
 
 	void Move(const XMFLOAT3& xmf3Shift)
-	{
-		{
-			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
-		}
+	{	
+		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);	
 	}
 
 	void UpdateBoundingBox()
@@ -322,16 +309,6 @@ public:
 		XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 		return SlidingVec;
 	}
-
-	//void Deceleration(float fTimeElapsed)
-	//{
-	//	float fLength = Vector3::Length(m_xmf3Velocity);
-	//	float fDeceleration = (m_fFriction * fTimeElapsed);
-	//	if (fDeceleration > fLength)fDeceleration = fLength;
-	//	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
-
-	//	UpdateBoundingBox();
-	//}
 
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }

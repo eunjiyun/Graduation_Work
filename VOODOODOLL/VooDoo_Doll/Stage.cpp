@@ -79,7 +79,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
-	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
+	m_pLights[2].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 	m_pLights[3].m_bEnable = true;
 	m_pLights[3].m_nType = SPOT_LIGHT;
 	m_pLights[3].m_fRange = 600.0f;
@@ -160,7 +160,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			// Assign the material to the object's mesh
 			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			/*m_ppShaders2[0]->m_ppObjects[i]->m_ppMaterials[0]->SetTexture(pMaterial->m_ppTextures[0]);*/
-			cout << i << "	|	" << k << endl;
+			//cout << i << "	|	" << k << endl;
 		}
 	}
 
@@ -550,7 +550,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
-			// ����Ʈ �����̵� ����(ȸ���� ���� ������Ʈ�� ���)
+			// 직각충돌
 			if ((int)angle % 90 == 0)
 			{
 				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
@@ -577,7 +577,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			}
 			else
 			{
-				// ȸ���� ������Ʈ�� ����Ǵ� �����̵� ���� - ��ġ ����
+				// 비직각 충돌
 				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
 
 				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {

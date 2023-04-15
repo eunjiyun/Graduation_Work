@@ -97,8 +97,6 @@ int main()
 	for (auto& th : timer_threads)
 		th.join();
 	//DB_t->join();
-	MonsterPool.PrintSize();
-	OverPool.PrintSize();
 
 	closesocket(g_s_socket);
 	WSACleanup();
@@ -219,9 +217,8 @@ void process_packet(const int c_id, char* packet)
 	SESSION& CL = getClient(c_id);
 	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom(c_id);
 	if (CL._state.load() == ST_DEAD) {
-
-		disconnect(CL._id);
-		cout << CL._id << "CHEAT DETECTED\n";
+		cout << "[" << CL._id << "] player sent packet in dead_state\n";
+		CL.error_stack++;
 		return;
 	}
 	switch (packet[1]) {
@@ -242,10 +239,7 @@ void process_packet(const int c_id, char* packet)
 		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		CL.SetVelocity(p->vel);
 		CL.Update();
-		{
-			lock_guard <mutex> ll{ CL._s_lock };
-			CL.CheckPosition(p->pos);
-		}
+		CL.CheckPosition(p->pos);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
 		}
@@ -258,7 +252,7 @@ void process_packet(const int c_id, char* packet)
 		{
 		case 0:
 		{
-			lock_guard<mutex> vec_lock{ Monsters.v_lock };
+			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
@@ -278,7 +272,7 @@ void process_packet(const int c_id, char* packet)
 		}
 		case 2:
 		{
-			lock_guard<mutex> vec_lock{ Monsters.v_lock };
+			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
@@ -387,9 +381,8 @@ void worker_thread(HANDLE h_iocp)
 		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
-			//vector<Monster*>::iterator iter;
 			{
-				lock_guard<mutex> vec_lock{ PoolMonsters[roomNum].v_lock };
+				unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
 				auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
 
 				if (iter != PoolMonsters[roomNum].end()) {

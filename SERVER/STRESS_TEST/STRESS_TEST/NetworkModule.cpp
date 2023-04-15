@@ -71,7 +71,8 @@ atomic_int client_to_close;
 atomic_int active_clients;
 atomic_int active_monsters;
 
-int			global_delay;				// ms단위, 1000이 넘으면 클라이언트 증가 종료
+int			player_delay;
+int			monster_delay;				
 
 vector <thread*> worker_threads;
 thread test_thread;
@@ -142,10 +143,10 @@ void ProcessPacket(int ci, unsigned char packet[])
 				g_clients[my_id].pos = move_packet->Pos;
 			}
 			if (ci == my_id) {
-			//	auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_clients[my_id].last_recved_time).count();
-			//	if (global_delay < d_ms) global_delay++;
-			//	else if (global_delay > d_ms) global_delay--;
-			//	g_clients[my_id].last_recved_time = high_resolution_clock::now();
+				auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_clients[my_id].last_recved_time).count();
+				if (player_delay < d_ms) player_delay++;
+				else if (player_delay > d_ms) player_delay--;
+				g_clients[my_id].last_recved_time = high_resolution_clock::now();
 				if (move_packet->HP <= 0) { DisconnectClient(my_id); }
 			}
 		}
@@ -193,8 +194,8 @@ void ProcessPacket(int ci, unsigned char packet[])
 			g_monsters[p->room_num * 10 + p->id].pos = p->Pos;
 
 			auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_monsters[p->room_num * 10 + p->id].last_recved_time).count();
-			if (global_delay < d_ms) global_delay++;
-			else if (global_delay > d_ms) global_delay--;
+			if (monster_delay < d_ms) monster_delay++;
+			else if (monster_delay > d_ms) monster_delay--;
 			g_monsters[p->room_num * 10 + p->id].last_recved_time = high_resolution_clock::now();
 		}
 
@@ -310,7 +311,7 @@ void Adjust_Number_Of_Client()
 	auto duration = high_resolution_clock::now() - last_connect_time;
 	if (ACCEPT_DELY * delay_multiplier > duration_cast<milliseconds>(duration).count()) return;
 
-	int t_delay = global_delay;
+	int t_delay = player_delay;
 	if (DELAY_LIMIT2 < t_delay) {
 		if (true == increasing) {
 			max_limit = active_clients;
@@ -360,7 +361,7 @@ void Adjust_Number_Of_Client()
 	CS_LOGIN_PACKET l_packet;
 
 	int temp = num_connections;
-	sprintf_s(l_packet.name, "%d", temp);
+	//sprintf_s(l_packet.name, "%d", temp);
 	l_packet.size = sizeof(CS_LOGIN_PACKET);
 	l_packet.type = CS_LOGIN;
 	SendPacket(num_connections, &l_packet);
@@ -405,9 +406,6 @@ void Test_Thread()
 				my_packet.pos = g_clients[i].pos;
 				my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
 				my_packet.id = i;
-				//my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
-				//cout << "ID: " << my_packet.id << ", " << "direction: " << my_packet.direction << ", "
-				//	<< "pos: " << my_packet.pos.x << "," << my_packet.pos.y << "," << my_packet.pos.z << endl;
 				SendPacket(i, &my_packet);
 			}
 			else if (packet_type == 1) {

@@ -36,7 +36,7 @@ constexpr char SC_MOVE_MONSTER = 10;
 struct CS_LOGIN_PACKET {
 	unsigned char size;
 	char	type;
-	char	name[NAME_SIZE];
+	//char	name[NAME_SIZE];
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 
@@ -90,7 +90,7 @@ struct SC_ADD_PLAYER_PACKET {
 	char	type;
 	short	id;
 	XMFLOAT3 Pos, Look, Right, Up;
-	char	name[NAME_SIZE];
+	//char	name[NAME_SIZE];
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);
 
@@ -106,7 +106,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	float	HP;
-	XMFLOAT3 Look, Up, Right, Pos;
+	XMFLOAT3 Look, Right, Pos;
 	DWORD direction;
 	XMFLOAT3 BulletPos;
 	XMFLOAT3 vel;
@@ -118,7 +118,7 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short room_num;
+	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
 	short monster_type;
 	XMFLOAT3 Pos;
 };
@@ -128,7 +128,7 @@ struct SC_MOVE_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short room_num;
+	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;
