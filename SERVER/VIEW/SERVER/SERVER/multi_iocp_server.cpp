@@ -378,7 +378,7 @@ void worker_thread(HANDLE h_iocp)
 		case OP_SEND:
 			OverPool.ReturnMemory(ex_over);
 			break;
-		case OP_NPC_MOVE:
+		case OP_NPC_MOVE://04166
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
 			{
@@ -405,6 +405,9 @@ void worker_thread(HANDLE h_iocp)
 						PoolMonsters[roomNum].erase(iter);
 					}
 				}
+				cout << "x : " << (*iter)->GetPosition().x << endl;
+				cout << "y : " << (*iter)->GetPosition().y << endl;
+				cout << "z : " << (*iter)->GetPosition().z << endl << endl << endl;
 			}
 			OverPool.ReturnMemory(ex_over);
 			break;

@@ -600,6 +600,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	CLoadedModelInfo* Hat = nullptr;
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
 
+	//04166
 	pMonsterModel[type].pop();
 	switch (type)
 	{
@@ -726,13 +727,22 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	{
 		if (monster->c_id > -1)
 		{
+
 			monster->Animate(fTimeElapsed, false);
-			/*time += fTimeElapsed;
+			//04166
+			/*monster->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+			monster->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+
+			time += fTimeElapsed;
 			if (time > 3.0f)
 			{
 				monster->SetPosition(m_pPlayer->GetPosition());
 				time = 0.f;
-			}*/
+			}
+
+			cout << "x : " << monster->GetPosition().x << endl;
+			cout << "y : " << monster->GetPosition().y << endl;
+			cout << "z : " << monster->GetPosition().z << endl << endl << endl;*/
 		}
 	}
 }

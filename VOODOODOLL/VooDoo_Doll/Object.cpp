@@ -1740,7 +1740,7 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	else if (3 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/base6.bin", NULL, 3);
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//base6 3
 	}
 
 	SetChild(arrowModel->m_pModelRootObject, true);

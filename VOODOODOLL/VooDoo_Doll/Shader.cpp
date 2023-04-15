@@ -721,7 +721,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 	{
 		if (m_ppObjects[j])
 		{
-			m_ppObjects[j]->shadowID = 2;
+			m_ppObjects[j]->shadowID = 1;
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 		}
 	}
@@ -831,8 +831,9 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->shadowID = 1;
-			player->m_ppBullet->shadowID = 0;
 			player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			player->m_ppBullet->shadowID = 1;
+			
 			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL,  pCamera);
 		}
 	}
@@ -1181,10 +1182,11 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 
-			player->m_ppBullet->shadowID = 0;
-			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);//0416
+			
 			player->shadowID = 1;
 			player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL,  pCamera);
+			player->m_ppBullet->shadowID = 1;
+			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);//0416
 			
 			
 		}

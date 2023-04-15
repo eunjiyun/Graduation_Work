@@ -104,7 +104,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.73f, 0.73f, 0.73f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-	m_pLights[0].m_xmf3Position = XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 212.0f, 980.0f);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);
+	m_pLights[0].m_xmf3Position = XMFLOAT3(-400, 212.0f, 980.0f);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
 	//m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
 
@@ -166,7 +166,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);*/
 		m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);//0415
-		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
+		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 
 
 		m_pLights[4].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);

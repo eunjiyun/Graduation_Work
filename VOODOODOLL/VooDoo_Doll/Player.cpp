@@ -326,7 +326,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	m_ppBullet = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, 1,3);
 	m_ppBullet->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	m_ppBullet->SetScale(2.f, 2.f, 2.f);
+	m_ppBullet->SetScale(0.1f, 0.1f, 0.1f);
 
 	m_ppBullet->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
 	m_ppBullet->SetRotationSpeed(360.0f);
