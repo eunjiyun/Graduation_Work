@@ -756,6 +756,7 @@ void CGameFramework::FrameAdvance()
 			player->Deceleration(fTimeElapsed);
 		}
 	}
+	m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
 	for (auto& monster : Monsters) {
 		monster->Update(fTimeElapsed);
 	}

@@ -82,6 +82,7 @@ public:
 	void UpdateBoundingBox();
 	void CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& Pl);
 	void CheckMoveObjectsCollisions(float TimeElapsed, CPlayer*& pl, vector<CMonster*>& monsters, vector<CPlayer*>& players);
+	void CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm);
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec);
 
 	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);

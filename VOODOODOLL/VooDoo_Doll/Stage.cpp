@@ -722,18 +722,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			//cout << "Name - " << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
-			//cout << "Center - ";
-			//Vector3::Print(oBox.Center);
-			//cout << "Extents - ";
-			//Vector3::Print(oBox.Extents);
-			//cout << "Look - ";
-			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetLook());
-			//cout << "Right - ";
-			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetRight());
-			//cout << "Up - ";
-			//Vector3::Print(m_ppShaders2[0]->m_ppObjects[i]->GetUp());
-
 			float angle = GetDegreeWithTwoVectors(m_ppShaders2[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders2[0]->m_ppObjects[i]->GetLook().y, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
@@ -840,6 +828,49 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 			pl->Move(MovVec, false);
 		}
 	}
+}
+void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm)
+{
+	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
+	XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
+	XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
+	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
+	xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
+	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
+	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
+
+	if (cm->GetMode() == THIRD_PERSON_CAMERA) {
+		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
+		XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+		XMFLOAT3 ray_castPos = pl->GetPosition();
+		BoundingBox test = BoundingBox(ray_castPos, XMFLOAT3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON));
+		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->GetPosition()));
+
+		bool collide = false;
+		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
+		{
+			for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
+			{
+				BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+				if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
+				{
+					collide = true;
+					break;
+				}
+			}
+			if (collide) {
+				xmf3Position = ray_castPos;
+				break;
+			}
+			ray_castPos = Vector3::Add(ray_castPos, dir);
+		}
+
+		cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
+	}
+
+
+	cm->SetLookAt(pl->GetPosition());
+	cm->RegenerateViewMatrix();
 }
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
