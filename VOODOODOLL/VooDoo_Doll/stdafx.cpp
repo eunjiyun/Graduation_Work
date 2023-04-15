@@ -434,17 +434,14 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 		nReads = (UINT)::fread(&pGameObject->m_xmf4x4World, sizeof(float), 16, pFile);
 
-		if (!pObjectFound)
-		{
-			strcpy_s(pstrFilePath, 64, "Models/");
-			strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
-			strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
+		strcpy_s(pstrFilePath, 64, "Models/");
+		strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
+		strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
 
-			CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
+		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 
-			pGameObject->SetMesh(0, pMesh);
-		}
-		
+		pGameObject->SetMesh(0, pMesh);
+
 		//cout << "Name: " << pGameObject->m_pstrName << " : "m_pstrTextureName;
 
 

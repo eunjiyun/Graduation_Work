@@ -159,7 +159,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 	
 	ppTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_04_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_03_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 	
 	ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/ceiling_wood_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -220,135 +220,133 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 
-	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
-	{
+	//for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
+	//{
+	//	for (UINT k = 0; k < m_ppShaders2[0]->m_ppObjects[i]->m_nMaterials; k++)
+	//	{
+	//		CMaterial* pMaterial = new CMaterial(1);
+	//		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 
+	//		if (0 == strcmp("Dense_Floor_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)	)
+	//		{
+	//			pMaterial->SetTexture(ppTextures[1]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
 
-		for (UINT k = 0; k < m_ppShaders2[0]->m_ppObjects[i]->m_nMaterials; k++)
-		{
-			CMaterial* pMaterial = new CMaterial(1);
-			pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	//		if (0 == strcmp("Dense_wood_missing_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[0]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
 
-			if (0 == strcmp("Dense_Floor_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)	)
-			{
-				pMaterial->SetTexture(ppTextures[1]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
+	//		if (0 == strcmp("WoodBox9", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[2]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
 
-			if (0 == strcmp("Dense_wood_missing_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[0]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-
-			if (0 == strcmp("WoodBox9", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[2]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-
-			if (0 == strcmp("Bedroom_wall_d_02_dense_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)||
-				0 == strcmp("Bedroom_wall_b_01_dense_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)||
-				0 == strcmp("Bedroom_wall_b_06_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[3]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("WoodBox10", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[5]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("WoodBox3", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("WoodBox4", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)
-				)
-			{
-				pMaterial->SetTexture(ppTextures[6]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Chair_03_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[8]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Door_01_Frame_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[9]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Cart_static_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[10]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Poster_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Poster_02_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Poster_03_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Poster_04_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[11]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Dressing_table_drawer_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Dressing_table_mirror_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[12]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Bed_blanked_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Bed_pillows_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[13]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Matress_mat_BaseMap", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[14]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Cloth_04_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)&&
-				0 == strcmp("Cloth_05_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)&&
- 				0 == strcmp("Cloth_06_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) &&
-				0 == strcmp("Cloth_07_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[15]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Cloth_03_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) &&
-			0 == strcmp("Cloth_02_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[16]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Beam_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) &&
-				0 == strcmp("Beam_02_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[17]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Stair_side_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) )
-			{
-				pMaterial->SetTexture(ppTextures[18]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Stair_step_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) )
-			{
-				pMaterial->SetTexture(ppTextures[19]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("WoodBox6", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[20]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			if (0 == strcmp("Ceiling_concrete_base_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[21]);
-				m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-			cout << i << "	|	" << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
-		}
-	}
+	//		if (0 == strcmp("Bedroom_wall_d_02_dense_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)||
+	//			0 == strcmp("Bedroom_wall_b_01_dense_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)||
+	//			0 == strcmp("Bedroom_wall_b_06_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[3]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("WoodBox10", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[5]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("WoodBox3", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
+	//			0 == strcmp("WoodBox4", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)
+	//			)
+	//		{
+	//			pMaterial->SetTexture(ppTextures[6]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Chair_03_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[8]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Door_01_Frame_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[9]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Cart_static_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[10]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Poster_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
+	//			0 == strcmp("Poster_02_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
+	//			0 == strcmp("Poster_03_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
+	//			0 == strcmp("Poster_04_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[11]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Dressing_table_drawer_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
+	//			0 == strcmp("Dressing_table_mirror_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[12]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Bed_blanked_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) ||
+	//			0 == strcmp("Bed_pillows_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[13]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Matress_mat_BaseMap", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[14]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Cloth_04_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)&&
+	//			0 == strcmp("Cloth_05_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName)&&
+ //				0 == strcmp("Cloth_06_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) &&
+	//			0 == strcmp("Cloth_07_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[15]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Cloth_03_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) &&
+	//		0 == strcmp("Cloth_02_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[16]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Beam_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) &&
+	//			0 == strcmp("Beam_02_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[17]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Stair_side_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) )
+	//		{
+	//			pMaterial->SetTexture(ppTextures[18]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Stair_step_01_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName) )
+	//		{
+	//			pMaterial->SetTexture(ppTextures[19]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("WoodBox6", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[20]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		if (0 == strcmp("Ceiling_concrete_base_mesh", m_ppShaders2[0]->m_ppObjects[i]->m_pstrName))
+	//		{
+	//			pMaterial->SetTexture(ppTextures[21]);
+	//			m_ppShaders2[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//		}
+	//		cout << i << "	|	" << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
+	//	}
+	//}
 
 	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; ++i)
 	{
@@ -712,6 +710,8 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 
 		if (pBox.Intersects(oBox))
 		{
+
+			cout << m_ppShaders2[0]->m_ppObjects[i]->m_pstrName << endl;
 			if (pBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
