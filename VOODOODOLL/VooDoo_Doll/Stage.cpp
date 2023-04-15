@@ -652,26 +652,37 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
 	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
-	XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
-	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+	if (cm->GetMode() == THIRD_PERSON_CAMERA) {
+		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
+		XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+		XMFLOAT3 ray_castPos = pl->GetPosition();
+		BoundingBox test = BoundingBox(ray_castPos, XMFLOAT3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON));
+		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->GetPosition()));
 
-	XMFLOAT3 dir = Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(pl->GetPosition(), cm->GetPosition())), 0.1,false);
-	dir.y = 0;
-	for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
-	{
-		BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
-		while (oBox.Contains(XMLoadFloat3(&xmf3Position)))
+		bool collide = false;
+		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
 		{
-			xmf3Position = Vector3::Add(xmf3Position, dir);
+			for (int i = 0; i < m_ppShaders2[0]->m_nObjects; i++)
+			{
+				BoundingOrientedBox oBox = m_ppShaders2[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+				if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
+				{
+					collide = true;
+					break;
+				}
+			}
+			if (collide) {
+				xmf3Position = ray_castPos;
+				break;
+			}
+			ray_castPos = Vector3::Add(ray_castPos, dir);
 		}
+
+		cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
 	}
 
-	DWORD nCurrentCameraMode = cm->GetMode();
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA)
-		cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
 
-
-	if (nCurrentCameraMode == THIRD_PERSON_CAMERA) cm->SetLookAt(pl->GetPosition());
+	cm->SetLookAt(pl->GetPosition());
 	cm->RegenerateViewMatrix();
 }
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
