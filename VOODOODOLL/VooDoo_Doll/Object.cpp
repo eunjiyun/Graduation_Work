@@ -25,29 +25,17 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 		m_pnResourceTypes = new UINT[m_nTextures];
 		m_pdxgiBufferFormats = new DXGI_FORMAT[m_nTextures];
 		m_pnBufferElements = new int[m_nTextures];
+		for (int i = 0; i < m_nTextures; i++) m_pnBufferElements[i] = 0;
 	}
 	m_nRootParameters = nRootParameters;
+
+
 	if (nRootParameters > 0) m_pnRootParameterIndices = new UINT[nRootParameters];
 
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
-CTexture::CTexture(const CTexture& other)
-{
-	m_nReferences = other.m_nReferences;
-	m_nTextureType = other.m_nTextureType;
-	m_nTextures = other.m_nTextures;
-	m_ppd3dTextures = other.m_ppd3dTextures;
-	m_ppd3dTextureUploadBuffers = other.m_ppd3dTextureUploadBuffers;
-	m_pnResourceTypes = other.m_pnResourceTypes;
-	m_pdxgiBufferFormats = other.m_pdxgiBufferFormats;
-	m_pnBufferElements = other.m_pnBufferElements;
-	m_nRootParameters = other.m_nRootParameters;
-	m_pnRootParameterIndices = other.m_pnRootParameterIndices;
-	m_pd3dSrvGpuDescriptorHandles = other.m_pd3dSrvGpuDescriptorHandles;
-	m_nSamplers = other.m_nSamplers;
-	m_pd3dSamplerGpuDescriptorHandles = other.m_pd3dSamplerGpuDescriptorHandles;
-}
+
 
 CTexture::~CTexture()
 {
@@ -206,37 +194,7 @@ CMaterial::CMaterial(int nTextures)
 		for (int i = 0; i < m_nTextures; i++) m_ppstrTextureNames[i][0] = '\0';
 	}
 }
-CMaterial::CMaterial(const CMaterial& other)
-{
-	m_nReferences = other.m_nReferences;
 
-	m_pShader = new CShader(*other.m_pShader);
-
-	m_ppTextures = new CTexture * (*other.m_ppTextures);
-
-	m_pStandardShader = new CShader(*other.m_pStandardShader);
-
-	m_pSkinnedAnimationShader = new CShader(*other.m_pSkinnedAnimationShader);
-
-	m_xmf4AlbedoColor = other.m_xmf4AlbedoColor;
-	m_xmf4EmissiveColor = other.m_xmf4EmissiveColor;
-	m_xmf4SpecularColor = other.m_xmf4SpecularColor;
-	m_xmf4AmbientColor = other.m_xmf4AmbientColor;
-	m_nType = other.m_nType;
-	m_fGlossiness = other.m_fGlossiness;
-	m_fSmoothness = other.m_fSmoothness;
-	m_fSpecularHighlight = other.m_fSpecularHighlight;
-	m_fMetallic = other.m_fMetallic;
-	m_fGlossyReflection = other.m_fGlossyReflection;
-	m_nTextures = other.m_nTextures;
-	//strcpy_s(m_ppstrTextureNames, other.m_ppstrTextureNames);
-	//_tcscpy_s(m_ppstrTextureNames, other.m_ppstrTextureNames);
-	//_tcscpy_s(m_ppstrTextureNames, other.m_ppstrTextureNames);
-
-	m_nMaterial = other.m_nMaterial;
-
-	m_xmf4EmissionColor = other.m_xmf4EmissionColor;
-}
 
 CMaterial::~CMaterial()
 {
@@ -280,22 +238,24 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
 	m_pStandardShader = new CStandardShader();
-	m_pStandardShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pStandardShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pStandardShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	m_pSkinnedAnimationShader = new CSkinnedAnimationStandardShader();
-	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
+	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AmbientColor, 16);//조명 관련
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4AlbedoColor, 20);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4SpecularColor, 24);
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 4, &m_xmf4EmissiveColor, 28);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AmbientColor, 0);//조명 관련
+	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4AlbedoColor, 4);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4SpecularColor, 8);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4EmissiveColor, 12);
 
-	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_nType, 32);
+	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 1, &m_nType, 16);
+
+	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &id, 16);
 
 	for (int i = 0; i < m_nTextures; i++)
 	{
@@ -500,23 +460,7 @@ CAnimationSet::CAnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames
 	for (int i = 0; i < nKeyFrames; i++) m_ppxmf4x4KeyFrameTransforms[i] = new XMFLOAT4X4[nAnimatedBones];
 #endif
 }
-CAnimationSet::CAnimationSet(const CAnimationSet& other)
-{
-	strcpy_s(m_pstrAnimationSetName, other.m_pstrAnimationSetName);
-	m_fLength = other.m_fLength;
-	m_nFramesPerSecond = other.m_nFramesPerSecond;
-	m_nKeyFrames = other.m_nKeyFrames;
 
-	//m_pfKeyFrameTimes = other.m_pfKeyFrameTimes;
-	m_pfKeyFrameTimes = new float;
-	for (int i{}; i < m_nKeyFrames; ++i)
-		m_pfKeyFrameTimes[i] = other.m_pfKeyFrameTimes[i];
-
-	//m_ppxmf4x4KeyFrameTransforms = other.m_ppxmf4x4KeyFrameTransforms;
-	m_ppxmf4x4KeyFrameTransforms = new XMFLOAT4X4*;
-	*m_ppxmf4x4KeyFrameTransforms = new XMFLOAT4X4;
-	**m_ppxmf4x4KeyFrameTransforms = **other.m_ppxmf4x4KeyFrameTransforms;
-}
 
 CAnimationSet::~CAnimationSet()
 {
@@ -596,41 +540,7 @@ CAnimationSets::CAnimationSets(int nAnimationSets)//0309
 	m_nAnimationSets = nAnimationSets;
 	m_pAnimationSets = new CAnimationSet * [nAnimationSets];
 }
-CAnimationSets::CAnimationSets(const CAnimationSets& other)
-{
-	m_nReferences = other.m_nReferences;
 
-	m_nAnimationSets = other.m_nAnimationSets;
-
-	m_pAnimationSets = new CAnimationSet * [m_nAnimationSets];
-	//m_pAnimationSets = other.m_pAnimationSets;
-	//m_pAnimationSets = new CAnimationSet * (*other.m_pAnimationSets);
-
-	//CAnimationSet::CAnimationSet(float fLength, int nFramesPerSecond, int nKeyFrames, int nAnimatedBones, char* pstrName)
-	for (int i{}; i < m_nAnimationSets; ++i)
-	{
-		m_pAnimationSets[i] = new CAnimationSet(other.m_pAnimationSets[i]->m_fLength, other.m_pAnimationSets[i]->m_nFramesPerSecond, other.m_pAnimationSets[i]->m_nKeyFrames,
-			other.m_pAnimationSets[i]->m_nAnimatedBones, other.m_pAnimationSets[i]->m_pstrAnimationSetName);
-		//*m_pAnimationSets[i] = *other.m_pAnimationSets[i];
-	}
-
-	m_nAnimatedBoneFrames = other.m_nAnimatedBoneFrames;
-
-	//*m_ppAnimatedBoneFrameCaches = *other.m_ppAnimatedBoneFrameCaches;
-	/*m_ppAnimatedBoneFrameCaches = new CGameObject ** (other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];
-	m_ppAnimatedBoneFrameCaches = new (CGameObject * (*))[other.m_nAnimatedBoneFrames](*other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];
-	m_ppAnimatedBoneFrameCaches = new (CGameObject * *[other.m_nAnimatedBoneFrames]) (*other.m_ppAnimatedBoneFrameCaches)[m_nAnimatedBoneFrames];*/
-
-	m_ppAnimatedBoneFrameCaches = new CGameObject * [m_nAnimatedBoneFrames];
-	for (int i{}; i < m_nAnimatedBoneFrames; ++i)
-	{
-		m_ppAnimatedBoneFrameCaches[i] = new CGameObject();
-		*m_ppAnimatedBoneFrameCaches[i] = *other.m_ppAnimatedBoneFrameCaches[i];
-		//**m_ppAnimatedBoneFrameCaches(**other.m_ppAnimatedBoneFrameCaches);
-	}
-	//m_ppAnimatedBoneFrameCaches = new CGameObject * (*other.m_ppAnimatedBoneFrameCaches);
-
-}
 
 CAnimationSets::~CAnimationSets()
 {
@@ -643,17 +553,6 @@ CAnimationSets::~CAnimationSets()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-CAnimationTrack::CAnimationTrack(const CAnimationTrack& other)
-{
-	m_bEnable = other.m_bEnable;
-	m_fSpeed = other.m_fSpeed;
-	m_fPosition = other.m_fPosition;
-	m_fWeight = other.m_fWeight;
-	m_nAnimationSet = other.m_nAnimationSet;
-	m_nType = other.m_nType;
-	m_nCallbackKeys = other.m_nCallbackKeys;
-	m_pAnimationCallbackHandler = new CAnimationCallbackHandler(*other.m_pAnimationCallbackHandler);
-}
 
 CAnimationTrack::~CAnimationTrack()
 {
@@ -773,23 +672,7 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 		m_ppd3dcbSkinningBoneTransforms[i]->Map(0, NULL, (void**)&m_ppcbxmf4x4MappedSkinningBoneTransforms[i]);
 	}
 }
-CAnimationController::CAnimationController(const CAnimationController& other)
-{
-	m_fTime = other.m_fTime;
-	Cur_Animation_Track = other.Cur_Animation_Track;
-	m_nAnimationTracks = other.m_nAnimationTracks;
-	m_pAnimationTracks = new CAnimationTrack(*other.m_pAnimationTracks);
-	m_pAnimationSets = new CAnimationSets(*other.m_pAnimationSets);
-	m_nSkinnedMeshes = other.m_nSkinnedMeshes;
-	m_ppSkinnedMeshes = new CSkinnedMesh * (*other.m_ppSkinnedMeshes);
-	m_ppd3dcbSkinningBoneTransforms = other.m_ppd3dcbSkinningBoneTransforms;
-	if (other.m_ppcbxmf4x4MappedSkinningBoneTransforms != NULL)
-		m_ppcbxmf4x4MappedSkinningBoneTransforms = other.m_ppcbxmf4x4MappedSkinningBoneTransforms;
-	m_bRootMotion = other.m_bRootMotion;
-	m_pModelRootObject = new CGameObject(*other.m_pModelRootObject);
-	m_pRootMotionObject = new CGameObject(*other.m_pRootMotionObject);
-	m_xmf3FirstRootMotionPosition = other.m_xmf3FirstRootMotionPosition;
-}
+
 
 CAnimationController::~CAnimationController()
 {
@@ -896,16 +779,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-CLoadedModelInfo::CLoadedModelInfo(const CLoadedModelInfo& other)
-{
-	m_pAnimationSets = new CAnimationSets(*other.m_pAnimationSets);//
-	//m_pAnimationSets = other.m_pAnimationSets;
-	m_pModelRootObject = new CGameObject(*other.m_pModelRootObject);
-
-	m_nSkinnedMeshes = other.m_nSkinnedMeshes;
-
-	m_ppSkinnedMeshes = new CSkinnedMesh * (*other.m_ppSkinnedMeshes);
-}
 CLoadedModelInfo::~CLoadedModelInfo()
 {
 	if (m_ppSkinnedMeshes) delete[] m_ppSkinnedMeshes;
@@ -946,72 +819,7 @@ CGameObject::CGameObject(int nMaterials) : CGameObject()
 		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = NULL;
 	}
 }
-CGameObject::CGameObject(const CGameObject& other)
-{
-	m_nReferences = other.m_nReferences;
-	//m_pstrName = other.m_pstrName;
-	strcpy_s(m_pstrName, sizeof(m_pstrName), other.m_pstrName);
-	/*if (other.m_ppMeshes != NULL && m_ppMeshes == NULL)
-		m_ppMeshes = new CMesh * (*other.m_ppMeshes);*/
-	m_ppMeshes = other.m_ppMeshes;
-	m_nMeshes = other.m_nMeshes;
-	m_d3dCbvGPUDescriptorHandle = other.m_d3dCbvGPUDescriptorHandle;
-	strcpy_s(m_pstrFrameName, sizeof(m_pstrFrameName), other.m_pstrFrameName);
-	m_nMaterials = other.m_nMaterials;
-	if (other.m_ppMaterials != NULL)
-		m_ppMaterials = new CMaterial * (*other.m_ppMaterials);
 
-	m_xmf4x4ToParent = other.m_xmf4x4ToParent;
-	m_xmf4x4World = other.m_xmf4x4World;
-
-
-	if (other.m_pParent != NULL)
-	{
-		m_pParent = new CGameObject(*other.m_pParent);
-		m_pChild = new CGameObject();
-		m_pSibling = new CGameObject();
-		m_pParent->SetChild(m_pChild, true);
-		//m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pMonsterModel);
-
-		if (other.m_pSkinnedAnimationController != NULL)
-			m_pSkinnedAnimationController = new CAnimationController(*other.m_pSkinnedAnimationController);
-	}
-	/*if (other.m_pChild != NULL)
-	{
-		m_pChild = new CGameObject(*other.m_pChild);
-
-	}
-	if (other.m_pSibling != NULL)
-		m_pSibling = new CGameObject(*other.m_pSibling);*/
-
-		//if (other.m_pParent != NULL)
-			//m_pParent = other.m_pParent;
-		//if (other.m_pChild != NULL)
-			//m_pChild = other.m_pChild;
-		//if (other.m_pSibling != NULL)
-			//m_pSibling = other.m_pSibling;
-
-
-	* m_pd3dcbGameObject = *other.m_pd3dcbGameObject;
-	//*m_pcbMappedGameObject = *other.m_pcbMappedGameObject;
-	m_pd3dCbvSrvDescriptorHeap = other.m_pd3dCbvSrvDescriptorHeap;
-	m_xmOOBB = other.m_xmOOBB;
-	m_bActive = other.m_bActive;
-	onAttack = other.onAttack;
-	onRun = other.onRun;
-	onDie = other.onDie;
-	onCollect = other.onCollect;
-	dieOnce = other.dieOnce;
-	c_id = other.c_id;
-	npc_type = other.npc_type;
-	m_xmf3MovingDirection = other.m_xmf3MovingDirection;
-	m_xmf3FirePosition = other.m_xmf3FirePosition;
-	m_xmf3RotationAxis = other.m_xmf3RotationAxis;
-	if (other.m_pLockedObject != NULL)
-		m_pLockedObject = new CGameObject(*other.m_pLockedObject);
-	m_fMovingSpeed = other.m_fMovingSpeed;
-	m_fRotationSpeed = other.m_fRotationSpeed;
-}
 
 CGameObject::~CGameObject()
 {
@@ -1083,7 +891,11 @@ void CGameObject::SetMesh(int nIndex, CMesh* pMesh)
 	else
 	{
 		m_ppMeshes = new CMesh * [1];
+
+		/*if (m_ppMeshes[nIndex] == NULL)
+			m_ppMeshes[nIndex] = new CMesh();*/
 	}
+
 	m_ppMeshes[nIndex] = pMesh;
 
 	if (m_ppMeshes[nIndex])
@@ -1105,8 +917,18 @@ void CGameObject::SetShader(int nMaterial, CShader* pShader)
 
 void CGameObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 {
-	if (m_ppMaterials[nMaterial])
-		m_ppMaterials[nMaterial]->Release();
+	if (m_ppMaterials)
+	{
+		if (m_ppMaterials[nMaterial])
+			m_ppMaterials[nMaterial]->Release();
+	}
+	else
+	{
+		m_ppMaterials = new CMaterial * [1];
+
+		/*if (m_ppMeshes[nIndex] == NULL)
+			m_ppMeshes[nIndex] = new CMesh();*/
+	}
 
 	m_ppMaterials[nMaterial] = pMaterial;
 
@@ -1215,7 +1037,7 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,  CCamera* pCamera)
 {
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1231,9 +1053,14 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 				if (m_ppMaterials[i])
 				{
 					if (m_ppMaterials[i]->m_pShader)
-						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera, false);
+					{
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+					}
 
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
+					//0415
+
+					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
 				}
 
 				m_ppMeshes[0]->Render(pd3dCommandList, i, i);
@@ -1247,16 +1074,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
 
-void CGameObject::lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
-{
-	if (m_ppMeshes)
-		m_ppMeshes[0]->OnPreRender(pd3dCommandList, NULL);
 
-	if (m_pSibling)
-		m_pSibling->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-	if (m_pChild)
-		m_pChild->lightRender(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-}
 
 void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -1265,6 +1083,10 @@ void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12Graphics
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+
 }
 
 void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, XMFLOAT4X4* pxmf4x4World)
@@ -1272,6 +1094,8 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
+
+	//if (m_pMaterial) pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pMaterial->m_nReflection, 16);
 }
 
 
@@ -1560,7 +1384,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fGlossyReflection), sizeof(float), 1, pInFile);
 		}
-		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1
+		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1  0313
 		{
 			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose, 1);
 		}
@@ -1665,15 +1489,15 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 					OutputDebugString(pstrDebug);
 #endif
 				}
+				}
 			}
-		}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-	}
+		}
 	return(pGameObject);
-}
+	}
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 {
@@ -1722,7 +1546,7 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 				OutputDebugString(pstrDebug);
 #endif
 			}
-		}
+			}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -1763,8 +1587,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			break;
 		}
-				}
-			}
+		}
+	}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
@@ -1843,7 +1667,12 @@ void CGameObject::SetRotationAxis(XMFLOAT3& xmf3RotationAxis)
 {
 	m_xmf3RotationAxis = Vector3::Normalize(xmf3RotationAxis);
 }
-
+void CGameObject::SetMaterial(CMaterial* pMaterial)
+{
+	if (m_pMaterial) m_pMaterial->Release();
+	m_pMaterial = pMaterial;
+	if (m_pMaterial) m_pMaterial->AddRef();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -1892,15 +1721,17 @@ void CRootMotionCallbackHandler::HandleCallback(void* pCallbackData, float fTrac
 //
 
 
-CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks,int chooseObj)
+
+CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks, int chooseObj)
 {
 	CLoadedModelInfo* arrowModel = pModel;
 
 	if (1 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/lancer_weapon.bin", NULL, 7);//Warlock_weapon
 	}
+
 	else if (2 == chooseObj)
 	{
 		if (!arrowModel)
@@ -1909,7 +1740,7 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	else if (3 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/base4.bin", NULL, 3);
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/base6.bin", NULL, 3);
 	}
 
 	SetChild(arrowModel->m_pModelRootObject, true);
@@ -1994,3 +1825,5 @@ void CBulletObject::Reset()
 
 	m_bActive = false;
 }
+
+

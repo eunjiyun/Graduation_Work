@@ -40,7 +40,6 @@ class CTexture
 {
 public:
 	CTexture(int nTextureResources, UINT nResourceType, int nSamplers, int nRootParameters);
-	CTexture(const CTexture& other);
 	virtual ~CTexture();
 
 private:
@@ -111,7 +110,6 @@ class CMaterial
 {
 public:
 	CMaterial(int nTextures);
-	CMaterial(const CMaterial& other);
 	virtual ~CMaterial();
 
 private:
@@ -119,9 +117,13 @@ private:
 
 public:
 	CShader* m_pShader = NULL;//
+	
 	static CShader* m_pStandardShader;//
 	static CShader* m_pSkinnedAnimationShader;//
+	
+
 	CTexture** m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal //
+
 
 	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);//
 	XMFLOAT4						m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);//
@@ -130,6 +132,7 @@ public:
 
 public:
 	UINT							m_nType = 0x00;//
+
 
 	float							m_fGlossiness = 0.0f;//
 	float							m_fSmoothness = 0.0f;//
@@ -167,10 +170,10 @@ public:
 	void SetStandardShader() { CMaterial::SetShader(m_pStandardShader); }
 	void SetSkinnedAnimationShader() { CMaterial::SetShader(m_pSkinnedAnimationShader); }
 
-	//23.01.30
+
 	void SetAlbedoColor(XMFLOAT4 xmf4Color) { m_xmf4AlbedoColor = xmf4Color; }
 	void SetEmissionColor(XMFLOAT4 xmf4Color) { m_xmf4EmissionColor = xmf4Color; }
-	//
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +190,6 @@ class CAnimationCallbackHandler
 {
 public:
 	CAnimationCallbackHandler() { }
-	CAnimationCallbackHandler(const CAnimationCallbackHandler& other) {}
 
 	~CAnimationCallbackHandler() { }
 
@@ -201,7 +203,6 @@ class CAnimationSet
 {
 public:
 	CAnimationSet(float fLength, int nFramesPerSecond, int nKeyFrameTransforms, int nSkinningBones, char* pstrName);
-	CAnimationSet(const CAnimationSet& other);
 	~CAnimationSet();
 
 public:
@@ -235,7 +236,6 @@ class CAnimationSets
 {
 public:
 	CAnimationSets(int nAnimationSets);
-	CAnimationSets(const CAnimationSets& other);
 	~CAnimationSets();
 
 private:
@@ -257,7 +257,6 @@ class CAnimationTrack
 {
 public:
 	CAnimationTrack() {}
-	CAnimationTrack(const CAnimationTrack& other);
 	~CAnimationTrack();
 	
 public:
@@ -296,7 +295,6 @@ class CLoadedModelInfo
 {
 public:
 	CLoadedModelInfo() {}
-	CLoadedModelInfo(const CLoadedModelInfo& other);
 	~CLoadedModelInfo();
 
 	CAnimationSets* m_pAnimationSets = NULL;
@@ -313,7 +311,6 @@ class CAnimationController
 {
 public:
 	CAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfo* pModel);
-	CAnimationController(const CAnimationController& other);
 	~CAnimationController();
 
 public:
@@ -367,7 +364,6 @@ class CGameObject
 public:
 	CGameObject();
 	CGameObject(int nMaterials);
-	CGameObject(const CGameObject& other);
 	virtual ~CGameObject();
 
 public:
@@ -423,6 +419,10 @@ public:
 	float						m_fMovingSpeed = 0.0f;//
 	float						m_fRotationSpeed = 0.0f;//
 
+	CMaterial* m_pMaterial = NULL;
+
+	int shadowID = 0;
+
 public:
 	void AddRef();
 	void Release();
@@ -444,8 +444,8 @@ public:
 	virtual void Animate(float fTimeElapsed,bool onPlayer);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera = NULL);
-	void lightRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera = NULL);
+	
 	void onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState);
 	virtual void OnLateUpdate() { }
 
@@ -518,6 +518,8 @@ public:
 	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
 	virtual void Reset() {}
 
+	void SetMaterial(CMaterial* pMaterial);
+
 	void SetFirePosition(XMFLOAT3 xmf3FirePosition)
 	{
 		m_xmf3FirePosition = xmf3FirePosition;
@@ -564,7 +566,9 @@ public:
 class CBulletObject : public CGameObject
 {
 public:
+
 	CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks,int chooseObj);
+
 	virtual ~CBulletObject() {}
 
 public:
@@ -585,3 +589,5 @@ public:
 	virtual void Reset();
 };
 //
+
+

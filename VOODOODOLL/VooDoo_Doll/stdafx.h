@@ -84,8 +84,17 @@ extern HINSTANCE						ghAppInstance;
 #define ROOT_PARAMETER_CAMERA			0
 #define ROOT_PARAMETER_PLAYER			1
 #define ROOT_PARAMETER_LIGHT			2
-#define ROOT_PARAMETER_BONEOFFSET       10
-#define ROOT_PARAMETER_BONETRANSFORM    11
+#define ROOT_PARAMETER_BONEOFFSET       11
+#define ROOT_PARAMETER_BONETRANSFORM    12
+
+#define MAX_SHADOW_LIGHTS				4 
+#define MAX_DEPTH_TEXTURES		MAX_SHADOW_LIGHTS
+
+#define _PLANE_WIDTH			1024
+#define _PLANE_HEIGHT			1024
+
+#define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 4)
+#define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 4)
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "d3d12.lib")

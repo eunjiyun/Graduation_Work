@@ -413,7 +413,9 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 				strcpy_s(pstrFilePath1 + 15 + strlen(strAlbedoTextureName), 64 - 15 - strlen(strAlbedoTextureName), ".dds");
 				mbstowcs_s(&nConverted, pGameObject->m_ppMaterials[k]->m_ppstrTextureNames[0], pstrFilePath1, _TRUNCATE);
 
+
 				cout << pGameObject->m_pstrName << "	|	" << strAlbedoTextureName << endl;
+
 			}
 
 
@@ -440,7 +442,9 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 
+
 		pGameObject->SetMesh(0, pMesh);
+
 
 		//cout << "Name: " << pGameObject->m_pstrName << " : "m_pstrTextureName;
 

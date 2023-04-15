@@ -5,6 +5,8 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 
+ID3D12GraphicsCommandList* CGameFramework::m_pd3dCommandList = NULL;
+
 CGameFramework::CGameFramework()
 {
 	m_pdxgiFactory = NULL;
@@ -454,6 +456,7 @@ void CGameFramework::OnDestroy()
 
 #define _WITH_TERRAIN_PLAYER
 
+
 void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
@@ -464,6 +467,31 @@ void CGameFramework::BuildObjects()
 	{
 		m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	}
+
+	m_pLights = m_pStage->m_pLights;
+	
+	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
+
+	//CLoadedModelInfo* Model = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo1.bin", NULL, 1);
+	//Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //손에 칼	
+	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+
+	//Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+	//Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	//Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+	//Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+	//Mon->SetPosition(1.0f, -50.f, 1.0f);
+	//Mon->SetScale(1.0f, 1.0f, 1.0f);
+	
+
+	//pBoxShader->obj.push_back(Mon);
+
+	
+
+	
 
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 5; j++) {
@@ -476,6 +504,8 @@ void CGameFramework::BuildObjects()
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}
 
+	
+
 
 #ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
@@ -485,47 +515,32 @@ void CGameFramework::BuildObjects()
 #endif
 
 
-
 	m_pStage->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
-	/*m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	m_pPlayer->m_pSkinnedAnimationController->SetTrackEnable(0, true);*/
-
+	
 	Players.push_back(m_pPlayer);
+
 	for (int i = 0; i < 3; i++) {
 		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 		Players.push_back(pAirplanePlayer);
 	}
+	CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
 
-	//23.02.22
-	//m_ppBullets = new CGameObject * [BULLETS];
+	
 
-	//CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_weapon2.bin", NULL, 7);
-	//m_ppBullets[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), arrow, 1,1);
-	//m_ppBullets[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppBullets[0]->SetScale(1.1f, 1.1f, 1.1f);
-
-	//m_ppCap = new CGameObject * [BULLETS];
-	//CLoadedModelInfo* magicCap = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7);
-	//m_ppCap[0] = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), magicCap, 1, 2);
-	//m_ppCap[0]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//m_ppCap[0]->SetScale(0.8f, 0.8f, 0.8f);//Warlock_cap
-
-	////for (int i = 0; i < BULLETS; i++)
-	//for (int i = 0; i < 1; i++)
-	//{
-	//	m_ppBullets[i]->SetRotationAxis(XMFLOAT3(0.0f, 1.0f, 0.0f));
-	//	m_ppBullets[i]->SetRotationSpeed(360.0f);
-	//	m_ppBullets[i]->SetMovingSpeed(120.0f);
-	//	m_ppBullets[i]->SetActive(false);
-	//}
-
-	//if (arrow) delete arrow;
-	//if (magicCap) delete magicCap;
+	
+	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
+	//DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	m_pStage->m_pDepthRenderShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, RtvFormats, DXGI_FORMAT_D32_FLOAT);
+	m_pStage->m_pDepthRenderShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, NULL);
 
 
-	m_pStage->BuildDefaultLightsAndMaterials();//인형이 까맣게 출력
+	m_pStage->m_pShadowShader = new CShadowMapShader(m_pStage->pBoxShader);
+	m_pStage->m_pShadowShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, NULL, DXGI_FORMAT_D32_FLOAT);//pipelinestate null
+	m_pStage->m_pShadowShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pStage->m_pDepthRenderShader->GetDepthTexture());
 
+	
+	
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -550,11 +565,6 @@ void CGameFramework::ReleaseObjects()
 	for (auto& monster : Monsters)
 		delete monster;
 
-	/*if (m_ppHierarchicalGameObjects)
-	{
-		for (int i = 0; i < m_nHierarchicalGameObjects; i++) if (m_ppHierarchicalGameObjects[i]) m_ppHierarchicalGameObjects[i]->Release();
-		delete[] m_ppHierarchicalGameObjects;
-	}*/
 
 	if (m_pStage) m_pStage->ReleaseObjects();
 	if (m_pStage) delete m_pStage;
@@ -580,6 +590,7 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 
 void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 {
+
 	// 이 함수에서 몬스터를 동적 할당하여 소환함
 	if (pMonsterModel[type].empty()) {
 		cout << "생성실패\n";
@@ -588,6 +599,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	CMonster* Mon = nullptr;
 	CLoadedModelInfo* Hat = nullptr;
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
+
 	pMonsterModel[type].pop();
 	switch (type)
 	{
@@ -604,10 +616,10 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		Mon->speed = 3.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
+
 		break;
 	case 1:
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//뼈다귀 다리
-
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -685,6 +697,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	}
 	if (Mon != nullptr)
 	{
+		
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(20, 4, 15));
@@ -698,6 +711,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 {
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
 
+
+	//m_pPlayer->Animate(fTimeElapsed,false);
+
+
 	for (auto& player : Players)
 	{
 		if (player->c_id > -1) {
@@ -708,7 +725,15 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	for (auto& monster : Monsters)
 	{
 		if (monster->c_id > -1)
+		{
 			monster->Animate(fTimeElapsed, false);
+			/*time += fTimeElapsed;
+			if (time > 3.0f)
+			{
+				monster->SetPosition(m_pPlayer->GetPosition());
+				time = 0.f;
+			}*/
+		}
 	}
 }
 
@@ -766,6 +791,9 @@ void CGameFramework::FrameAdvance()
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
+	m_pStage->OnPrepareRender(m_pd3dCommandList);
+	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, Monsters, Players);
+
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -794,38 +822,34 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
-	/*for (int i = 0; i < m_nHierarchicalGameObjects; i++)
+	if (m_pStage->m_pShadowShader)
 	{
-		if (m_ppHierarchicalGameObjects[i])
-		{
-			m_ppHierarchicalGameObjects[i]->Animate(fTimeElapsed);
-			if (!m_ppHierarchicalGameObjects[i]->m_pSkinnedAnimationController) m_ppHierarchicalGameObjects[i]->UpdateTransform(NULL);
-			m_ppHierarchicalGameObjects[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-		}
-	}*/
+		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
+	}
 
 
+	
+	
 
+	
 
-	for (auto& player : Players) {
+	/*for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 			player->m_ppBullet->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
-	}
-	for (const auto& monster : Monsters) {
+	}*/
+	/*for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			monster->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 			monster->m_ppHat->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
-	}
+	}*/
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 
-	//m_ppBullets[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-	//m_ppBullets[0]->SetPosition(m_pPlayer->GetPosition());
 
 	d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 	d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;

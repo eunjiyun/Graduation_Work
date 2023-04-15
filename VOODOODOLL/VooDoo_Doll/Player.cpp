@@ -244,13 +244,15 @@ void CPlayer::OnPrepareRender()
 	m_xmf4x4ToParent = Matrix4x4::Multiply(XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z), m_xmf4x4ToParent);
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
+void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,bool shadow, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	//cout << c_id << endl;
-	//if (nCameraMode == THIRD_PERSON_CAMERA)
+
+	shadowID = 1;
+	if (nCameraMode == THIRD_PERSON_CAMERA || true == shadow)
 		CGameObject::Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
+
 
 void CPlayer::OnUpdateTransform()
 {
@@ -296,8 +298,11 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 
 	pAngrybotModels[0] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body26.bin", NULL, 7);
-	pAngrybotModels[1] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body27.bin", NULL, 7);
-	pAngrybotModels[2] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body28.bin", NULL, 7);
+	//pAngrybotModels[0] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Voodoo19.bin", NULL, 1);
+	pAngrybotModels[1] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body6.bin", NULL, 7);
+
+	pAngrybotModels[2] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/body8.bin", NULL, 7);
+
 
 	for (int i = 0; i < 3; i++) {
 		AnimationControllers[i] = new CAnimationController(pd3dDevice, pd3dCommandList, 6, pAngrybotModels[i]);
@@ -319,9 +324,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		m_pSkinnedAnimationController = AnimationControllers[2];
 	}
 
-
-	CLoadedModelInfo* arrow = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_weapon2.bin", NULL, 7);
-	m_ppBullet = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, arrow, 1,1);
+	m_ppBullet = new CBulletObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL, 1,3);
 	m_ppBullet->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_ppBullet->SetScale(2.f, 2.f, 2.f);
 
@@ -329,19 +332,18 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_ppBullet->SetRotationSpeed(360.0f);
 	m_ppBullet->SetMovingSpeed(120.0f);
 	m_ppBullet->SetPosition(XMFLOAT3(5000,5000,5000));
-	if (arrow) delete arrow;
-
+	
 
 	m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//23.02.20
+	
 	m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
 	m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
-	//
+
 	m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	//23.02.20
+
 	m_pSkinnedAnimationController->SetTrackEnable(2, false);
 	m_pSkinnedAnimationController->SetTrackEnable(3, false);
 	m_pSkinnedAnimationController->SetTrackEnable(4, false);
@@ -365,7 +367,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 	//m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 4, 10));
+
 	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 4, 8), XMFLOAT4(0, 0, 0,1) );
+
 
 	SetScale(XMFLOAT3(1.0f, 1.0f, 1.0f));
 }
@@ -405,9 +409,11 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
+
 		SetFriction(50.0f);
 		SetGravity(XMFLOAT3(0.0f, -5.0f, 0.0f));
 		SetMaxVelocityXZ(10.0f);
+
 		SetMaxVelocityY(100.0f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);

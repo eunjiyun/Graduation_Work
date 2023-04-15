@@ -8,15 +8,26 @@
 #include "Camera.h"
 #include "Monster.h"
 
-//23.01.13
+
 extern CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects, int* pnSceneTextures);
-//
+struct LIGHT;
+
+
+struct TOOBJECTSPACEINFO
+{
+	XMFLOAT4X4						m_xmf4x4ToTexture;
+	XMFLOAT4						m_xmf4Position;
+};
+struct TOLIGHTSPACES
+{
+	TOOBJECTSPACEINFO				m_pToLightSpaces[MAX_SHADOW_LIGHTS];
+};
+
 
 class CShader
 {
 public:
 	CShader();
-	CShader(const CShader& other);
 	virtual ~CShader();
 
 private:
@@ -25,7 +36,7 @@ protected:
 	ID3DBlob* m_pd3dVertexShaderBlob = NULL;
 	ID3DBlob* m_pd3dPixelShaderBlob = NULL;//
 
-	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
+	
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;//
 	float								m_fElapsedTime = 0.0f;//
@@ -33,6 +44,7 @@ protected:
 public:
 	CGameObject** m_ppObjects = 0;//
 	int								m_nObjects = 0;//
+	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;//
@@ -59,7 +71,7 @@ public:
 
 	D3D12_SHADER_BYTECODE CompileShaderFromFile(WCHAR* pszFileName, LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob** ppd3dShaderBlob);
 	D3D12_SHADER_BYTECODE ReadCompiledShaderFromFile(WCHAR* pszFileName, ID3DBlob** ppd3dShaderBlob = NULL);
-	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE d3dPrimitiveTopology, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList) { }
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL) {}
 	virtual void ReleaseShaderVariables() { }
@@ -152,19 +164,10 @@ protected:
 	int								m_nObjects = 0;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-class CAngrybotObjectsShader : public CSkinnedAnimationObjectsShader
-{
-public:
-	CAngrybotObjectsShader();
-	virtual ~CAngrybotObjectsShader();
-
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel,int choosePl, void* pContext = NULL);
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
+
+class CBoxShader;
 
 class CObjectsShader : public CShader
 {
@@ -174,8 +177,7 @@ public:
 
 	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
 	virtual vector<XMFLOAT3> BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,
-		D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle, ID3D12DescriptorHeap* heap,
-		char* pstrFileName, void* pContext = NULL);
+		char* pstrFileName, CBoxShader* boxShader, void* pContext = NULL);
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
@@ -201,3 +203,126 @@ protected:
 	CMaterial* m_pMaterial = NULL;
 #endif
 };
+
+class CIlluminatedShader : public CShader
+{
+public:
+	CIlluminatedShader();
+	virtual ~CIlluminatedShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+};
+
+class CBoxShader : public CIlluminatedShader
+{
+public:
+	CBoxShader();
+	virtual ~CBoxShader();
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,void* pContext = NULL);
+	virtual void AnimateObjects(float fTimeElapsed);
+	virtual void ReleaseObjects();
+
+	virtual void ReleaseUploadBuffers();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
+	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	BoundingBox CalculateBoundingBox();
+
+public:
+	vector<CGameObject*> obj;
+};
+//=========================================================================================================================
+
+class CDepthRenderShader : public CIlluminatedShader
+{
+public:
+	CDepthRenderShader(CBoxShader* pObjectsShader, LIGHT* pLights);
+	virtual ~CDepthRenderShader();
+
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
+
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
+	virtual void ReleaseShaderVariables();
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
+	virtual void ReleaseObjects();
+
+	void PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, vector<CMonster*> Monsters, vector<CPlayer*> Players);
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,  vector<CMonster*> Monsters, vector<CPlayer*> Players);
+
+protected:
+	CTexture* m_pDepthTexture = NULL;
+
+	CCamera* m_ppDepthRenderCameras[MAX_DEPTH_TEXTURES];
+
+	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap = NULL;
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_pd3dRtvCPUDescriptorHandles[MAX_DEPTH_TEXTURES];
+
+	ID3D12DescriptorHeap* m_pd3dDsvDescriptorHeap = NULL;
+	ID3D12Resource* m_pd3dDepthBuffer = NULL;
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dDsvDescriptorCPUHandle;
+
+	XMMATRIX						m_xmProjectionToTexture;
+
+public:
+	CTexture* GetDepthTexture() { return(m_pDepthTexture); }
+	ID3D12Resource* GetDepthTextureResource(UINT nIndex) { return(m_pDepthTexture->GetResource(nIndex)); }
+
+public:
+	CBoxShader* m_pObjectsShader = NULL;
+
+protected:
+	LIGHT* m_pLights = NULL;
+
+	TOLIGHTSPACES* m_pToLightSpaces;
+
+	ID3D12Resource* m_pd3dcbToLightSpaces = NULL;
+	TOLIGHTSPACES* m_pcbMappedToLightSpaces = NULL;
+};
+
+
+
+
+
+class CShadowMapShader : public CIlluminatedShader
+{
+public:
+	CShadowMapShader(){}
+	CShadowMapShader(CBoxShader* pObjectsShader);
+	virtual ~CShadowMapShader();
+
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
+	virtual void ReleaseShaderVariables();
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
+	virtual void AnimateObjects(float fTimeElapsed) { }
+	virtual void ReleaseObjects();
+
+	virtual void ReleaseUploadBuffers();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players);
+
+public:
+	CBoxShader* m_pObjectsShader = NULL;
+
+	CTexture* m_pDepthTexture = NULL;
+};
+
+//==========================================================================================================================
+
