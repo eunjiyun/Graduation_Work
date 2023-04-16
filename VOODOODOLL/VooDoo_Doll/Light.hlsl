@@ -238,7 +238,20 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 					}
 					else
 					{
-						cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+					}
+				}
+				else
+				{
+					if (fShadowFactor != 0.f)
+					{
+						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+						
+					}
+					else
+					{
+						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+						cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
 					}
 				}
 
@@ -256,7 +269,20 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 					}
 					else
 					{
-						cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+					}
+				}
+				else
+				{
+					if (fShadowFactor != 0.f)
+					{
+						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+						
+					}
+					else
+					{
+						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+						cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
 					}
 				}
 
@@ -274,7 +300,20 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 					}
 					else
 					{
-						cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+					}
+				}
+				else
+				{
+					if (fShadowFactor != 0.f)
+					{
+						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+						
+					}
+					else
+					{
+						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+						cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
 					}
 				}
 

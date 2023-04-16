@@ -638,18 +638,25 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			/*m_ppObjects[i]->m_xmOOBB = BoundingOrientedBox(XMFLOAT3(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().y,
 				m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
 
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh") ||
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox10") || 
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox9") ||
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox6") ||
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox4")||
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox3") || 
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox2") || 
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox1") )
+			//if (//0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh") ||
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox10") || 
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox9") ||
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox6") ||
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox4")||
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox3") || 
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox2") || 
+			//	0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox1") 
+			//	)
 				//Bedroom_wall_d_02_dense_mesh r
 				//Bedroom_wall_d_02_dense_mesh	l
 				//Ceiling_concrete_base_mesh up	
+				
+				
+			if (strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 				boxShader->obj.push_back(m_ppObjects[i]);
+			
+
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp1")
 				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2")
@@ -674,7 +681,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				mpObjVec.push_back(tmp);
 			}
 
-			/*cout << "objName " << i << " : " << m_ppObjects[i]->m_pstrName << endl;*/
+			//cout << "objName " << i << " : " << m_ppObjects[i]->m_pstrName <<"   "<< m_ppObjects[i]->shadowID<<endl;
 		}
 	}
 
@@ -821,12 +828,44 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 	UpdateShaderVariables(pd3dCommandList);
 
 
-	for (auto& o : m_pObjectsShader->obj)
+	/*for (auto& o : m_pObjectsShader->obj)
 	{
-		o->shadowID = 0;
-		o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL,pCamera);
-	}
 
+		o->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+		o->shadowID = 0;
+		o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+	}*/
+	for (int i{};i< m_pObjectsShader->obj.size();++i)
+	{
+		/*if (0 == strcmp(m_pObjectsShader->obj[i]->m_pstrName, "Dense_Floor_mesh"))
+			m_pObjectsShader->obj[i]->shadowID = 1;
+		else*/
+			//m_pObjectsShader->obj[i]->shadowID = 1;
+
+		//cout << "objName " << i << " : " << m_pObjectsShader->obj[i]->m_pstrName << "   " << m_pObjectsShader->obj[i]->shadowID << endl;
+
+
+		if (0 == i)
+			m_pObjectsShader->obj[i]->shadowID = 0;
+		//else //if (!strcmp(m_pObjectsShader->obj[i]->m_pstrName, "Dense_Floor_mesh"))//Bedroom_wall_d_02_dense_mesh ???
+		//{
+		//	m_pObjectsShader->obj[i]->shadowID = 0;
+		//}
+		else
+		{
+			m_pObjectsShader->obj[i]->shadowID = 1;
+
+			m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+		}
+		
+
+		/*if (1 == m_pObjectsShader->obj[i]->shadowID)
+			cout << "objName " << i << " : " << m_pObjectsShader->obj[i]->m_pstrName << "   " << m_pObjectsShader->obj[i]->shadowID << endl;*/
+		m_pObjectsShader->obj[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL,pCamera);
+	}
+	
+	/*m_pObjectsShader->obj[0]->shadowID = 0;
+	m_pObjectsShader->obj[0]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);*/
 
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
@@ -1202,13 +1241,26 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 		}
 	}
 
-	for (auto& o : m_pObjectsShader->obj)
+	/*for (auto& o : m_pObjectsShader->obj)
 	{
 		if (0==strcmp(o->m_pstrName, "Bedroom_wall_d_02_dense_mesh_(41)"))
 			o->shadowID = 1;
 		else
 			o->shadowID = 0;
 		o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	}*/
+
+	for (int i{}; i < m_pObjectsShader->obj.size(); ++i)
+	{
+		/*if (0 == strcmp(m_pObjectsShader->obj[i]->m_pstrName, "Dense_Floor_mesh"))
+			m_pObjectsShader->obj[i]->shadowID = 1;
+		else*/
+			m_pObjectsShader->obj[i]->shadowID = 1;
+
+	
+
+		m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+		m_pObjectsShader->obj[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 	}
 }
 

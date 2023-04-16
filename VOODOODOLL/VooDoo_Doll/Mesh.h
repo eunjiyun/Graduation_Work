@@ -43,6 +43,7 @@ public:
 	BoundingOrientedBox				OBBox;//
 	XMFLOAT3* m_pxmf3Positions = NULL;//
 	XMFLOAT3* m_pxmf3Normals = NULL;//
+	int								m_nVertices = 0;//
 	XMFLOAT2* m_pxmf2TextureCoords = NULL;
 
 	ID3D12Resource*									m_pd3dTextureCoordsBuffer = NULL;
@@ -89,7 +90,7 @@ protected:
 	UINT							m_nOffset = 0;//
 
 protected:
-	int								m_nVertices = 0;//
+	
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;//
 
 	int								m_nSubMeshes = 0;//

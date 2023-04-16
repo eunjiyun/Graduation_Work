@@ -161,12 +161,12 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[4].m_bEnable = true;
 		m_pLights[4].m_nType = SPOT_LIGHT;
 		m_pLights[4].m_fRange = 500.0f;
-		/*m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
-		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);*/
 		m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);//0415
-		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
+		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
+		//m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+		//m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);//0415
+		//m_pLights[4].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 
 
 		m_pLights[4].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
@@ -212,8 +212,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_pLights = new LIGHT[MAX_LIGHTS];
-	BuildDefaultLightsAndMaterials();//ÀÎÇüÀÌ ±î¸Ä°Ô Ãâ·Â
-
+	BuildDefaultLightsAndMaterials();//Á¶¸í
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
@@ -458,6 +457,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
 		cout << "Extents: ";
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
+
+		//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh_(41)"))//041666
+		//	for (int j{}; j < m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_nVertices; ++j)
+		//	{
+		//		cout << m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_pxmf3Normals[j].x << endl;
+		//		cout << m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_pxmf3Normals[j].y << endl;
+		//		cout << m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_pxmf3Normals[j].z << endl << endl << endl;
+		//	}
 	}
 
 
@@ -892,14 +899,14 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
-	UpdateShaderVariables(pd3dCommandList);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä°ï¿?
+	UpdateShaderVariables(pd3dCommandList);//Á¶¸í
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
 
 
-	m_ppShaders[0]->Render(pd3dCommandList, pCamera);
+	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);
 }
 
 void CStage::UpdateBoundingBox()
@@ -931,7 +938,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			}
 
 
-			//cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";
@@ -947,7 +954,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
-			// ì§ê°ì¶©ëŒ
+
 			if ((int)angle % 90 == 0)
 			{
 				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
@@ -974,7 +981,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			}
 			else
 			{
-				// ë¹„ì§ê°?ì¶©ëŒ
+
 				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
 
 				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {

@@ -535,7 +535,7 @@ XMFLOAT4X4 CAnimationSet::GetSRT(int nBone, float fPosition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-CAnimationSets::CAnimationSets(int nAnimationSets)//0309
+CAnimationSets::CAnimationSets(int nAnimationSets)
 {
 	m_nAnimationSets = nAnimationSets;
 	m_pAnimationSets = new CAnimationSet * [nAnimationSets];

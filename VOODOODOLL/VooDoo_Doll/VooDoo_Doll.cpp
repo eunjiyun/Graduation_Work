@@ -492,7 +492,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_xmOOBB.Center = targetPos;
 			(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
 			(*iter)->SetPosition(targetPos);
-			Vector3::Print((*iter)->m_xmOOBB.Center);
+			//Vector3::Print((*iter)->m_xmOOBB.Center);
 		}
 		//(*iter)->SetPosition(packet->Pos);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);

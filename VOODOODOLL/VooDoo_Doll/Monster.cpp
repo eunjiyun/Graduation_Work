@@ -37,5 +37,5 @@ void CMonster::Update(float fTimeElapsed)
 	Move(xmf3Velocity);
 	m_xmOOBB.Center = GetPosition();
 
-	Vector3::Print(m_xmOOBB.Center);
+	//Vector3::Print(m_xmOOBB.Center);
 }

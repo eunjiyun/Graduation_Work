@@ -740,9 +740,9 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			{
 				monster->SetPosition(m_pPlayer->GetPosition());
 				time = 0.f;
-			}
+			}*/
 
-			cout << "x : " << monster->GetPosition().x << endl;
+			/*cout << "x : " << monster->GetPosition().x << endl;
 			cout << "y : " << monster->GetPosition().y << endl;
 			cout << "z : " << monster->GetPosition().z << endl << endl << endl;*/
 		}
