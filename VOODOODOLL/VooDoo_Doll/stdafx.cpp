@@ -414,7 +414,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 				mbstowcs_s(&nConverted, pGameObject->m_ppMaterials[k]->m_ppstrTextureNames[0], pstrFilePath1, _TRUNCATE);
 
 
-				cout << pGameObject->m_pstrName << "	|	" << strAlbedoTextureName << endl;
+				//cout << pGameObject->m_pstrName << "	|	" << strAlbedoTextureName << endl;
 
 			}
 

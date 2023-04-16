@@ -405,9 +405,6 @@ void worker_thread(HANDLE h_iocp)
 						PoolMonsters[roomNum].erase(iter);
 					}
 				}
-				cout << "x : " << (*iter)->GetPosition().x << endl;
-				cout << "y : " << (*iter)->GetPosition().y << endl;
-				cout << "z : " << (*iter)->GetPosition().z << endl << endl << endl;
 			}
 			OverPool.ReturnMemory(ex_over);
 			break;

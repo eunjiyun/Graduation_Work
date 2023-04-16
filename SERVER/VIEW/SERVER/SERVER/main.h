@@ -282,7 +282,7 @@ bool check_openList(XMFLOAT3& _Pos, float _G, shared_ptr<A_star_Node> s_node, un
 
 float nx[8]{ -1,1,0,0, -1, -1, 1, 1 };
 float nz[8]{ 0,0,1,-1, -1, 1, -1, 1 };
-XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
+XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 {
 	if (dest_Pos.y - start_Pos.y >= 2.f)
 	{
@@ -321,8 +321,8 @@ XMFLOAT3 Monster::Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
 			}
 		}
 		for (int i = 0; i < 8; i++) {
-			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed, false));
-			float _G = S_Node->G + speed * sqrt(abs(nx[i]) + abs(nz[i]));
+			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed * fTimeElapsed, false));
+			float _G = S_Node->G + speed * fTimeElapsed * sqrt(abs(nx[i]) + abs(nz[i]));
 			if (check_path(_Pos, closelist, CheckBox) && check_openList(_Pos, _G, S_Node, openlist)) {
 				openlist.emplace(_Pos, shared_ptr<A_star_Node>(new A_star_Node(_Pos, dest_Pos, _G, S_Node)));
 			}
@@ -388,38 +388,37 @@ void Monster::Update(float fTimeElapsed)
 		}
 	}
 		break;
-	case NPC_State::Chase: {	
-		{
-			const int collide_range = (int)(Pos.z / AREA_SIZE);
-			const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::RemoveY(Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos))), speed, false));
+	case NPC_State::Chase: {
 
-			bool collide = false;
-			for (const auto& obj : Objects[collide_range]) {
-				if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
-					collide = true;
-					break;
-				}
-			}
-			if (collide) {
-				Pos = Find_Direction(Pos, targetPlayer->GetPosition());
-				BB.Center = Pos;
-			}
-			else {
-				Pos = newPos;
-				BB.Center = Pos;
-			}
-		}
 		if (targetPlayer->_state != ST_INGAME || g_distance > view_range) {
 			SetState(NPC_State::Idle);
 			cur_animation_track = 0;
 			target_id = -1;
-			break;
+			return;
 		}
 		if ((4 == type && LONGRANGETTACK_RANGE >= g_distance) || MELEEATTACK_RANGE >= g_distance)
 		{
 			SetState(NPC_State::Attack);
 			cur_animation_track = (type != 2) ? 2 : cur_animation_track;
-			break;
+			return;
+		}
+		const int collide_range = (int)(Pos.z / AREA_SIZE);
+		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos)), speed * fTimeElapsed, false));
+
+		bool collide = false;
+		for (const auto& obj : Objects[collide_range]) {
+			if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
+				collide = true;
+				break;
+			}
+		}
+		if (collide) {
+			Pos = Find_Direction(fTimeElapsed, Pos, targetPlayer->GetPosition());
+			BB.Center = Pos;
+		}
+		else {
+			Pos = newPos;
+			BB.Center = Pos;
 		}
 	}
 		break;
@@ -484,9 +483,12 @@ void InitializeStages()
 	uniform_real_distribution<float> dis(0.0f, 100.f);
 	int ID_constructor = 0;
 	{	// 1stage
-		for (int i = 0; i < 4; ++i) {
-			StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-27.f + dis(gen), -300, 1460), 0, ID_constructor++));
-		}
+		//StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-27.f + dis(gen), -300, 1460), 0, ID_constructor++));
+		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-332, -300, 835), 0, ID_constructor++));
+		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-250, -300, 1020), 1, ID_constructor++));
+		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-89, -300, 1389), 4, ID_constructor++));
+		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-295, -300, 1682), 0, ID_constructor++));
+		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-17, -300, 1667), 1, ID_constructor++));
 	}
 	{	// 2stage
 		for (int i = 0; i < 3; ++i) {

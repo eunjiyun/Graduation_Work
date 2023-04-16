@@ -46,7 +46,7 @@ public:
     mutable mutex m_lock; // const 함수에서 lock을 사용하기 위해 mutable로 선언
     Monster() { }
     Monster(const Monster& other);
-    ~Monster() {}
+    ~Monster();
     Monster& operator=(const Monster& other);
     void Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos);
     short getType()
@@ -56,7 +56,7 @@ public:
     void Move(XMFLOAT3 m_Shift);
 
     int get_targetID();
-    XMFLOAT3 Find_Direction(XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
+    XMFLOAT3 Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
     void Update(float fTimeElapsed);
     XMFLOAT3 GetPosition() { return Pos; }
     XMFLOAT3 GetLookVector() { return(m_xmf3Look); }

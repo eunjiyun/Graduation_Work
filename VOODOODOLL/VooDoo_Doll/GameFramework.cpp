@@ -601,6 +601,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
 
 	//04166
+
+	// Client's monster speed = Server's monster speed * 3 / 10	-> 클라는 30ms, 서버는 100ms 주기로 업데이트하기 때문
 	pMonsterModel[type].pop();
 	switch (type)
 	{
@@ -615,7 +617,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->speed = 3.f;
+		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
 		break;
@@ -630,7 +632,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->speed = 3.f;
+		Mon->speed = 15.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
@@ -640,7 +642,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->speed = 3.f;
+		Mon->speed = 15.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
@@ -656,7 +658,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		Mon->speed = 2.f;
+		Mon->speed = 15.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
@@ -676,7 +678,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Hat, 1, 2);
 		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
-		Mon->speed = 2.f;
+		Mon->speed = 9.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 5:
@@ -690,7 +692,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//바늘 휘두르기 딴걸로
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->speed = 2.f;
+		Mon->speed = 15.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	default:
@@ -701,7 +703,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(20, 4, 15));
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(15, 4, 12));
 		Mon->SetPosition(Pos);
 		Monsters.push_back(Mon);
 	}
@@ -843,18 +845,18 @@ void CGameFramework::FrameAdvance()
 
 	
 
-	/*for (auto& player : Players) {
+	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 			player->m_ppBullet->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
-	}*/
-	/*for (const auto& monster : Monsters) {
+	}
+	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			monster->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 			monster->m_ppHat->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
-	}*/
+	}
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

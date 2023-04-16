@@ -29,7 +29,13 @@ CMonster::~CMonster()
 
 void CMonster::Update(float fTimeElapsed)
 {
+	if (m_pSkinnedAnimationController->Cur_Animation_Track != 1)
+		m_xmf3Velocity = XMFLOAT3(0, 0, 0);
+
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
 	Move(xmf3Velocity);
+	m_xmOOBB.Center = GetPosition();
+
+	Vector3::Print(m_xmOOBB.Center);
 }
