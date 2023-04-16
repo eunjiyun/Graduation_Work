@@ -629,7 +629,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	//int num = 0;
 
 	if (0 == strcmp("Models/Scene.bin", pstrFileName))
 	{
@@ -639,7 +638,18 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			/*m_ppObjects[i]->m_xmOOBB = BoundingOrientedBox(XMFLOAT3(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().y,
 				m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
 
-			boxShader->obj.push_back(m_ppObjects[i]);
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh") ||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox10") || 
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox9") ||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox6") ||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox4")||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox3") || 
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox2") || 
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "WoodBox1") )
+				//Bedroom_wall_d_02_dense_mesh r
+				//Bedroom_wall_d_02_dense_mesh	l
+				//Ceiling_concrete_base_mesh up	
+				boxShader->obj.push_back(m_ppObjects[i]);
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp1")
 				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2")
@@ -1235,7 +1245,7 @@ void CBoxShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLis
 	CGameObject* temp = new CGameObject(1);//¹Ù´Ú
 	temp->SetMesh(0, pPlaneMesh);
 	temp->SetMaterial(0, pPlaneMaterial);
-	temp->SetPosition(-50.0f, -299.f, 980.0f);//-17
+	temp->SetPosition(-50.0f, -299.f, 1280.0f+140);//-17   XMFLOAT3(-562, 212.0f, 980.0f);
 
 	obj.push_back(temp);
 }

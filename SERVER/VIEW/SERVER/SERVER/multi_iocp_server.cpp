@@ -164,7 +164,7 @@ void DB_Thread()
 
 					printf("ODBC Connect OK \n");
 
-					//SELECT ´ÙÀ½¿¡ ¿À´Â°Ç Ç×¸ñµé, FROM ´ÙÀ½¿¡ ¿À´Â°Ç Å×ÀÌºí ÀÌ¸§, ORDER BY ´ÙÀ½¿¡ ¿À´Â°Ç sorting ÇÒ °Í. Áö±ÝÀº user_nameÀ¸·Î Á¤·Ä.
+					//SELECT ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½×¸ï¿½ï¿½, FROM ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ì¸ï¿½, ORDER BY ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Â°ï¿½ sorting ï¿½ï¿½ ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ user_nameï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT ID, Name, PlayTime FROM user_data ORDER BY 3", SQL_NTS);
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 
