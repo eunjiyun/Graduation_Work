@@ -309,14 +309,6 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 				if (id == 0)
 				{
 
-					/*if (fShadowFactor != 0.f)
-					{
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-					}
-					else
-						cColor += SpotLight(i, vPosition, vNormal, vToCamera);*/
-
 					if (fShadowFactor != 0.f)
 					{
 
