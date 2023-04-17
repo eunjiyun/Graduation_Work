@@ -120,8 +120,8 @@ public:
 	
 	static CShader* m_pStandardShader;//
 	static CShader* m_pSkinnedAnimationShader;//
+	static CShader* depthShader;
 	
-
 	CTexture** m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal //
 
 

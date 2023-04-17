@@ -241,6 +241,7 @@ public:
 class CDepthRenderShader : public CIlluminatedShader
 {
 public:
+	CDepthRenderShader(){}
 	CDepthRenderShader(CBoxShader* pObjectsShader, LIGHT* pLights);
 	virtual ~CDepthRenderShader();
 
@@ -322,6 +323,7 @@ public:
 	CBoxShader* m_pObjectsShader = NULL;
 
 	CTexture* m_pDepthTexture = NULL;
+
 };
 
 //==========================================================================================================================

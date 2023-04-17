@@ -653,7 +653,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				//Ceiling_concrete_base_mesh up	
 				
 				
-			if (strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+			//if (strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 				boxShader->obj.push_back(m_ppObjects[i]);
 			
 
@@ -845,18 +845,30 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 		//cout << "objName " << i << " : " << m_pObjectsShader->obj[i]->m_pstrName << "   " << m_pObjectsShader->obj[i]->shadowID << endl;
 
 
-		if (0 == i)
-			m_pObjectsShader->obj[i]->shadowID = 0;
-		//else //if (!strcmp(m_pObjectsShader->obj[i]->m_pstrName, "Dense_Floor_mesh"))//Bedroom_wall_d_02_dense_mesh ???
+		//if (0 == i)
+			//m_pObjectsShader->obj[i]->shadowID = 0;
+		 if (!strcmp(m_pObjectsShader->obj[i]->m_pstrName, "Dense_Floor_mesh"))//Bedroom_wall_d_02_dense_mesh ???
 		//{
 		//	m_pObjectsShader->obj[i]->shadowID = 0;
 		//}
-		else
+		//else
 		{
-			m_pObjectsShader->obj[i]->shadowID = 1;
+			m_pObjectsShader->obj[i]->shadowID = 0;
 
-			m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+			//m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+			m_pObjectsShader->obj[i]->m_ppMaterials[0]->depthShader->Render(pd3dCommandList, pCamera);
+
+			//depthShader->Render(pd3dCommandList, pCamera);
 		}
+		 else
+		 {
+			 m_pObjectsShader->obj[i]->shadowID = 1;
+			//m_pObjectsShader->obj[i]->m_ppMaterials[0]->depthShader->Render(pd3dCommandList, pCamera);
+
+			 //depthShader->Render(pd3dCommandList, pCamera);
+
+			// m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+		 }
 		
 
 		/*if (1 == m_pObjectsShader->obj[i]->shadowID)
@@ -1258,8 +1270,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 			m_pObjectsShader->obj[i]->shadowID = 1;
 
 	
-
-		m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+			if (strcmp(m_pObjectsShader->obj[i]->m_pstrName, "Dense_Floor_mesh"))
 		m_pObjectsShader->obj[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 	}
 }

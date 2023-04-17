@@ -218,7 +218,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	pBoxShader = new CBoxShader();
-	pBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);//¹Ù´Ú
+	//pBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);//¹Ù´Ú
 
 
 	m_nShaders = 1;
@@ -313,7 +313,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 			if (0 == strcmp("Dense_Floor_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)	)
 			{
-				pMaterial->SetTexture(ppTextures[1]);
+				pMaterial->SetTexture(ppTextures[1]);//1
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -906,7 +906,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 
 
-	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);
+	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//¸Ê
 }
 
 void CStage::UpdateBoundingBox()

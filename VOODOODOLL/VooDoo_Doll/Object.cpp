@@ -233,6 +233,8 @@ void CMaterial::ReleaseUploadBuffers()
 
 CShader* CMaterial::m_pSkinnedAnimationShader = NULL;
 CShader* CMaterial::m_pStandardShader = NULL;
+CShader* CMaterial::depthShader = NULL;
+
 
 void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature
 	, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
@@ -244,6 +246,12 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationShader = new CSkinnedAnimationStandardShader();
 	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	depthShader = new CShadowMapShader();
+	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
+	//depthShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, RtvFormats, dxgiDsvFormat);
+	depthShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, RtvFormats, DXGI_FORMAT_D32_FLOAT);
+	//depthShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -1055,10 +1063,15 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 					if (m_ppMaterials[i]->m_pShader)
 					{
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+						//m_ppMaterials[i]->depthShader->Render(pd3dCommandList, pCamera);
+
 					}
+					else if(m_ppMaterials[i]->m_pStandardShader)
+						if (strcmp(m_pstrName, "Dense_Floor_mesh"))
+							m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);
 
 					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
-					//0415
+					
 
 					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
 				}
