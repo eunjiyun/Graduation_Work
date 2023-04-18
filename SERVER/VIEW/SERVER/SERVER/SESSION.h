@@ -166,7 +166,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ 500, 50, 200 };
+		m_xmf3Position = XMFLOAT3{ 500, 50, 500 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -179,7 +179,7 @@ public:
 		BulletPos = { 5000,5000,5000 };
 		BulletLook = { 0,0,1 };
 		recent_recvedTime = high_resolution_clock::now();
-		_state = ST_FREE;
+		//_state = ST_FREE;
 		character_num = 0;
 		HP = 5000;
 	}

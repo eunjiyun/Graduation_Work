@@ -33,33 +33,39 @@ int main()
 
 	for (int i = 0; i < m_nObjects; i++) {
 		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) ||
-			0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh", 26)) continue;
+			0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh", 26) ||
+			0 == strncmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh", 22) ||
+			0 == strncmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh", 18)) continue;
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
+
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
 			Objects[j].emplace_back(m_ppObjects[i]);
 		}
 	}
-
-	//bool col = false;
-	//for (float j = 4080; j >= -240; j--) {
-	//	for (float i = -360; i < 120; i++) {
-	//		for (int k = 0; k < m_nObjects; k++) {
-	//			if ((0 == strncmp(m_ppObjects[k]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[k]->m_pstrName, "Ceiling_concrete_base_mesh", 26)) || 
-	//				m_ppObjects[k]->GetPosition().y > -100)
-	//				continue;
-	//			if (m_ppObjects[k]->m_xmOOBB.Intersects(BoundingBox(XMFLOAT3{ i,-292,j }, XMFLOAT3(15, 12, 8)))) {
-	//				col = true;
-	//				break;
-	//			}
-	//		}
-	//		if (col) cout << "0";
-	//		else cout << "1";
-	//		col = false;
-	//	}
-	//	cout << endl;
-	//}
-
+#ifdef _GRID_MAP
+	memset(GridMap, true, sizeof(GridMap));
+	for (int j = MAP_Z_SIZE - 1; j >= 0; j--) {
+		for (int i = 0; i < MAP_X_SIZE; i++) {
+			for (int k = 0; k < m_nObjects; k++) {
+				if ((0 == strncmp(m_ppObjects[k]->m_pstrName, "Dense_Floor_mesh", 16) || 0 == strncmp(m_ppObjects[k]->m_pstrName, "Ceiling_concrete_base_mesh", 26)))
+					continue;
+				if (m_ppObjects[k]->GetPosition().y < -100) {
+					if (m_ppObjects[k]->m_xmOOBB.Intersects(BoundingBox(XMFLOAT3{ (float)i,-300,(float)j }, XMFLOAT3(15, 4, 12)))) {
+						GridMap[0][i][j] = false;
+						break;
+					}
+				}
+				else {
+					if (m_ppObjects[k]->m_xmOOBB.Intersects(BoundingBox(XMFLOAT3{ (float)i,-60,(float)j }, XMFLOAT3(15, 4, 12)))) {
+						GridMap[1][i][j] = false;
+						break;
+					}
+				}
+			}
+		}
+	}
+#endif
 	delete[] m_ppObjects;
 
 
@@ -83,6 +89,8 @@ int main()
 	g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	g_a_over._comp_type = OP_ACCEPT;
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
+
+	cout << "SERVER READY\n";
 
 	vector <thread> worker_threads;
 	vector <thread> timer_threads;

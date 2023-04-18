@@ -8,6 +8,8 @@
 
 enum EVENT_TYPE { EV_RANDOM_MOVE };
 
+//#define _GRID_MAP
+
 struct TIMER_EVENT {
 	int room_id;
 	int obj_id;
@@ -31,7 +33,8 @@ int check_pathTime = 0;
 int check_openListTime = 0;
 
 bool GridMap[2][MAP_X_SIZE][MAP_Z_SIZE];
-array<vector< MapObject*>, 42> Objects;
+array<vector< MapObject*>, OBJECT_ARRAY_SIZE> Objects;
+array<Stage_Location_Info, STAGE_NUMBERS> StageLocations;
 
 SESSION& getClient(int c_id)
 {
@@ -478,35 +481,50 @@ void Monster::Update(float fTimeElapsed)
 
 void InitializeStages()
 {
+	int ID_constructor = 0;
+#ifdef _GRID_MAP
 	random_device rd;
 	mt19937 gen(rd());
-	uniform_real_distribution<float> dis(0.0f, 100.f);
-	int ID_constructor = 0;
+	uniform_int_distribution<int> x_dis(130, 570);
+	uniform_int_distribution<int> z_dis(1260, 2550);
+	uniform_int_distribution<int> type_dis(0, 1);
 	{	// 1stage
+		cout << "1 stage\n";
 		//StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-27.f + dis(gen), -300, 1460), 0, ID_constructor++));
-		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-332, -300, 835), 0, ID_constructor++));
-		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-250, -300, 1020), 1, ID_constructor++));
-		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-89, -300, 1389), 4, ID_constructor++));
-		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-295, -300, 1682), 0, ID_constructor++));
-		StagesInfo[0].push_back(MonsterInfo(XMFLOAT3(-17, -300, 1667), 1, ID_constructor++));
+		for (int i = 0; i < 10; i++) {
+			int _x = x_dis(gen);
+			int _z = z_dis(gen);
+			if (GridMap[1][_x][_z] == false) continue;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3((float)_x, -60, (float)_z), type_dis(gen), ID_constructor++);
+			StagesInfo[0].push_back(MI);
+			cout << ID_constructor << " - ";
+			Vector3::Print(MI.Pos);
+		}
 	}
 	{	// 2stage
-		for (int i = 0; i < 3; ++i) {
-			StagesInfo[1].push_back(MonsterInfo(XMFLOAT3(-50.f, -300, 1500), 1, ID_constructor++));
+		cout << "2 stage\n";
+		gen.seed(rd());
+		z_dis.param(uniform_int_distribution<int>::param_type(2650, 3550));
+		for (int i = 0; i < 10; i++) {
+			int _x = x_dis(gen);
+			int _z = z_dis(gen);
+			if (GridMap[1][_x][_z] == false) continue;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3((float)_x, -60, (float)_z), type_dis(gen), ID_constructor++);
+			StagesInfo[1].push_back(MI);
+			cout << ID_constructor << " - ";
+			Vector3::Print(MI.Pos);
 		}
 	}
 	{	// 3stage
-		for (int i = 0; i < 3; ++i) {
-			StagesInfo[2].push_back(MonsterInfo(XMFLOAT3(-50.f, -300, 1900), 4, ID_constructor++));
-		}
 	}
 	{	// 4stage
 	}
 	{	// 5stage
-
 	}
 	{	// 6stage
-
 	}
+#else
+
+#endif
 }
 

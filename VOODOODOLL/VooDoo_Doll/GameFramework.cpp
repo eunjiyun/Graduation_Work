@@ -499,13 +499,13 @@ void CGameFramework::BuildObjects()
 	
 
 	for (int i = 0; i < 6; i++) {
-		for (int j = 0; j < 5; j++) {
+		for (int j = 0; j < 10; j++) {
 			pMonsterModel[i].push(
 				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
 		}
 	}
 
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 10; i++) {
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}
 

@@ -962,7 +962,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 		{
 			if (pBox.Intersects(oBox))
 			{
-				cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+				//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 				continue;
 			}
 		}
@@ -980,7 +980,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			}
 
 
-			cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			//cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";

@@ -11,8 +11,9 @@ constexpr short W_WIDTH = 400;
 constexpr short W_HEIGHT = 400;
 constexpr short MELEEATTACK_RANGE = 5;
 constexpr short LONGRANGETTACK_RANGE = 150;
-constexpr short STAGE_SIZE = 985;
-constexpr short AREA_SIZE = 100;
+constexpr short STAGE_SIZE = 1200;
+constexpr short AREA_SIZE = 200;
+constexpr short OBJECT_ARRAY_SIZE = 24;
 
 // Packet ID
 constexpr char CS_LOGIN = 0;

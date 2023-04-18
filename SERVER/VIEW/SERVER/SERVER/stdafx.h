@@ -66,10 +66,10 @@ using namespace concurrency;
 // Y범위 -304~~~~~~~~~~~176      너비 480
 // Z범위 -240~~~~~~~~~~~4080     너비 4320
 
-constexpr short MAP_X_SIZE = 720;
+constexpr short MAP_X_SIZE = 709;
 constexpr short MAP_Y_SIZE = 480;
-constexpr short MAP_Z_SIZE = 4320;
-
+constexpr short MAP_Z_SIZE = 4666;
+constexpr short STAGE_NUMBERS = 6;
 
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
@@ -364,6 +364,11 @@ public:
 	}
 };
 
+struct Stage_Location_Info
+{
+	int min_z;
+	int max_z;
+};
 template<typename T>
 class threadsafe_vector : public vector<T>
 {
