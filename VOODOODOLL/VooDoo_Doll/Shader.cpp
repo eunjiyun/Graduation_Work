@@ -732,7 +732,7 @@ void CObjectsShader::ReleaseUploadBuffers()
 
 void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
 {
-	CShader::Render(pd3dCommandList, pCamera);
+	CShader::Render(pd3dCommandList, pCamera);//¸Ê ¼ÎÀÌ´õ Àû¿ë
 
 	for (int j = 0; j < m_nObjects; j++)
 	{
@@ -853,10 +853,10 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 		//}
 		//else
 		{
-			m_pObjectsShader->obj[i]->shadowID = 0;
+			m_pObjectsShader->obj[i]->shadowID = 1;
 
 			//m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
-			m_pObjectsShader->obj[i]->m_ppMaterials[0]->depthShader->Render(pd3dCommandList, pCamera);
+			//m_pObjectsShader->obj[i]->m_ppMaterials[0]->depthShader->Render(pd3dCommandList, pCamera);
 
 			//depthShader->Render(pd3dCommandList, pCamera);
 		}
