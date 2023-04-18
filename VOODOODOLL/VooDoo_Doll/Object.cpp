@@ -1051,33 +1051,38 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 
 	if (m_ppMeshes)
 	{
-		UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
-
-		if (m_nMaterials > 0)
+		if (0 != strcmp(m_pstrName, "ForDoorcollider") )
 		{
-			for (int i = 0; i < m_nMaterials; i++)
+			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
+
+			if (m_nMaterials > 0)
 			{
-				if (m_ppMaterials[i])
+				for (int i = 0; i < m_nMaterials; i++)
 				{
-					if (m_ppMaterials[i]->m_pShader)
+					if (m_ppMaterials[i])
 					{
-						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-						//m_ppMaterials[i]->depthShader->Render(pd3dCommandList, pCamera);
+						if (m_ppMaterials[i]->m_pShader)
+						{
+							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+							//m_ppMaterials[i]->depthShader->Render(pd3dCommandList, pCamera);
 
+						}
+						/*else if(m_ppMaterials[i]->m_pStandardShader)
+							if (strcmp(m_pstrName, "Dense_Floor_mesh"))
+								m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);*/
+
+						m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
+
+
+						pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
 					}
-					/*else if(m_ppMaterials[i]->m_pStandardShader)
-						if (strcmp(m_pstrName, "Dense_Floor_mesh"))
-							m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);*/
 
-					m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
-					
-
-					pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
+					m_ppMeshes[0]->Render(pd3dCommandList, i, i);
 				}
-
-				m_ppMeshes[0]->Render(pd3dCommandList, i, i);
 			}
 		}
+
+		
 	}
 
 	if (m_pSibling)

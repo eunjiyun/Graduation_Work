@@ -228,11 +228,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, "Models/Scene.bin", pBoxShader);
 	m_ppShaders[0] = pObjectShader;
 
-
+	int iMaterialCheck = 0;
 
 	CTexture* ppTextures[30];
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_missing_low_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_ground_whole_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -297,7 +297,25 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[21] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[21]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Ceiling_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 22; ++a)
+	ppTextures[22] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[22]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Bookwtextb_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[23] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[23]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Large_Shelf_Large_Shelf_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[24] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[24]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Blackboard_Blackboard_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[25] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[25]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Info_Board_Info_Board_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[26] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[26]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Paper_Paper_BaseColor.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[27] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
+
+	for (int a = 0; a < 28; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -317,24 +335,22 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
-			if (0 == strcmp("Dense_wood_missing_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[0]);
-				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-
-			if (0 == strcmp("WoodBox9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[2]);
-				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
 
 			if (0 == strcmp("Bedroom_wall_d_02_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("Bedroom_wall_b_01_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("Bedroom_wall_b_06_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[3]);
-				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+				if (0 == iMaterialCheck)
+				{
+					pMaterial->SetTexture(ppTextures[0]);
+					m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+				}
+
+				if (1 == iMaterialCheck)
+				{
+					pMaterial->SetTexture(ppTextures[3]);
+					m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+				}
 			}
 			if (0 == strcmp("WoodBox10", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
@@ -342,8 +358,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 			if (0 == strcmp("WoodBox3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("WoodBox4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)
-				)
+				0 == strcmp("WoodBox4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
+				0 == strcmp("WoodBox9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(ppTextures[6]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
@@ -427,27 +443,43 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			{
 				pMaterial->SetTexture(ppTextures[21]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}	if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Book_02_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[22]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
-			//cout << i << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			if (0 == strcmp("Large_Shelf", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[23]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+			if (0 == strcmp("Blackboard", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[24]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+			if (0 == strcmp("Info_Board", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[25]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+			if (0 == strcmp("Paper", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[26]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+			if (0 == strcmp("2ndRoomCoin", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[27]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+			++iMaterialCheck;
 		}
+		iMaterialCheck = 0;
 	}
-
-	//for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
-	//{
-	//	for (UINT k = 0; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
-	//	{
-	//		CMaterial* pMaterial = new CMaterial(1);
-	//		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	//		pMaterial->m_ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	//		pMaterial->m_ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, m_ppShaders[0]->m_ppObjects[i]->m_ppMaterials[k]->m_ppstrTextureNames[0], RESOURCE_TEXTURE2D, 0);
-
-	//		CreateShaderResourceViews(pd3dDevice, pMaterial->m_ppTextures[0], 0, 3);
-	//		// Assign the material to the object's mesh
-	//		m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-	//		/*m_ppShaders[0]->m_ppObjects[i]->m_ppMaterials[0]->SetTexture(pMaterial->m_ppTextures[0]);*/
-	//		cout << i << "	|	" << k << endl;
-	//	}
-	//}
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
@@ -924,6 +956,16 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
+			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh"))
+		{
+			if (pBox.Intersects(oBox))
+			{
+				cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+				continue;
+			}
+		}
 
 		if (pBox.Intersects(oBox))
 		{

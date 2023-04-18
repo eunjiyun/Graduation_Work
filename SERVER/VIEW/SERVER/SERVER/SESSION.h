@@ -166,7 +166,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ -50, -300, 980 };
+		m_xmf3Position = XMFLOAT3{ 500, 50, 200 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
