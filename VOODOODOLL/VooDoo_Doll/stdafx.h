@@ -90,10 +90,10 @@ extern HINSTANCE						ghAppInstance;
 #define MAX_SHADOW_LIGHTS				4 
 #define MAX_DEPTH_TEXTURES		MAX_SHADOW_LIGHTS
 
-#define _PLANE_WIDTH			1330//1024
-#define _PLANE_HEIGHT			1330//1024
+#define _PLANE_WIDTH			4307//1330 1024 4307
+#define _PLANE_HEIGHT			474//1330 1024
 
-#define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 4)
+#define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 8)
 #define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 4)
 
 #pragma comment(lib, "d3dcompiler.lib")

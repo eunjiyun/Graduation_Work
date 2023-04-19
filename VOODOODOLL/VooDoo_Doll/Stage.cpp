@@ -100,15 +100,17 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights[0].m_fRange = 2000.0f;
+	m_pLights[0].m_fRange = 4307.0f;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.73f, 0.73f, 0.73f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-	m_pLights[0].m_xmf3Position = XMFLOAT3(512-50, 212.0f, 1280.0f+140);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);//-562
+	//m_pLights[0].m_xmf3Position = XMFLOAT3(512-50, 212.0f, 500);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);//-562
+	//m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50, -100.0f,1900);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);//-562
+	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50, -100.0f, 2300);//512 - 50, -100.0f, 2300
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 	//m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
 
-	m_pLights[1].m_bEnable = true;
+	m_pLights[1].m_bEnable = false;//true
 	m_pLights[1].m_nType = SPOT_LIGHT;
 	m_pLights[1].m_fRange = 500.0f;
 	m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -135,7 +137,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[2].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
 	m_pLights[2].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
 
-	m_pLights[3].m_bEnable = false;
+	m_pLights[3].m_bEnable =false;
 	m_pLights[3].m_nType = DIRECTIONAL_LIGHT;
 	m_pLights[3].m_fRange = 1000.0f;
 	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -936,8 +938,12 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
-
-
+	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
+	{
+		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	}
+	
 	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//¸Ê
 }
 
@@ -980,7 +986,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 			}
 
 
-			//cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";
