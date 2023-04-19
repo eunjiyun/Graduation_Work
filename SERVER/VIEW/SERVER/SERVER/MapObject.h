@@ -2,6 +2,10 @@
 #include "stdafx.h"
 
 
+//시작방 - 260 - 1200
+//1번방 - 1260 - 2550
+//2번방 - 2650 - 3550
+//계단방 - 3690 - 4500
 
 class MapObject
 {
@@ -49,23 +53,3 @@ void LoadMeshFromFile(MapObject& obj, char* pstrFileName);
 MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects);
 
 
-struct OcTreeNode
-{
-    vector<BoundingOrientedBox*> objects;
-    array<unique_ptr<OcTreeNode>, 8> children = { nullptr };
-    BoundingBox BB;
-
-    OcTreeNode(BoundingBox& _BB) : BB(_BB) {}
-
-    void insert(BoundingOrientedBox* OBB) {
-        objects.push_back(OBB);
-    }
-};
-
-class OcTree
-{
-public:
-
-private:
-    unique_ptr<OcTreeNode> Root;
-};

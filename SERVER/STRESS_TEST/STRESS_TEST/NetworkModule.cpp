@@ -163,7 +163,6 @@ void ProcessPacket(int ci, unsigned char packet[])
 		client_map[login_packet->id] = my_id;
 		g_clients[my_id].id = login_packet->id;
 		g_clients[my_id].pos = login_packet->pos;
-
 		//cs_packet_teleport t_packet;
 		//t_packet.size = sizeof(t_packet);
 		//t_packet.type = CS_TELEPORT;
@@ -471,16 +470,17 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	int index_2 = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
-			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.z) / 4;
-			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.x) + 200;
+			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.x) / 2;
+			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.z - 1200) / 2;
 			index++;
 		}
 
+	
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 		if (g_monsters[i].connected == true)
 		{
-			point_cloud_2[index_2 * 2] = static_cast<float>(g_monsters[i].pos.z) / 4;
-			point_cloud_2[index_2 * 2 + 1] = static_cast<float>(g_monsters[i].pos.x) + 200;
+			point_cloud_2[index_2 * 2] = static_cast<float>(g_monsters[i].pos.z) / 50;
+			point_cloud_2[index_2 * 2 + 1] = static_cast<float>(g_monsters[i].pos.x) / 50;
 			index_2++;
 		}
 

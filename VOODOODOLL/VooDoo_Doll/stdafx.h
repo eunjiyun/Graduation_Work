@@ -294,7 +294,7 @@ namespace Vector3
 		xmf3Vector.y = 0;
 		return xmf3Vector;
 	}
-	inline void Print(XMFLOAT3& xmf3Vector)
+	inline void Print(const XMFLOAT3& xmf3Vector)
 	{
 		cout << xmf3Vector.x << ", " << xmf3Vector.y << ", " << xmf3Vector.z << endl;
 	}

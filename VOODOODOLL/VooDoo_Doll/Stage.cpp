@@ -214,13 +214,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_pLights = new LIGHT[MAX_LIGHTS];
-	BuildDefaultLightsAndMaterials();//Á¶¸í
+	BuildDefaultLightsAndMaterials();//ï¿½ï¿½ï¿½ï¿½
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
 
 	pBoxShader = new CBoxShader();
-	//pBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);//¹Ù´Ú
+	//pBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);//ï¿½Ù´ï¿½
 
 
 	m_nShaders = 1;
@@ -757,7 +757,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 void CStage::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿?
+	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½?
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
@@ -933,7 +933,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
-	UpdateShaderVariables(pd3dCommandList);//Á¶¸í
+	UpdateShaderVariables(pd3dCommandList);//ï¿½ï¿½ï¿½ï¿½
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
@@ -944,7 +944,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 	
-	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//¸Ê
+	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//ï¿½ï¿½
 }
 
 void CStage::UpdateBoundingBox()
@@ -956,8 +956,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 {
 	XMFLOAT3 Vel = pl->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-	BoundingOrientedBox pBox = pl->obBox;
-
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 	{
@@ -966,40 +964,22 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
 			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh"))
 		{
-			if (pBox.Intersects(oBox))
-			{
-				//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 				continue;
-			}
 		}
 
-		if (pBox.Intersects(oBox))
+		if (pl->obBox.Intersects(oBox))
 		{
-
-			if (pBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
+			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
-				Pos.y = oBox.Center.y + oBox.Extents.y + pBox.Extents.y;
+				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;
 				pl->SetPosition(Pos);
 				pl->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
 				pl->onFloor = true;
 				continue;
 			}
 
-
-			cout << "Name - " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
-			//cout << "Center - ";
-			//Vector3::Print(oBox.Center);
-			//cout << "Extents - ";
-			//Vector3::Print(oBox.Extents);
-			//cout << "Look - ";
-			//Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->GetLook());
-			//cout << "Right - ";
-			//Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->GetRight());
-			//cout << "Up - ";
-			//Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->GetUp());
-
-			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, -m_ppShaders[0]->m_ppObjects[i]->GetLook().y, 1));
-
+			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, 0, 1));
+			//cout << angle << endl;
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
 
@@ -1019,18 +999,18 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				realExtents.y = sqrtf(realExtents.y * realExtents.y);
 				realExtents.z = sqrtf(realExtents.z * realExtents.z);
 
-				if (oBox.Center.x - realExtents.x < pBox.Center.x && oBox.Center.x + realExtents.x > pBox.Center.x) {
-					if (oBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+				if (oBox.Center.x - realExtents.x < pl->obBox.Center.x && oBox.Center.x + realExtents.x > pl->obBox.Center.x) {
+					if (oBox.Center.z < pl->obBox.Center.z) ObjLook = { 0,0,1 };
 					else ObjLook = { 0, 0, -1 };
 				}
-				else if (oBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+				else if (oBox.Center.x < pl->obBox.Center.x) ObjLook = { 1,0,0 };
 				else ObjLook = { -1, 0, 0 };
 
 			}
 			else
 			{
 
-				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pBox.Center, oBox.Center, -angle);
+				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pl->obBox.Center, oBox.Center, angle);
 
 				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
 					if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders[0]->m_ppObjects[i]->GetLook();
@@ -1048,7 +1028,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 
 			MovVec = GetReflectVec(ObjLook, MovVec);
 			pl->Move(MovVec, false);
-
 		}
 	}
 }
@@ -1057,18 +1036,17 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 
 	XMFLOAT3 Vel = pl->GetVelocity();
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
-	BoundingOrientedBox pBox = pl->obBox;
 
 	for (const auto& monster : monsters) {
-		if (pBox.Intersects(monster->m_xmOOBB)) {
+		if (pl->obBox.Intersects(monster->m_xmOOBB)) {
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
 
-			if (monster->m_xmOOBB.Center.x - monster->m_xmOOBB.Extents.x < pBox.Center.x && monster->m_xmOOBB.Center.x + monster->m_xmOOBB.Extents.x > pBox.Center.x) {
-				if (monster->m_xmOOBB.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+			if (monster->m_xmOOBB.Center.x - monster->m_xmOOBB.Extents.x < pl->obBox.Center.x && monster->m_xmOOBB.Center.x + monster->m_xmOOBB.Extents.x > pl->obBox.Center.x) {
+				if (monster->m_xmOOBB.Center.z < pl->obBox.Center.z) ObjLook = { 0,0,1 };
 				else ObjLook = { 0, 0, -1 };
 			}
-			else if (monster->m_xmOOBB.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+			else if (monster->m_xmOOBB.Center.x < pl->obBox.Center.x) ObjLook = { 1,0,0 };
 			else ObjLook = { -1, 0, 0 };
 			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
 				continue;
@@ -1084,15 +1062,15 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 
 	for (auto& player : players) {
 		if (player->c_id == pl->c_id || player->alive == false) continue;
-		if (pBox.Intersects(player->obBox)) {
+		if (pl->obBox.Intersects(player->obBox)) {
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
 
-			if (player->obBox.Center.x - player->obBox.Extents.x < pBox.Center.x && player->obBox.Center.x + player->obBox.Extents.x > pBox.Center.x) {
-				if (player->obBox.Center.z < pBox.Center.z) ObjLook = { 0,0,1 };
+			if (player->obBox.Center.x - player->obBox.Extents.x < pl->obBox.Center.x && player->obBox.Center.x + player->obBox.Extents.x > pl->obBox.Center.x) {
+				if (player->obBox.Center.z < pl->obBox.Center.z) ObjLook = { 0,0,1 };
 				else ObjLook = { 0, 0, -1 };
 			}
-			else if (player->obBox.Center.x < pBox.Center.x) ObjLook = { 1,0,0 };
+			else if (player->obBox.Center.x < pl->obBox.Center.x) ObjLook = { 1,0,0 };
 			else ObjLook = { -1, 0, 0 };
 			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
 				continue;
@@ -1109,20 +1087,19 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm)
 {
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
-	XMFLOAT3 xmf3Right = m_pPlayer->GetRightVector();
-	XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
-	XMFLOAT3 xmf3Look = m_pPlayer->GetLookVector();
+	XMFLOAT3 xmf3Right = pl->GetRightVector();
+	XMFLOAT3 xmf3Up = pl->GetUpVector();
+	XMFLOAT3 xmf3Look = pl->GetLookVector();
 	xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
 	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
 	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
 	if (cm->GetMode() == THIRD_PERSON_CAMERA) {
 		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
-		XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+		XMFLOAT3 xmf3Position = Vector3::Add(pl->GetPosition(), xmf3Offset);
 		XMFLOAT3 ray_castPos = pl->GetPosition();
-		BoundingBox test = BoundingBox(ray_castPos, XMFLOAT3(FLT_EPSILON, FLT_EPSILON, FLT_EPSILON));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->GetPosition()));
-
+		
 		bool collide = false;
 		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
 		{
@@ -1144,7 +1121,6 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 		cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
 	}
-
 
 	cm->SetLookAt(pl->GetPosition());
 	cm->RegenerateViewMatrix();

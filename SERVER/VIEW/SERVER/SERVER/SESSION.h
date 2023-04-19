@@ -62,7 +62,7 @@ public:
 		OVER_EXP* mem = nullptr;
 
 		if (objectQueue.empty()) {
-			cout << "Ãß°¡¿äÃ»ÀÌ È£ÃâµÊ\n";
+			cout << "ï¿½ß°ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ È£ï¿½ï¿½ï¿½\n";
 			lock_guard<mutex> ll{ pool_lock };
 			for (int i = 0; i < 5000; ++i)
 				objectQueue.push(new OVER_EXP());

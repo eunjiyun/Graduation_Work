@@ -856,7 +856,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			m_pObjectsShader->obj[i]->shadowID = 1;
 
 			//m_pObjectsShader->obj[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
-			//m_pObjectsShader->obj[i]->m_ppMaterials[0]->depthShader->Render(pd3dCommandList, pCamera);
+			m_pObjectsShader->obj[i]->m_ppMaterials[0]->depthShader->Render(pd3dCommandList, pCamera);
 
 			//depthShader->Render(pd3dCommandList, pCamera);
 		}

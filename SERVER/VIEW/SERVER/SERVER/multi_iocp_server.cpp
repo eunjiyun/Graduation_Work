@@ -229,6 +229,8 @@ void process_packet(const int c_id, char* packet)
 		CL.error_stack++;
 		return;
 	}
+	if (CL.error_stack >= 5)
+		disconnect(c_id);
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);

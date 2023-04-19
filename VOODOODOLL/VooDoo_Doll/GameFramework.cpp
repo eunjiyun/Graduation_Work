@@ -786,24 +786,20 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.Tick(30.0f);
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
-
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
-			player->Update(fTimeElapsed);
-
-			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
-			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
-
-			player->Deceleration(fTimeElapsed);
+			player->Update(fTimeElapsed);			
+			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);		
+			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);			
+			player->Deceleration(fTimeElapsed);			
 		}
 	}
 	m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
+	
 	for (auto& monster : Monsters) {
 		monster->Update(fTimeElapsed);
 	}
-
 	AnimateObjects(fTimeElapsed);
-
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 

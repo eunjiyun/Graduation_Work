@@ -146,10 +146,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 	ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
 	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+	
+	do_recv();
 #pragma endregion 
 
 
-	do_recv();
 	while (1)
 	{
 		if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -260,6 +261,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (gGameFramework.m_pPlayer->onAct == false) {
 			if (wParam == 'Z' || wParam == 'z')
 			{
+				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
 				CS_ATTACK_PACKET p;
 				p.size = sizeof(CS_ATTACK_PACKET);
 				p.type = CS_ATTACK;
@@ -271,6 +273,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else if (wParam == 'C' || wParam == 'c')
 			{
+				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
 				CS_COLLECT_PACKET p;
 				p.size = sizeof(CS_COLLECT_PACKET);
 				p.type = CS_COLLECT;
@@ -422,9 +425,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
 		(*iter)->SetVelocity(packet->vel);
 		(*iter)->SetPosition(targetPos);
+
 		(*iter)->curTime = high_resolution_clock::now();
-
-
 		break;
 	}
 	case CS_ATTACK: {
@@ -492,7 +494,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_xmOOBB.Center = targetPos;
 			(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
 			(*iter)->SetPosition(targetPos);
-			//Vector3::Print((*iter)->m_xmOOBB.Center);
 		}
 		//(*iter)->SetPosition(packet->Pos);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
