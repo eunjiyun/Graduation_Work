@@ -15,6 +15,8 @@
 #include <gl\glu.h>			// Header File For The GLu32 Library
 #include <atomic>
 #include <memory>
+#include <iostream>
+using namespace std;
 //#include <gl\glaux.h>		// Header File For The Glaux Library
 
 #pragma comment (lib, "opengl32.lib")
@@ -155,8 +157,8 @@ int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	{
 		float x, y, z;
 
-		x = points[i * 2] / 200.0f - 1.25f;
-		y = 1.25f - points[i * 2 + 1] / 200.0f;
+		x = points[i * 2] / 400.f - 1.25f;
+		y = 1.25f - points[i * 2 + 1] / 600.f;
 		z = -1.0f;
 		glVertex3f(x, y, z);
 	}
@@ -166,8 +168,8 @@ int DrawGLScene(GLvoid)									// Here's Where We Do All The Drawing
 	{
 		float x, y, z;
 
-		x = points_2[i * 2] / 200.0f - 1.25f;
-		y = 1.25f - points_2[i * 2 + 1] / 200.0f;
+		x = points[i * 2] / 200.0f - 1.25f;
+		y = 1.25f - points[i * 2 + 1] / 600.0f;
 		z = -1.0f;
 		glVertex3f(x, y, z);
 	}
@@ -463,7 +465,7 @@ int WINAPI WinMain(HINSTANCE	hInstance,			// Instance
 	fullscreen = FALSE;							// Windowed Mode
 
 	// Create Our OpenGL Window
-	if (!CreateGLWindow(L"Stress Test Client", 640, 480, 16, fullscreen))
+	if (!CreateGLWindow(L"Stress Test Client", 1280, 960, 16, fullscreen))
 	{
 		return 0;									// Quit If Window Was Not Created
 	}

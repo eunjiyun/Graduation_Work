@@ -137,30 +137,30 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
-	//// check velocity
-	//static const float max_distance = 100.f;
-	//XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
-	//float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
-	//if (distance_squared > max_distance * max_distance) {
-	//	m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
-	//	return;
-	//}
+	// check velocity
+	static const float max_distance = 100.f;
+	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
+	float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
+	if (distance_squared > max_distance * max_distance) {
+		m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
+		return;
+	}
 
 
-	//try {
-	//	for (const auto& object : Objects.at((int)newPos.z / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
-	//		if (object->m_xmOOBB.Contains(XMLoadFloat3(&newPos))) {
-	//			m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
-	//			return;
-	//		}
-	//	}
-	//}
-	//catch (const exception& e) {
-	//	cout << "checkPosition catched error -" << e.what() << endl;
-	//	error_stack++;
-	//	disconnect(_id);
-	//	return;
-	//}
+	try {
+		for (const auto& object : Objects.at((int)newPos.z / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
+			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newPos))) {
+				m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
+				return;
+			}
+		}
+	}
+	catch (const exception& e) {
+		cout << "checkPosition catched error -" << e.what() << endl;
+		error_stack++;
+		disconnect(_id);
+		return;
+	}
 
 
 	lock_guard<mutex> player_lock{ _s_lock };
@@ -209,10 +209,11 @@ void SESSION::Update()
 				if (monster->HP > 0 && BoundingBox(BulletPos, BULLET_SIZE).Intersects(monster->BB))
 				{
 					monster->HP -= 200;
+					monster->target_id = _id;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
 
-					BulletPos = XMFLOAT3(5000, 5000, 5000);
+					BulletPos.y += 5000;
 					BulletLook = XMFLOAT3(0, 0, 0);
 					break;
 				}
@@ -237,7 +238,7 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3H
 	}
 
 
-	if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.x > MAP_Z_SIZE) return false;
+	if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.z > MAP_Z_SIZE) return false;
 	int _x = static_cast<int>(_pos.x);
 	int _z = static_cast<int>(_pos.z);
 #ifdef _GRID_MAP
@@ -537,9 +538,9 @@ void InitializeStages()
 		while (ID_constructor < 10) {
 			int _x = x_dis(gen);
 			int _z = z_dis(gen);
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 4, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
-			for (auto& obj : Objects[_z / AREA_SIZE]) 
+			for (auto& obj : Objects[_z / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
@@ -551,7 +552,7 @@ void InitializeStages()
 			Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
-}
+	}
 	{	// 2stage
 		cout << "2 stage\n";
 		gen.seed(rd());
@@ -559,7 +560,7 @@ void InitializeStages()
 		while (ID_constructor < 20) {
 			int _x = x_dis(gen);
 			int _z = z_dis(gen);
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 4, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[_z / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -575,6 +576,26 @@ void InitializeStages()
 		}
 	}
 	{	// 3stage
+		cout << "3 stage\n";
+		gen.seed(rd());
+		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
+		while (ID_constructor < 30) {
+			int _x = x_dis(gen);
+			int _z = z_dis(gen);
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
+			bool col = false;
+			for (auto& obj : Objects[_z / AREA_SIZE])
+				if (obj->m_xmOOBB.Intersects(test)) {
+					col = true;
+					break;
+				}
+			if (col) continue;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3((float)_x, -300, (float)_z), type_dis(gen), ID_constructor);
+			StagesInfo[2].push_back(MI);
+			cout << ID_constructor << " - " << MI.type << endl;
+			Vector3::Print(MI.Pos);
+			ID_constructor++;
+		}
 	}
 	{	// 4stage
 	}

@@ -470,8 +470,8 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	int index_2 = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
-			point_cloud[index * 2] = static_cast<float>(g_clients[i].pos.x) / 2;
-			point_cloud[index * 2 + 1] = static_cast<float>(g_clients[i].pos.z - 1200) / 2;
+			point_cloud[index * 2] = -1.f + static_cast<float>(g_clients[i].pos.x - 100.f);
+			point_cloud[index * 2 + 1] = -1.f + static_cast<float>(g_clients[i].pos.z - 1300);
 			index++;
 		}
 
@@ -479,8 +479,8 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 		if (g_monsters[i].connected == true)
 		{
-			point_cloud_2[index_2 * 2] = static_cast<float>(g_monsters[i].pos.z) / 50;
-			point_cloud_2[index_2 * 2 + 1] = static_cast<float>(g_monsters[i].pos.x) / 50;
+			point_cloud_2[index_2 * 2] = -1.f + static_cast<float>(g_monsters[i].pos.x - 100.f);
+			point_cloud_2[index_2 * 2 + 1] = -1.f + static_cast<float>(g_monsters[i].pos.z - 1300);
 			index_2++;
 		}
 
