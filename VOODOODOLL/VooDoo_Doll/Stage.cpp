@@ -104,9 +104,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.73f, 0.73f, 0.73f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-	//m_pLights[0].m_xmf3Position = XMFLOAT3(512-50, 212.0f, 500);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);//-562
-	//m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50, -100.0f,1900);// XMFLOAT3(-(_PLANE_WIDTH * 0.5f), 512.0f, 0.0f);//-562
-	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50, -100.0f, 2300);//512 - 50, -100.0f, 2300
+	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,-100.0f, 2300);//-100 150
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 	//m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
 
@@ -166,10 +164,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-		//m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-		//m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);//0415
-		//m_pLights[4].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
-
+		
 
 		m_pLights[4].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
 		m_pLights[4].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
@@ -214,13 +209,12 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_pLights = new LIGHT[MAX_LIGHTS];
-	BuildDefaultLightsAndMaterials();//����
+	BuildDefaultLightsAndMaterials();//조명
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
 
 	pBoxShader = new CBoxShader();
-	//pBoxShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);//�ٴ�
 
 
 	m_nShaders = 1;
@@ -646,10 +640,6 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[9].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[6]);
 	pd3dRootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-
-
-
-
 	pd3dRootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[10].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[10].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[7]; //Depth Buffer
@@ -757,7 +747,9 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 void CStage::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256�� ���?
+
+	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); 
+
 	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);

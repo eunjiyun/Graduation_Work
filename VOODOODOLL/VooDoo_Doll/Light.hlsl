@@ -228,122 +228,42 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-				if (id == 0)
+
+				if (fShadowFactor != 0.f)
 				{
-
-
-					if (fShadowFactor != 0.f)
-					{
-
-
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
-
-					}
-					else
-					{
-						//cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-						cColor += DirectionalLight(i, vNormal, vToCamera);
-					}
+					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+					cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
 				}
 				else
 				{
-					if (fShadowFactor != 0.f)
-					{
-						
-
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
-						
-					}
-					else
-					{
-						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-					}
+					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
 				}
-
-
 			}
 			else if (gLights[i].m_nType == POINT_LIGHT)
 			{
-
-				if (id == 0)
+				if (fShadowFactor != 0.f)
 				{
-					
-
-					if (fShadowFactor != 0.f)
-					{
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-
-					}
-					else
-					{
-
-
-						//cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-						cColor += PointLight(i, vPosition, vNormal, vToCamera);
-					}
+					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+					cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
 				}
 				else
 				{
-					if (fShadowFactor != 0.f)
-					{
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-						
-					}
-					else
-					{
-						
-
-						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-					}
+					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
 				}
-
-
 			}
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
-
-				if (id == 0)
+				if (fShadowFactor != 0.f)
 				{
-
-					if (fShadowFactor != 0.f)
-					{
-
-
-
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-					}
-					else
-					{
-						//cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-						cColor += SpotLight(i, vPosition, vNormal, vToCamera);
-					}
+					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+					cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
 				}
 				else
 				{
-					if (fShadowFactor != 0.f)
-					{
-						
-						
-
-						cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-						cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-					}
-					else
-					{
-						cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-					}
+					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
 				}
-
-
 			}
-
 			cColor += gLights[i].m_cAmbient * gMaterial.m_cAmbient;
-
 		}
 	}
 

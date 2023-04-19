@@ -222,7 +222,6 @@ public:
 	CBoxShader();
 	virtual ~CBoxShader();
 
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,void* pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
 
@@ -230,8 +229,6 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera);
 	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList);
-
-	BoundingBox CalculateBoundingBox();
 
 public:
 	vector<CGameObject*> obj;

@@ -184,27 +184,14 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 		mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
 	}
 
-	/*float4x4 zeroMatrix = float4x4(0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 0.0f);
 
-	if (all(mtxVertexToBoneWorld == zeroMatrix))
-	{
-		output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
-		output.normalW = mul(input.normal, (float3x3)gmtxGameObject).xyz;
-		output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	}
-	else*/
-	{
-		output.positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
-		output.normalW = mul(input.normal, (float3x3)mtxVertexToBoneWorld).xyz;
-		output.tangentW = mul(input.tangent, (float3x3)mtxVertexToBoneWorld).xyz;
-		output.bitangentW = mul(input.bitangent, (float3x3)mtxVertexToBoneWorld).xyz;
+	output.positionW = mul(float4(input.position, 1.0f), mtxVertexToBoneWorld).xyz;
+	output.normalW = mul(input.normal, (float3x3)mtxVertexToBoneWorld).xyz;
+	output.tangentW = mul(input.tangent, (float3x3)mtxVertexToBoneWorld).xyz;
+	output.bitangentW = mul(input.bitangent, (float3x3)mtxVertexToBoneWorld).xyz;
 
-		output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-		output.uv = input.uv;
-	}
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.uv = input.uv;
 
 	return(output);
 }
@@ -236,12 +223,12 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 
-	
+
 
 	return(output);
 }
 
-//float4 PSLighting(VS_STANDARD_OUTPUT input) : SV_TARGET
+
 float4 PSLighting(VS_LIGHTING_OUTPUT input) : SV_TARGET
 {
 	input.normalW = normalize(input.normalW);

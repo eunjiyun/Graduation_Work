@@ -477,26 +477,6 @@ void CGameFramework::BuildObjects()
 	
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
 
-	//CLoadedModelInfo* Model = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Voodoo1.bin", NULL, 1);
-	//Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //손에 칼	
-	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
-
-	//Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	//Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-	//Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-	//Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	//Mon->SetPosition(1.0f, -50.f, 1.0f);
-	//Mon->SetScale(1.0f, 1.0f, 1.0f);
-	
-
-	//pBoxShader->obj.push_back(Mon);
-
-	
-
-	
 
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < 10; j++) {
@@ -604,7 +584,6 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	CLoadedModelInfo* Hat = nullptr;
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
 
-	//04166
 
 	// Client's monster speed = Server's monster speed * 3 / 10	-> 클라는 30ms, 서버는 100ms 주기로 업데이트하기 때문
 	pMonsterModel[type].pop();
@@ -694,7 +673,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//바늘 휘두르기 딴걸로
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 		Mon->speed = 15.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
@@ -717,10 +696,6 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 void CGameFramework::AnimateObjects(float fTimeElapsed)
 {
 	if (m_pStage) m_pStage->AnimateObjects(fTimeElapsed);
-
-
-	//m_pPlayer->Animate(fTimeElapsed,false);
-
 
 	for (auto& player : Players)
 	{
@@ -832,16 +807,11 @@ void CGameFramework::FrameAdvance()
 	else
 		m_pStage->wakeUp = true;
 
-	if (m_pStage) m_pStage->Render(m_pd3dCommandList, m_pCamera);
+	if (m_pStage) 
+		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
 	if (m_pStage->m_pShadowShader)
-	{
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
-	}
-
-
-	
-	
 
 	
 

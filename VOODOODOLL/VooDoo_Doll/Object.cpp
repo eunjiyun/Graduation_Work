@@ -1067,9 +1067,9 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 							//m_ppMaterials[i]->depthShader->Render(pd3dCommandList, pCamera);
 
 						}
-						else if(m_ppMaterials[i]->m_pStandardShader)
+						/*else if(m_ppMaterials[i]->m_pStandardShader)
 							if (strcmp(m_pstrName, "Dense_Floor_mesh"))
-								m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);
+								m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);*/
 
 						m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
 
