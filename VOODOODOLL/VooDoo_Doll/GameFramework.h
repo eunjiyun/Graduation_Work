@@ -101,8 +101,8 @@ public:
 
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	queue<CLoadedModelInfo*> MagiciansHat;
-	array<char*, 6> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo3.bin", "Model/Voodoo4.bin",
-	"Model/Voodoo5.bin" ,"Model/Voodoo6.bin" };
+	array<char*, 6> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo5.bin", "Model/Voodoo4.bin",
+	 "Model/Voodoo3.bin","Model/Voodoo6.bin" };
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
 #endif

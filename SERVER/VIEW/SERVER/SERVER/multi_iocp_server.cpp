@@ -265,7 +265,8 @@ void process_packet(const int c_id, char* packet)
 			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && BoundingBox(p->pos, { 15,1,15 }).Intersects(monster->BB))
+				//if (monster->HP > 0 && BoundingBox(p->pos, { 20,1,20 }).Intersects(monster->BB))
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 30)
 				{
 					monster->HP -= 100;
 					if (monster->HP <= 0)
@@ -278,6 +279,7 @@ void process_packet(const int c_id, char* packet)
 		{
 			CL.BulletLook = CL.GetLookVector();
 			CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
+			CL.recent_recvedTime = high_resolution_clock::now();
 			break;
 		}
 		case 2:

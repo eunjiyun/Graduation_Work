@@ -13,7 +13,7 @@
 #pragma comment(lib, "MSWSock.lib")
 
 
-enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_MOVE };
+enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_MOVE, OP_SUMMON_MONSTER };
 class OVER_EXP {
 public:
 	WSAOVERLAPPED _over;
@@ -40,8 +40,7 @@ public:
 
 class OVERLAPPEDPOOL {
 private:
-	queue<OVER_EXP*> objectQueue;
-	mutex pool_lock;
+	concurrent_queue<OVER_EXP*> objectQueue;
 public:
 	OVERLAPPEDPOOL(size_t MemorySize)
 	{
@@ -51,9 +50,9 @@ public:
 	}
 	~OVERLAPPEDPOOL()
 	{
-		while (!objectQueue.empty()) {
-			//auto front = objectQueue.front();
-			objectQueue.pop();
+		OVER_EXP* o;
+		while (objectQueue.try_pop(o)) {
+			unique_ptr<OVER_EXP> pData(o);
 		}
 	}
 
@@ -62,17 +61,11 @@ public:
 		OVER_EXP* mem = nullptr;
 
 		if (objectQueue.empty()) {
-			cout << "�߰���û�� ȣ���\n";
-			lock_guard<mutex> ll{ pool_lock };
 			for (int i = 0; i < 5000; ++i)
 				objectQueue.push(new OVER_EXP());
 		}
 
-		{
-			lock_guard<mutex> ll{ pool_lock };
-			mem = objectQueue.front();
-			objectQueue.pop();
-		}
+		objectQueue.try_pop(mem);
 
 		return mem;
 	}
@@ -83,15 +76,10 @@ public:
 
 		if (objectQueue.empty()) {
 			cout << "OverlappedPool called add memory request\n";
-			lock_guard<mutex> ll{ pool_lock };
 			for (int i = 0; i < 5000; ++i)
 				objectQueue.push(new OVER_EXP());
 		}
-		{
-			lock_guard<mutex> ll{ pool_lock };
-			mem = objectQueue.front();
-			objectQueue.pop();
-		}
+		objectQueue.try_pop(mem);
 
 		mem->_wsabuf.len = packet[0];
 		//mem->_wsabuf.buf = mem->_send_buf;
@@ -106,12 +94,11 @@ public:
 		Mem->_wsabuf.len = BUF_SIZE;
 		Mem->_wsabuf.buf = Mem->_send_buf;
 		Mem->_comp_type = OP_RECV;
-		lock_guard<mutex> ll{ pool_lock };
 		objectQueue.push(Mem);
 	}
 	void PrintSize()
 	{
-		cout << "CurrentSize - " << objectQueue.size() << endl;
+		cout << "CurrentSize - " << objectQueue.unsafe_size() << endl;
 	}
 };
 
@@ -155,7 +142,7 @@ public:
 		//_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 4, 8));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
 		error_stack = 0;
 		character_num = 0;
 		HP = 0;
@@ -168,7 +155,7 @@ public:
 		_id = id;
 		//m_xmf3Position = XMFLOAT3{ 500, 50, 500 };
 		//m_xmf3Position = XMFLOAT3{ 258, -300, 2154 };
-		m_xmf3Position = XMFLOAT3{ 148, -300,726};
+		m_xmf3Position = XMFLOAT3{ 148, -60,600};
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -179,7 +166,7 @@ public:
 		cur_stage = 0;
 		error_stack = 0;
 		BulletPos = { 5000,5000,5000 };
-		BulletLook = { 0,0,1 };
+		BulletLook = { 0,0,0 };
 		recent_recvedTime = high_resolution_clock::now();
 		//_state = ST_FREE;
 		character_num = 0;

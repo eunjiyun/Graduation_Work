@@ -619,13 +619,23 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//±Í½Å
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // ¸¶¼ú»ç
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->speed = 15.f;
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+
+		Hat = MagiciansHat.front();
+		MagiciansHat.pop();
+		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Hat, 1, 2);
+		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
+		Mon->speed = 9.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
@@ -645,23 +655,13 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // ¸¶¼ú»ç
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//±Í½Å
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-
-		Hat = MagiciansHat.front();
-		MagiciansHat.pop();
-		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Hat, 1, 2);
-		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
-		Mon->speed = 9.f;
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		Mon->speed = 15.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 5:

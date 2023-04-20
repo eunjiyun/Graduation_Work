@@ -8,8 +8,7 @@
 template<class T>
 class CObjectPool {
 private:
-    queue<T*> objectQueue;
-    mutex pool_lock;
+    concurrent_queue<T*> objectQueue;
 public:
     CObjectPool(size_t MemorySize)
     {
@@ -19,34 +18,31 @@ public:
     }
     ~CObjectPool()
     {
-        while (!objectQueue.empty())
+        T* mem;
+        while (objectQueue.try_pop(mem))
         {
-            auto front = objectQueue.front();
-            delete front;
-            objectQueue.pop();
+            unique_ptr<T> pData(mem);
         }
     }
 
     T* GetMemory()
     {
-        //lock_guard<mutex> ll{ pool_lock };
         if (objectQueue.empty()) {
             cout << "ObjectPool called add memory request\n";
             for (int i = 0; i < 500; ++i)
                 objectQueue.push(new T());
         }
-        auto& front = objectQueue.front();
-        objectQueue.pop();
+        T* front;
+        objectQueue.try_pop(front);
         return front;
     }
     void ReturnMemory(T* Mem)
     {
-        //lock_guard<mutex> ll{ pool_lock };
         objectQueue.push(Mem);
     }
     void PrintSize()
     {
-        cout << "CurrentSize - " << objectQueue.size() << endl;
+        cout << "CurrentSize - " << objectQueue.unsafe_size() << endl;
     }
 };
 

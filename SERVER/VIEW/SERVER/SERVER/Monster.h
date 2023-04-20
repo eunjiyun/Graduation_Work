@@ -2,8 +2,6 @@
 #include "stdafx.h"
 #include "MemoryPool.h"
 
-#define BULLET_SIZE XMFLOAT3{10,10,10}
-
 enum class NPC_State
 {
     Idle,
@@ -29,7 +27,6 @@ public:
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook;
     high_resolution_clock::time_point recent_recvedTime;
-    //stack<XMFLOAT3> roadToMove;
     
     short HP, power;
     float speed;
@@ -53,7 +50,6 @@ public:
     {
         return type;
     }
-    void Move(XMFLOAT3 m_Shift);
 
     int get_targetID();
     XMFLOAT3 Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);

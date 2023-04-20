@@ -258,7 +258,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
-		if (gGameFramework.m_pPlayer->onAct == false) {
+		if (gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true) {
 			if (wParam == 'Z' || wParam == 'z')
 			{
 				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
@@ -355,11 +355,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
+	if (pl->onFloor == false) {
+		return;
+	}
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
 
 	pl->onRun = p->direction & DIR_RUN;
-
 
 	if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
@@ -439,10 +441,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case CS_COLLECT: {
 		CS_COLLECT_PACKET* packet = reinterpret_cast<CS_COLLECT_PACKET*>(ptr);
-		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
-		(*iter)->onAct = true;
-		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+		//auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		//(*iter)->onAct = true;
+		//(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+		//(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
 		break;
 	}
 

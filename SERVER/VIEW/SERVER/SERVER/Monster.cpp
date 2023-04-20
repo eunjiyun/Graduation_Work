@@ -70,9 +70,9 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     {
     case 0: // ¼Õ¿¡ Ä®
         type = 0;
-        HP = 500;
+        HP = 250;
         power = 30;
-        view_range = 900;
+        view_range = 500;
         speed = 40.f;
         attack_cycle = (71.f / 30.f); // 2.366667ÃÊ
         attack_timer = attack_cycle;
@@ -80,21 +80,21 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         break;
     case 1: // »À´Ù±Í ´Ù¸®
         type = 1;
-        HP = 100;
+        HP = 150;
         power = 30;
-        view_range = 300;
+        view_range = 500;
         speed = 50.f;
         attack_cycle = (56.f / 30.f); // 2.366667ÃÊ
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
         break;
-    case 2: // ±Í½Å
+    case 2: // ¸¶¼ú»ç
         type = 2;
         HP = 50;
-        power = 50;
-        view_range = 300;
-        speed = 50.f;
-        attack_cycle = (56.f / 30.f); // 2.366667ÃÊ
+        power = 70;
+        view_range = 500;
+        speed = 30.f;
+        attack_cycle = (8.f / 3.f); // 2.666664ÃÊ
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
         break;
@@ -108,13 +108,13 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
         break;
-    case 4: // ¸¶¼ú»ç
+    case 4: // ±Í½Å
         type = 4;
         HP = 50;
-        power = 70;
+        power = 50;
         view_range = 300;
-        speed = 30.f;
-        attack_cycle = (8.f / 3.f); // 2.666664ÃÊ
+        speed = 50.f;
+        attack_cycle = (56.f / 30.f); // 2.366667ÃÊ
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
         break;
@@ -131,8 +131,3 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     }
 }
 
-void Monster::Move(XMFLOAT3 m_Shift)
-{
-    Pos = Vector3::Add(Pos, m_Shift);
-    BB.Center = Pos;
-}

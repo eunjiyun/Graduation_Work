@@ -61,16 +61,13 @@ using namespace chrono;
 using namespace concurrency;
 //
 
-// 맵 범위
-// X범위 -480~~~~~~~~~~~240      너비 720
-// Y범위 -304~~~~~~~~~~~176      너비 480
-// Z범위 -240~~~~~~~~~~~4080     너비 4320
 
 constexpr short MAP_X_SIZE = 700;
 constexpr short MAP_Y_SIZE = 480;
 constexpr short MAP_Z_SIZE = 4600;
 constexpr short STAGE_NUMBERS = 6;
 
+#define BULLET_SIZE XMFLOAT3{10,10,10}
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
 
