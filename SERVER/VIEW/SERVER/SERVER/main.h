@@ -6,7 +6,7 @@
 #include "Monster.h"
 
 
-enum EVENT_TYPE { EV_RANDOM_MOVE, EV_SUMMON };
+enum EVENT_TYPE { EV_MOVE, EV_SUMMON };
 
 //#define _GRID_MAP 
 
@@ -128,7 +128,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
-		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_RANDOM_MOVE};
+		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE};
 		timer_queue.push(ev);
 	}
 }
@@ -190,12 +190,12 @@ int get_new_client_id()
 
 void SESSION::Update()
 {
-	if (HP <= 0)
-	{
-		direction.store(DIR_DIE);
-		_state.store(ST_DEAD);
-		return;
-	}
+	//if (HP <= 0)
+	//{
+	//	direction.store(DIR_DIE);
+	//	_state.store(ST_DEAD);
+	//	return;
+	//}
 
 	if (Vector3::Length(BulletLook) > 0) {
 		float ElapsedTime = duration_cast<milliseconds>(high_resolution_clock::now() - recent_recvedTime).count() / 1000.f;
@@ -373,7 +373,16 @@ void Monster::Update(float fTimeElapsed)
 			{
 				player.HP -= GetPower();
 				MagicPos.x = 5000;
-				//cout << "plHP : " << targetPlayer->HP << endl;
+				cout << "plHP : " << player.HP << endl;
+				if (player.HP <= 0)
+				{
+					//player.direction.store(DIR_DIE);
+					player._state.store(ST_DEAD);
+					for (auto& cl : clients[room_num]) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
+							cl.send_move_packet(&player);
+					}
+				}
 			}
 		}
 		for (auto& obj : Objects[static_cast<int>(MagicPos.z) / AREA_SIZE]) {
@@ -452,7 +461,16 @@ void Monster::Update(float fTimeElapsed)
 			else if (MELEEATTACK_RANGE > g_distance) {
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
-				//cout << "plHP : " << targetPlayer->HP << endl;
+				cout << "plHP : " << targetPlayer->HP << endl;
+				if (targetPlayer->HP <= 0) {
+
+					//player.direction.store(DIR_DIE);
+					targetPlayer->_state.store(ST_DEAD);
+					for (auto& cl : clients[room_num]) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) 
+							cl.send_move_packet(targetPlayer);
+					}
+				}
 			}
 			attacked = true;
 			break;

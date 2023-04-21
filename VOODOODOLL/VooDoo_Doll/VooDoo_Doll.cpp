@@ -164,9 +164,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 		}
 		else
 		{
-
 			SleepEx(0, true);
-
 			gGameFramework.FrameAdvance();
 			if (gGameFramework.m_pPlayer->alive)
 				ProcessInput();
@@ -258,7 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
-		if (gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true) {
+		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true) {
 			if (wParam == 'Z' || wParam == 'z')
 			{
 				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
@@ -270,19 +268,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+				gGameFramework.m_pPlayer->onAct = true;
 			}
-			else if (wParam == 'C' || wParam == 'c')
-			{
-				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
-				CS_COLLECT_PACKET p;
-				p.size = sizeof(CS_COLLECT_PACKET);
-				p.type = CS_COLLECT;
-				p.id = gGameFramework.m_pPlayer->c_id;
-				p.pos = gGameFramework.m_pPlayer->GetPosition();
-				OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
-				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-			} 
+			//else if (wParam == 'C' || wParam == 'c')
+			//{
+			//	gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
+			//	CS_COLLECT_PACKET p;
+			//	p.size = sizeof(CS_COLLECT_PACKET);
+			//	p.type = CS_COLLECT;
+			//	p.id = gGameFramework.m_pPlayer->c_id;
+			//	p.pos = gGameFramework.m_pPlayer->GetPosition();
+			//	OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+			//	int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
+			//	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			//} 
 			else if (wParam == 'Q' || wParam == 'q')
 			{
 				CS_CHANGEWEAPON_PACKET p;
@@ -355,24 +354,18 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
-	if (pl->onFloor == false) {
-		return;
-	}
+
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
+	if (pl->onFloor == false) {
+		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+		return;
+	}
 
 	pl->onRun = p->direction & DIR_RUN;
 
 	if (pl->onRun) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-		return;
-	}
-
-	if (p->direction & DIR_DIE) {
-		pl->onAct = true;
-		pl->alive = false;
-		pl->cxDelta = pl->cyDelta = pl->czDelta = 0;
-		pl->m_pSkinnedAnimationController->SetTrackEnable(4, true);
 		return;
 	}
 
@@ -414,27 +407,38 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
 		if (iter == gGameFramework.Players.end()) break;
+		(*iter)->HP = packet->HP;
+		if (packet->HP <= 0) {
+			(*iter)->onAct = true;
+			(*iter)->alive = false;
+			//(*iter)->cxDelta = (*iter)->cyDelta = (*iter)->czDelta = 0;
+			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(4, true);
+			return;
+		}
 		(*iter)->SetLookVector(packet->Look);
 		(*iter)->SetRightVector(packet->Right);
 		(*iter)->SetUpVector(Vector3::CrossProduct((*iter)->GetLookVector(), (*iter)->GetRightVector(), true));
 		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
-		if ((*iter)->onAct == false)
+		if ((*iter)->onAct == false) {
 			ProcessAnimation(*iter, packet);
 
 
-		XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
+			XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
 
-		XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
-		(*iter)->SetVelocity(packet->vel);
-		(*iter)->SetPosition(targetPos);
+			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
+			(*iter)->SetVelocity(packet->vel);
+			(*iter)->SetPosition(targetPos);
 
-		(*iter)->curTime = high_resolution_clock::now();
+			(*iter)->curTime = high_resolution_clock::now();
+		}
 		break;
 	}
 	case CS_ATTACK: {
 		CS_ATTACK_PACKET* packet = reinterpret_cast<CS_ATTACK_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
 		(*iter)->onAct = true;
+		(*iter)->SetVelocity(XMFLOAT3(0, 0, 0));
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 		break;

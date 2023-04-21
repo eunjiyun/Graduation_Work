@@ -170,7 +170,7 @@ public:
 		recent_recvedTime = high_resolution_clock::now();
 		//_state = ST_FREE;
 		character_num = 0;
-		HP = 5000;
+		HP = 500;
 	}
 	void do_recv()
 	{

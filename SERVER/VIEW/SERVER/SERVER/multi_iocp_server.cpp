@@ -225,12 +225,9 @@ void process_packet(const int c_id, char* packet)
 	SESSION& CL = getClient(c_id);
 	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom(c_id);
 	if (CL._state.load() == ST_DEAD) {
-		cout << "[" << CL._id << "] player sent packet in dead_state\n";
-		CL.error_stack++;
+		//cout << "[" << CL._id << "] player sent packet in dead_state\n";
 		return;
 	}
-	if (CL.error_stack >= 5)
-		disconnect(c_id);
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
@@ -258,40 +255,49 @@ void process_packet(const int c_id, char* packet)
 	case CS_ATTACK: {
 		threadsafe_vector<Monster*>& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
+		
+		CL._s_lock.lock();
+		XMFLOAT3 _Look = CL.GetLookVector();
+		CL.SetVelocity(XMFLOAT3(0, 0, 0));
+		CL._s_lock.unlock();
+		
 		switch (CL.character_num)
 		{
 		case 0:
 		{
+			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
 			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
-				//if (monster->HP > 0 && BoundingBox(p->pos, { 20,1,20 }).Intersects(monster->BB))
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 30)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
 				{
 					monster->HP -= 100;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
+					break;
 				}
 			}
 			break;
 		}
 		case 1:
 		{
-			CL.BulletLook = CL.GetLookVector();
+			CL.BulletLook = _Look;
 			CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
 			CL.recent_recvedTime = high_resolution_clock::now();
 			break;
 		}
 		case 2:
 		{
+			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
 			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && BoundingBox(p->pos, { 5,1,5 }).Intersects(monster->BB))
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 10)
 				{
 					monster->HP -= 50;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
+					break;
 				}
 			}
 			break;
@@ -408,7 +414,7 @@ void worker_thread(HANDLE h_iocp)
 							for (auto& cl : clients[roomNum]) {
 								if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 							}
-							TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_RANDOM_MOVE };
+							TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
 							timer_queue.push(ev);
 						}
 					}
@@ -438,7 +444,7 @@ void do_Timer()
 				continue;
 			}
 			switch (ev.event_id) {
-			case EV_RANDOM_MOVE:
+			case EV_MOVE:
 				OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);

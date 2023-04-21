@@ -968,11 +968,11 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				pl->SetPosition(Pos);
 				pl->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
 				pl->onFloor = true;
+				pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 				continue;
 			}
 
 			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, 0, 1));
-			//cout << angle << endl;
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
 

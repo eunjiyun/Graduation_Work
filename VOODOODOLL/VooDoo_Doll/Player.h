@@ -36,6 +36,7 @@ public:
 	int c_id = -1;
 	short cur_weapon = 0;
 	bool alive = true;
+	short HP = 0;
 	steady_clock::time_point curTime;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
