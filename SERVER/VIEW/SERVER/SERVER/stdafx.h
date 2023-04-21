@@ -67,7 +67,7 @@ constexpr short MAP_Y_SIZE = 480;
 constexpr short MAP_Z_SIZE = 4600;
 constexpr short STAGE_NUMBERS = 6;
 
-#define BULLET_SIZE XMFLOAT3{10,10,10}
+#define BULLET_SIZE XMFLOAT3{10,0.1,10}
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
 

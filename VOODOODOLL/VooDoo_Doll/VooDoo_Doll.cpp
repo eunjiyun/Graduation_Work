@@ -66,7 +66,28 @@ void ProcessInput()
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
 
-	if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100 || cxDelta != 0.0f || cyDelta != 0.0f) {
+	if (cxDelta != 0.0f || cyDelta != 0.0f)
+	{
+		CS_ROTATE_PACKET p;
+		p.id = gGameFramework.m_pPlayer->c_id;
+		p.size = sizeof(CS_ROTATE_PACKET);
+		p.type = CS_ROTATE;
+		if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
+			gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
+			gGameFramework.m_pPlayer->cyDelta = p.cyDelta = 0.f;
+			gGameFramework.m_pPlayer->czDelta = p.czDelta = -cxDelta;
+		}
+		else {
+			gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
+			gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
+			gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
+		}
+		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
+		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
+	}
+
+	if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
 		p.id = gGameFramework.m_pPlayer->c_id;
@@ -74,19 +95,6 @@ void ProcessInput()
 		p.type = CS_MOVE;
 		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		p.vel = gGameFramework.m_pPlayer->GetVelocity();
-		if (cxDelta || cyDelta)
-		{
-			if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
-				gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
-				gGameFramework.m_pPlayer->cyDelta = p.cyDelta = 0.f;
-				gGameFramework.m_pPlayer->czDelta = p.czDelta = -cxDelta;
-			}
-			else {
-				gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
-				gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
-				gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
-			}
-		}
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
@@ -292,7 +300,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-				gGameFramework.m_pPlayer->onAct = true;
 			}
 		}
 		break;
@@ -416,22 +423,22 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(4, true);
 			return;
 		}
-		(*iter)->SetLookVector(packet->Look);
-		(*iter)->SetRightVector(packet->Right);
-		(*iter)->SetUpVector(Vector3::CrossProduct((*iter)->GetLookVector(), (*iter)->GetRightVector(), true));
-		(*iter)->m_ppBullet->SetPosition(packet->BulletPos);
 		if ((*iter)->onAct == false) {
 			ProcessAnimation(*iter, packet);
-
-
 			XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
-
 			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
 			(*iter)->SetVelocity(packet->vel);
 			(*iter)->SetPosition(targetPos);
-
-			(*iter)->curTime = high_resolution_clock::now();
 		}
+		break;
+	}
+	case SC_ROTATE_PLAYER: {
+		SC_ROTATE_PLAYER_PACKET* packet = reinterpret_cast<SC_ROTATE_PLAYER_PACKET*>(ptr);
+		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		if (iter == gGameFramework.Players.end()) break;
+		(*iter)->SetLookVector(packet->Look);
+		(*iter)->SetRightVector(packet->Right);
+		(*iter)->SetUpVector(Vector3::CrossProduct((*iter)->GetLookVector(), (*iter)->GetRightVector(), true));
 		break;
 	}
 	case CS_ATTACK: {
@@ -463,7 +470,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(i, false);
 		}
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		(*iter)->onAct = false;
 		break;
 	}
 	case SC_SUMMON_MONSTER: {
@@ -475,7 +481,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_MOVE_MONSTER: {//0322
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
-		auto targetP = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->Chasing_PlayerID == Pl->c_id; });
 		if (packet->is_alive == false) {
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환

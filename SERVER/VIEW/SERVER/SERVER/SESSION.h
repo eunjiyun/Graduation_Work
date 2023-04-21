@@ -124,7 +124,6 @@ public:
 	short error_stack;
 	short character_num;
 	high_resolution_clock::time_point recent_recvedTime;
-	XMFLOAT3 BulletPos, BulletLook;
 public:
 	SESSION()
 	{
@@ -135,14 +134,12 @@ public:
 		m_xmf3Look = { 0.f,0.f,1.f };
 		m_xmf3Up = { 0.f,1.f,0.f };
 		m_xmf3Right = { 1.f,0.f,0.f };
-		BulletPos = { 5000,5000,5000 };
-		BulletLook = { 0,0,0 };
 		direction = 0;
 		cur_stage = 0;
 		//_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 12, 8));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 4, 12));
 		error_stack = 0;
 		character_num = 0;
 		HP = 0;
@@ -153,8 +150,6 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		//m_xmf3Position = XMFLOAT3{ 500, 50, 500 };
-		//m_xmf3Position = XMFLOAT3{ 258, -300, 2154 };
 		m_xmf3Position = XMFLOAT3{ 148, -60,600};
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
@@ -165,10 +160,7 @@ public:
 		_socket = Socket;
 		cur_stage = 0;
 		error_stack = 0;
-		BulletPos = { 5000,5000,5000 };
-		BulletLook = { 0,0,0 };
 		recent_recvedTime = high_resolution_clock::now();
-		//_state = ST_FREE;
 		character_num = 0;
 		HP = 500;
 	}
@@ -205,16 +197,23 @@ public:
 		p.size = sizeof(SC_MOVE_PLAYER_PACKET);
 		p.type = SC_MOVE_PLAYER;
 
-		p.Look = Player->GetLookVector();
-		p.Right = Player->GetRightVector();
 		p.Pos = Player->GetPosition();
 		p.direction = Player->direction.load();
 		p.HP = Player->HP;
-		p.BulletPos = Player->BulletPos;
 		p.vel = Player->GetVelocity();
 		do_send(&p);
 	}
 
+	void send_rotate_packet(SESSION* Player)
+	{
+		SC_ROTATE_PLAYER_PACKET p;
+		p.id = Player->_id;
+		p.size = sizeof(SC_ROTATE_PLAYER_PACKET);
+		p.type = SC_ROTATE_PLAYER;
+		p.Look = Player->GetLookVector();
+		p.Right = Player->GetRightVector();
+		do_send(&p);
+	}
 	void send_attack_packet(SESSION* Player)
 	{
 		CS_ATTACK_PACKET p;

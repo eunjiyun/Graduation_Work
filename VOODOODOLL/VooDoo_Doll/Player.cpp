@@ -313,6 +313,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 		AnimationControllers[i] = new CAnimationController(pd3dDevice, pd3dCommandList, 6, pAngrybotModels[i]);
 	}
 
+	AnimationControllers[0]->m_pAnimationTracks[2].SetSpeed(2.0f);
 	if (1 == choosePl)
 	{
 		SetChild(pAngrybotModels[0]->m_pModelRootObject, true);
@@ -373,7 +374,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	//m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 4, 10));
 
-	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 4, 8), XMFLOAT4(0, 0, 0, 1));
+	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 4, 12), XMFLOAT4(0, 0, 0, 1));
 	
 
 
@@ -397,7 +398,7 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		SetMaxVelocityY(100.f);
 		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.0f);
-		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 0.0f));
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 5.0f));
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);

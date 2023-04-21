@@ -108,7 +108,7 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	p.HP = M->HP;
 	p.is_alive = M->is_alive();
 	p.animation_track = M->cur_animation_track; // 원래 p.animation_track = (short)M->GetState();가 맞는데 2번 귀신이 애니메이션이 빠져 있어서 이렇게 함
-	p.Chasing_PlayerID = M->target_id;
+	//p.Chasing_PlayerID = M->target_id;
 	p.BulletPos = M->MagicPos;
 	p.room_num = M->room_num;
 	do_send(&p);
@@ -155,7 +155,6 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	}
 	catch (const exception& e) {
 		cout << "checkPosition catched error -" << e.what() << endl;
-		error_stack++;
 		disconnect(_id);
 		return;
 	}
@@ -197,38 +196,38 @@ void SESSION::Update()
 	//	return;
 	//}
 
-	if (Vector3::Length(BulletLook) > 0) {
-		float ElapsedTime = duration_cast<milliseconds>(high_resolution_clock::now() - recent_recvedTime).count() / 1000.f;
+	//if (Vector3::Length(BulletLook) > 0) {
+	//	float ElapsedTime = duration_cast<milliseconds>(high_resolution_clock::now() - recent_recvedTime).count() / 1000.f;
 
 
-		BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, ElapsedTime * 100, false));
+	//	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, ElapsedTime * 100, false));
 
-		for (const auto& obj : Objects[static_cast<int>(BulletPos.z) / AREA_SIZE]) {
-			if (obj->m_xmOOBB.Contains(XMLoadFloat3(&BulletPos))) {
-				BulletPos.y += 5000;
-				BulletLook = XMFLOAT3(0, 0, 0);
-				return;
-			}
-		}
-		auto& Monsters = getMonsters(_id);
-		shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
-		for (auto& monster : Monsters) {
-			lock_guard<mutex> mm{ monster->m_lock };
-			if (monster->HP > 0 && BoundingBox(BulletPos, BULLET_SIZE).Intersects(monster->BB))
-			{
-				monster->HP -= 200;
-				monster->target_id = _id;
-				if (monster->HP <= 0)
-					monster->SetState(NPC_State::Dead);
+	//	for (const auto& obj : Objects[static_cast<int>(BulletPos.z) / AREA_SIZE]) {
+	//		if (obj->m_xmOOBB.Contains(XMLoadFloat3(&BulletPos))) {
+	//			BulletPos.y += 5000;
+	//			BulletLook = XMFLOAT3(0, 0, 0);
+	//			return;
+	//		}
+	//	}
+	//	auto& Monsters = getMonsters(_id);
+	//	shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+	//	for (auto& monster : Monsters) {
+	//		lock_guard<mutex> mm{ monster->m_lock };
+	//		if (monster->HP > 0 && BoundingBox(BulletPos, BULLET_SIZE).Intersects(monster->BB))
+	//		{
+	//			monster->HP -= 200;
+	//			monster->target_id = _id;
+	//			if (monster->HP <= 0)
+	//				monster->SetState(NPC_State::Dead);
 
-				BulletPos.y += 5000;
-				BulletLook = XMFLOAT3(0, 0, 0);
-				break;
-			}
-		}
+	//			BulletPos.y += 5000;
+	//			BulletLook = XMFLOAT3(0, 0, 0);
+	//			break;
+	//		}
+	//	}
 
-		recent_recvedTime = high_resolution_clock::now();
-	}
+	//	recent_recvedTime = high_resolution_clock::now();
+	//}
 }
 
 

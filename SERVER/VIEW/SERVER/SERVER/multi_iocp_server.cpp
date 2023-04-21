@@ -32,10 +32,10 @@ int main()
 	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
 
 	for (int i = 0; i < m_nObjects; i++) {
-		if (0 == strncmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh", 16) ||
-			0 == strncmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh", 26) ||
-			0 == strncmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh", 22) ||
-			0 == strncmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh", 18)) continue;
+		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh") ||
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh")) continue;
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 
@@ -243,12 +243,18 @@ void process_packet(const int c_id, char* packet)
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		CL.direction.store(p->direction);
-		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		CL.SetVelocity(p->vel);
-		CL.Update();
 		CL.CheckPosition(p->pos);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
+		}
+		break;
+	}
+	case CS_ROTATE: {
+		CS_ROTATE_PACKET* p = reinterpret_cast<CS_ROTATE_PACKET*>(packet);
+		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_rotate_packet(&CL);
 		}
 		break;
 	}
@@ -260,7 +266,11 @@ void process_packet(const int c_id, char* packet)
 		XMFLOAT3 _Look = CL.GetLookVector();
 		CL.SetVelocity(XMFLOAT3(0, 0, 0));
 		CL._s_lock.unlock();
-		
+
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
+		}
+
 		switch (CL.character_num)
 		{
 		case 0:
@@ -281,9 +291,28 @@ void process_packet(const int c_id, char* packet)
 		}
 		case 1:
 		{
-			CL.BulletLook = _Look;
-			CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
-			CL.recent_recvedTime = high_resolution_clock::now();
+			BoundingBox Bullet(p->pos, BULLET_SIZE);
+			XMFLOAT3 BulletLook = CL.GetLookVector(); // attack 패킷에 look을 더해 조정하자
+			bool collided = false;
+			while (1)
+			{
+				Bullet.Center = Vector3::Add(Bullet.Center, Vector3::ScalarProduct(BulletLook, 10, false));
+				for (auto& obj : Objects[static_cast<int>(Bullet.Center.z) / AREA_SIZE])
+					if (obj->m_xmOOBB.Intersects(Bullet)) return;
+				for (auto& monster : Monsters) {
+					lock_guard<mutex> mm{ monster->m_lock };
+					if (monster->HP > 0 && monster->BB.Intersects(Bullet))
+					{
+						monster->HP -= 200;
+						if (monster->HP <= 0)
+							monster->SetState(NPC_State::Dead);
+						return;
+					}
+				}
+			}
+			//CL.BulletLook = _Look;
+			//CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
+			//CL.recent_recvedTime = high_resolution_clock::now();
 			break;
 		}
 		case 2:
@@ -302,9 +331,6 @@ void process_packet(const int c_id, char* packet)
 			}
 			break;
 		}
-		}
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
 		break;
 	}
@@ -377,6 +403,7 @@ void worker_thread(HANDLE h_iocp)
 			SESSION& CL = getClient((int)key);
 			int remain_data = num_bytes + CL._prev_remain;
 			char* p = ex_over->_send_buf;
+			//if (CL._state.load() == ST_DEAD) CL._prev_remain = 0; break;
 			while (remain_data > 0) {
 				int packet_size = p[0];
 				if (packet_size <= remain_data) {

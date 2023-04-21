@@ -566,7 +566,6 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos, XMFLOAT3 Look, XM
 			player->SetLookVector(Look);
 			player->SetUpVector(Up);
 			player->SetRightVector(Right);
-			player->curTime = high_resolution_clock::now();
 			cout << player->c_id << endl;
 			break;
 		}
