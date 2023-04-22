@@ -9,7 +9,7 @@
 #include "Monster.h"
 
 
-#define MAX_LIGHTS						16 
+#define MAX_LIGHTS						32//5+26
 #define POINT_LIGHT						1
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
@@ -21,6 +21,8 @@ struct SHADOWMATERIAL
 	XMFLOAT4				m_xmf4Specular; //(r,g,b,a=power)
 	XMFLOAT4				m_xmf4Emissive;
 };
+
+
 
 
 
@@ -87,10 +89,10 @@ public:
 	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 
+
 	void ReleaseUploadBuffers();
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 
-	void UpdateBoundingBox();
 	void CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& Pl);
 	void CheckMoveObjectsCollisions(float TimeElapsed, CPlayer*& pl, vector<CMonster*>& monsters, vector<CPlayer*>& players);
 	void CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm);
@@ -137,44 +139,45 @@ public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorNextHandle() { return(m_d3dSrvCPUDescriptorNextHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
-	float								m_fElapsedTime = 0.0f;
+	float							m_fElapsedTime = 0.0f;
 
-	CGameObject* monsterLight = NULL;
+	CGameObject*			monsterLight = NULL;
 
 
-	XMFLOAT3							m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3					m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	LIGHT* m_pLights = NULL;
-	LIGHTS* m_pShadowLights = NULL;
+	LIGHT*						m_pLights = NULL;
+	LIGHTS*						m_pShadowLights = NULL;
 
-	int									m_nLights = 0;
-	MATERIALS* m_pMaterials = NULL;
-	ID3D12Resource* m_pd3dcbMaterials = NULL;
-	MATERIAL* m_pcbMappedMaterials = NULL;
+	int								m_nLights = 0;
+	MATERIALS*				m_pMaterials = NULL;
+	ID3D12Resource*		m_pd3dcbMaterials = NULL;
+	MATERIAL*				m_pcbMappedMaterials = NULL;
 
-	CShader** m_ppShaders = NULL;
+	CShader**					m_ppShaders = NULL;
 	int								m_nShaders = 0;
 
-	ID3D12PipelineState* m_pd3dPipelineState = NULL;
-	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle;
+	ID3D12PipelineState*								m_pd3dPipelineState = NULL;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
-	XMFLOAT4							m_xmf4GlobalAmbient;
+	XMFLOAT4					m_xmf4GlobalAmbient;
 
-	ID3D12Resource* m_pd3dcbLights = NULL;
-	LIGHTS* m_pcbMappedLights = NULL;
+	ID3D12Resource*		m_pd3dcbLights = NULL;
+	LIGHTS*						m_pcbMappedLights = NULL;
 
 public:
 	vector<XMFLOAT3> mpObjVec;
-	XMFLOAT3 tmp;
-	float						mpTime = 0.f;
-	bool wakeUp = false;
-	XMFLOAT4X4					m_xmf4x4World = Matrix4x4::Identity();
+	float							mpTime = 0.f;
+	bool							wakeUp = false;
+	XMFLOAT4X4				m_xmf4x4World = Matrix4x4::Identity();
 
 	int whatPlayer = 1;
 
-	CBoxShader* pBoxShader = NULL;
-	CShadowMapShader* m_pShadowShader = NULL;
-	CDepthRenderShader* m_pDepthRenderShader = NULL;
+	CBoxShader*							pBoxShader = NULL;
+	CShadowMapShader*			m_pShadowShader = NULL;
+	CDepthRenderShader*		m_pDepthRenderShader = NULL;
 
-	
+	bool										bPass = false;
+	vector<int>							DeleteObject;
+	int											iGetItem = 0;
 };

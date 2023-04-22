@@ -685,7 +685,6 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 	}
 }
 
-
 CAnimationController::~CAnimationController()
 {
 	if (m_pAnimationTracks) delete[] m_pAnimationTracks;

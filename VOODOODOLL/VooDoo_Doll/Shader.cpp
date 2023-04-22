@@ -625,10 +625,11 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	m_ppObjects = ::LoadGameObjectsFromFile(pd3dDevice, pd3dCommandList, pstrFileName, &m_nObjects);
 
-	mpObjVec.resize(1000);
+	mpObjVec.resize(0);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
+	int l = 0;
 
 	if (0 == strcmp("Models/Scene.bin", pstrFileName))
 	{
@@ -653,33 +654,18 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 
 
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp1")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2")
-
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp2")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp2-1")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp2-2")
-
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1-1")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1-2")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "StandingLamp1-3")
-
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp3")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp4")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp5")
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp6")
-
-				|| 0 == strcmp(m_ppObjects[i]->m_pstrName, "CubeLamp2_(1)"))
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1")||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2")||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle3"))
 			{
-				tmp = m_ppObjects[i]->GetPosition();
-				mpObjVec.push_back(tmp);
+				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();
+				mpObjVec.push_back(xmf3tmp);
+	/*			cout << l<<"¹øÂ°	: "<<xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;*/
+				++l;
 			}
-
 			//cout << "objName " << i << " : " << m_ppObjects[i]->m_pstrName <<"   "<< m_ppObjects[i]->shadowID<<endl;
 		}
 	}
-
 	cout << "mnobj : " << m_nObjects << endl;
 
 	return mpObjVec;

@@ -57,56 +57,18 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
 
-	//m_pLights[0].m_bEnable = true;
-	//m_pLights[0].m_nType = POINT_LIGHT;
-	//m_pLights[0].m_fRange = 300.0f;
-	//m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-	//m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.3f, 0.8f, 1.0f);
-	//m_pLights[0].m_xmf4Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
-	//m_pLights[0].m_xmf3Position = XMFLOAT3(230.0f, 330.0f, 480.0f);
-	//m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
-	////m_pLights[0].m_xmf3Direction = XMFLOAT3(+1.0f, -1.0f, 0.0f);
-	//m_pLights[1].m_bEnable = true;
-	//m_pLights[1].m_nType = SPOT_LIGHT;
-	//m_pLights[1].m_fRange = 500.0f;
-	//m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
-	//m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
-	//m_pLights[1].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-	//m_pLights[1].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
-	//m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
-	//m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	//m_pLights[1].m_fFalloff = 8.0f;
-	//m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
-	//m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-	//m_pLights[2].m_bEnable = true;
-	//m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	//m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	//m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
-	//m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
-	//m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
-	//m_pLights[3].m_bEnable = true;
-	//m_pLights[3].m_nType = SPOT_LIGHT;
-	//m_pLights[3].m_fRange = 600.0f;
-	//m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	//m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.7f, 0.0f, 1.0f);
-	//m_pLights[3].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-	//m_pLights[3].m_xmf3Position = XMFLOAT3(550.0f, 330.0f, 530.0f);
-	//m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
-	//m_pLights[3].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	//m_pLights[3].m_fFalloff = 8.0f;
-	//m_pLights[3].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
-	//m_pLights[3].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
-
-
 	m_pLights[0].m_bEnable = true;
 	m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
 	m_pLights[0].m_fRange = 4307.0f;
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.73f, 0.73f, 0.73f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
+	/*m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
+	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.0f);*/
 	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,-100.0f, 2300);//-100 150
+	/*m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);*/
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
-	//m_pLights[0].m_xmf3Direction = XMFLOAT3(1.0f, -1.0f, 1.0f);
 
 	m_pLights[1].m_bEnable = false;//true
 	m_pLights[1].m_nType = SPOT_LIGHT;
@@ -140,7 +102,6 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[3].m_fRange = 1000.0f;
 	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.83f, 0.83f, 0.83f, 1.0f);
-
 	m_pLights[3].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
 	m_pLights[3].m_xmf3Position = XMFLOAT3(0.0f, 128.0f, 0.0f);
 	m_pLights[3].m_xmf3Direction = XMFLOAT3(+1.0f, -1.0f, 0.0f);
@@ -149,14 +110,6 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 
 	{
-		/*m_pLights[4].m_bEnable = true;
-		m_pLights[4].m_nType = POINT_LIGHT;
-		m_pLights[4].m_fRange = 200.0f;
-		m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.3f, 0.3f, 1.0f);
-		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
-		m_pLights[4].m_xmf3Position = XMFLOAT3(600.0f, 250.0f, 700.0f);
-		m_pLights[4].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);*/
 
 		m_pLights[4].m_bEnable = true;
 		m_pLights[4].m_nType = SPOT_LIGHT;
@@ -164,8 +117,6 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[4].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 		m_pLights[4].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
 		m_pLights[4].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-		
-
 		m_pLights[4].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
 		m_pLights[4].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 1.0f);
 		m_pLights[4].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
@@ -173,26 +124,39 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[4].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 		m_pLights[4].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-		for (int i = 5; i < MAX_LIGHTS; ++i)
-		{
-			m_pLights[i].m_bEnable = false;
-			//m_pLights->m_pLights[i].m_bEnable =wakeUp;//
-			//m_pLights->m_pLights[5].m_nType = SPOT_LIGHT;
-			m_pLights[i].m_nType = POINT_LIGHT;
-			m_pLights[i].m_fRange = 120.0f;
+		m_pLights[5].m_bEnable = true;
+		m_pLights[5].m_nType = POINT_LIGHT;
+		m_pLights[5].m_fRange = 1000.0f;
+		m_pLights[5].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		m_pLights[5].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 7.0f);
+		m_pLights[5].m_xmf4Specular = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.0f);
+		m_pLights[5].m_xmf3Position = XMFLOAT3(561.939f, 18.61f, 620.49f);
+		//m_pLights[5].m_xmf3Position = XMFLOAT3(mpObjVec[0].x, mpObjVec[0].y, mpObjVec[0].z);
+		m_pLights[5].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, -1.0f);
+		m_pLights[5].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+		m_pLights[5].m_fFalloff = 100.0f;
+		m_pLights[5].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
+		m_pLights[5].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-			m_pLights[i].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 5.0f);
-			m_pLights[i].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 7.0f);
+		for (int i = 6; i < MAX_LIGHTS; ++i)
+		{
+			m_pLights[i].m_bEnable = true;
+			m_pLights[i].m_nType = POINT_LIGHT;
+			m_pLights[i].m_fRange = 1000.0f;
+
+			m_pLights[i].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			m_pLights[i].m_xmf4Diffuse = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f);
 			m_pLights[i].m_xmf4Specular = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.0f);
-			//m_pLights->m_pLights[5].m_xmf3Position = XMFLOAT3(0.0f, 0.0f, -5.0f);
-			m_pLights[i].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
+			/*m_pLights[i].m_xmf3Position = XMFLOAT3(584.9f, 174.8763f, 430.7f);*/
+			m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i-6].x, mpObjVec[i - 6].y, mpObjVec[i - 6].z);
+			m_pLights[i].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, -1.0f);
 			m_pLights[i].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-			m_pLights[i].m_fFalloff = 8.0f;
+			m_pLights[i].m_fFalloff = 100.0f;
 			m_pLights[i].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 			m_pLights[i].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-			//m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i - 5].x, mpObjVec[i - 5].y + 5, mpObjVec[i - 5].z);
-			//m_pLights->m_pLights[5].m_xmf3Position = pos;
+			/*m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i - 5].x, mpObjVec[i - 5].y + 5, mpObjVec[i - 5].z);
+			*///m_pLights->m_pLights[5].m_xmf3Position = pos;
 		}
 	}
 }
@@ -208,8 +172,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
 
-	m_pLights = new LIGHT[MAX_LIGHTS];
-	BuildDefaultLightsAndMaterials();//조명
+
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
@@ -220,13 +183,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_nShaders = 1;
 	m_ppShaders = new CShader * [m_nShaders];
 	CObjectsShader* pObjectShader = new CObjectsShader();
-	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);//
+	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, "Models/Scene.bin", pBoxShader);
+	//Find_LightPosition();
 	m_ppShaders[0] = pObjectShader;
+
+	m_pLights = new LIGHT[MAX_LIGHTS];
+	BuildDefaultLightsAndMaterials();//조명
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[30];
+	CTexture* ppTextures[31];
+
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -311,8 +279,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 28; ++a)
+	//ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	//ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/booktexture1.dds", RESOURCE_TEXTURE2D, 0);
+
+	//ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	//ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/booktexture2.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Door_main_mat_inst_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+
+	for (int a = 0; a < 29; ++a)
 	{
+		cout << a << endl;
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 
@@ -472,6 +450,32 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				pMaterial->SetTexture(ppTextures[27]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
+
+			if (0 == strcmp("BookS4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
+				0 == strcmp("BookS10", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("BookS5", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
+				0 == strcmp("BookS7", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[22]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
+			if (0 == strcmp("BookS1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) || 
+				0 == strcmp("BookS2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("BookS3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("BookS11", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("BookS9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[22]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
+			if (0 == strcmp("Door_01_main_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) )
+			{
+				pMaterial->SetTexture(ppTextures[28]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
 			++iMaterialCheck;
 		}
 		iMaterialCheck = 0;
@@ -867,13 +871,14 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		m_pLights[4].m_xmf3Position.y = m_pPlayer->GetPosition().y + 10;
 		m_pLights[4].m_xmf3Direction = m_pPlayer->GetLookVector();
 
-		/*m_fLightRotationAngle += fTimeElapsed * 0.25f;
-		XMMATRIX xmmtxRotation = XMMatrixRotationY(fTimeElapsed * 0.25f);
-		XMStoreFloat3(&m_pLights[1].m_xmf3Direction, XMVector3TransformNormal(XMLoadFloat3(&m_pLights[1].m_xmf3Direction), xmmtxRotation));*/
+
 		m_pLights[1].m_bEnable = false;
 
 		for (int i = 5; i < MAX_LIGHTS; ++i)
-			m_pLights[i].m_bEnable = wakeUp;
+		{
+			m_pLights[i].m_bEnable = true;
+		}
+			
 	}
 
 	static float fAngle = 0.0f;
@@ -939,10 +944,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//��
 }
 
-void CStage::UpdateBoundingBox()
-{
 
-}
 
 void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 {
@@ -960,8 +962,24 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 		}
 
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_main_mesh") )
+		{
+			continue;
+		}
+
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
+		{
+			if (pl->obBox.Intersects(oBox))
+			{
+				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
+				++iGetItem;
+				bPass = true;
+			}
+		}
+
 		if (pl->obBox.Intersects(oBox))
 		{
+
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;
@@ -1100,6 +1118,8 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			{
 				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
 					0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+
+
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 				if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
 				{

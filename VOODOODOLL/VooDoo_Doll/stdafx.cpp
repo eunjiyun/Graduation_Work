@@ -306,6 +306,7 @@ ID3D12Resource* CreateTextureResourceFromWICFile(ID3D12Device* pd3dDevice, ID3D1
 CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects)//0220
 {
 	FILE* pFile = NULL;
+
 	::fopen_s(&pFile, pstrFileName, "rb");
 	::rewind(pFile);
 
@@ -321,6 +322,8 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	BYTE nStrLength = 0, nObjectNameLength = 0;
 	UINT nReads = 0, nMaterials = 0;
 	size_t nConverted = 0;
+
+	int		iObjectID = 0;
 	int		nTextureNumber = 0;
 
 	nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pFile);
@@ -436,7 +439,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		strcpy_s(pstrFilePath, 64, "Models/");
 		strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 		strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
-
+		pGameObject->m_iObjID = iObjectID;
 		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 
 
@@ -454,6 +457,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		//
 		
 		ppGameObjects[i] = pGameObject;
+		++iObjectID;
 	}
 
 

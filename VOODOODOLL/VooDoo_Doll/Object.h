@@ -379,6 +379,8 @@ public:
 	int								m_nMaterials = 0;//
 	CMaterial** m_ppMaterials = NULL;//
 
+	int										m_iObjID = 0; 
+
 	XMFLOAT4X4						m_xmf4x4ToParent;//
 	XMFLOAT4X4						m_xmf4x4World;//
 
