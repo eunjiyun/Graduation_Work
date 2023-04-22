@@ -26,6 +26,15 @@
 #include <DirectXMath.h>
 #include< cstdlib >
 
+//sound
+#include <Windows.h>
+#include <mmsystem.h>
+#include <dsound.h>
+
+#pragma comment(lib, "dsound.lib")
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "winmm.lib")
+
 
 //consol
 #ifdef UNICODE

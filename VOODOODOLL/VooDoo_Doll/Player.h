@@ -40,6 +40,7 @@ public:
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
 	CAnimationController* AnimationControllers[3];
+	HWND						m_hWnd;
 public:
 	CPlayer();
 	virtual ~CPlayer();
@@ -110,20 +111,12 @@ public:
 
 };
 
-class CSoundCallbackHandler : public CAnimationCallbackHandler
-{
-public:
-	CSoundCallbackHandler() { }
-	~CSoundCallbackHandler() { }
 
-public:
-	virtual void HandleCallback(void* pCallbackData, float fTrackPosition);
-};
 
 class CTerrainPlayer : public CPlayer
 {
 public:
-	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl);
+	CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl, HWND						m_hWnd);
 	virtual ~CTerrainPlayer();
 
 public:
@@ -138,5 +131,179 @@ public:
 	virtual void playerRun();
 	virtual void playerDie();
 	virtual void playerCollect();
+};
+
+class SoundPlayer {
+public:
+	SoundPlayer() : m_pDSound(NULL), m_pPrimaryBuffer(NULL), m_pSecondaryBuffer(NULL) {}
+
+	~SoundPlayer() {
+		Cleanup();
+	}
+
+	bool Initialize(HWND hWnd) {
+		HRESULT result;
+
+		// DirectSound 객체를 생성합니다.
+		result = DirectSoundCreate8(NULL, &m_pDSound, NULL);
+		if (FAILED(result)) {
+			return false;
+		}
+
+
+		result = m_pDSound->SetCooperativeLevel(hWnd, DSSCL_NORMAL);
+		if (FAILED(result)) {
+			return false;
+		}
+
+		// 프라이머리 버퍼를 생성합니다.
+		DSBUFFERDESC primaryDesc;
+		ZeroMemory(&primaryDesc, sizeof(primaryDesc));
+		primaryDesc.dwSize = sizeof(primaryDesc);
+		primaryDesc.dwFlags = DSBCAPS_PRIMARYBUFFER;
+
+		result = m_pDSound->CreateSoundBuffer(&primaryDesc, &m_pPrimaryBuffer, NULL);
+		if (FAILED(result)) {
+			return false;
+		}
+
+		// WAV 파일을 로드합니다.
+		result = LoadWaveFile("Sound/opening.wav");
+		if (FAILED(result)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	void Cleanup() {
+		if (m_pSecondaryBuffer) {
+			m_pSecondaryBuffer->Stop();
+			m_pSecondaryBuffer->Release();
+			m_pSecondaryBuffer = NULL;
+		}
+
+		if (m_pPrimaryBuffer) {
+			m_pPrimaryBuffer->Release();
+			m_pPrimaryBuffer = NULL;
+		}
+
+		if (m_pDSound) {
+			m_pDSound->Release();
+			m_pDSound = NULL;
+		}
+	}
+
+	bool LoadWaveFile(const char* fileName) {
+		HRESULT result;
+
+		// WAV 파일을 읽기 위해 MMIO API를 사용합니다.
+		HMMIO hFile = mmioOpenA((LPSTR)fileName, NULL, MMIO_ALLOCBUF | MMIO_READ);
+		if (!hFile) {
+			return false;
+		}
+
+		MMCKINFO ckRIFF, ckChild;
+		memset(&ckRIFF, 0, sizeof(MMCKINFO));
+		memset(&ckChild, 0, sizeof(MMCKINFO));
+
+		// RIFF chunk를 찾습니다.
+		ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+		result = mmioDescend(hFile, &ckRIFF, NULL, MMIO_FINDRIFF);
+		if (FAILED(result)) {
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// fmt chunk를 찾습니다.
+		ckChild.fccType = mmioFOURCC('f', 'm', 't', ' ');
+		result = mmioDescend(hFile, &ckChild, &ckRIFF, MMIO_FINDCHUNK);
+		if (FAILED(result)) {
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// fmt chunk를 읽어
+		WAVEFORMATEX waveFormat;
+		result = mmioRead(hFile, (HPSTR)&waveFormat, sizeof(waveFormat));
+		if (FAILED(result)) {
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// 데이터 청크를 찾습니다.
+		ckChild.fccType = mmioFOURCC('d', 'a', 't', 'a');
+		result = mmioDescend(hFile, &ckChild, &ckRIFF, MMIO_FINDCHUNK);
+		if (FAILED(result)) {
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// WAV 파일 데이터를 메모리로 로드합니다.
+		BYTE* waveData = new BYTE[ckChild.cksize];
+		result = mmioRead(hFile, (HPSTR)waveData, ckChild.cksize);
+		if (FAILED(result)) {
+			delete[] waveData;
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// WAV 파일을 재생하기 위해 DirectSound 버퍼를 생성합니다.
+		DSBUFFERDESC secondaryDesc;
+		ZeroMemory(&secondaryDesc, sizeof(secondaryDesc));
+		secondaryDesc.dwSize = sizeof(secondaryDesc);
+		secondaryDesc.dwFlags = DSBCAPS_CTRLVOLUME;
+		secondaryDesc.dwBufferBytes = ckChild.cksize;
+		secondaryDesc.lpwfxFormat = &waveFormat;
+
+		//// DirectSound 객체 생성
+		//if (FAILED(DirectSoundCreate8(NULL, &m_pDSound, NULL))) {
+		//	// DirectSound 초기화 실패 처리
+		//}
+
+		result = m_pDSound->CreateSoundBuffer(&secondaryDesc, &m_pSecondaryBuffer, NULL);
+		if (FAILED(result)) {
+			delete[] waveData;
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// DirectSound 버퍼의 메모리를 잠급니다.
+		BYTE* bufferPtr;
+		DWORD bufferSize;
+		result = m_pSecondaryBuffer->Lock(0, ckChild.cksize, (LPVOID*)&bufferPtr, &bufferSize, NULL, NULL, 0);
+		if (FAILED(result)) {
+			delete[] waveData;
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// WAV 파일 데이터를 DirectSound 버퍼로 복사합니다.
+		memcpy(bufferPtr, waveData, ckChild.cksize);
+
+		// DirectSound 버퍼의 메모리를 해제합니다.
+		result = m_pSecondaryBuffer->Unlock(bufferPtr, bufferSize, NULL, 0);
+		if (FAILED(result)) {
+			delete[] waveData;
+			mmioClose(hFile, 0);
+			return false;
+		}
+
+		// WAV 파일 데이터 메모리를 해제합니다.
+		delete[] waveData;
+		mmioClose(hFile, 0);
+
+		return true;
+	}
+
+	void Play() {
+		m_pSecondaryBuffer->SetCurrentPosition(0);
+		m_pSecondaryBuffer->Play(0, 0, 0);
+	}
+
+	private:
+		IDirectSound8* m_pDSound;
+		IDirectSoundBuffer* m_pPrimaryBuffer;
+		IDirectSoundBuffer* m_pSecondaryBuffer;
 };
 

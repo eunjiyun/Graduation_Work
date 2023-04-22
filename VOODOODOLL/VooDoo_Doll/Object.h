@@ -592,4 +592,13 @@ public:
 };
 //
 
+class CSoundCallbackHandler : public CAnimationCallbackHandler
+{
+public:
+	CSoundCallbackHandler() { }
+	~CSoundCallbackHandler() { }
+
+public:
+	virtual void HandleCallback(void* pCallbackData, float fTrackPosition);
+};
 

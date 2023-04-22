@@ -301,13 +301,14 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albed");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두3 귀신
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
 				break;
+			
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//부두4 펜싱칼든애
 				break;
 			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두3 귀신
 				break;
 			case 6:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albed");//부두6 머리에바늘있는비실한애
@@ -325,13 +326,15 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두3 귀신
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
 				break;
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//부두4 펜싱칼든애
 				break;
+		
+
 			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두3 귀신
 				break;
 			case 6:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Norma");//부두6 머리에바늘있는비실한애
@@ -349,13 +352,14 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metal");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두3 귀신
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
 				break;
+		
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//부두4 펜싱칼든애
 				break;
 			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두3 귀신
 				break;
 			case 6:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metal");//부두6 머리에바늘있는비실한애
@@ -373,13 +377,14 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
 				break;
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두4 펜싱칼든애
 				break;
+			
 			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
 				break;
 			case 6:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두6 머리에바늘있는비실한애 emission x

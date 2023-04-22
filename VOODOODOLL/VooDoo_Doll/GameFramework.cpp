@@ -493,7 +493,7 @@ void CGameFramework::BuildObjects()
 
 
 #ifdef _WITH_TERRAIN_PLAYER
-	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
+	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_hWnd);
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
@@ -502,11 +502,13 @@ void CGameFramework::BuildObjects()
 
 	m_pStage->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
+	m_pPlayer->m_hWnd = m_hWnd;
 	
 	Players.push_back(m_pPlayer);
 
 	for (int i = 0; i < 3; i++) {
-		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
+		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_hWnd);
+		pAirplanePlayer->m_hWnd = m_hWnd;
 		Players.push_back(pAirplanePlayer);
 	}
 	CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
