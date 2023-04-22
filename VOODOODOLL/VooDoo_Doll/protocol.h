@@ -99,6 +99,7 @@ struct SC_ADD_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short cur_weaponType;
 	XMFLOAT3 Pos, Look, Right, Up;
 	//char	name[NAME_SIZE];
 };

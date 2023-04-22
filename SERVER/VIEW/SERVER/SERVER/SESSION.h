@@ -150,7 +150,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ 148, -60,600};
+		m_xmf3Position = XMFLOAT3{ 148, -60,1400};
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -247,9 +247,9 @@ public:
 		SC_ADD_PLAYER_PACKET add_packet;
 		add_packet.id = Player->_id;
 
-		//strcpy_s(add_packet.name, Player->_name);
 		add_packet.size = sizeof(add_packet);
 		add_packet.type = SC_ADD_PLAYER;
+		add_packet.cur_weaponType = Player->character_num;
 		add_packet.Look = Player->m_xmf3Look;
 		add_packet.Right = Player->m_xmf3Right;
 		add_packet.Up = Player->m_xmf3Up;

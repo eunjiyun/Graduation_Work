@@ -361,7 +361,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 {
-
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
 	if (pl->onFloor == false) {
@@ -371,12 +370,10 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 
 	pl->onRun = p->direction & DIR_RUN;
 
-	if (pl->onRun) {
+	if (Vector3::Length(p->vel) > 100.f) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-		return;
 	}
-
-	if (p->vel.z != 0) {
+	else if (Vector3::Length(p->vel) > 0.f) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	}
 	else
@@ -400,7 +397,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		cout << "client[" << packet->id << "] Accessed\n";
-		gGameFramework.CreateOtherPlayer(packet->id, packet->Pos, packet->Look, packet->Up, packet->Right);
+		gGameFramework.CreateOtherPlayer(packet->id, packet->cur_weaponType, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
 	}
 	case SC_REMOVE_PLAYER: {

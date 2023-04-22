@@ -139,6 +139,8 @@ void ProcessPacket(int ci, unsigned char packet[])
 		//	cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
 		if (move_packet->id < MAX_CLIENTS) {
 			int my_id = client_map[move_packet->id];
+			if (move_packet->HP <= 0)
+				g_clients[my_id].connected = false;
 			if (-1 != my_id) {
 				g_clients[my_id].pos = move_packet->Pos;
 			}
@@ -295,7 +297,7 @@ void Worker_Thread()
 }
 
 constexpr int DELAY_LIMIT = 200;
-constexpr int DELAY_LIMIT2 = 300;
+constexpr int DELAY_LIMIT2 = 250;
 constexpr int ACCEPT_DELY = 50;
 
 void Adjust_Number_Of_Client()
@@ -390,14 +392,14 @@ void Test_Thread()
 
 		for (int i = 0; i < num_connections; ++i) {
 			if (false == g_clients[i].connected) continue;
-			if (g_clients[i].last_move_time + 50ms > high_resolution_clock::now()) continue;
+			if (g_clients[i].last_move_time + 100ms > high_resolution_clock::now()) continue;
 			g_clients[i].last_move_time = high_resolution_clock::now();
 			CS_MOVE_PACKET my_packet;
 			my_packet.size = sizeof(my_packet);
 			my_packet.type = CS_MOVE;
 			my_packet.direction = rand() % 16;
-			short packet_type = rand() % 3;
-			if (packet_type == 0) {
+			short packet_type = rand() % 10;
+			if (packet_type < 8) {
 				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
 				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
 				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
@@ -407,7 +409,8 @@ void Test_Thread()
 				my_packet.id = i;
 				SendPacket(i, &my_packet);
 			}
-			else if (packet_type == 1) {
+			//else if (packet_type == 1) {
+			else {
 				CS_ATTACK_PACKET my_packet_2;
 				my_packet_2.size = sizeof(CS_ATTACK_PACKET);
 				my_packet_2.type = CS_ATTACK;
@@ -470,8 +473,8 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	int index_2 = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
-			point_cloud[index * 2] = -1.f + static_cast<float>(g_clients[i].pos.x - 100.f);
-			point_cloud[index * 2 + 1] = -1.f + static_cast<float>(g_clients[i].pos.z - 1300);
+			point_cloud[index * 2] = g_clients[i].pos.x - 100.f;
+			point_cloud[index * 2 + 1] = g_clients[i].pos.z - 1200.f;
 			index++;
 		}
 
@@ -479,8 +482,8 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 		if (g_monsters[i].connected == true)
 		{
-			point_cloud_2[index_2 * 2] = -1.f + static_cast<float>(g_monsters[i].pos.x - 100.f);
-			point_cloud_2[index_2 * 2 + 1] = -1.f + static_cast<float>(g_monsters[i].pos.z - 1300);
+			point_cloud_2[index_2 * 2] = g_monsters[i].pos.x - 100.f;
+			point_cloud_2[index_2 * 2 + 1] = g_monsters[i].pos.z - 1200.f;
 			index_2++;
 		}
 

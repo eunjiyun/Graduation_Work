@@ -13,22 +13,22 @@ constexpr int W_WIDTH = 400;
 constexpr int W_HEIGHT = 400;
 
 constexpr int VIEW_RANGE = 4;
-constexpr int STAGE_SIZE = 600;
-
 
 // Packet ID
 constexpr char CS_LOGIN = 0;
 constexpr char CS_MOVE = 1;
-constexpr char CS_ATTACK = 2;
-constexpr char CS_COLLECT = 3;
-constexpr char CS_CHANGEWEAPON = 4;
+constexpr char CS_ROTATE = 2;
+constexpr char CS_ATTACK = 3;
+constexpr char CS_COLLECT = 4;
+constexpr char CS_CHANGEWEAPON = 5;
 
-constexpr char SC_LOGIN_INFO = 5;
-constexpr char SC_ADD_PLAYER = 6;
-constexpr char SC_REMOVE_PLAYER = 7;
-constexpr char SC_MOVE_PLAYER = 8;
-constexpr char SC_SUMMON_MONSTER = 9;
-constexpr char SC_MOVE_MONSTER = 10;
+constexpr char SC_LOGIN_INFO = 6;
+constexpr char SC_ADD_PLAYER = 7;
+constexpr char SC_REMOVE_PLAYER = 8;
+constexpr char SC_MOVE_PLAYER = 9;
+constexpr char SC_ROTATE_PLAYER = 10;
+constexpr char SC_SUMMON_MONSTER = 11;
+constexpr char SC_MOVE_MONSTER = 12;
 #include "stdafx.h"
 
 
@@ -52,6 +52,16 @@ struct CS_MOVE_PACKET {
 	XMFLOAT3 vel;
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
+
+struct CS_ROTATE_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+	float cxDelta = 0.f;
+	float cyDelta = 0.f;
+	float czDelta = 0.f;
+};
+constexpr short CS_ROTATE_PACKET_SIZE = sizeof(CS_ROTATE_PACKET);
 
 struct CS_ATTACK_PACKET {
 	unsigned char size;
@@ -89,6 +99,7 @@ struct SC_ADD_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short cur_weaponType;
 	XMFLOAT3 Pos, Look, Right, Up;
 	//char	name[NAME_SIZE];
 };
@@ -106,12 +117,19 @@ struct SC_MOVE_PLAYER_PACKET {
 	char	type;
 	short	id;
 	float	HP;
-	XMFLOAT3 Look, Right, Pos;
+	XMFLOAT3  Pos;
 	DWORD direction;
-	XMFLOAT3 BulletPos;
 	XMFLOAT3 vel;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
+
+struct SC_ROTATE_PLAYER_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+	XMFLOAT3 Look, Right;
+};
+constexpr short SC_ROTATE_PLAYER_PACKET_SIZE = sizeof(SC_ROTATE_PLAYER_PACKET);
 
 
 struct SC_SUMMON_MONSTER_PACKET {
@@ -132,7 +150,6 @@ struct SC_MOVE_MONSTER_PACKET {
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;
-	short Chasing_PlayerID;
 	XMFLOAT3 BulletPos;
 	unsigned short animation_track; // 애니메이션 타입
 };

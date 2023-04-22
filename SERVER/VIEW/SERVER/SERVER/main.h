@@ -128,9 +128,10 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
-		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE};
+		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE };
 		timer_queue.push(ev);
 	}
+	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
 }
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
@@ -333,7 +334,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 		closelist.insert(S_Node->Pos);
 		openlist.erase(iter);
 	}
-	cout << "Trace Failed\n";
+	//cout << "Trace Failed\n";
 	SetState(NPC_State::Idle);
 	cur_animation_track = 0;
 	target_id = -1;
@@ -372,7 +373,7 @@ void Monster::Update(float fTimeElapsed)
 			{
 				player.HP -= GetPower();
 				MagicPos.x = 5000;
-				cout << "plHP : " << player.HP << endl;
+				//cout << "plHP : " << player.HP << endl;
 				if (player.HP <= 0)
 				{
 					//player.direction.store(DIR_DIE);
@@ -460,7 +461,7 @@ void Monster::Update(float fTimeElapsed)
 			else if (MELEEATTACK_RANGE > g_distance) {
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
-				cout << "plHP : " << targetPlayer->HP << endl;
+				//cout << "plHP : " << targetPlayer->HP << endl;
 				if (targetPlayer->HP <= 0) {
 
 					//player.direction.store(DIR_DIE);

@@ -22,6 +22,12 @@ void process_packet(const int c_id, char* packet);
 void worker_thread(HANDLE h_iocp);
 void do_Timer();
 
+// for stress test
+//random_device rd;
+//mt19937 gen(rd());
+//uniform_real_distribution<float> x_dis(130, 570);
+//uniform_real_distribution<float> z_dis(100, 4500);
+//
 
 int main()
 {
@@ -238,6 +244,8 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
+		for (auto& monster : getMonsters(c_id))
+			CL.send_summon_monster_packet(monster);
 		break;
 	}
 	case CS_MOVE: {
@@ -291,28 +299,35 @@ void process_packet(const int c_id, char* packet)
 		}
 		case 1:
 		{
-			BoundingBox Bullet(p->pos, BULLET_SIZE);
-			XMFLOAT3 BulletLook = CL.GetLookVector(); // attack 패킷에 look을 더해 조정하자
+			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
+			XMVECTOR Bullet_Direction = XMLoadFloat3(&CL.GetLookVector());
 			bool collided = false;
-			while (1)
-			{
-				Bullet.Center = Vector3::Add(Bullet.Center, Vector3::ScalarProduct(BulletLook, 10, false));
-				for (auto& obj : Objects[static_cast<int>(Bullet.Center.z) / AREA_SIZE])
-					if (obj->m_xmOOBB.Intersects(Bullet)) return;
-				for (auto& monster : Monsters) {
-					lock_guard<mutex> mm{ monster->m_lock };
-					if (monster->HP > 0 && monster->BB.Intersects(Bullet))
+			for (auto& monster : Monsters) {
+				lock_guard<mutex> monster_lock{ monster->m_lock };
+				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
+				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
+				{
+					int _min = min(p->pos.z / AREA_SIZE, monster->BB.Center.z / AREA_SIZE);
+					int _max = max(p->pos.z / AREA_SIZE, monster->BB.Center.z / AREA_SIZE);
+					for (int i = _min; i <= _max; i++)
 					{
-						monster->HP -= 200;
-						if (monster->HP <= 0)
-							monster->SetState(NPC_State::Dead);
-						return;
+						for (auto& obj : Objects[i])
+						{
+							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, p->pos));
+							if (obj->m_xmOOBB.Intersects(Bullet_Origin, Bullet_Direction, bullet_obstacle_distance) &&
+								bullet_obstacle_distance < bullet_monster_distance) {
+								return;
+							}
+						}
 					}
+					monster->HP -= 200;
+					if (monster->target_id < 0)
+						monster->target_id = CL._id;
+					if (monster->HP <= 0)
+						monster->SetState(NPC_State::Dead);
+					return;
 				}
 			}
-			//CL.BulletLook = _Look;
-			//CL.BulletPos = Vector3::Add(CL.GetPosition(), XMFLOAT3(0, 10, 0));
-			//CL.recent_recvedTime = high_resolution_clock::now();
 			break;
 		}
 		case 2:
@@ -384,6 +399,21 @@ void worker_thread(HANDLE h_iocp)
 			SESSION& CL = getClient(client_id);
 			if (client_id != -1) {
 				CL._state.store(ST_ALLOC);
+				//XMFLOAT3 randpos;
+				//bool col_check = false;
+				//while (1)
+				//{
+				//	randpos = XMFLOAT3(x_dis(gen), -300 + 240 * (client_id % 2), z_dis(gen));
+				//	for (auto& obj : Objects[randpos.z / AREA_SIZE]) {
+				//		if (obj->m_xmOOBB.Contains(XMLoadFloat3(&randpos))) {
+				//			col_check = true;
+				//			break;
+				//		}
+				//	}
+				//	if (col_check == false)
+				//		break;
+				//}
+				//CL.Initialize(client_id, g_c_socket, randpos);
 				CL.Initialize(client_id, g_c_socket);
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
@@ -400,10 +430,9 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_RECV: {
-			SESSION& CL = getClient((int)key);
+			SESSION& CL = getClient(static_cast<int>(key));
 			int remain_data = num_bytes + CL._prev_remain;
 			char* p = ex_over->_send_buf;
-			//if (CL._state.load() == ST_DEAD) CL._prev_remain = 0; break;
 			while (remain_data > 0) {
 				int packet_size = p[0];
 				if (packet_size <= remain_data) {
@@ -433,17 +462,16 @@ void worker_thread(HANDLE h_iocp)
 				if (iter != PoolMonsters[roomNum].end()) {
 					if ((*iter)->is_alive()) {
 						{
-							{
-								lock_guard<mutex> mm{ (*iter)->m_lock };
-								(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
-								(*iter)->recent_recvedTime = high_resolution_clock::now();
-							}
-							for (auto& cl : clients[roomNum]) {
-								if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
-							}
-							TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
-							timer_queue.push(ev);
+							lock_guard<mutex> mm{ (*iter)->m_lock };
+							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
+							(*iter)->recent_recvedTime = high_resolution_clock::now();
 						}
+						for (auto& cl : clients[roomNum]) {
+							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
+						}
+						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
+						timer_queue.push(ev);
+
 					}
 					else {
 						MonsterPool.ReturnMemory(*iter);
@@ -478,6 +506,7 @@ void do_Timer()
 				break;
 			}
 		}
+		else this_thread::sleep_for(1ms);
 	}
 }
 
