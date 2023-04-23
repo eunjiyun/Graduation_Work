@@ -108,6 +108,7 @@ public:
 #endif
 
 	CGameTimer					m_GameTimer;
+	SoundPlayer player;
 
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;

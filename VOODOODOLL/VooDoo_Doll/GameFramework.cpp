@@ -473,6 +473,25 @@ void CGameFramework::BuildObjects()
 		m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	}
 
+	
+	const wchar_t* wideFilename = _T("Sound/opening.wav");
+	const wchar_t* wideFilename2 = _T("Sound/opening2.wav");
+
+	// Initialize SoundPlayer
+	if (!player.Initialize()) {
+		//return -1;
+	}
+
+	// Load wave file
+	if (!player.LoadWave(wideFilename)) {
+		//return -1;
+	}
+	if (!player.LoadWave(wideFilename2)) {
+		//return -1;
+	}
+
+	
+
 	m_pLights = m_pStage->m_pLights;
 	
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
@@ -493,7 +512,7 @@ void CGameFramework::BuildObjects()
 
 
 #ifdef _WITH_TERRAIN_PLAYER
-	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_hWnd);
+	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
@@ -502,13 +521,12 @@ void CGameFramework::BuildObjects()
 
 	m_pStage->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
-	m_pPlayer->m_hWnd = m_hWnd;
+
 	
 	Players.push_back(m_pPlayer);
 
 	for (int i = 0; i < 3; i++) {
-		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1, m_hWnd);
-		pAirplanePlayer->m_hWnd = m_hWnd;
+		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 		Players.push_back(pAirplanePlayer);
 	}
 	CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
@@ -760,9 +778,20 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::FrameAdvance()
 {
-	m_GameTimer.Tick(30.0f);
+	m_GameTimer.Tick(30.0f);//30ÇÁ·¹ÀÓ
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
+	// Play sound
+	player.Play();
+
+	// Wait for sound to finish
+	//Sleep(10000);
+
+
+	// Stop sound
+	//player.Stop();
+	
+
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Update(fTimeElapsed);			
@@ -808,12 +837,16 @@ void CGameFramework::FrameAdvance()
 		m_pStage->wakeUp = false;
 	else
 		m_pStage->wakeUp = true;
+	
+	
 
 	if (m_pStage) 
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
 	if (m_pStage->m_pShadowShader)
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
+
+	
 
 	
 
@@ -869,6 +902,8 @@ void CGameFramework::FrameAdvance()
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
+
+	
 }
 
 

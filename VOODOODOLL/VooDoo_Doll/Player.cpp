@@ -297,7 +297,7 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosi
 #endif
 }
 
-CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl, HWND						m_hWnd)
+CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl)
 {
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
@@ -356,22 +356,9 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationController->SetTrackEnable(5, false);
 	m_pSkinnedAnimationController->SetTrackEnable(0, true);
 
-	PlaySound(_T("Sound/opening.wav"), NULL, SND_FILENAME | SND_ASYNC);
+	//PlaySound(_T("Sound/opening.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
-	SoundPlayer soundPlayer;
-
-	// SoundPlayer 클래스 초기화
-	if (!soundPlayer.Initialize(m_hWnd)) {
-		// 초기화 실패 처리
-	}
-
-	if (!soundPlayer.LoadWaveFile("Sound/opening.wav")) {
-		// WAV 파일 로드 실패 처리
-		cout << "음원 로드 실패" << endl;
-	}
-
-	// WAV 파일 재생
-	soundPlayer.Play();
+	
 
 	/*m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 1);
@@ -523,90 +510,6 @@ void CTerrainPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVeloci
 	CPlayer::Move(dwDirection, fDistance, bUpdateVelocity);
 }
 
-void CTerrainPlayer::playerAttack(int whatPlayer, CGameObject* pLockedObject, CGameObject*** bulletTmp)
-{
-	CGameObject* pBulletObject = NULL;
-
-	if (true == onAttack)
-	{
-		m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		m_pSkinnedAnimationController->SetTrackEnable(2, true);
-		m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		m_pSkinnedAnimationController->SetTrackEnable(5, false);
-
-		if (2 == whatPlayer)
-		{
-
-			//for (int i = 0; i < BULLETS; i++)
-			for (int i = 0; i < 1; i++)
-			{
-				if (!(*bulletTmp)[i]->m_bActive)
-				{
-					pBulletObject = (*bulletTmp)[i];
-					break;
-				}
-			}
-
-			if (pBulletObject)
-			{
-				XMFLOAT3 xmf3Position = GetPosition();
-				//XMFLOAT3 xmf3Direction = GetUp();
-				XMFLOAT3 xmf3Direction = GetLook();
-				XMFLOAT3 xmf3FirePosition = Vector3::Add(xmf3Position, Vector3::ScalarProduct(xmf3Direction, 6.0f, false));
-
-				pBulletObject->m_xmf4x4World = m_xmf4x4World;
-				pBulletObject->SetFirePosition(XMFLOAT3(xmf3FirePosition.x, xmf3FirePosition.y + 15, xmf3FirePosition.z));
-				pBulletObject->SetMovingDirection(xmf3Direction);
-				pBulletObject->SetActive(true);
-
-				if (pLockedObject)
-				{
-					pBulletObject->m_pLockedObject = pLockedObject;
-				}
-			}
-		}
-	}
-}
-void CTerrainPlayer::playerRun()
-{
-	if (true == onRun)
-	{
-		m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		m_pSkinnedAnimationController->SetTrackEnable(3, true);
-		m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		m_pSkinnedAnimationController->SetTrackEnable(5, false);
-	}
-}
-void CTerrainPlayer::playerDie()
-{
-	if (true == onDie)
-	{
-		m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		m_pSkinnedAnimationController->SetTrackEnable(4, true);
-		m_pSkinnedAnimationController->SetTrackEnable(5, false);
-	}
-}
-
-void CTerrainPlayer::playerCollect()
-{
-
-	if (true == onCollect)
-	{
-		m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		m_pSkinnedAnimationController->SetTrackEnable(5, true);
-	}
-}
 
 
 void CTerrainPlayer::Update(float fTimeElapsed)
@@ -614,8 +517,179 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 	CPlayer::Update(fTimeElapsed);
 }
 
-void CTerrainPlayer::otherPlayerUpdate(float fTimeElapsed)//0226
+SoundPlayer::SoundPlayer()
+	: xAudio2_(nullptr), masterVoice_(nullptr), sourceVoice_(nullptr)
 {
-	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-	CPlayer::Move(xmf3Velocity, false);
+	ZeroMemory(&waveFormat_, sizeof(waveFormat_));
+	ZeroMemory(&buffer_, sizeof(buffer_));
 }
+
+SoundPlayer::~SoundPlayer()
+{
+	Terminate();
+}
+
+bool SoundPlayer::Initialize()
+{
+	HRESULT hr;
+
+	// XAudio2 객체 생성
+	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	// 마스터 보이스 생성
+	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+
+	WAVEFORMATEX waveFormat;
+	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+	waveFormat.nChannels = 2;
+	waveFormat.nSamplesPerSec = 48000;
+	waveFormat.nAvgBytesPerSec = 48000 * 4;
+	waveFormat.nBlockAlign = 4;
+	waveFormat.wBitsPerSample = 16;
+	waveFormat.cbSize = 0;
+	
+	// 소스 보이스 생성
+	hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	return true;
+}
+
+void SoundPlayer::Terminate()
+{
+	if (sourceVoice_ != nullptr) {
+		sourceVoice_->DestroyVoice();
+		sourceVoice_ = nullptr;
+	}
+
+	if (masterVoice_ != nullptr) {
+		masterVoice_->DestroyVoice();
+		masterVoice_ = nullptr;
+	}
+
+	if (xAudio2_ != nullptr) {
+		xAudio2_->Release();
+		xAudio2_ = nullptr;
+	}
+}
+
+HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename, WAVEFORMATEX* waveFormat)
+{
+	// WAV 파일을 읽기 전용으로 열기
+	FILE* file = nullptr;
+	errno_t err = _wfopen_s(&file, filename, L"rb");
+	if (err != 0)
+	{
+		return HRESULT_FROM_WIN32(err);
+	}
+
+	// WAV 파일 헤더 읽기
+	WAVEHEADER header;
+	size_t bytesRead = fread(&header, 1, sizeof(WAVEHEADER), file);
+	if (bytesRead != sizeof(WAVEHEADER))
+	{
+		fclose(file);
+		return E_FAIL;
+	}
+
+	// WAV 파일 검증
+	if (memcmp(header.chunkId, "RIFF", 4) != 0 ||
+		memcmp(header.format, "WAVE", 4) != 0 ||
+		memcmp(header.subchunk1Id, "fmt ", 4) != 0 ||
+		memcmp(header.subchunk2Id, "data", 4) != 0)
+	{
+		fclose(file);
+		return E_FAIL;
+	}
+
+	// 웨이브 형식 정보 읽기
+	WAVEFORMATEX* pWaveFormat = (WAVEFORMATEX*)malloc(header.subchunk1Size);
+	if (!pWaveFormat)
+	{
+		fclose(file);
+		return E_OUTOFMEMORY;
+	}
+
+	bytesRead = fread(pWaveFormat, 1, header.subchunk1Size, file);
+	if (bytesRead != header.subchunk1Size)
+	{
+		free(pWaveFormat);
+		fclose(file);
+		return E_FAIL;
+	}
+
+	// 버퍼 데이터 읽기
+	BYTE* pData = (BYTE*)malloc(header.subchunk2Size);
+	if (!pData)
+	{
+		free(pWaveFormat);
+		fclose(file);
+		return E_OUTOFMEMORY;
+	}
+
+	bytesRead = fread(pData, 1, header.subchunk2Size, file);
+	if (bytesRead != header.subchunk2Size)
+	{
+		/*free(pWaveFormat);
+		free(pData);
+		fclose(file);
+		return E_FAIL;*/
+	}
+
+	// 반환값 설정
+	waveFormat = pWaveFormat;
+	buffer_.pAudioData = pData;
+	buffer_.AudioBytes = header.subchunk2Size;
+
+	buffer_.Flags = XAUDIO2_END_OF_STREAM; // 스트림의 끝임을 나타냄
+	buffer_.LoopCount = XAUDIO2_LOOP_INFINITE; // 루프 횟수를 무한대로 설정
+
+	// 파일 닫기
+	fclose(file);
+
+	return S_OK;
+}
+
+bool SoundPlayer::LoadWave(const wchar_t* filename)
+{
+	HRESULT hr;
+	// WAVE 파일 로드
+	hr = LoadWaveFile(filename, &waveFormat_);
+
+
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	// 소스 보이스에 버퍼 설정
+	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	return true;
+}
+
+void SoundPlayer::Play()
+{
+	// 소스 보이스 재생
+	sourceVoice_->Start();
+}
+
+void SoundPlayer::Stop()
+{
+	// 소스 보이스 중지
+	sourceVoice_->Stop();
+	sourceVoice_->FlushSourceBuffers();
+}
+
+
