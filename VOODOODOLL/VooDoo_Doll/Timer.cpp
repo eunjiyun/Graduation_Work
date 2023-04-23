@@ -57,7 +57,7 @@ void CGameTimer::Tick(float fLockFPS)
 
 	m_nFramesPerSecond++;
 	m_fFPSTimeElapsed += fTimeElapsed;
-	if (m_fFPSTimeElapsed > 1.0f) 
+	if (m_fFPSTimeElapsed > 1.0f) //0424
     {
 		m_nCurrentFrameRate	= m_nFramesPerSecond;
 		m_nFramesPerSecond = 0;
