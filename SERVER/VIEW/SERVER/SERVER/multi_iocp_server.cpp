@@ -101,10 +101,10 @@ int main()
 	vector <thread> worker_threads;
 	vector <thread> timer_threads;
 	int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 1; ++i)
 		timer_threads.emplace_back(do_Timer);
 	//thread* DB_t = new thread{ DB_Thread };
-	for (int i = 0; i < num_threads - 1; ++i)
+	for (int i = 0; i < num_threads; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
@@ -270,10 +270,7 @@ void process_packet(const int c_id, char* packet)
 		threadsafe_vector<Monster*>& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		
-		CL._s_lock.lock();
 		XMFLOAT3 _Look = CL.GetLookVector();
-		CL.SetVelocity(XMFLOAT3(0, 0, 0));
-		CL._s_lock.unlock();
 
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
@@ -300,7 +297,7 @@ void process_packet(const int c_id, char* packet)
 		case 1:
 		{
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
-			XMVECTOR Bullet_Direction = XMLoadFloat3(&CL.GetLookVector());
+			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
 			bool collided = false;
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> monster_lock{ monster->m_lock };

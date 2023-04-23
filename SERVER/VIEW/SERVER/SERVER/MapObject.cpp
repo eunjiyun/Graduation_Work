@@ -139,7 +139,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
             {
                 nReads = (UINT)::fread(&nEmissionTextureStrLength, sizeof(BYTE), 1, pFile);
                 nReads = (UINT)::fread(strEmissionTextureName, sizeof(char), nEmissionTextureStrLength, pFile);
-                cout << pstrToken6 << strEmissionTextureName << endl << endl;
+                //cout << pstrToken6 << strEmissionTextureName << endl << endl;
             }
         }
 

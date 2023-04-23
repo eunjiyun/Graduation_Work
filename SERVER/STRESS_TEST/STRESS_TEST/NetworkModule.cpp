@@ -296,8 +296,8 @@ void Worker_Thread()
 	}
 }
 
-constexpr int DELAY_LIMIT = 200;
-constexpr int DELAY_LIMIT2 = 250;
+constexpr int DELAY_LIMIT = 20000;
+constexpr int DELAY_LIMIT2 = 25000;
 constexpr int ACCEPT_DELY = 50;
 
 void Adjust_Number_Of_Client()
@@ -399,13 +399,12 @@ void Test_Thread()
 			my_packet.type = CS_MOVE;
 			my_packet.direction = rand() % 16;
 			short packet_type = rand() % 10;
-			if (packet_type < 8) {
+			if (packet_type < 10) {
 				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
 				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
 				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
 				if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(3, 0, 0));
 				my_packet.pos = g_clients[i].pos;
-				my_packet.cxDelta = my_packet.cyDelta = my_packet.czDelta = 0.f;
 				my_packet.id = i;
 				SendPacket(i, &my_packet);
 			}

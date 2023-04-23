@@ -302,10 +302,12 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 {
 	unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal> closelist{};
 	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal> openlist;
+	openlist.reserve(200);
+	closelist.reserve(600);
 	shared_ptr<A_star_Node> S_Node;
 
 	openlist.emplace(start_Pos, shared_ptr<A_star_Node>(new A_star_Node(start_Pos, dest_Pos, 0, nullptr)));
-
+	
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
 	{
@@ -331,7 +333,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 				openlist.emplace(_Pos, shared_ptr<A_star_Node>(new A_star_Node(_Pos, dest_Pos, _G, S_Node)));
 			}
 		}
-		closelist.insert(S_Node->Pos);
+		closelist.emplace(S_Node->Pos);
 		openlist.erase(iter);
 	}
 	//cout << "Trace Failed\n";
