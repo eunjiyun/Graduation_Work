@@ -629,6 +629,28 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
+	//Door_01_main_mesh
+	m_nDoor = 5;
+	door = new CGameObject * [m_nDoor];
+
+	for (int h{}; h < m_nDoor; ++h)
+	{
+		door[h] = new CDoor(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr, 2);
+		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		door[h]->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		door[h]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		door[h]->SetScale(70.0f, 70.0f, 70.0f);
+
+		if (h != m_nDoor - 1)
+			//252-255 Door_01_Frame_mesh
+			door[h]->SetPosition(m_ppObjects[252 + h]->GetPosition().x - 50, m_ppObjects[252 + h]->GetPosition().y, m_ppObjects[252 + h]->GetPosition().z);// XMFLOAT3{ 154, -60,570 });// m_ppObjects[371]->GetPosition());
+		else
+			//403 ForDoorcollider
+			door[h]->SetPosition(m_ppObjects[403]->GetPosition().x + 50, m_ppObjects[403]->GetPosition().y-70, m_ppObjects[403]->GetPosition().z);// XMFLOAT3{ 154, -60,570 });// m_ppObjects[371]->GetPosition());
+	}
+	
+
 	int l = 0;
 
 	if (0 == strcmp("Models/Scene.bin", pstrFileName))
@@ -648,7 +670,11 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			if (strncmp(m_ppObjects[i]->m_pstrName, "Book_0", 6))
 				if (strcmp(m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
 					if (strcmp(m_ppObjects[i]->m_pstrName, "carpet_01_mesh"))//carpet_02_mesh
-						if (strcmp(m_ppObjects[i]->m_pstrName, "carpet_02_mesh"))//Dense_Floor_mesh
+						if (strcmp(m_ppObjects[i]->m_pstrName, "carpet_02_mesh"))//Dense_Floor_mesh //Candle1
+							if (strncmp(m_ppObjects[i]->m_pstrName, "Candle",6))
+								if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_main_mesh"))//Dense_Floor_mesh //Candle1
+									if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh"))//Dense_Floor_mesh //Candle1
+										if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 							//if (0==strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 							boxShader->obj.push_back(m_ppObjects[i]);
 
@@ -663,7 +689,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	/*			cout << l<<"¹øÂ°	: "<<xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;*/
 				++l;
 			}
-			//cout << "objName " << i << " : " << m_ppObjects[i]->m_pstrName <<"   "<< m_ppObjects[i]->shadowID<<endl;
+
 		}
 	}
 	cout << "mnobj : " << m_nObjects << endl;
@@ -690,10 +716,14 @@ void CObjectsShader::ReleaseObjects()
 
 void CObjectsShader::AnimateObjects(float fTimeElapsed)
 {
+
+	//for (int i{}; i < 4; ++i)
+	//	door[i]->Animate(fTimeElapsed, false);//0424
+
+
 	for (int j = 0; j < m_nObjects; j++)
-	{
 		m_ppObjects[j]->Animate(fTimeElapsed, false);
-	}
+
 }
 
 void CObjectsShader::ReleaseUploadBuffers()

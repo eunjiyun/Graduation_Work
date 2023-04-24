@@ -609,7 +609,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	pMonsterModel[type].pop();
 	switch (type)
 	{
-	case 0://0326
+	case 0:
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //¼Õ¿¡ Ä®	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -746,6 +746,11 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			cout << "z : " << monster->GetPosition().z << endl << endl << endl;*/
 		}
 	}
+
+	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor; ++i)
+		if (abs(m_pPlayer->GetPosition().z - m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)
+			if (abs(m_pPlayer->GetPosition().y - m_pStage->m_ppShaders[0]->door[i]->GetPosition().y) < 100)
+				m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
 }
 
 void CGameFramework::WaitForGpuComplete()

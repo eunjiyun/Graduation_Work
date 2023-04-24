@@ -303,7 +303,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			case 3:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//何滴5 付过荤
 				break;
-			
+
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//何滴4 奇教漠电局
 				break;
@@ -331,7 +331,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//何滴4 奇教漠电局
 				break;
-		
+
 
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//何滴3 蓖脚
@@ -354,7 +354,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			case 3:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//何滴5 付过荤
 				break;
-		
+
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//何滴4 奇教漠电局
 				break;
@@ -382,7 +382,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//何滴4 奇教漠电局
 				break;
-			
+
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//何滴3 蓖脚 emission x
 				break;
@@ -630,7 +630,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		break;
 	}
 
-	case ANIMATION_TYPE_ONCE://0228
+	case ANIMATION_TYPE_ONCE:
 		if (m_fPosition == fAnimationLength && m_bEnable)//BOOL bool
 		{
 			m_fPosition = 0.0f;
@@ -644,6 +644,20 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 			}
 		}
 		break;
+	case ANIMATION_TYPE_DOOR:
+		//if (m_fPosition == fAnimationLength && m_bEnable)//BOOL bool
+		//{
+		//	m_fPosition = 0.0f;
+		//}
+		//else {
+			m_fPosition = fTrackPosition + fTrackElapsedTime;
+			if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
+			{
+				m_fPosition = fAnimationLength;
+				SetEnable(false);
+			}
+		//}
+		break;
 	case ANIMATION_TYPE_DEAD:
 		m_fPosition = fTrackPosition + fTrackElapsedTime;
 		if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
@@ -652,7 +666,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		}
 		break;
 	case ANIMATION_TYPE_JUMP:
-		m_fPosition = fTrackPosition - fTrackElapsedTime; 
+		m_fPosition = fTrackPosition - fTrackElapsedTime;
 		if (m_fPosition < 0.1)
 		{
 			m_fPosition = 0.6;
@@ -767,12 +781,15 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 
 		if (m_pAnimationTracks[curTrack].m_bEnable)
 		{
-			if (2 == curTrack)//player : attack
-				m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_ONCE;
-			else if (4 == curTrack)//player : die 
-				m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_DEAD;
-			else if (5 == curTrack)//player : jump 
-				m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_JUMP;
+			if (2 < m_nAnimationTracks)
+			{
+				if (2 == curTrack)//player : attack
+					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_ONCE;
+				else if (4 == curTrack)//player : die 
+					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_DEAD;
+				else if (5 == curTrack)//player : jump 
+					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_JUMP;
+			}
 			CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[curTrack].m_nAnimationSet];
 			if (pAnimationSet != nullptr) {
 				float fPosition = m_pAnimationTracks[curTrack].UpdatePosition(m_pAnimationTracks[curTrack].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength);
@@ -1031,11 +1048,21 @@ void CGameObject::Animate(float fTimeElapsed, bool onPlayer)
 
 	if (m_pSkinnedAnimationController) {
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, m_pSkinnedAnimationController->Cur_Animation_Track, this);
-		if (m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
-			m_pSkinnedAnimationController->SetTrackEnable(0, true);
-			onAct = false;
+
+		//if (2 < m_pSkinnedAnimationController->m_nAnimationTracks)
+		{
+			if (m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
+				m_pSkinnedAnimationController->SetTrackEnable(0, true);
+				onAct = false;
+			}
 		}
+		/*else
+		{
+			if(m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false)
+			m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		}*/
 	}
+
 	if (m_pSibling)
 		m_pSibling->Animate(fTimeElapsed, onPlayer);
 	if (m_pChild)
@@ -1055,14 +1082,14 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,  CCamera* pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
 {
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
 
 	if (m_ppMeshes)
 	{
-		if (0 != strcmp(m_pstrName, "ForDoorcollider") )
+		if (0 != strcmp(m_pstrName, "ForDoorcollider"))
 		{
 			UpdateShaderVariable(pd3dCommandList, &m_xmf4x4World);
 
@@ -1093,7 +1120,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 			}
 		}
 
-		
+
 	}
 
 	if (m_pSibling)
@@ -1517,15 +1544,15 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 					OutputDebugString(pstrDebug);
 #endif
 				}
-				}
 			}
+		}
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
 		}
-		}
-	return(pGameObject);
 	}
+	return(pGameObject);
+}
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 {
@@ -1574,7 +1601,7 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 				OutputDebugString(pstrDebug);
 #endif
 			}
-			}
+		}
 		else if (!strcmp(pstrToken, "<AnimationSet>:"))
 		{
 			int nAnimationSet = ::ReadIntegerFromFile(pInFile);
@@ -1615,8 +1642,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			break;
 		}
-		}
 	}
+}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
@@ -1842,7 +1869,7 @@ void CBulletObject::Animate(float fElapsedTime)//醚舅 诀单捞飘
 
 	if ((m_fMovingDistance > m_fBulletEffectiveRange) || (m_fElapsedTimeAfterFire > m_fLockingTime))
 		Reset();
-}
+	}
 
 void CBulletObject::Reset()
 {
@@ -1852,6 +1879,59 @@ void CBulletObject::Reset()
 	m_fRotationAngle = 0.0f;
 
 	m_bActive = false;
+}
+
+
+CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel,
+	int nAnimationTracks)
+{
+	if (pModel != nullptr)
+		_Model = pModel;
+	else
+	{
+		_Model = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TimsAssets_Door.bin", NULL, 7);
+	}
+
+
+	SetChild(_Model->m_pModelRootObject, true);
+	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, _Model);
+
+	m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nType = ANIMATION_TYPE_DOOR;
+	m_pSkinnedAnimationController->m_pAnimationTracks[1].m_nType = ANIMATION_TYPE_DOOR;
+
+
+	m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
+	m_pSkinnedAnimationController->SetCallbackKeys(1, 1);
+
+
+	m_pSkinnedAnimationController->SetCallbackKey(0, 0, 0.1f, _T("Sound/doorOpen.wav"));
+	m_pSkinnedAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Sound/doorClose.wav"));
+
+
+
+
+	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
+	m_pSkinnedAnimationController->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
+	m_pSkinnedAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+
+	if (_Model)delete _Model;
+}
+
+CDoor::~CDoor()
+{
+}
+
+void CDoor::Update(float fTimeElapsed)
+{
+	//if (m_pSkinnedAnimationController->Cur_Animation_Track != 1)
+	//	m_xmf3Velocity = XMFLOAT3(0, 0, 0);
+
+	//XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
+
+	//Move(xmf3Velocity);
+	//m_xmOOBB.Center = GetPosition();
+
+	////Vector3::Print(m_xmOOBB.Center);
 }
 
 

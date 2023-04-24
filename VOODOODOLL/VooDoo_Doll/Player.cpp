@@ -294,6 +294,7 @@ void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosi
 	PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
 #else
 	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
+	//player.Play();
 #endif
 }
 

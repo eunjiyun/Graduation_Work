@@ -134,7 +134,7 @@ extern float ReadFloatFromFile(FILE* pInFile);
 
 #define ANIMATION_TYPE_ONCE				0
 #define ANIMATION_TYPE_LOOP				1
-#define ANIMATION_TYPE_PINGPONG			2
+#define ANIMATION_TYPE_DOOR				2
 #define ANIMATION_TYPE_DEAD				3
 #define ANIMATION_TYPE_JUMP				4
 

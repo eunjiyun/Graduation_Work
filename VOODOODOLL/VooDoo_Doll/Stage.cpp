@@ -188,6 +188,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//Find_LightPosition();
 	m_ppShaders[0] = pObjectShader;
 
+	//m_ppShaders[1]
+
 	m_pLights = new LIGHT[MAX_LIGHTS];
 	BuildDefaultLightsAndMaterials();//조명
 
@@ -484,8 +486,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
-		/*cout << "Name: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
-		cout << "Center: ";
+		//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+		/*cout << "Center: ";
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
 		cout << "Extents: ";
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
@@ -863,7 +865,9 @@ bool CStage::ProcessInput(UCHAR* pKeysBuffer)
 void CStage::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
+
 	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
+	
 
 	if (m_pLights)
 	{
@@ -938,8 +942,15 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_main_mesh"))//Dense_Floor_mesh //Candle1
+				if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh"))//Dense_Floor_mesh //Candle1
+					if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
+
+	for(int j{};j<m_ppShaders[0]->m_nDoor;++j)
+		m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+
 	
 	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//��
 }
@@ -989,6 +1000,18 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 				continue;
 			}
+
+			cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			//cout << "Center - ";
+			//Vector3::Print(oBox.Center);
+			//cout << "Extents - ";
+			//Vector3::Print(oBox.Extents);
+			//cout << "Look - ";
+			//Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->GetLook());
+			//cout << "Right - ";
+			//Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->GetRight());
+			//cout << "Up - ";
+			//Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->GetUp());
 
 			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, 0, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };

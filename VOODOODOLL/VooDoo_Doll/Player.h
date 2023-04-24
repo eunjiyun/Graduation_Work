@@ -40,6 +40,7 @@ public:
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
 	CAnimationController* AnimationControllers[3];
+	
 
 public:
 	CPlayer();
@@ -99,7 +100,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,bool shadow, CCamera* pCamera = NULL);
 
 
-	//230205
+
 	void		OnUpdateTransform();
 	void		UpdateBoundingBox();
 	void		boundingAnimate(float fElapsedTime);
@@ -125,6 +126,8 @@ public:
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Update(float fTimeElapsed);
+
+	//SoundPlayer player;
 };
 
 struct WAVEHEADER

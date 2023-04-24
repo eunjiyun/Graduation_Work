@@ -44,6 +44,8 @@ protected:
 public:
 	CGameObject** m_ppObjects = 0;//
 	int								m_nObjects = 0;//
+	CGameObject** door = NULL;
+	int m_nDoor = 0;
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//
@@ -195,6 +197,7 @@ public:
 public:
 	vector<XMFLOAT3> mpObjVec;
 	XMFLOAT3 tmp;
+	
 protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
