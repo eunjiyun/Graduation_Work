@@ -45,9 +45,9 @@ struct CS_MOVE_PACKET {
 	char	type;
 	DWORD	direction = 0;
 	short	id;
-	float cxDelta = 0.f;
-	float cyDelta = 0.f;
-	float czDelta = 0.f;
+	//float cxDelta = 0.f;
+	//float cyDelta = 0.f;
+	//float czDelta = 0.f;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
 };

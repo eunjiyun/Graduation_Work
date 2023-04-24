@@ -135,8 +135,6 @@ void ProcessPacket(int ci, unsigned char packet[])
 	switch (packet[1]) {
 	case SC_MOVE_PLAYER: {
 		SC_MOVE_PLAYER_PACKET* move_packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(packet);
-		//if (move_packet->id == 0)
-		//	cout << "ID : " << move_packet->id << ", Pos: " << move_packet->Pos.x << "," << move_packet->Pos.y << "," << move_packet->Pos.z << endl;
 		if (move_packet->id < MAX_CLIENTS) {
 			int my_id = client_map[move_packet->id];
 			if (move_packet->HP <= 0)
@@ -145,10 +143,9 @@ void ProcessPacket(int ci, unsigned char packet[])
 				g_clients[my_id].pos = move_packet->Pos;
 			}
 			if (ci == my_id) {
-				auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now() - g_clients[my_id].last_recved_time).count();
+				auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - move_packet->move_time;
 				if (player_delay < d_ms) player_delay++;
 				else if (player_delay > d_ms) player_delay--;
-				g_clients[my_id].last_recved_time = high_resolution_clock::now();
 				if (move_packet->HP <= 0) { DisconnectClient(my_id); }
 			}
 		}
@@ -296,8 +293,8 @@ void Worker_Thread()
 	}
 }
 
-constexpr int DELAY_LIMIT = 20000;
-constexpr int DELAY_LIMIT2 = 25000;
+constexpr int DELAY_LIMIT = 100;
+constexpr int DELAY_LIMIT2 = 150;
 constexpr int ACCEPT_DELY = 50;
 
 void Adjust_Number_Of_Client()
@@ -399,13 +396,14 @@ void Test_Thread()
 			my_packet.type = CS_MOVE;
 			my_packet.direction = rand() % 16;
 			short packet_type = rand() % 10;
-			if (packet_type < 10) {
+			if (packet_type < 9) {
 				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
 				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
 				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
 				if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(3, 0, 0));
 				my_packet.pos = g_clients[i].pos;
 				my_packet.id = i;
+				my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
 				SendPacket(i, &my_packet);
 			}
 			//else if (packet_type == 1) {
@@ -415,6 +413,7 @@ void Test_Thread()
 				my_packet_2.type = CS_ATTACK;
 				my_packet_2.id = i;
 				my_packet_2.pos = g_clients[i].pos;
+				my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
 				SendPacket(i, &my_packet_2);
 			}
 			//else if (packet_type == 2) {

@@ -253,6 +253,9 @@ void process_packet(const int c_id, char* packet)
 		CL.direction.store(p->direction);
 		CL.SetVelocity(p->vel);
 		CL.CheckPosition(p->pos);
+#ifdef _STRESS_TEST
+		CL.recent_recvedTime = p->move_time;
+#endif
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
 		}
@@ -379,14 +382,14 @@ void worker_thread(HANDLE h_iocp)
 			else {
 				cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
-				if (ex_over->_comp_type == OP_SEND) OverPool.ReturnMemory(ex_over);
+				if (ex_over->_comp_type == OP_SEND) delete ex_over;//OverPool.ReturnMemory(ex_over);
 				continue;
 			}
 		}
 
 		if ((0 == num_bytes) && ((ex_over->_comp_type == OP_RECV) || (ex_over->_comp_type == OP_SEND))) {
 			disconnect(static_cast<int>(key));
-			if (ex_over->_comp_type == OP_SEND) OverPool.ReturnMemory(ex_over);
+			if (ex_over->_comp_type == OP_SEND) delete ex_over;//OverPool.ReturnMemory(ex_over);
 			continue;
 		}
 
@@ -447,17 +450,17 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		}
 		case OP_SEND:
-			OverPool.ReturnMemory(ex_over);
+			delete ex_over;
+			//OverPool.ReturnMemory(ex_over);
 			break;
 		case OP_NPC_MOVE://04166
-			int roomNum = static_cast<int>(key) / 100;
-			short mon_id = static_cast<int>(key) % 100;
+			int roomNum = static_cast<int>(key);
 			{
 				unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
-				auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
-
-				if (iter != PoolMonsters[roomNum].end()) {
-					if ((*iter)->is_alive()) {
+				for (auto iter = PoolMonsters[roomNum].begin(); iter != PoolMonsters[roomNum].end();)
+				{
+					if ((*iter)->is_alive())
+					{
 						{
 							lock_guard<mutex> mm{ (*iter)->m_lock };
 							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
@@ -466,17 +469,18 @@ void worker_thread(HANDLE h_iocp)
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
-						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
-						timer_queue.push(ev);
-
+						iter++;
 					}
-					else {
+					else
+					{
 						MonsterPool.ReturnMemory(*iter);
 						PoolMonsters[roomNum].erase(iter);
 					}
 				}
+				TIMER_EVENT ev{ roomNum, high_resolution_clock::now() + 100ms, EV_MOVE };
+				timer_queue.push(ev);
 			}
-			OverPool.ReturnMemory(ex_over);
+			delete ex_over;//OverPool.ReturnMemory(ex_over);
 			break;
 		}
 	}
@@ -497,13 +501,13 @@ void do_Timer()
 			}
 			switch (ev.event_id) {
 			case EV_MOVE:
-				OVER_EXP* ov = OverPool.GetMemory();
+				OVER_EXP* ov = new OVER_EXP();//OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
-				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
+				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id, &ov->_over);
 				break;
 			}
 		}
-		else this_thread::sleep_for(1ms);
+		//else this_thread::sleep_for(1ms);
 	}
 }
 

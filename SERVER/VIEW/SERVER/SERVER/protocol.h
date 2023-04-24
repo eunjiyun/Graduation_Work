@@ -32,6 +32,7 @@ constexpr char SC_SUMMON_MONSTER = 11;
 constexpr char SC_MOVE_MONSTER = 12;
 #include "stdafx.h"
 
+#define _STRESS_TEST
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {
@@ -46,11 +47,14 @@ struct CS_MOVE_PACKET {
 	char	type;
 	DWORD	direction = 0;
 	short	id;
-	float cxDelta = 0.f;
-	float cyDelta = 0.f;
-	float czDelta = 0.f;
+	//float cxDelta = 0.f;
+	//float cyDelta = 0.f;
+	//float czDelta = 0.f;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
+#ifdef _STRESS_TEST
+	unsigned	move_time;
+#endif
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 
@@ -120,6 +124,9 @@ struct SC_MOVE_PLAYER_PACKET {
 	XMFLOAT3  Pos;
 	DWORD direction;
 	XMFLOAT3 vel;
+#ifdef _STRESS_TEST
+	unsigned	move_time;
+#endif
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
@@ -149,7 +156,6 @@ struct SC_MOVE_MONSTER_PACKET {
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;
-	//short Chasing_PlayerID;
 	XMFLOAT3 BulletPos;
 	unsigned short animation_track; // 애니메이션 타입
 };

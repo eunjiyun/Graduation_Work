@@ -104,7 +104,7 @@ public:
 
 
 
-OVERLAPPEDPOOL OverPool(200'000);
+//OVERLAPPEDPOOL OverPool(500'000);
 
 enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD, ST_CRASHED };
 class SESSION {
@@ -123,7 +123,7 @@ public:
 	atomic<short> cur_stage;
 	short error_stack;
 	short character_num;
-	high_resolution_clock::time_point recent_recvedTime;
+	int recent_recvedTime;
 public:
 	SESSION()
 	{
@@ -160,7 +160,6 @@ public:
 		_socket = Socket;
 		cur_stage = 0;
 		error_stack = 0;
-		recent_recvedTime = high_resolution_clock::now();
 		character_num = 0;
 		HP = 500;
 	}
@@ -176,8 +175,8 @@ public:
 
 	void do_send(void* packet)
 	{		
-		OVER_EXP* sdata = OverPool.GetMemory(reinterpret_cast<char*>(packet));
-		//OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
+		//OVER_EXP* sdata = OverPool.GetMemory(reinterpret_cast<char*>(packet));
+		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
 		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		//if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
@@ -201,6 +200,9 @@ public:
 		p.direction = Player->direction.load();
 		p.HP = Player->HP;
 		p.vel = Player->GetVelocity();
+#ifdef _STRESS_TEST
+		p.move_time = Player->recent_recvedTime;
+#endif
 		do_send(&p);
 	}
 

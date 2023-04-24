@@ -45,11 +45,12 @@ struct CS_MOVE_PACKET {
 	char	type;
 	DWORD	direction = 0;
 	short	id;
-	float cxDelta = 0.f;
-	float cyDelta = 0.f;
-	float czDelta = 0.f;
+	//float cxDelta = 0.f;
+	//float cyDelta = 0.f;
+	//float czDelta = 0.f;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
+	unsigned	move_time;
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 
@@ -120,6 +121,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	XMFLOAT3  Pos;
 	DWORD direction;
 	XMFLOAT3 vel;
+	unsigned	move_time;
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 

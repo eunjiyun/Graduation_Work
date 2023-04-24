@@ -12,7 +12,6 @@ enum EVENT_TYPE { EV_MOVE, EV_SUMMON };
 
 struct TIMER_EVENT {
 	int room_id;
-	int obj_id;
 	high_resolution_clock::time_point wakeup_time;
 	int event_id;
 	constexpr bool operator < (const TIMER_EVENT& _Left) const
@@ -128,9 +127,9 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
-		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE };
-		timer_queue.push(ev);
 	}
+	TIMER_EVENT ev{ roomNum, high_resolution_clock::now(), EV_MOVE };
+	timer_queue.push(ev);
 	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
 }
 
@@ -306,7 +305,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 	closelist.reserve(600);
 	shared_ptr<A_star_Node> S_Node;
 
-	openlist.emplace(start_Pos, shared_ptr<A_star_Node>(new A_star_Node(start_Pos, dest_Pos, 0, nullptr)));
+	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos, 0, nullptr));
 	
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
@@ -330,7 +329,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed * fTimeElapsed, false));
 			float _G = S_Node->G + speed * fTimeElapsed * sqrt(abs(nx[i]) + abs(nz[i]));
 			if (check_path(_Pos, closelist, CheckBox) && check_openList(_Pos, _G, S_Node, openlist)) {
-				openlist.emplace(_Pos, shared_ptr<A_star_Node>(new A_star_Node(_Pos, dest_Pos, _G, S_Node)));
+				openlist.emplace(_Pos, make_shared<A_star_Node>(_Pos, dest_Pos, _G, S_Node));
 			}
 		}
 		closelist.emplace(S_Node->Pos);
