@@ -459,6 +459,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* packet = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		int cur_track = (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track;
 		(*iter)->m_pChild = (*iter)->pAngrybotModels[packet->cur_weaponType]->m_pModelRootObject;
 		(*iter)->m_pSkinnedAnimationController = (*iter)->AnimationControllers[packet->cur_weaponType];
 		for (int i = 0; i < 6; i++)
@@ -466,7 +467,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(i, false);
 		}
-		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(cur_track, true);
 		break;
 	}
 	case SC_SUMMON_MONSTER: {

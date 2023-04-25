@@ -32,7 +32,7 @@ constexpr char SC_SUMMON_MONSTER = 11;
 constexpr char SC_MOVE_MONSTER = 12;
 #include "stdafx.h"
 
-#define _STRESS_TEST
+//#define _STRESS_TEST
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {

@@ -301,30 +301,50 @@ void process_packet(const int c_id, char* packet)
 		{
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
-			bool collided = false;
+			vector<Monster*> monstersInRange;
 			for (auto& monster : Monsters) {
-				lock_guard<mutex> monster_lock{ monster->m_lock };
+				//lock_guard<mutex> monster_lock{ monster->m_lock };
 				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
 				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 				{
-					int _min = min(p->pos.z / AREA_SIZE, monster->BB.Center.z / AREA_SIZE);
-					int _max = max(p->pos.z / AREA_SIZE, monster->BB.Center.z / AREA_SIZE);
+					monstersInRange.push_back(monster);
+				}
+			}
+			if (!monstersInRange.empty())
+			{
+				float minDistance = FLT_MAX;
+				Monster* closestMonster = nullptr;
+				for (auto& monster : monstersInRange)
+				{
+					//lock_guard<mutex> monster_lock{ monster->m_lock };
+					float distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
+					if (distance < minDistance)
+					{
+						minDistance = distance;
+						closestMonster = monster;
+					}
+				}
+				if (closestMonster)
+				{
+					lock_guard<mutex> monster_lock{ closestMonster->m_lock };
+					int _min = min(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE);
+					int _max = max(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE);
 					for (int i = _min; i <= _max; i++)
 					{
 						for (auto& obj : Objects[i])
 						{
 							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, p->pos));
 							if (obj->m_xmOOBB.Intersects(Bullet_Origin, Bullet_Direction, bullet_obstacle_distance) &&
-								bullet_obstacle_distance < bullet_monster_distance) {
+								bullet_obstacle_distance < minDistance) {
 								return;
 							}
 						}
 					}
-					monster->HP -= 200;
-					if (monster->target_id < 0)
-						monster->target_id = CL._id;
-					if (monster->HP <= 0)
-						monster->SetState(NPC_State::Dead);
+					closestMonster->HP -= 200;
+					if (closestMonster->target_id < 0)
+						closestMonster->target_id = CL._id;
+					if (closestMonster->HP <= 0)
+						closestMonster->SetState(NPC_State::Dead);
 					return;
 				}
 			}
@@ -382,14 +402,18 @@ void worker_thread(HANDLE h_iocp)
 			else {
 				cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
-				if (ex_over->_comp_type == OP_SEND) delete ex_over;//OverPool.ReturnMemory(ex_over);
+				if (ex_over->_comp_type == OP_SEND)
+					 delete ex_over;
+					//OverPool.ReturnMemory(ex_over);
 				continue;
 			}
 		}
 
 		if ((0 == num_bytes) && ((ex_over->_comp_type == OP_RECV) || (ex_over->_comp_type == OP_SEND))) {
 			disconnect(static_cast<int>(key));
-			if (ex_over->_comp_type == OP_SEND) delete ex_over;//OverPool.ReturnMemory(ex_over);
+			if (ex_over->_comp_type == OP_SEND) 
+				 delete ex_over;
+				//OverPool.ReturnMemory(ex_over);
 			continue;
 		}
 
@@ -454,13 +478,14 @@ void worker_thread(HANDLE h_iocp)
 			//OverPool.ReturnMemory(ex_over);
 			break;
 		case OP_NPC_MOVE://04166
-			int roomNum = static_cast<int>(key);
+			int roomNum = static_cast<int>(key) / 100;
+			short mon_id = static_cast<int>(key) % 100;
 			{
 				unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
-				for (auto iter = PoolMonsters[roomNum].begin(); iter != PoolMonsters[roomNum].end();)
-				{
-					if ((*iter)->is_alive())
-					{
+				auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+
+				if (iter != PoolMonsters[roomNum].end()) {
+					if ((*iter)->is_alive()) {
 						{
 							lock_guard<mutex> mm{ (*iter)->m_lock };
 							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
@@ -469,18 +494,18 @@ void worker_thread(HANDLE h_iocp)
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
-						iter++;
+						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
+						timer_queue.push(ev);
+
 					}
-					else
-					{
+					else {
 						MonsterPool.ReturnMemory(*iter);
 						PoolMonsters[roomNum].erase(iter);
 					}
 				}
-				TIMER_EVENT ev{ roomNum, high_resolution_clock::now() + 100ms, EV_MOVE };
-				timer_queue.push(ev);
 			}
-			delete ex_over;//OverPool.ReturnMemory(ex_over);
+			delete ex_over;
+			//OverPool.ReturnMemory(ex_over);
 			break;
 		}
 	}
@@ -501,9 +526,10 @@ void do_Timer()
 			}
 			switch (ev.event_id) {
 			case EV_MOVE:
-				OVER_EXP* ov = new OVER_EXP();//OverPool.GetMemory();
+				OVER_EXP* ov = new OVER_EXP();
+				//OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
-				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id, &ov->_over);
+				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
 				break;
 			}
 		}

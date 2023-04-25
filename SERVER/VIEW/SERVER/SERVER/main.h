@@ -12,6 +12,7 @@ enum EVENT_TYPE { EV_MOVE, EV_SUMMON };
 
 struct TIMER_EVENT {
 	int room_id;
+	int obj_id;
 	high_resolution_clock::time_point wakeup_time;
 	int event_id;
 	constexpr bool operator < (const TIMER_EVENT& _Left) const
@@ -127,9 +128,9 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
+		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE };
+		timer_queue.push(ev);
 	}
-	TIMER_EVENT ev{ roomNum, high_resolution_clock::now(), EV_MOVE };
-	timer_queue.push(ev);
 	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
 }
 
