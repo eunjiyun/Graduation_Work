@@ -95,6 +95,7 @@ void ProcessInput()
 		p.type = CS_MOVE;
 		p.pos = gGameFramework.m_pPlayer->GetPosition();
 		p.vel = gGameFramework.m_pPlayer->GetVelocity();
+
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 		int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
 		if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
@@ -359,7 +360,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
-void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
+void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//, SC_Open_Door_Packet* d)
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
@@ -381,7 +382,6 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//0322
 		pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
 	}
-
 }
 
 void ProcessPacket(char* ptr)//몬스터 생성
@@ -427,6 +427,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->SetVelocity(packet->vel);
 			(*iter)->SetPosition(targetPos);
 		}
+		
+
+		//door open
+		for (int i{}; i < gGameFramework.m_pStage->m_ppShaders[0]->m_nDoor; ++i)
+			if (abs((*iter)->GetPosition().z - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)
+				if (abs((*iter)->GetPosition().y - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().y) < 100)
+					gGameFramework.openDoor[i] = packet->doorOpen[i] = true;
+
 		break;
 	}
 	case SC_ROTATE_PLAYER: {

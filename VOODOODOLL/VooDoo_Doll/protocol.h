@@ -40,6 +40,10 @@ struct CS_LOGIN_PACKET {
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 
+struct SC_Open_Door_Packet {
+	bool doorOpen[5];
+};
+
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
@@ -120,6 +124,8 @@ struct SC_MOVE_PLAYER_PACKET {
 	XMFLOAT3  Pos;
 	DWORD direction;
 	XMFLOAT3 vel;
+
+	bool doorOpen[5];
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 

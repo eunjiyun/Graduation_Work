@@ -122,6 +122,7 @@ public:
 	//CMonster* Mon = nullptr;
 	CCamera* m_pCamera = NULL;
 	float time = 0.f;
+	bool openDoor[5]= { false,false,false,false,false };
 
 	POINT						m_ptOldCursorPos;
 

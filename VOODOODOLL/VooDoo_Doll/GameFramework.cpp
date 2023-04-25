@@ -474,8 +474,8 @@ void CGameFramework::BuildObjects()
 	}
 
 	
-	const wchar_t* wideFilename = _T("Sound/opening.wav");
-	const wchar_t* wideFilename2 = _T("Sound/opening2.wav");
+	const wchar_t* wideFilename = _T("Sound/opening11.wav");
+	//const wchar_t* wideFilename2 = _T("Sound/opening2.wav");
 
 	// Initialize SoundPlayer
 	if (!player.Initialize()) {
@@ -486,9 +486,9 @@ void CGameFramework::BuildObjects()
 	if (!player.LoadWave(wideFilename)) {
 		//return -1;
 	}
-	if (!player.LoadWave(wideFilename2)) {
-		//return -1;
-	}
+	//if (!player.LoadWave(wideFilename2)) {
+	//	//return -1;
+	//}
 
 	
 
@@ -746,11 +746,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			cout << "z : " << monster->GetPosition().z << endl << endl << endl;*/
 		}
 	}
-
+				
 	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor; ++i)
-		if (abs(m_pPlayer->GetPosition().z - m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)
-			if (abs(m_pPlayer->GetPosition().y - m_pStage->m_ppShaders[0]->door[i]->GetPosition().y) < 100)
-				m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
+		if(openDoor[i])
+			m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
 }
 
 void CGameFramework::WaitForGpuComplete()

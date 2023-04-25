@@ -629,26 +629,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	//Door_01_main_mesh
-	m_nDoor = 5;
-	door = new CGameObject * [m_nDoor];
-
-	for (int h{}; h < m_nDoor; ++h)
-	{
-		door[h] = new CDoor(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr, 2);
-		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		door[h]->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		door[h]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		door[h]->SetScale(70.0f, 70.0f, 70.0f);
-
-		if (h != m_nDoor - 1)
-			//252-255 Door_01_Frame_mesh
-			door[h]->SetPosition(m_ppObjects[252 + h]->GetPosition().x - 50, m_ppObjects[252 + h]->GetPosition().y, m_ppObjects[252 + h]->GetPosition().z);// XMFLOAT3{ 154, -60,570 });// m_ppObjects[371]->GetPosition());
-		else
-			//403 ForDoorcollider
-			door[h]->SetPosition(m_ppObjects[403]->GetPosition().x + 50, m_ppObjects[403]->GetPosition().y-70, m_ppObjects[403]->GetPosition().z);// XMFLOAT3{ 154, -60,570 });// m_ppObjects[371]->GetPosition());
-	}
+	
 	
 
 	int l = 0;
@@ -692,6 +673,31 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 		}
 	}
+
+	//Door_01_main_mesh
+	m_nDoor = 5;
+	door = new CGameObject * [m_nDoor];
+
+	for (int h{}; h < m_nDoor; ++h)
+	{
+		door[h] = new CDoor(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr, 2);
+		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		door[h]->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		door[h]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		door[h]->SetScale(70.0f, 70.0f, 70.0f);
+
+		if (h != m_nDoor - 1)
+			//252-255 Door_01_Frame_mesh
+			door[h]->SetPosition(m_ppObjects[252 + h]->GetPosition().x - 50, m_ppObjects[252 + h]->GetPosition().y, m_ppObjects[252 + h]->GetPosition().z);
+		else
+			//403 ForDoorcollider
+			door[h]->SetPosition(m_ppObjects[403]->GetPosition().x + 50, m_ppObjects[403]->GetPosition().y - 70, m_ppObjects[403]->GetPosition().z);
+
+		boxShader->obj.push_back(door[h]);
+	}
+
+
 	cout << "mnobj : " << m_nObjects << endl;
 
 	return mpObjVec;

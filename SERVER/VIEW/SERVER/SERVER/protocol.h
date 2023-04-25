@@ -52,6 +52,9 @@ struct CS_MOVE_PACKET {
 	//float czDelta = 0.f;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
+
+	//bool doorOpen[5];
+
 #ifdef _STRESS_TEST
 	unsigned	move_time;
 #endif

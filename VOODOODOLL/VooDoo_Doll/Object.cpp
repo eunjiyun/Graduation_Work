@@ -645,18 +645,12 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		}
 		break;
 	case ANIMATION_TYPE_DOOR:
-		//if (m_fPosition == fAnimationLength && m_bEnable)//BOOL bool
-		//{
-		//	m_fPosition = 0.0f;
-		//}
-		//else {
-			m_fPosition = fTrackPosition + fTrackElapsedTime;
-			if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
-			{
-				m_fPosition = fAnimationLength;
-				SetEnable(false);
-			}
-		//}
+		m_fPosition = fTrackPosition + fTrackElapsedTime;
+		if (m_fPosition > fAnimationLength)//fAnimationLength : 1.000000
+		{
+			m_fPosition = fAnimationLength;
+			SetEnable(false);
+		}
 		break;
 	case ANIMATION_TYPE_DEAD:
 		m_fPosition = fTrackPosition + fTrackElapsedTime;
@@ -1549,10 +1543,10 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
+			}
 		}
-	}
 	return(pGameObject);
-}
+	}
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 {
@@ -1637,13 +1631,13 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 #endif
 				}
 			}
-		}
+				}
 		else if (!strcmp(pstrToken, "</AnimationSets>"))
 		{
 			break;
 		}
-	}
-}
+			}
+			}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
@@ -1862,14 +1856,9 @@ void CBulletObject::Animate(float fElapsedTime)//총알 업데이트
 
 	//UpdateBoundingBox();
 
-	/*cout << "bullet animate 호출 : " << num << endl;
-	cout << "이동거리 : " << m_fMovingDistance << endl;
-	cout << "이동범위 : " << m_fBulletEffectiveRange << endl << endl << endl << endl;
-	++num;*/
-
 	if ((m_fMovingDistance > m_fBulletEffectiveRange) || (m_fElapsedTimeAfterFire > m_fLockingTime))
 		Reset();
-	}
+}
 
 void CBulletObject::Reset()
 {
@@ -1919,19 +1908,6 @@ CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 
 CDoor::~CDoor()
 {
-}
-
-void CDoor::Update(float fTimeElapsed)
-{
-	//if (m_pSkinnedAnimationController->Cur_Animation_Track != 1)
-	//	m_xmf3Velocity = XMFLOAT3(0, 0, 0);
-
-	//XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
-
-	//Move(xmf3Velocity);
-	//m_xmOOBB.Center = GetPosition();
-
-	////Vector3::Print(m_xmOOBB.Center);
 }
 
 
