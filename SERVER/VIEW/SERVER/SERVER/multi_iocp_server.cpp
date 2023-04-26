@@ -243,7 +243,7 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
-		CL.send_stage_clear_packet(1);
+		CL.send_stage_clear_packet(0);
 		//CL.cur_stage.store(getMonsters(c_id).cur_stage);
 		//Initialize_Monster(c_id / 4, CL.cur_stage.load());
 		for (auto& monster : getMonsters(c_id))
@@ -516,7 +516,14 @@ void worker_thread(HANDLE h_iocp)
 								//			cout << monster->m_id << endl;
 								//			cl.send_summon_monster_packet(monster);
 								//		}
-								cl.send_stage_clear_packet(cl.cur_stage);
+								if (2 == cl.cur_stage)
+									continue;
+								else if(2< cl.cur_stage)
+									cl.send_stage_clear_packet(cl.cur_stage-1);
+								else
+									cl.send_stage_clear_packet(cl.cur_stage );
+
+								cout << "clear stage : " << cl.cur_stage<< endl;
 							}
 						}
 					}

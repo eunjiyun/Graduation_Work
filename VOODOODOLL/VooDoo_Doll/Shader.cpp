@@ -629,8 +629,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	
-	
+
+
 
 	int l = 0;
 
@@ -647,27 +647,26 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				//Bedroom_wall_d_02_dense_mesh	l
 				//Ceiling_concrete_base_mesh up	
 
+			//바닥 넣기
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+				boxShader->obj.push_back(m_ppObjects[i]);
 
-			if (strncmp(m_ppObjects[i]->m_pstrName, "Book_0", 6))
-				if (strcmp(m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
-					if (strcmp(m_ppObjects[i]->m_pstrName, "carpet_01_mesh"))//carpet_02_mesh
-						if (strcmp(m_ppObjects[i]->m_pstrName, "carpet_02_mesh"))//Dense_Floor_mesh //Candle1
-							if (strncmp(m_ppObjects[i]->m_pstrName, "Candle",6))
-								if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_main_mesh"))//Dense_Floor_mesh //Candle1
-									if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh"))//Dense_Floor_mesh //Candle1
-										if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
-							//if (0==strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+			//문 넣지 않기
+			if (-70 > m_ppObjects[i]->GetPosition().y)
+				if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_main_mesh"))
+					if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh"))
+						if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
 							boxShader->obj.push_back(m_ppObjects[i]);
 
 
 
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1")||
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2")||
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2") ||
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle3"))
 			{
 				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(xmf3tmp);
-	/*			cout << l<<"번째	: "<<xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;*/
+				/*			cout << l<<"번째	: "<<xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;*/
 				++l;
 			}
 
@@ -683,16 +682,29 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		door[h] = new CDoor(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, nullptr, 2);
 		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		door[h]->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+
 		door[h]->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		door[h]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+
+		
 		door[h]->SetScale(70.0f, 70.0f, 70.0f);
 
-		if (h != m_nDoor - 1)
+		if (0 == h)
 			//252-255 Door_01_Frame_mesh
-			door[h]->SetPosition(m_ppObjects[252 + h]->GetPosition().x - 50, m_ppObjects[252 + h]->GetPosition().y, m_ppObjects[252 + h]->GetPosition().z);
-		else
+			door[h]->SetPosition(m_ppObjects[252]->GetPosition().x - 50, m_ppObjects[252]->GetPosition().y, m_ppObjects[252]->GetPosition().z);
+		else if (1 == h)
 			//403 ForDoorcollider
 			door[h]->SetPosition(m_ppObjects[403]->GetPosition().x + 50, m_ppObjects[403]->GetPosition().y - 70, m_ppObjects[403]->GetPosition().z);
+		else
+			door[h]->SetPosition(m_ppObjects[255 - h + 2]->GetPosition().x - 50, m_ppObjects[255 - h + 2]->GetPosition().y, m_ppObjects[255 - h + 2]->GetPosition().z);
+
+			cout << h << " y: " << door[h]->GetPosition().y << " z:	" << door[h]->GetPosition().z << endl;
+
+		if (-150 > door[h]->GetPosition().y)
+		{
+			door[h]->Rotate(0, 180, 0);
+		}
+		
 
 		boxShader->obj.push_back(door[h]);
 	}
@@ -757,7 +769,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		{
 			m_ppObjects[j]->shadowID = 1;
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-		}
+	}
 }
 }
 
@@ -887,7 +899,7 @@ D3D12_INPUT_LAYOUT_DESC CIlluminatedShader::CreateInputLayout()//0312
 
 	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[1] = { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	
+
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
