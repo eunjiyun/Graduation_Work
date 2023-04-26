@@ -30,10 +30,10 @@ constexpr char SC_MOVE_PLAYER = 9;
 constexpr char SC_ROTATE_PLAYER = 10;
 constexpr char SC_SUMMON_MONSTER = 11;
 constexpr char SC_MOVE_MONSTER = 12;
-constexpr char SC_STAGE_CLEAR = 13;
+constexpr char SC_OPEN_DOOR = 13;
 #include "stdafx.h"
 
-//#define _STRESS_TEST
+#define _STRESS_TEST
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {
@@ -160,13 +160,13 @@ struct SC_MOVE_MONSTER_PACKET {
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 
-struct SC_STAGE_CLEAR_PACKET {
+struct SC_OPEN_DOOR_PACKET {
 	unsigned char size;
 	char	type;
-	short	stage_num;
+	short	door_num;
 
 };
-constexpr short SC_STAGE_CLEAR_PACKET_SIZE = sizeof(SC_STAGE_CLEAR_PACKET);
+constexpr short SC_OPEN_DOOR_PACKET_SIZE = sizeof(SC_OPEN_DOOR_PACKET);
 #pragma pack (pop)
 
 // 소켓 함수 오류 출력 후 종료

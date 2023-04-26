@@ -150,7 +150,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ 250, -60,1000 };
+		m_xmf3Position = XMFLOAT3{ 450, -59,1480 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -161,7 +161,7 @@ public:
 		cur_stage = 0;
 		error_stack = 0;
 		character_num = 0;
-		HP = 500;
+		HP = 55500;
 	}
 	void do_recv()
 	{
@@ -262,12 +262,12 @@ public:
 
 	void send_summon_monster_packet(Monster* M);
 	void send_NPCUpdate_packet(Monster* M);
-	void send_stage_clear_packet(int stage_id)
+	void send_open_door_packet(int door_num)
 	{
-		SC_STAGE_CLEAR_PACKET packet;
+		SC_OPEN_DOOR_PACKET packet;
 		packet.size = sizeof(packet);
-		packet.type = SC_STAGE_CLEAR;
-		packet.stage_num = stage_id;
+		packet.type = SC_OPEN_DOOR;
+		packet.door_num = door_num;
 		do_send(&packet);
 	}
 

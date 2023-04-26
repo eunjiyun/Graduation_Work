@@ -1,18 +1,14 @@
 // protocol.h
 
-constexpr int PORT_NUM = 3500;
-constexpr int BUF_SIZE = 512;
-constexpr int NAME_SIZE = 20;
-
-constexpr int MAX_USER = 10000;
-constexpr int MAX_ROOM = 2500;
-constexpr int MAX_USER_PER_ROOM = 4;
-constexpr int MAX_MONSTER_PER_ROOM = 10;
-
-constexpr int W_WIDTH = 400;
-constexpr int W_HEIGHT = 400;
-
-constexpr int VIEW_RANGE = 4;
+constexpr short PORT_NUM = 3500;
+constexpr short BUF_SIZE = 512;
+constexpr short NAME_SIZE = 20;
+constexpr short MAX_USER = 10000;
+constexpr short MAX_ROOM = 2500;
+constexpr short MAX_USER_PER_ROOM = 4;
+constexpr short MAX_MONSTER_PER_ROOM = 10;
+constexpr short W_WIDTH = 400;
+constexpr short W_HEIGHT = 400;
 
 // Packet ID
 constexpr char CS_LOGIN = 0;
@@ -29,9 +25,10 @@ constexpr char SC_MOVE_PLAYER = 9;
 constexpr char SC_ROTATE_PLAYER = 10;
 constexpr char SC_SUMMON_MONSTER = 11;
 constexpr char SC_MOVE_MONSTER = 12;
-constexpr char SC_STAGE_CLEAR = 13;
+constexpr char SC_OPEN_DOOR = 13;
 #include "stdafx.h"
 
+#define _STRESS_TEST
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {
@@ -41,17 +38,17 @@ struct CS_LOGIN_PACKET {
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 
-
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
 	DWORD	direction = 0;
 	short	id;
-	//float cxDelta = 0.f;
-	//float cyDelta = 0.f;
-	//float czDelta = 0.f;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
+
+#ifdef _STRESS_TEST
+	unsigned	move_time;
+#endif
 };
 constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 
@@ -62,6 +59,7 @@ struct CS_ROTATE_PACKET {
 	float cxDelta = 0.f;
 	float cyDelta = 0.f;
 	float czDelta = 0.f;
+
 };
 constexpr short CS_ROTATE_PACKET_SIZE = sizeof(CS_ROTATE_PACKET);
 
@@ -103,7 +101,6 @@ struct SC_ADD_PLAYER_PACKET {
 	short	id;
 	short cur_weaponType;
 	XMFLOAT3 Pos, Look, Right, Up;
-	//char	name[NAME_SIZE];
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);
 
@@ -122,6 +119,9 @@ struct SC_MOVE_PLAYER_PACKET {
 	XMFLOAT3  Pos;
 	DWORD direction;
 	XMFLOAT3 vel;
+#ifdef _STRESS_TEST
+	unsigned	move_time;
+#endif
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
@@ -132,7 +132,6 @@ struct SC_ROTATE_PLAYER_PACKET {
 	XMFLOAT3 Look, Right;
 };
 constexpr short SC_ROTATE_PLAYER_PACKET_SIZE = sizeof(SC_ROTATE_PLAYER_PACKET);
-
 
 struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
@@ -152,16 +151,16 @@ struct SC_MOVE_MONSTER_PACKET {
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;
-	//short Chasing_PlayerID;
 	XMFLOAT3 BulletPos;
 	unsigned short animation_track; // 애니메이션 타입
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
 
-struct SC_STAGE_CLEAR_PACKET {
+struct SC_OPEN_DOOR_PACKET {
 	unsigned char size;
 	char	type;
-	short	stage_num;
+	short	door_num;
+
 };
-constexpr short SC_STAGE_CLEAR_PACKET_SIZE = sizeof(SC_STAGE_CLEAR_PACKET);
+constexpr short SC_OPEN_DOOR_PACKET_SIZE = sizeof(SC_OPEN_DOOR_PACKET);
 #pragma pack (pop)

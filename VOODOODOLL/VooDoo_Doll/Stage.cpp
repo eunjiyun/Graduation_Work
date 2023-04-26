@@ -1001,7 +1001,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			//cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";

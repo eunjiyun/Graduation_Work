@@ -20,12 +20,13 @@ struct TIMER_EVENT {
 		return (wakeup_time > _Left.wakeup_time);
 	}
 };
-concurrent_priority_queue<TIMER_EVENT*> timer_queue;
+concurrent_priority_queue<TIMER_EVENT> timer_queue;
+//concurrent_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
 
-CObjectPool<TIMER_EVENT> EventPool(20'000);
+//CObjectPool<TIMER_EVENT> EventPool(20'000);
 CObjectPool<Monster> MonsterPool(20'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
 
@@ -129,11 +130,12 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
-		TIMER_EVENT* ev = EventPool.GetMemory();
-		ev->room_id = roomNum;
-		ev->obj_id = M->m_id;
-		ev->wakeup_time = high_resolution_clock::now();
-		ev->event_id = EV_MOVE;
+		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE };
+		//TIMER_EVENT* ev = EventPool.GetMemory();
+		//ev->room_id = roomNum;
+		//ev->obj_id = M->m_id;
+		//ev->wakeup_time = high_resolution_clock::now();
+		//ev->event_id = EV_MOVE;
 		timer_queue.push(ev);
 	}
 	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
