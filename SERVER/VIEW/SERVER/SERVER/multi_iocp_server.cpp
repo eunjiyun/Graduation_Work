@@ -74,7 +74,6 @@ int main()
 #endif
 	delete[] m_ppObjects;
 
-
 	InitializeStages();
 
 	WSADATA WSAData;
@@ -244,6 +243,9 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
+		CL.send_stage_clear_packet(1);
+		//CL.cur_stage.store(getMonsters(c_id).cur_stage);
+		//Initialize_Monster(c_id / 4, CL.cur_stage.load());
 		for (auto& monster : getMonsters(c_id))
 			CL.send_summon_monster_packet(monster);
 		break;
@@ -271,10 +273,8 @@ void process_packet(const int c_id, char* packet)
 	}
 	case CS_ATTACK: {
 		threadsafe_vector<Monster*>& Monsters = getMonsters(CL._id);
-		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
-		
+		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);		
 		XMFLOAT3 _Look = CL.GetLookVector();
-
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
@@ -299,6 +299,7 @@ void process_packet(const int c_id, char* packet)
 		}
 		case 1:
 		{
+			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
 			vector<Monster*> monstersInRange;
@@ -327,8 +328,8 @@ void process_packet(const int c_id, char* packet)
 				if (closestMonster)
 				{
 					lock_guard<mutex> monster_lock{ closestMonster->m_lock };
-					int _min = min(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE);
-					int _max = max(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE);
+					int _min = static_cast<int>(min(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
+					int _max = static_cast<int>(max(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
 					for (int i = _min; i <= _max; i++)
 					{
 						for (auto& obj : Objects[i])
@@ -403,17 +404,17 @@ void worker_thread(HANDLE h_iocp)
 				cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
 				if (ex_over->_comp_type == OP_SEND)
-					 delete ex_over;
-					//OverPool.ReturnMemory(ex_over);
+					delete ex_over;
+				//OverPool.ReturnMemory(ex_over);
 				continue;
 			}
 		}
 
 		if ((0 == num_bytes) && ((ex_over->_comp_type == OP_RECV) || (ex_over->_comp_type == OP_SEND))) {
 			disconnect(static_cast<int>(key));
-			if (ex_over->_comp_type == OP_SEND) 
-				 delete ex_over;
-				//OverPool.ReturnMemory(ex_over);
+			if (ex_over->_comp_type == OP_SEND)
+				delete ex_over;
+			//OverPool.ReturnMemory(ex_over);
 			continue;
 		}
 
@@ -494,13 +495,30 @@ void worker_thread(HANDLE h_iocp)
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
 						}
-						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
+						//TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
+						TIMER_EVENT* ev = EventPool.GetMemory();
+						ev->room_id = roomNum;
+						ev->obj_id = mon_id;
+						ev->wakeup_time = (*iter)->recent_recvedTime + 100ms;
+						ev->event_id = EV_MOVE;
 						timer_queue.push(ev);
 
 					}
 					else {
 						MonsterPool.ReturnMemory(*iter);
 						PoolMonsters[roomNum].erase(iter);
+						if (PoolMonsters[roomNum].size() <= 0) {
+							//Initialize_Monster(roomNum, ++PoolMonsters[roomNum].cur_stage);
+							for (auto& cl : clients[roomNum]) {
+								//	if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
+								//		cout << "client test 통과\n";
+								//		for (auto& monster : PoolMonsters[roomNum]) {
+								//			cout << monster->m_id << endl;
+								//			cl.send_summon_monster_packet(monster);
+								//		}
+								cl.send_stage_clear_packet(cl.cur_stage);
+							}
+						}
 					}
 				}
 			}
@@ -517,23 +535,24 @@ void do_Timer()
 {
 	while (1)
 	{
-		TIMER_EVENT ev;
+		TIMER_EVENT* ev;
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
-			if (ev.wakeup_time > current_time) {
+			if (ev->wakeup_time > current_time) {
 				timer_queue.push(ev);
 				continue;
 			}
-			switch (ev.event_id) {
+			switch (ev->event_id) {
 			case EV_MOVE:
 				OVER_EXP* ov = new OVER_EXP();
 				//OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_MOVE;
-				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
+				PostQueuedCompletionStatus(h_iocp, 1, ev->room_id * 100 + ev->obj_id, &ov->_over);
 				break;
 			}
+			EventPool.ReturnMemory(ev);
 		}
-		//else this_thread::sleep_for(1ms);
+		else this_thread::sleep_for(10ns);
 	}
 }
 

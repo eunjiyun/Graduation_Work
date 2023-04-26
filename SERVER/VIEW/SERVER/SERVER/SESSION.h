@@ -150,7 +150,7 @@ public:
 	void Initialize(int id, SOCKET Socket)
 	{
 		_id = id;
-		m_xmf3Position = XMFLOAT3{ 250, -60,600 };
+		m_xmf3Position = XMFLOAT3{ 250, -60,1000 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -262,7 +262,14 @@ public:
 
 	void send_summon_monster_packet(Monster* M);
 	void send_NPCUpdate_packet(Monster* M);
-
+	void send_stage_clear_packet(int stage_id)
+	{
+		SC_STAGE_CLEAR_PACKET packet;
+		packet.size = sizeof(packet);
+		packet.type = SC_STAGE_CLEAR;
+		packet.stage_num = stage_id;
+		do_send(&packet);
+	}
 
 	void send_remove_player_packet(int c_id)
 	{

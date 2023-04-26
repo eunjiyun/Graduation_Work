@@ -702,13 +702,14 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		break;
 	}
 	if (Mon != nullptr)
-	{
-		
+	{		
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(15, 4, 12));
 		Mon->SetPosition(Pos);
 		Monsters.push_back(Mon);
+		cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";
+		Vector3::Print(Mon->GetPosition());
 	}
 }
 

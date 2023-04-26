@@ -380,5 +380,6 @@ public:
 		vector<T>::erase(iter);
 	}
 	//mutable mutex v_lock;
+	unsigned short cur_stage = 1;
 	mutable shared_mutex v_shared_lock;
 };

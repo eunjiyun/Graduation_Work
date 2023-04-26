@@ -7,7 +7,7 @@ Monster::Monster(const Monster& other)
     lock_guard<mutex> ll{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    alive = other.alive;
+    alive.store(other.alive);
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -32,7 +32,7 @@ Monster& Monster::operator=(const Monster& other)
     lock_guard<mutex> l2{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    alive = other.alive;
+    alive.store(other.alive);
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -66,6 +66,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     cur_animation_track = 0;
     target_id = -1;
     attacked = false;
+    attack_range = 5.f;
     switch (_type)
     {
     case 0: // ¼Õ¿¡ Ä®
@@ -94,6 +95,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         power = 70;
         view_range = 500;
         speed = 30.f;
+        attack_range = 150.f;
         attack_cycle = (8.f / 3.f); // 2.666664ÃÊ
         attack_timer = attack_cycle;
         dead_timer = 3.3f;

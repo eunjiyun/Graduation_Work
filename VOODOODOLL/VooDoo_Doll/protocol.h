@@ -29,6 +29,7 @@ constexpr char SC_MOVE_PLAYER = 9;
 constexpr char SC_ROTATE_PLAYER = 10;
 constexpr char SC_SUMMON_MONSTER = 11;
 constexpr char SC_MOVE_MONSTER = 12;
+constexpr char SC_STAGE_CLEAR = 13;
 #include "stdafx.h"
 
 
@@ -40,9 +41,6 @@ struct CS_LOGIN_PACKET {
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 
-struct SC_Open_Door_Packet {
-	bool doorOpen[5];
-};
 
 struct CS_MOVE_PACKET {
 	unsigned char size;
@@ -124,8 +122,6 @@ struct SC_MOVE_PLAYER_PACKET {
 	XMFLOAT3  Pos;
 	DWORD direction;
 	XMFLOAT3 vel;
-
-	bool doorOpen[5];
 };
 constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
 
@@ -161,4 +157,11 @@ struct SC_MOVE_MONSTER_PACKET {
 	unsigned short animation_track; // 애니메이션 타입
 };
 constexpr short SC_MOVE_MONSTER_PACKET_SIZE = sizeof(SC_MOVE_MONSTER_PACKET);
+
+struct SC_STAGE_CLEAR_PACKET {
+	unsigned char size;
+	char	type;
+	short	stage_num;
+};
+constexpr short SC_STAGE_CLEAR_PACKET_SIZE = sizeof(SC_STAGE_CLEAR_PACKET);
 #pragma pack (pop)

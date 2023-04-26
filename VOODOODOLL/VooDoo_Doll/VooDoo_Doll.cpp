@@ -360,7 +360,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
-void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)//, SC_Open_Door_Packet* d)
+void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
@@ -427,14 +427,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->SetVelocity(packet->vel);
 			(*iter)->SetPosition(targetPos);
 		}
-		
-
-		//door open
-		for (int i{}; i < gGameFramework.m_pStage->m_ppShaders[0]->m_nDoor; ++i)
-			if (abs((*iter)->GetPosition().z - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)
-				if (abs((*iter)->GetPosition().y - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().y) < 100)
-					gGameFramework.openDoor[i] = packet->doorOpen[i] = true;
-
 		break;
 	}
 	case SC_ROTATE_PLAYER: {
@@ -480,7 +472,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_SUMMON_MONSTER: {
 		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-		cout << packet->monster_type << "type, " << packet->id << "number Monster SUMMONED - " << packet->Pos.x << ", " << packet->Pos.y << ", " << packet->Pos.z << endl;
 		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}
@@ -514,6 +505,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		}
 		//(*iter)->SetPosition(packet->Pos);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
+		break;
+	}
+	case SC_STAGE_CLEAR: {
+		SC_STAGE_CLEAR_PACKET* packet = reinterpret_cast<SC_STAGE_CLEAR_PACKET*>(ptr);
+		int cur_stage = packet->stage_num;
+		gGameFramework.openDoor[cur_stage] = true;
+		//for (int i{}; i < gGameFramework.m_pStage->m_ppShaders[0]->m_nDoor; ++i)
+		//	if (abs((*iter)->GetPosition().z - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)
+		//		if (abs((*iter)->GetPosition().y - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().y) < 100)
+		//			gGameFramework.openDoor[i] = packet->doorOpen[i] = true;
 		break;
 	}
 	}

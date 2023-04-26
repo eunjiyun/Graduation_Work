@@ -55,6 +55,12 @@ void CMonster::Update(float fTimeElapsed)
 	XMFLOAT3 xmf3Velocity = Vector3::ScalarProduct(m_xmf3Velocity, fTimeElapsed, false);
 
 	Move(xmf3Velocity);
+
+	if (m_ppHat) {
+		XMFLOAT3 hats_xmf3Velocity = Vector3::ScalarProduct(m_hats_xmf3Velocity, fTimeElapsed, false);
+
+		m_ppHat->Move(xmf3Velocity);
+	}
 	m_xmOOBB.Center = GetPosition();
 
 	//Vector3::Print(m_xmOOBB.Center);

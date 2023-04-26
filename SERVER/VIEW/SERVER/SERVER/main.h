@@ -20,12 +20,12 @@ struct TIMER_EVENT {
 		return (wakeup_time > _Left.wakeup_time);
 	}
 };
-concurrent_priority_queue<TIMER_EVENT> timer_queue;
+concurrent_priority_queue<TIMER_EVENT*> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
 
-
+CObjectPool<TIMER_EVENT> EventPool(20'000);
 CObjectPool<Monster> MonsterPool(20'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
 
@@ -83,6 +83,7 @@ void disconnect(int c_id)
 			MonsterPool.ReturnMemory(*iter);
 			Monsters.erase(iter);
 		}
+		Monsters.cur_stage = 1;
 	}
 }
 
@@ -128,11 +129,16 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
-		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE };
+		TIMER_EVENT* ev = EventPool.GetMemory();
+		ev->room_id = roomNum;
+		ev->obj_id = M->m_id;
+		ev->wakeup_time = high_resolution_clock::now();
+		ev->event_id = EV_MOVE;
 		timer_queue.push(ev);
 	}
 	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
 }
+	
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
@@ -306,7 +312,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 	closelist.reserve(600);
 	shared_ptr<A_star_Node> S_Node;
 
-	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos, 0, nullptr));
+	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos, 0.f, nullptr));
 	
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
@@ -360,7 +366,7 @@ int Monster::get_targetID()
 
 	if (min < view_range)
 	{
-		return min_element(distances.begin(), distances.end()) - distances.begin();
+		return static_cast<int>(min_element(distances.begin(), distances.end()) - distances.begin());
 	}
 	else return -1;
 }
@@ -378,7 +384,6 @@ void Monster::Update(float fTimeElapsed)
 				//cout << "plHP : " << player.HP << endl;
 				if (player.HP <= 0)
 				{
-					//player.direction.store(DIR_DIE);
 					player._state.store(ST_DEAD);
 					for (auto& cl : clients[room_num]) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
@@ -414,7 +419,7 @@ void Monster::Update(float fTimeElapsed)
 			target_id = -1;
 			return;
 		}
-		if ((2 == type && LONGRANGETTACK_RANGE >= g_distance) || MELEEATTACK_RANGE >= g_distance)
+		if (attack_range >= g_distance)
 		{
 			SetState(NPC_State::Attack);
 			cur_animation_track = (type != 4) ? 2 : cur_animation_track;
@@ -478,13 +483,8 @@ void Monster::Update(float fTimeElapsed)
 			break;
 		}
 		if (GetAttackTimer() <= 0) {//0326
-			if (2 == type && LONGRANGETTACK_RANGE <= g_distance)
+			if (attack_range <= g_distance)
 			{
-				SetState(NPC_State::Chase);
-				cur_animation_track = 1;
-				SetAttackTimer(attack_cycle);
-			}
-			else if (MELEEATTACK_RANGE <= g_distance) {
 				SetState(NPC_State::Chase);
 				cur_animation_track = 1;
 				SetAttackTimer(attack_cycle);
@@ -508,6 +508,10 @@ void Monster::Update(float fTimeElapsed)
 	}
 }
 
+void SorcererMonster::Update(float fTimeElapsed)
+{
+
+}
 
 void InitializeStages()
 {
