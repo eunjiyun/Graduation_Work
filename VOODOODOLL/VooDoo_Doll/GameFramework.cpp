@@ -839,9 +839,9 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (true == wakeUp)
-		m_pStage->wakeUp = false;
+		m_pStage->bLightwakeUp = false;
 	else
-		m_pStage->wakeUp = true;
+		m_pStage->bLightwakeUp = true;
 	
 	
 

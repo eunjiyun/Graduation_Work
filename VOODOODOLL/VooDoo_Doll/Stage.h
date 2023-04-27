@@ -100,6 +100,10 @@ public:
 
 	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);
 
+	void Lighthing();
+
+	float CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight);
+
 
 	CPlayer* m_pPlayer = NULL;
 	float							m_fLightRotationAngle = 0.0f;
@@ -168,7 +172,6 @@ public:
 public:
 	vector<XMFLOAT3> mpObjVec;
 	float							mpTime = 0.f;
-	bool							wakeUp = false;
 	XMFLOAT4X4				m_xmf4x4World = Matrix4x4::Identity();
 
 	int whatPlayer = 1;
@@ -180,4 +183,6 @@ public:
 	bool										bPass = false;
 	vector<int>							DeleteObject;
 	int											iGetItem = 0;
+	bool										bLightwakeUp = false;
 };
+

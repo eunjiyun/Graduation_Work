@@ -67,8 +67,8 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.0f);*/
 	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,-100.0f, 2300);//-100 150
-	/*m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);*/
-	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
+	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);
+	//m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 
 	m_pLights[1].m_bEnable = false;//true
 	m_pLights[1].m_nType = SPOT_LIGHT;
@@ -124,9 +124,9 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[4].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 		m_pLights[4].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-		m_pLights[5].m_bEnable = true;
+		m_pLights[5].m_bEnable = false;
 		m_pLights[5].m_nType = POINT_LIGHT;
-		m_pLights[5].m_fRange = 1000.0f;
+		m_pLights[5].m_fRange = 1000.f;
 		m_pLights[5].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		m_pLights[5].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 7.0f);
 		m_pLights[5].m_xmf4Specular = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.0f);
@@ -140,14 +140,14 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 		for (int i = 6; i < MAX_LIGHTS; ++i)
 		{
-			m_pLights[i].m_bEnable = true;
+			m_pLights[i].m_bEnable = false;
 			m_pLights[i].m_nType = POINT_LIGHT;
-			m_pLights[i].m_fRange = 1000.0f;
+			m_pLights[i].m_fRange = 50.0f;
 
 			m_pLights[i].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 			m_pLights[i].m_xmf4Diffuse = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f);
 			m_pLights[i].m_xmf4Specular = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.0f);
-			/*m_pLights[i].m_xmf3Position = XMFLOAT3(584.9f, 174.8763f, 430.7f);*/
+			/*m_pLights[i].m_xmf3Position = XMFLOAT3(580.f, -192.9157f,1052.653f);*/
 			m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i-6].x, mpObjVec[i - 6].y, mpObjVec[i - 6].z);
 			m_pLights[i].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, -1.0f);
 			m_pLights[i].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
@@ -155,6 +155,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 			m_pLights[i].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 			m_pLights[i].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
+			cout << i <<"	: "<<m_pLights[i].m_xmf3Position.x << "	, " << m_pLights[i].m_xmf3Position.y << "	, " << m_pLights[i].m_xmf3Position.z << endl;
 			/*m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i - 5].x, mpObjVec[i - 5].y + 5, mpObjVec[i - 5].z);
 			*///m_pLights->m_pLights[5].m_xmf3Position = pos;
 		}
@@ -195,7 +196,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[31];
+	CTexture* ppTextures[33];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -290,7 +291,16 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Door_main_mat_inst_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 29; ++a)
+	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1.dds", RESOURCE_TEXTURE2D, 0);	
+
+	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3.dds", RESOURCE_TEXTURE2D, 0);
+
+	for (int a = 0; a < 32; ++a)
 	{
 		cout << a << endl;
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
@@ -314,7 +324,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 			if (0 == strcmp("Bedroom_wall_d_02_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("Bedroom_wall_b_01_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
-				0 == strcmp("Bedroom_wall_b_06_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+				0 == strcmp("Bedroom_wall_b_06_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Bedroom_wall_c_04_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				if (0 == iMaterialCheck)
 				{
@@ -419,7 +430,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			{
 				pMaterial->SetTexture(ppTextures[21]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}	if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+			}	
+			
+			if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_02_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
@@ -475,6 +488,24 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			if (0 == strcmp("Door_01_main_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) )
 			{
 				pMaterial->SetTexture(ppTextures[28]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
+			if (0 == strcmp("Candle1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[29]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
+			if (0 == strcmp("Candle2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[30]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
+			if (0 == strcmp("Candle3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[31]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -878,11 +909,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 		m_pLights[1].m_bEnable = false;
 
-		for (int i = 5; i < MAX_LIGHTS; ++i)
-		{
-			m_pLights[i].m_bEnable = true;
-		}
-			
+		Lighthing();
 	}
 
 	static float fAngle = 0.0f;
@@ -942,9 +969,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
-			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_main_mesh"))//Dense_Floor_mesh //Candle1
-				if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh"))//Dense_Floor_mesh //Candle1
-					if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
+			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 
@@ -1183,7 +1208,7 @@ XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBo
 
 	if (bIntersect)
 	{
-		return XMFLOAT3(0, 0, 0); // �浹���� ����
+		return XMFLOAT3(0, 0, 0); 
 	}
 
 	XMFLOAT3 xmf3Direction = { 0,0,0 };
@@ -1226,3 +1251,35 @@ XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBo
 	return xmf3Direction;
 }
 
+
+void CStage::Lighthing()
+{
+
+	for (int iNum = 6; iNum < MAX_LIGHTS; ++iNum)
+	{
+		float fDisatnce = CalculateDistance(m_pPlayer->GetPosition(), m_pLights[iNum].m_xmf3Position);
+
+		if (300.f > fDisatnce)
+		{
+			m_pLights[iNum].m_bEnable = true;
+		}
+
+		else
+		{
+			m_pLights[iNum].m_bEnable = false;
+		}
+	}
+
+}
+
+float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
+{
+
+	DirectX::XMVECTOR vec1 = DirectX::XMLoadFloat3(&pPlayer);
+	DirectX::XMVECTOR vec2 = DirectX::XMLoadFloat3(&pLight);
+	DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(vec1, vec2);
+
+	float fDisatnce;
+	XMStoreFloat(&fDisatnce, XMVector3Length(diff));
+	return fDisatnce;
+}

@@ -659,14 +659,14 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 							boxShader->obj.push_back(m_ppObjects[i]);
 
 
-
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1")|| 
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2") ||
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle3"))
 			{
+
 				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(xmf3tmp);
-				/*			cout << l<<"번째	: "<<xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;*/
+				cout << l << "번째	: " << xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;
 				++l;
 			}
 
@@ -689,23 +689,31 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		
 		door[h]->SetScale(70.0f, 70.0f, 70.0f);
 
-		if (0 == h)
-			//252-255 Door_01_Frame_mesh
-			door[h]->SetPosition(m_ppObjects[252]->GetPosition().x - 50, m_ppObjects[252]->GetPosition().y, m_ppObjects[252]->GetPosition().z);
-		else if (1 == h)
-			//403 ForDoorcollider
-			door[h]->SetPosition(m_ppObjects[403]->GetPosition().x + 50, m_ppObjects[403]->GetPosition().y - 70, m_ppObjects[403]->GetPosition().z);
-		else
-			door[h]->SetPosition(m_ppObjects[255 - h + 2]->GetPosition().x - 50, m_ppObjects[255 - h + 2]->GetPosition().y, m_ppObjects[255 - h + 2]->GetPosition().z);
 
-			cout << h << " y: " << door[h]->GetPosition().y << " z:	" << door[h]->GetPosition().z << endl;
-
+		//	cout << h << " y: " << door[h]->GetPosition().y << " z:	" << door[h]->GetPosition().z << endl;
+		switch(h)
+			{
+		case 0:
+			door[h]->SetPosition(469, -64.6, 1228.59);
+			break;
+		case 1:
+			door[h]->SetPosition(475, -49.4, 2593.3);
+			break;
+		case 2:
+			door[h]->SetPosition(233, -303.3, 3597.59);
+			break;
+		case 3:
+			door[h]->SetPosition(471, -303.3, 2584.59);
+			break;
+		case 4:
+			door[h]->SetPosition(231, -303.5, 1228.59);
+			break;
+			}
 		if (-150 > door[h]->GetPosition().y)
 		{
 			door[h]->Rotate(0, 180, 0);
 		}
 		
-
 		boxShader->obj.push_back(door[h]);
 	}
 
