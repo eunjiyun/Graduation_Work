@@ -372,7 +372,7 @@ class threadsafe_vector : public vector<T>
 public:
 	void emplace_back(const T& value) {
 		// lock_guard<mutex> _vec_lock{ v_lock };
-		unique_lock<shared_mutex> vec_lock{ v_shared_lock };
+		//unique_lock<shared_mutex> vec_lock{ v_shared_lock };
 		vector<T>::emplace_back(value);
 	}
 	void erase(typename vector<T>::const_iterator iter) {

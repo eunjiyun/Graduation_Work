@@ -295,6 +295,8 @@ void Worker_Thread()
 
 constexpr int DELAY_LIMIT = 100;
 constexpr int DELAY_LIMIT2 = 150;
+constexpr int MONSTER_DELAY_LIMIT = 200;
+constexpr int MONSTER_DELAY_LIMIT2 = 250;
 constexpr int ACCEPT_DELY = 50;
 
 void Adjust_Number_Of_Client()
@@ -310,7 +312,8 @@ void Adjust_Number_Of_Client()
 	if (ACCEPT_DELY * delay_multiplier > duration_cast<milliseconds>(duration).count()) return;
 
 	int t_delay = player_delay;
-	if (DELAY_LIMIT2 < t_delay) {
+	int t_delay_2 = monster_delay;
+	if (DELAY_LIMIT2 < t_delay || MONSTER_DELAY_LIMIT2 < t_delay_2) {
 		if (true == increasing) {
 			max_limit = active_clients;
 			increasing = false;
@@ -323,7 +326,7 @@ void Adjust_Number_Of_Client()
 		return;
 	}
 	else
-		if (DELAY_LIMIT < t_delay) {
+		if (DELAY_LIMIT < t_delay || MONSTER_DELAY_LIMIT < t_delay_2) {
 			delay_multiplier = 10;
 			return;
 		}

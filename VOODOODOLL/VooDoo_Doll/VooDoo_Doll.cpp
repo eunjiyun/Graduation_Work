@@ -414,8 +414,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->HP = packet->HP;
 		if (packet->HP <= 0) {
 			(*iter)->onAct = true;
-			(*iter)->alive = false;
-			//(*iter)->cxDelta = (*iter)->cyDelta = (*iter)->czDelta = 0;
+			(*iter)->alive = false;			
+			(*iter)->cxDelta = (*iter)->cyDelta = (*iter)->czDelta = 0;
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(4, true);
 			return;
@@ -507,9 +507,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}
-	case SC_STAGE_CLEAR: {
-		SC_STAGE_CLEAR_PACKET* packet = reinterpret_cast<SC_STAGE_CLEAR_PACKET*>(ptr);
-		int cur_stage = packet->stage_num;
+	case SC_OPEN_DOOR: {
+		SC_OPEN_DOOR_PACKET* packet = reinterpret_cast<SC_OPEN_DOOR_PACKET*>(ptr);
+		int cur_stage = packet->door_num;
 		gGameFramework.openDoor[cur_stage] = true;
 		//for (int i{}; i < gGameFramework.m_pStage->m_ppShaders[0]->m_nDoor; ++i)
 		//	if (abs((*iter)->GetPosition().z - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)

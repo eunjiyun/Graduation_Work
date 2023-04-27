@@ -20,12 +20,13 @@ struct TIMER_EVENT {
 		return (wakeup_time > _Left.wakeup_time);
 	}
 };
-concurrent_priority_queue<TIMER_EVENT*> timer_queue;
+concurrent_priority_queue<TIMER_EVENT> timer_queue;
+//concurrent_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
 
-CObjectPool<TIMER_EVENT> EventPool(20'000);
+//CObjectPool<TIMER_EVENT> EventPool(20'000);
 CObjectPool<Monster> MonsterPool(20'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
 
@@ -119,6 +120,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 {
 	if (PoolMonsters[roomNum].size() > 0) return;
 
+	unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
 	for (auto& info : StagesInfo[stageNum - 1]) {
 		Monster* M = MonsterPool.GetMemory();
 		M->Initialize(roomNum, info.id, info.type, info.Pos);
@@ -129,11 +131,12 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 				clients[roomNum][i].send_summon_monster_packet(M);
 			}
 		}
-		TIMER_EVENT* ev = EventPool.GetMemory();
-		ev->room_id = roomNum;
-		ev->obj_id = M->m_id;
-		ev->wakeup_time = high_resolution_clock::now();
-		ev->event_id = EV_MOVE;
+		TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MOVE };
+		//TIMER_EVENT* ev = EventPool.GetMemory();
+		//ev->room_id = roomNum;
+		//ev->obj_id = M->m_id;
+		//ev->wakeup_time = high_resolution_clock::now();
+		//ev->event_id = EV_MOVE;
 		timer_queue.push(ev);
 	}
 	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
@@ -566,7 +569,7 @@ void InitializeStages()
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -60, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -59, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -574,7 +577,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -60, _z), _type, ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), _type, ID_constructor);
 			StagesInfo[0].push_back(MI);
 			cout << ID_constructor << " - " << MI.type << endl;
 			Vector3::Print(MI.Pos);
@@ -588,7 +591,7 @@ void InitializeStages()
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -60, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -59, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -596,7 +599,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -60, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
 			StagesInfo[1].push_back(MI);
 			cout << ID_constructor << " - " << MI.type << endl;
 			Vector3::Print(MI.Pos);
