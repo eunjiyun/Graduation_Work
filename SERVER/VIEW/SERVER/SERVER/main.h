@@ -120,6 +120,7 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 {
 	if (PoolMonsters[roomNum].size() > 0) return;
 
+	unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
 	for (auto& info : StagesInfo[stageNum - 1]) {
 		Monster* M = MonsterPool.GetMemory();
 		M->Initialize(roomNum, info.id, info.type, info.Pos);
@@ -568,7 +569,7 @@ void InitializeStages()
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -60, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -59, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -576,7 +577,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -60, _z), _type, ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), _type, ID_constructor);
 			StagesInfo[0].push_back(MI);
 			cout << ID_constructor << " - " << MI.type << endl;
 			Vector3::Print(MI.Pos);
@@ -590,7 +591,7 @@ void InitializeStages()
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -60, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -59, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -598,7 +599,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -60, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
 			StagesInfo[1].push_back(MI);
 			cout << ID_constructor << " - " << MI.type << endl;
 			Vector3::Print(MI.Pos);

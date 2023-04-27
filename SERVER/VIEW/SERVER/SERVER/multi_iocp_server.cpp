@@ -284,7 +284,7 @@ void process_packet(const int c_id, char* packet)
 		case 0:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
-			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
@@ -354,7 +354,7 @@ void process_packet(const int c_id, char* packet)
 		case 2:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
-			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 10)
@@ -481,50 +481,51 @@ void worker_thread(HANDLE h_iocp)
 		case OP_NPC_MOVE://04166
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
+			vector<Monster*>::iterator iter;
+			bool found;
 			{
-				unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
-				auto iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
-
-				if (iter != PoolMonsters[roomNum].end()) {
-					if ((*iter)->is_alive()) {
-						{
-							lock_guard<mutex> mm{ (*iter)->m_lock };
-							(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
-							(*iter)->recent_recvedTime = high_resolution_clock::now();
-						}
-						for (auto& cl : clients[roomNum]) {
-							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
-						}
-						TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
-						//TIMER_EVENT* ev = EventPool.GetMemory();
-						//ev->room_id = roomNum;
-						//ev->obj_id = mon_id;
-						//ev->wakeup_time = (*iter)->recent_recvedTime + 100ms;
-						//ev->event_id = EV_MOVE;
-						timer_queue.push(ev);
-
+				shared_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
+				iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
+				found = (iter != PoolMonsters[roomNum].end());
+			}
+			
+			if (found) {
+				if ((*iter)->is_alive()) {
+					{
+						lock_guard<mutex> mm{ (*iter)->m_lock };
+						(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
+						(*iter)->recent_recvedTime = high_resolution_clock::now();
 					}
-					else {
-						MonsterPool.ReturnMemory(*iter);
+					for (auto& cl : clients[roomNum]) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
+					}
+					TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
+					timer_queue.push(ev);
+				}
+				else {
+					MonsterPool.ReturnMemory(*iter);
+					{
+						unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
 						PoolMonsters[roomNum].erase(iter);
-						if (PoolMonsters[roomNum].size() <= 0) {
-							//Initialize_Monster(roomNum, ++PoolMonsters[roomNum].cur_stage);
-							for (auto& cl : clients[roomNum]) {
-								if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
-									if (2 == cl.cur_stage)
-										continue;
-									else if (2 < cl.cur_stage)
-										cl.send_open_door_packet(cl.cur_stage - 1);
-									else
-										cl.send_open_door_packet(cl.cur_stage);
+					}
+					if (PoolMonsters[roomNum].size() <= 0) {
+						//Initialize_Monster(roomNum, ++PoolMonsters[roomNum].cur_stage);
+						for (auto& cl : clients[roomNum]) {
+							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
+								if (2 == cl.cur_stage)
+									continue;
+								else if (2 < cl.cur_stage)
+									cl.send_open_door_packet(cl.cur_stage - 1);
+								else
+									cl.send_open_door_packet(cl.cur_stage);
 
-									cout << "clear stage : " << cl.cur_stage << endl;
-								}
+								cout << "clear stage : " << cl.cur_stage << endl;
 							}
 						}
 					}
 				}
 			}
+
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
 			break;
