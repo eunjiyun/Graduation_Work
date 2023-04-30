@@ -13,7 +13,7 @@
 #pragma comment(lib, "MSWSock.lib")
 
 
-enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_MOVE, OP_SUMMON_MONSTER };
+enum COMP_TYPE { OP_ACCEPT, OP_LOGGEDIN, OP_RECV, OP_SEND, OP_NPC_MOVE };
 class OVER_EXP {
 public:
 	WSAOVERLAPPED _over;
@@ -147,17 +147,17 @@ public:
 
 	~SESSION() {}
 
-	void Initialize(int id, SOCKET Socket)
+	void Initialize()
 	{
-		_id = id;
-		m_xmf3Position = XMFLOAT3{ 450, -59,1480 };
+		//_id = id;
+		m_xmf3Position = XMFLOAT3{ 400, -59,600 };
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
 		m_xmf3Up = { 0,1,0 };
 		m_xmf3Right = { 1,0,0 };
 		m_xmf3Look = { 0,0,1 };
-		_socket = Socket;
+		//_socket = Socket;
 		cur_stage = 0;
 		error_stack = 0;
 		character_num = 0;
@@ -249,7 +249,7 @@ public:
 		SC_ADD_PLAYER_PACKET add_packet;
 		add_packet.id = Player->_id;
 
-		add_packet.size = sizeof(add_packet);
+		add_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
 		add_packet.type = SC_ADD_PLAYER;
 		add_packet.cur_weaponType = Player->character_num;
 		add_packet.Look = Player->m_xmf3Look;
@@ -265,7 +265,7 @@ public:
 	void send_open_door_packet(int door_num)
 	{
 		SC_OPEN_DOOR_PACKET packet;
-		packet.size = sizeof(packet);
+		packet.size = sizeof(SC_OPEN_DOOR_PACKET);
 		packet.type = SC_OPEN_DOOR;
 		packet.door_num = door_num;
 		do_send(&packet);
@@ -275,7 +275,7 @@ public:
 	{
 		SC_REMOVE_PLAYER_PACKET p;
 		p.id = c_id;
-		p.size = sizeof(p);
+		p.size = sizeof(SC_REMOVE_PLAYER_PACKET);
 		p.type = SC_REMOVE_PLAYER;
 		do_send(&p);
 	}

@@ -7,7 +7,7 @@
 
 
 enum EVENT_TYPE { EV_MOVE, EV_SUMMON };
-
+enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP };
 //#define _GRID_MAP 
 
 struct TIMER_EVENT {
@@ -20,7 +20,25 @@ struct TIMER_EVENT {
 		return (wakeup_time > _Left.wakeup_time);
 	}
 };
+
+struct DB_EVENT {
+	unsigned short session_id;
+	char user_id[20];
+	char user_password[20];
+	int _event;
+};
+
+wstring ConverttoWchar(const char* str)
+{
+	int length = static_cast<int>(strlen(str)) + 1;
+	wstring wstr(length, L'\0');
+	size_t converted = 0;
+	mbstowcs_s(&converted, &wstr[0], length, str, _TRUNCATE);
+	return wstr;
+}
+
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
+concurrent_queue<DB_EVENT> db_queue;
 //concurrent_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
@@ -95,7 +113,9 @@ void SESSION::send_summon_monster_packet(Monster* M)
 	summon_packet.size = sizeof(summon_packet);
 	summon_packet.type = SC_SUMMON_MONSTER;
 	summon_packet.Pos = M->GetPosition();
+#ifdef _STRESS_TEST
 	summon_packet.room_num = M->room_num;
+#endif
 	summon_packet.monster_type = M->getType();
 	do_send(&summon_packet);
 }
@@ -106,13 +126,17 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	p.id = M->m_id;
 	p.size = sizeof(SC_MOVE_MONSTER_PACKET);
 	p.type = SC_MOVE_MONSTER;
+	p.target_id = M->target_id;
 	p.Pos = M->GetPosition();
 	p.HP = M->HP;
 	p.is_alive = M->is_alive();
 	p.animation_track = M->cur_animation_track; // 원래 p.animation_track = (short)M->GetState();가 맞는데 2번 귀신이 애니메이션이 빠져 있어서 이렇게 함
 	//p.Chasing_PlayerID = M->target_id;
 	p.BulletPos = M->MagicPos;
+
+#ifdef _STRESS_TEST
 	p.room_num = M->room_num;
+#endif
 	do_send(&p);
 }
 
@@ -377,7 +401,7 @@ int Monster::get_targetID()
 void Monster::Update(float fTimeElapsed)
 {
 	if (2 == type && MagicPos.x < 5000) {
-		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 10, false));
+		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 100.f * fTimeElapsed, false)); // HAT_SPEED = 100.f
 		for (auto& player : clients[room_num]) {
 			lock_guard <mutex> ll{ player._s_lock };
 			if (BoundingBox(MagicPos, BULLET_SIZE).Intersects(player.m_xmOOBB))
@@ -564,7 +588,7 @@ void InitializeStages()
 	}
 #else
 	{	// 1stage
-		cout << "1 stage\n";
+		//cout << "1 stage\n";
 		int _type = 1;
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
@@ -579,13 +603,13 @@ void InitializeStages()
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), _type, ID_constructor);
 			StagesInfo[0].push_back(MI);
-			cout << ID_constructor << " - " << MI.type << endl;
-			Vector3::Print(MI.Pos);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}
 	{	// 2stage
-		cout << "2 stage\n";
+		//cout << "2 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2650, 3550));
 		while (ID_constructor < 20) {
@@ -601,13 +625,13 @@ void InitializeStages()
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
 			StagesInfo[1].push_back(MI);
-			cout << ID_constructor << " - " << MI.type << endl;
-			Vector3::Print(MI.Pos);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}
 	{	// 3stage
-		cout << "3 stage\n";
+		//cout << "3 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
 
@@ -624,13 +648,13 @@ void InitializeStages()
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
 			StagesInfo[2].push_back(MI);
-			cout << ID_constructor << " - " << MI.type << endl;
-			Vector3::Print(MI.Pos);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}
 	{	// 4stage
-		cout << "4 stage\n";
+		//cout << "4 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2650, 3550));
 		type_dis.param(uniform_int_distribution<int>::param_type(0, 2));
@@ -647,13 +671,13 @@ void InitializeStages()
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
 			StagesInfo[3].push_back(MI);
-			cout << ID_constructor << " - " << MI.type << endl;
-			Vector3::Print(MI.Pos);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}
 	{	// 5stage
-		cout << "5 stage\n";
+		//cout << "5 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1260, 2550));
 		while (ID_constructor < 50) {
@@ -669,13 +693,33 @@ void InitializeStages()
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
 			StagesInfo[4].push_back(MI);
-			cout << ID_constructor << " - " << MI.type << endl;
-			Vector3::Print(MI.Pos);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}
 
 	{	// 6stage
+		//cout << "6 stage\n";
+		gen.seed(rd());
+		z_dis.param(uniform_int_distribution<int>::param_type(100, 1100));
+		while (ID_constructor < 60) {
+			float _x = static_cast<float>(x_dis(gen));
+			float _z = static_cast<float>(z_dis(gen));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
+			bool col = false;
+			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
+				if (obj->m_xmOOBB.Intersects(test)) {
+					col = true;
+					break;
+				}
+			if (col) continue;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
+			StagesInfo[5].push_back(MI);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
+			ID_constructor++;
+		}
 	}
 #endif
 }

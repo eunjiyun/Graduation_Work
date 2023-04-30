@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NON_CONFORMING_SWPRINTFS
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include <thread>
@@ -5,7 +7,6 @@
 #include <unordered_set>
 #include "main.h"
 #include <sqlext.h>
-
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 
@@ -102,14 +103,14 @@ int main()
 	int num_threads = std::thread::hardware_concurrency();
 	for (int i = 0; i < 1; ++i)
 		timer_threads.emplace_back(do_Timer);
-	//thread* DB_t = new thread{ DB_Thread };
+	thread* DB_t = new thread{ DB_Thread };
 	for (int i = 0; i < num_threads - 1; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
 	for (auto& th : timer_threads)
 		th.join();
-	//DB_t->join();
+	DB_t->join();
 
 	closesocket(g_s_socket);
 	WSACleanup();
@@ -146,83 +147,153 @@ void DB_Thread()
 	SQLHDBC hdbc;
 	SQLHSTMT hstmt = 0;
 	SQLRETURN retcode;
-	SQLWCHAR szUser_Name[NAME_SIZE];
-	SQLINTEGER dUser_id, dUser_PlayTime;
+	SQLWCHAR szUser_ID[NAME_SIZE], szUser_PWD[NAME_SIZE];
+	SQLINTEGER dUser_ClearTime, dUser_CurStage;
 
 	setlocale(LC_ALL, "korean");
 
-	SQLLEN cbName = 0, cbID = 0, cbLevel = 0;
+	SQLLEN cbID = 0, cbPWD = 0, cbClearTime = 0, cbCurStage = 0;
 
-	// Allocate environment handle  
-	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+	//// Allocate environment handle  
+	//retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
 
-	// Set the ODBC version environment attribute  
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+	//// Set the ODBC version environment attribute  
+	//if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+	//	retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
 
-		// Allocate connection handle  
-		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+	//	// Allocate connection handle  
+	//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+	//		retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
 
-			// Set login timeout to 5 seconds  
+
+	//		// Set login timeout to 5 seconds  
+	//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+	//			SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+
+	//			// Connect to data source  
+	//			//retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
+	//			//SQLWCHAR* ConnStrIn = L"DRIVER={SQL Server};SERVER=127.0.0.1;DATABASE=VOODOODOLL_DB;UID=dbAdmin_master;PWD=2018180005";
+	//			retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)L"dbAdmin_master", SQL_NTS, (SQLWCHAR*)L"2018180005", SQL_NTS);
+	//			cout << retcode << endl;
+	//			// Allocate statement handle  
+	//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+	//				retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+	//				printf("ODBC Connect OK \n");
+	//			}
+	//			else 									
+	//				HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+	//		}
+	//	}
+	//}
+
+	while (1)
+	{
+		DB_EVENT ev;
+		if (db_queue.try_pop(ev))
+		{
+			// Allocate environment handle  
+			retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+
+			// Set the ODBC version environment attribute  
 			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
+				retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
 
-				// Connect to data source  
-				retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-
-				// Allocate statement handle  
+				// Allocate connection handle  
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+					retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
 
-					printf("ODBC Connect OK \n");
-
-					//SELECT ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩ¬∞ÔøΩ ÔøΩ◊∏ÔøΩÔøΩ, FROM ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩ¬∞ÔøΩ ÔøΩÔøΩÔøΩÃ∫ÔøΩ ÔøΩÃ∏ÔøΩ, ORDER BY ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩ¬∞ÔøΩ sorting ÔøΩÔøΩ ÔøΩÔøΩ. ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ user_nameÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ.
-					retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT ID, Name, PlayTime FROM user_data ORDER BY 3", SQL_NTS);
+					// Set login timeout to 5 seconds  
 					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
-						printf("Select OK \n");
+						// Connect to data source  
+						retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
 
-						// Bind columns 1, 2, and 3  
-						retcode = SQLBindCol(hstmt, 1, SQL_C_LONG, &dUser_id, 100, &cbID);
-						retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, szUser_Name, NAME_SIZE, &cbName);
-						retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &dUser_PlayTime, 100, &cbLevel);
+						// Allocate statement handle  
+						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+							retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
 
-						// Fetch and print each row of data. On an error, display a message and exit.  
-						for (int i = 0; ; i++) {
-							retcode = SQLFetch(hstmt);
-							if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
-							{
-								//replace wprintf with printf
-								//%S with %ls
-								//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
-								//but variadic argument 2 has type 'SQLWCHAR *'
-								//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-								wprintf(L"%d: %d %s %d\n", i + 1, dUser_id, szUser_Name, dUser_PlayTime);
-							}
-							else
+							printf("ODBC Connect OK \n");
+
+
+							wchar_t query[100];
+							switch (ev._event) {
+							case EV_SIGNUP:
+								swprintf(query, L"INSERT INTO user_data (ID, Password, clearTime, curStage) VALUES ('%hs', '%hs', 0, 0)", ev.user_id, ev.user_password);
+								printf("%ls\n", query);
+								retcode = SQLExecDirect(hstmt, (SQLWCHAR*)query, SQL_NTS);
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									printf("INSERT OK \n");
+								}
+								else {
+									printf("INSERT FAILED \n");
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
 								break;
+							case EV_SIGNIN:
+								swprintf(query, L"SELECT ID, Password, clearTime, curStage FROM user_data WHERE ID='%hs' AND Password='%hs'", ev.user_id, ev.user_password);
+								printf("%ls\n", query);
+								retcode = SQLExecDirect(hstmt, (SQLWCHAR*)query, SQL_NTS);
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									printf("SELECT OK \n");
+									OVER_EXP* ov = new OVER_EXP();
+									ov->_comp_type = OP_LOGGEDIN;
+									PostQueuedCompletionStatus(h_iocp, 1, ev.session_id, &ov->_over);
+								}
+								else {
+									printf("SELECT FAILED \n");
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
+								break;
+							}
+
+							//retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT ID, Password, clearTime, curStage FROM user_data", SQL_NTS);
+							//if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+
+							//	printf("Select OK \n");
+
+							//	// Bind columns 1, 2, and 3  
+							//	retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szUser_ID, 100, &cbID);
+							//	retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, szUser_PWD, NAME_SIZE, &cbPWD);
+							//	retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &dUser_ClearTime, 100, &cbClearTime);
+							//	retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &dUser_CurStage, 100, &cbCurStage);
+
+							//	// Fetch and print each row of data. On an error, display a message and exit.  
+							//	for (int i = 0; ; i++) {
+							//		retcode = SQLFetch(hstmt);
+							//		if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
+							//			HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
+							//		{
+							//			//replace wprintf with printf
+							//			//%S with %ls
+							//			//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
+							//			//but variadic argument 2 has type 'SQLWCHAR *'
+							//			//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
+							//			wprintf(L"%d: %s %s %d %d\n", i + 1, szUser_ID, szUser_PWD, dUser_ClearTime, dUser_CurStage);
+							//		}
+							//		else
+							//			break;
+							//	}
+							//}
+
+							// Process data  
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+								SQLCancel(hstmt);
+								SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+							}
+
+							SQLDisconnect(hdbc);
 						}
-					}
 
-					// Process data  
-					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						SQLCancel(hstmt);
-						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+						SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 					}
-
-					SQLDisconnect(hdbc);
 				}
-
-				SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+				SQLFreeHandle(SQL_HANDLE_ENV, henv);
 			}
 		}
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
+		else this_thread::sleep_for(100ms);
 	}
-
-	system("pause");
 }
 
 void process_packet(const int c_id, char* packet)
@@ -243,11 +314,27 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
-		//CL.send_open_door_packet(0);
-		////CL.cur_stage.store(getMonsters(c_id).cur_stage);
-		////Initialize_Monster(c_id / 4, CL.cur_stage.load());
-		//for (auto& monster : getMonsters(c_id))
-		//	CL.send_summon_monster_packet(monster);
+		CL.send_open_door_packet(0);
+		break;
+	}
+	case CS_SIGNUP: {
+		CS_SIGN_PACKET* p = reinterpret_cast<CS_SIGN_PACKET*>(packet);
+		DB_EVENT ev;
+		ev._event = EV_SIGNUP;
+		strncpy_s(ev.user_id, sizeof(ev.user_id), p->id, _TRUNCATE);
+		strncpy_s(ev.user_password, sizeof(ev.user_password), p->password, _TRUNCATE);
+		ev.session_id = c_id;
+		db_queue.push(ev);
+		break;
+	}
+	case CS_SIGNIN: {
+		CS_SIGN_PACKET* p = reinterpret_cast<CS_SIGN_PACKET*>(packet);
+		DB_EVENT ev;
+		ev._event = EV_SIGNIN;
+		strncpy_s(ev.user_id, sizeof(ev.user_id), p->id, _TRUNCATE);
+		strncpy_s(ev.user_password, sizeof(ev.user_password), p->password, _TRUNCATE);
+		ev.session_id = c_id;
+		db_queue.push(ev);
 		break;
 	}
 	case CS_MOVE: {
@@ -273,7 +360,7 @@ void process_packet(const int c_id, char* packet)
 	}
 	case CS_ATTACK: {
 		threadsafe_vector<Monster*>& Monsters = getMonsters(CL._id);
-		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);		
+		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		XMFLOAT3 _Look = CL.GetLookVector();
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
@@ -284,15 +371,13 @@ void process_packet(const int c_id, char* packet)
 		case 0:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
-			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
-					monster->HP -= 0;
+					monster->HP -= 100;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
-					break;
 				}
 			}
 			break;
@@ -357,12 +442,11 @@ void process_packet(const int c_id, char* packet)
 			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 10)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
 				{
 					monster->HP -= 50;
 					if (monster->HP <= 0)
 						monster->SetState(NPC_State::Dead);
-					break;
 				}
 			}
 			break;
@@ -424,22 +508,9 @@ void worker_thread(HANDLE h_iocp)
 			SESSION& CL = getClient(client_id);
 			if (client_id != -1) {
 				CL._state.store(ST_ALLOC);
-				//XMFLOAT3 randpos;
-				//bool col_check = false;
-				//while (1)
-				//{
-				//	randpos = XMFLOAT3(x_dis(gen), -300 + 240 * (client_id % 2), z_dis(gen));
-				//	for (auto& obj : Objects[randpos.z / AREA_SIZE]) {
-				//		if (obj->m_xmOOBB.Contains(XMLoadFloat3(&randpos))) {
-				//			col_check = true;
-				//			break;
-				//		}
-				//	}
-				//	if (col_check == false)
-				//		break;
-				//}
-				//CL.Initialize(client_id, g_c_socket, randpos);
-				CL.Initialize(client_id, g_c_socket);
+				CL._socket = g_c_socket;
+				CL._id = client_id;
+				CL.Initialize();	// CL.Initialize∏¶ ∑Œ±◊¿Œ ¿Ã»ƒø° »£√‚«œµµ∑œ ∫Ø∞Ê«ÿæﬂ«‘
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
 				CL.do_recv();
@@ -452,6 +523,24 @@ void worker_thread(HANDLE h_iocp)
 			ZeroMemory(&g_a_over._over, sizeof(g_a_over._over));
 			int addr_size = sizeof(SOCKADDR_IN);
 			AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
+			break;
+		}
+		case OP_LOGGEDIN: {
+			SESSION& CL = getClient(static_cast<int>(key));
+			SC_LOGIN_COMPLETE_PACKET p;
+			p.success = true;
+			p.type = SC_LOGIN_COMPLETE;
+			p.size = sizeof(p);
+			CL.do_send(&p);
+			//CL.Initialize();
+			//CL.send_login_info_packet();
+			//CL._state.store(ST_INGAME);
+			//for (auto& pl : getRoom(CL._id)) {
+			//	if (pl._id == CL._id || ST_INGAME != pl._state.load()) continue;
+			//	pl.send_add_player_packet(&CL);
+			//	CL.send_add_player_packet(&pl);
+			//}
+			//CL.send_open_door_packet(0);
 			break;
 		}
 		case OP_RECV: {
@@ -488,7 +577,7 @@ void worker_thread(HANDLE h_iocp)
 				iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
 				found = (iter != PoolMonsters[roomNum].end());
 			}
-			
+
 			if (found) {
 				if ((*iter)->is_alive()) {
 					{

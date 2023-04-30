@@ -265,7 +265,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			gGameFramework.onFullScreen = true;
 			gGameFramework.ChangeSwapChainState();
 		}
-		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true) {
+		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true) 
+		{
 			if (wParam == 'Z' || wParam == 'z')
 			{
 				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
@@ -302,6 +303,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			}
+			else if (wParam == 'U' || wParam == 'u')
+			{
+				CS_SIGN_PACKET p;
+				p.size = sizeof(CS_SIGN_PACKET);
+				p.type = CS_SIGNUP;	
+				string PLAYER_NAME = "0430TESTID";			// 회원가입 화면에서 입력한 아이디 
+				string PLAYER_PASSWORD = "0430TESTPW";		// 회원가입 화면에서 입력한 아이디 
+				strcpy_s(p.id, PLAYER_NAME.c_str());
+				strcpy_s(p.password, PLAYER_PASSWORD.c_str());
+				cout << p.id << ", " << p.password << endl;
+				cout << "SIGNUP_PACKET SENT\n";
+				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			}
+			else if (wParam == 'G' || wParam == 'g')
+			{
+				CS_SIGN_PACKET p;
+				p.size = sizeof(CS_SIGN_PACKET);
+				p.type = CS_SIGNIN;
+				string PLAYER_NAME = "0430TESTID";			// 로그인 화면에서 입력한 아이디 
+				string PLAYER_PASSWORD = "0430TESTID";		// 로그인 화면에서 입력한 비밀번호
+				strcpy_s(p.id, PLAYER_NAME.c_str());
+				strcpy_s(p.password, PLAYER_PASSWORD.c_str());
+				cout << p.id << ", " << p.password << endl;
+				cout << "SIGNIN_PACKET SENT\n";
+				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			}
+
 		}
 		break;
 		break;
@@ -400,6 +432,12 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.CreateOtherPlayer(packet->id, packet->cur_weaponType, packet->Pos, packet->Look, packet->Up, packet->Right);
 		break;
 	}
+	case SC_LOGIN_COMPLETE: {
+		SC_LOGIN_COMPLETE_PACKET* packet = reinterpret_cast<SC_LOGIN_COMPLETE_PACKET*>(ptr);
+		if (packet->success)
+			cout << "LOGIN 성공\n";
+		break;
+	}
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
@@ -478,6 +516,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_MOVE_MONSTER: {//0322
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
+		auto targetPlayer = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return Pl->c_id == packet->target_id; });
 		if (packet->is_alive == false) {
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
@@ -489,6 +528,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
 		}
+
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1) {
 			XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH((*iter)->GetPosition(),
 				packet->Pos, XMFLOAT3(0, 1, 0));
@@ -496,14 +536,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			mtkLookAt._21 = -mtkLookAt._21;
 			mtkLookAt._31 = -mtkLookAt._31;
 			(*iter)->m_xmf4x4ToParent = mtkLookAt;
-			XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
 
+			XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
 			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
 			(*iter)->m_xmOOBB.Center = targetPos;
 			(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
 			(*iter)->SetPosition(targetPos);
 		}
-		//(*iter)->SetPosition(packet->Pos);
+		XMFLOAT3 deltaPos = Vector3::Subtract(packet->BulletPos, (*iter)->m_ppHat->GetPosition());
+		XMFLOAT3 targetPos = Vector3::Add((*iter)->m_ppHat->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
+		(*iter)->m_hats_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), 30, false);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}
