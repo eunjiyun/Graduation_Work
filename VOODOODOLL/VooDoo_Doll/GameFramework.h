@@ -95,8 +95,6 @@ private:
 
 public:
 	bool wakeUp = true;
-	int whatPlayer = 1;
-	CGameObject* m_pLockedObject = NULL;
 
 	bool login = false;
 	CGameObject* temp = nullptr;
@@ -112,7 +110,8 @@ public:
 #endif
 
 	CGameTimer					m_GameTimer;
-	SoundPlayer player;
+	SoundPlayer sound[4];
+
 
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;

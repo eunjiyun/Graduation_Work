@@ -474,21 +474,46 @@ void CGameFramework::BuildObjects()
 	}
 
 	
-	const wchar_t* wideFilename = _T("Sound/opening11.wav");
-	//const wchar_t* wideFilename2 = _T("Sound/opening2.wav");
+	const wchar_t* inGame = _T("Sound/inGame.wav");
+	const wchar_t* opening = _T("Sound/opening.wav");
+	const wchar_t* closing = _T("Sound/closing.wav");
+	const wchar_t* win = _T("Sound/win.wav");
 
 	// Initialize SoundPlayer
-	if (!player.Initialize()) {
+	if (!sound[0].Initialize()) {
+		//return -1;
+	}
+	// Load wave file
+	if (!sound[0].LoadWave(inGame)) {
 		//return -1;
 	}
 
-	// Load wave file
-	if (!player.LoadWave(wideFilename)) {
+
+	if (!sound[1].Initialize()) {
 		//return -1;
 	}
-	//if (!player.LoadWave(wideFilename2)) {
-	//	//return -1;
-	//}
+	// Load wave file
+	if (!sound[1].LoadWave(opening)) {
+		//return -1;
+	}
+
+
+	if (!sound[2].Initialize()) {
+		//return -1;
+	}
+	// Load wave file
+	if (!sound[2].LoadWave(closing)) {
+		//return -1;
+	}
+
+
+	if (!sound[3].Initialize()) {
+		//return -1;
+	}
+	// Load wave file
+	if (!sound[3].LoadWave(win)) {
+		//return -1;
+	}
 
 	
 
@@ -537,40 +562,14 @@ void CGameFramework::BuildObjects()
 	}
 	CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
 
-	//CPlaneMeshIlluminated* pPlaneMesh = new CPlaneMeshIlluminated(m_pd3dDevice, m_pd3dCommandList, _PLANE_WIDTH, 0.0f, _PLANE_HEIGHT, 0.0f, 0.0f, 0.0f);
-	////CMaterial* pPlaneMaterial = new CMaterial(0);
-	//temp = new CGameObject(1);// ٴ 
-	////temp->SetMesh(0, pPlaneMesh);
-	//temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMaterials[0]);
-	////temp->m_ppMaterials[0] = new CMaterial(0);
-	////temp->m_ppMaterials[0]->SetAlbedoColor(XMFLOAT4(1, 1, 1, 0));
-	////temp->m_ppMaterials[0]->SetEmissionColor(XMFLOAT4(1, 1, 1, 0));
-	//temp->SetPosition(250, -50, 100);
-	//temp->Rotate(270, 0, 0);
+	
 
 	temp = new CGameObject(1);
-	//temp->m_ppMaterials[0] = new CMaterial(1);
-	//temp->m_ppMaterials[0]->SetTexture(m_pStage->m_ppShaders[0]->gameScreen[0]);
-	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->m_ppObjects[35]->m_ppMaterials[0]);//15 35 36
-	//temp->m_ppMaterials[0] = new CMaterial(1);
-	//temp->m_ppMaterials[1] = new CMaterial(1);
 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
-	//temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
-	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->gameMat[0]);//15 35 36
-	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->gameMat[1]);//15 35 36
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-	
-	//temp = m_pStage->m_ppShaders[0]->gameMat[0];
-	//temp->SetMaterial(0, m_pPlayer->m_ppMaterials[0]);
-	//temp = m_pStage->m_ppShaders[0]->m_ppObjects[94];//94
 	temp->SetPosition(83, 82, 100);//100
 	temp->Rotate(270, 0, 0);
 	temp->SetScale(0.7, 0.7, 0.7);
-
-//	temp = m_pStage->m_ppShaders[0]->m_ppObjects[198];//94
-//	temp->SetPosition(50, 100, 100);
-	//temp->Rotate(0, -90, 0);
 
 	
 	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
@@ -770,7 +769,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		{
 
 			monster->Animate(fTimeElapsed, false);
-			//04166
+			//클라그림자
 			/*monster->m_pSkinnedAnimationController->SetTrackEnable(0, false);
 			monster->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 
@@ -826,7 +825,7 @@ void CGameFramework::FrameAdvance()
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	// Play sound
-	player.Play();
+	sound[1].Play();//오프닝
 
 	// Wait for sound to finish
 	//Sleep(10000);
@@ -845,17 +844,35 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	if (-200 > m_pPlayer->GetPosition().y && 500> m_pPlayer->GetPosition().z)
+	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)
+	{
+		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
+			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
+		{
+			temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
+			temp->SetPosition(880, -65, 1000);
+			m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
+
+			sound[0].Stop();//인게임
+			sound[2].Play();//클로징
+		}
+	}
+	else if (-200 > m_pPlayer->GetPosition().y && 500> m_pPlayer->GetPosition().z)
 	{
 		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
-		
-		temp->SetPosition(880, -70, 1000);//-300 500
+		temp->SetPosition(880, -70, 1000);
 		m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
-		m_pCamera->SetLookAt(temp->GetPosition());
 
+		sound[0].Stop();//인게임
+		sound[3].Play();//윈
 	}
-	if(login)
+	if (login)
+	{
+		sound[1].Stop();//오프닝
+		sound[0].Play();//인게임
+
 		m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
+	}
 
 	
 	

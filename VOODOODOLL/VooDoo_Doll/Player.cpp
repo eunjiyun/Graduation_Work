@@ -303,11 +303,11 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
 
 
-	pAngrybotModels[0] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ch_rpg_02_015.bin", NULL, 7);//ch_rpg_02_015
+	pAngrybotModels[0] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/swordPl.bin", NULL, 7);
 
-	pAngrybotModels[1] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ch_rpg_02_01.bin", NULL, 7);
+	pAngrybotModels[1] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/gunPl.bin", NULL, 7);
 
-	pAngrybotModels[2] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/ch_rpg_03_01.bin", NULL, 7);
+	pAngrybotModels[2] = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/fistPl.bin", NULL, 7);
 
 
 	for (int i = 0; i < 3; i++) {
@@ -603,7 +603,7 @@ HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename, WAVEFORMATEX* waveFor
 	}
 
 	// WAV 파일 검증
-	if (memcmp(header.chunkId, "RIFF", 4) != 0 ||
+	if (memcmp(header.chunkId, "RIFF", 4) != 0 ||//0501
 		memcmp(header.format, "WAVE", 4) != 0 ||
 		memcmp(header.subchunk1Id, "fmt ", 4) != 0 ||
 		memcmp(header.subchunk2Id, "data", 4) != 0)
@@ -664,7 +664,7 @@ bool SoundPlayer::LoadWave(const wchar_t* filename)
 {
 	HRESULT hr;
 	// WAVE 파일 로드
-	hr = LoadWaveFile(filename, &waveFormat_);
+	hr = LoadWaveFile(filename, &waveFormat_);//0501
 
 
 	if (FAILED(hr)) {

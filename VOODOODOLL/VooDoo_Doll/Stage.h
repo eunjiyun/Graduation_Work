@@ -145,11 +145,6 @@ public:
 
 	float							m_fElapsedTime = 0.0f;
 
-	XMFLOAT3 tempRight;
-	XMFLOAT3 tempUp;
-	XMFLOAT3 tempLook;
-	XMFLOAT3 tempPos;
-	bool tempCheck = false;
 
 	XMFLOAT3					m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 

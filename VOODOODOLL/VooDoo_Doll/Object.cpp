@@ -1789,7 +1789,7 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	else if (3 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//base6 3
+			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//ÃÑ¾Ë
 	}
 
 	SetChild(arrowModel->m_pModelRootObject, true);
@@ -1878,7 +1878,7 @@ CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 		_Model = pModel;
 	else
 	{
-		_Model = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/TimsAssets_Door.bin", NULL, 7);
+		_Model = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/door.bin", NULL, 7);
 	}
 
 

@@ -303,10 +303,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart3.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/youWin3.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/youWin.dds", RESOURCE_TEXTURE2D, 0);
+
+	m_ppShaders[0]->gameScreen[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);
 
 	for (int a = 0; a < 32; ++a)
 	{
@@ -314,20 +317,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 
-	/*m_ppShaders[0]->gameMat[0] = new CGameObject(1);
-	m_ppShaders[0]->gameMat[1] = new CGameObject(1);*/
-	for (int h{}; h < 2; ++h)
+	
+	for (int h{}; h < 3; ++h)
 	{
 		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
 
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 
-		//pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);//1
-		//m_ppShaders[0]->gameMat[h]->SetMaterial(1, pMaterial);
-		//m_ppShaders[0]->gameMat[h]->SetMesh(0, m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-
-		
 		pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);
 		m_ppShaders[0]->gameMat[h] = pMaterial;
 	}
@@ -462,7 +459,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_02_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+
+
+
+				0 == strcmp("BookS3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("BookS4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("BookS6", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Books2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Books7", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Books9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) 
+				)
 			{
 				pMaterial->SetTexture(ppTextures[22]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
@@ -493,7 +500,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
-			if (0 == strcmp("BookS4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
+			if (0 == strcmp("Books4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("BookS10", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("BookS5", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("BookS7", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
@@ -504,7 +511,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 			if (0 == strcmp("BookS1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) || 
 				0 == strcmp("BookS2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("BookS3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Books3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("BookS11", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("BookS9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
@@ -1058,7 +1065,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			//cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";
@@ -1178,24 +1185,18 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm)
 {
 
-	//if (false == tempCheck)
-	//{
-	//	tempRight = cm->GetRightVector();
-	//	tempUp = cm->GetUpVector();
-	//	tempLook = cm->GetLookVector();
-	//	tempPos = cm->GetPosition();
-
-	//	tempCheck = true;
-
-	//	cout << "호출" << endl;
-	//}
-
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
 
-	if (-200 > pl->GetPosition().y && 500 > pl->GetPosition().z)
+	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)
 	{
-		cm->SetLookAt(XMFLOAT3(800, -150, 1000));
+		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
+			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
+		{
+			cm->SetLookAt(XMFLOAT3(800, -150, 1000));
+		}
 	}
+	else if (-200 > pl->GetPosition().y && 500 > pl->GetPosition().z)
+		cm->SetLookAt(XMFLOAT3(800, -150, 1000));
 	else
 	{
 		XMFLOAT3 xmf3Right = pl->GetRightVector();
@@ -1234,9 +1235,6 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				ray_castPos = Vector3::Add(ray_castPos, dir);
 			}
 
-			//if (-200 > pl->GetPosition().y && 1000 > pl->GetPosition().z)
-			//	cm->SetLookAt(XMFLOAT3(800, -150, 1000));
-			//else 
 			cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
 		}
 
@@ -1244,14 +1242,6 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 		
 	}
 	cm->RegenerateViewMatrix();
-
-	//if (-200 > pl->GetPosition().y && 1000 > pl->GetPosition().z)
-	//	cm->SetLookAt(XMFLOAT3(800, -150, 1000));
-	//	cm->SetPosition(XMFLOAT3(400, -150, 500));
-
-	
-
-	
 }
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {

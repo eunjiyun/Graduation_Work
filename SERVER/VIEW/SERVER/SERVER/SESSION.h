@@ -161,7 +161,7 @@ public:
 		cur_stage = 0;
 		error_stack = 0;
 		character_num = 0;
-		HP = 55500;
+		HP =  55500;
 	}
 	void do_recv()
 	{
