@@ -150,7 +150,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 400, -59,600 };
+		m_xmf3Position = XMFLOAT3{ 400, -59,600 };//플레이어 위치
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;

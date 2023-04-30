@@ -1909,5 +1909,413 @@ CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 CDoor::~CDoor()
 {
 }
+void BuildCharMap(TextureKey key, unordered_map<char, pair<int, int>>& map)
+{
+	//switch (key) {
+	//case TextureKey::BATTLE_UI_CHARSKILL_FONT_BLUE: {
+	//	map['0'] = pair(0, 0);
+	//	map['1'] = pair(0, 1);
+	//	map['2'] = pair(0, 2);
+	//	map['3'] = pair(0, 3);
+	//	map['4'] = pair(0, 4);
+	//	map['5'] = pair(0, 5);
+	//	map['6'] = pair(0, 6);
+	//	map['7'] = pair(0, 7);
+	//	map['8'] = pair(0, 8);
+	//	map['9'] = pair(0, 9);
+	//	map['+'] = pair(0, 10);
+	//	map['-'] = pair(0, 11);
+	//	map['%'] = pair(0, 12);
+
+	//	break;
+	//}
+
+	//case TextureKey::BATTLE_UI_CHARSKILL_FONT_RED: {
+	//	map['0'] = pair(0, 0);
+	//	map['1'] = pair(0, 1);
+	//	map['2'] = pair(0, 2);
+	//	map['3'] = pair(0, 3);
+	//	map['4'] = pair(0, 4);
+	//	map['5'] = pair(0, 5);
+	//	map['6'] = pair(0, 6);
+	//	map['7'] = pair(0, 7);
+	//	map['8'] = pair(0, 8);
+	//	map['9'] = pair(0, 9);
+	//	map['+'] = pair(0, 10);
+	//	map['-'] = pair(0, 11);
+	//	map['%'] = pair(0, 12);
+
+	//	break;
+	//}
+
+	//case TextureKey::BATTLE_UI_SOUL_FONT: {
+	//	map['0'] = pair(0, 0);
+	//	map['1'] = pair(0, 1);
+	//	map['2'] = pair(0, 2);
+	//	map['3'] = pair(0, 3);
+	//	map['4'] = pair(0, 4);
+	//	map['5'] = pair(0, 5);
+	//	map['6'] = pair(0, 6);
+	//	map['7'] = pair(0, 7);
+	//	map['8'] = pair(0, 8);
+	//	map['9'] = pair(0, 9);
+	//	break;
+	//}
+	//case TextureKey::BATTLE_UI_ENGFONT: {
+	//	map['A'] = pair(0, 0);
+	//	map['B'] = pair(0, 1);
+	//	map['C'] = pair(0, 2);
+	//	map['D'] = pair(0, 3);
+	//	map['E'] = pair(0, 4);
+	//	map['F'] = pair(0, 5);
+	//	map['G'] = pair(0, 6);
+	//	map['H'] = pair(0, 7);
+	//	map['I'] = pair(0, 8);
+	//	map['J'] = pair(0, 9);
+
+	//	map['K'] = pair(1, 0);
+	//	map['L'] = pair(1, 1);
+	//	map['M'] = pair(1, 2);
+	//	map['N'] = pair(1, 3);
+	//	map['O'] = pair(1, 4);
+	//	map['P'] = pair(1, 5);
+	//	map['Q'] = pair(1, 6);
+	//	map['R'] = pair(1, 7);
+	//	map['S'] = pair(1, 8);
+	//	map['T'] = pair(1, 9);
+
+	//	map['U'] = pair(2, 0);
+	//	map['V'] = pair(2, 1);
+	//	map['W'] = pair(2, 2);
+	//	map['X'] = pair(2, 3);
+	//	map['Y'] = pair(2, 4);
+	//	map['Z'] = pair(2, 5);
+	//	map['a'] = pair(2, 6);
+	//	map['b'] = pair(2, 7);
+	//	map['c'] = pair(2, 8);
+	//	map['d'] = pair(2, 9);
+
+	//	map['e'] = pair(3, 0);
+	//	map['f'] = pair(3, 1);
+	//	map['g'] = pair(3, 2);
+	//	map['h'] = pair(3, 3);
+	//	map['i'] = pair(3, 4);
+	//	map['j'] = pair(3, 5);
+	//	map['k'] = pair(3, 6);
+	//	map['l'] = pair(3, 7);
+	//	map['m'] = pair(3, 8);
+	//	map['n'] = pair(3, 9);
+
+	//	map['o'] = pair(4, 0);
+	//	map['p'] = pair(4, 1);
+	//	map['q'] = pair(4, 2);
+	//	map['r'] = pair(4, 3);
+	//	map['s'] = pair(4, 4);
+	//	map['t'] = pair(4, 5);
+	//	map['u'] = pair(4, 6);
+	//	map['v'] = pair(4, 7);
+	//	map['w'] = pair(4, 8);
+	//	map['x'] = pair(4, 9);
+
+	//	map['y'] = pair(5, 0);
+	//	map['z'] = pair(5, 1);
+	//	map['*'] = pair(5, 2);
+	//	map['_'] = pair(5, 3);
+
+	//	map['0'] = pair(6, 0);
+	//	map['1'] = pair(6, 1);
+	//	map['2'] = pair(6, 2);
+	//	map['3'] = pair(6, 3);
+	//	map['4'] = pair(6, 4);
+	//	map['5'] = pair(6, 5);
+	//	map['6'] = pair(6, 6);
+	//	map['7'] = pair(6, 7);
+	//	map['8'] = pair(6, 8);
+	//	map['9'] = pair(6, 9);
+	//	break;
+	//}
+	///*default:
+	//	yhl::dout << "BulidCharMap - unvalied texture key" << yhl::fls;
+	//	break;*/
+	//}
+}
+SpriteFontInfo GetFontInfo(TextureKey key)
+{
+	SpriteFontInfo rtv;
+
+	switch (key)
+	{
+	case TextureKey::BATTLE_UI_SOUL_FONT:
+		rtv.num_r = 1;
+		rtv.num_c = 10;
+		rtv.width = 60.f;
+		rtv.height = 92.f;
+		break;
+	case TextureKey::BATTLE_UI_ENGFONT:
+		rtv.num_r = 8;
+		rtv.num_c = 10;
+		rtv.width = 30.f;
+		rtv.height = 90.f;
+		break;
+	case TextureKey::BATTLE_UI_CHARSKILL_FONT_BLUE:
+		rtv.num_r = 1;
+		rtv.num_c = 13;
+		rtv.width = 32.f;
+		rtv.height = 60.f;
+		break;
+	case TextureKey::BATTLE_UI_CHARSKILL_FONT_RED:
+		rtv.num_r = 1;
+		rtv.num_c = 13;
+		rtv.width = 32.f;
+		rtv.height = 60.f;
+		break;
+
+	default:
+		rtv.num_r = 0;
+		rtv.num_c = 0;
+		rtv.width = 0;
+		rtv.height = 0;
+		break;
+	}
+
+	return rtv;
+}
+
+Text::Text( TextureKey key, float x, float y, string contents)
+	: m_TextureKey(key)
+	, m_Contents(contents)
+	, m_Letters()
+{
+	BuildCharMap(key, m_CharRowCol);
+	m_FontInfo = GetFontInfo(key);
+
+	m_Pos.x = x;
+	m_Pos.y = y;
+
+	CreateLettersFromContents();
+}
+
+void Text::PushBack(char letter)
+{
+	int pos = m_Contents.size();
+	m_Contents.push_back(letter);
+
+	int row, col;
+	row = col = -1;
+	auto iter = m_CharRowCol.find(letter);
+
+	if (m_CharRowCol.end() != iter) {
+		row = iter->second.first;
+		col = iter->second.second;
+	}
+
+	auto let = new SpriteFont(m_FontInfo.num_c, m_FontInfo.num_r, m_TextureKey,
+		m_FontInfo.width, m_FontInfo.height, m_Pos.x + (pos * m_FontInfo.width), m_Pos.y);
+	let->SetTexturePos(static_cast<float>(col) / m_FontInfo.num_c, static_cast<float>(row) / m_FontInfo.num_r);
+
+	// 객체 추가 
+	//m_Letters.push_back(let);
+}
+
+void Text::PopBack()
+{
+	if (m_Contents.empty()) return;
+	m_Contents.pop_back();
+	auto pop_obj = m_Letters.back();
+	m_Letters.pop_back();
+}
+
+void Text::operator=(const string& text)
+{
+	if (m_Contents == text)  return;
+
+	for (auto letter : m_Letters)
+	{
+		delete letter;
+	}
+	m_Letters.clear();
+
+	m_Contents = text;
+	CreateLettersFromContents();
+}
+
+void Text::operator=(string&& text)
+{
+	if (m_Contents == text)  return;
+	for (auto letter : m_Letters)
+	{
+		delete letter;
+	}
+	m_Letters.clear();
+
+	m_Contents = text;
+	CreateLettersFromContents();
+}
+
+void Text::CreateLettersFromContents()
+{
+	for (int i = 0; i < m_Contents.size(); ++i)
+	{
+		int row, col;
+		row = col = -1;
+		auto iter = m_CharRowCol.find(m_Contents[i]);
+
+		if (m_CharRowCol.end() != iter) {
+			row = iter->second.first;
+			col = iter->second.second;
+		}
+
+		auto let = new SpriteFont(m_FontInfo.num_c, m_FontInfo.num_r, m_TextureKey,
+			m_FontInfo.width, m_FontInfo.height, m_Pos.x + (i * m_FontInfo.width), m_Pos.y);
+		let->SetTexturePos(static_cast<float>(col) / m_FontInfo.num_c, static_cast<float>(row) / m_FontInfo.num_r);
+
+		// 객체 추가 
+		//m_Letters.push_back(let);
+	}
+}
+
+SpriteFont::SpriteFont(TextureKey key, float sprite_w, float sprite_h)
+//: GraphicsObject()
+	: m_TexPos(0.f, 0.f)
+	, m_TexScl(1.f, 1.f)
+	//, m_Scale(0.f, 0.f, 0.f)
+	//, m_Position(0.f,0.f,0.f)
+{
+	/*m_Mesh = StaticGameData::g_Meshs[MeshKey::RECTANGLE];
+	m_Texture = StaticGameData::g_Textures[key];*/
+
+	auto wr = XMFLOAT4(0, 0, 600, 600);// WindowApp::GetClientRect();
+	/*float wnd_w = static_cast<float>(wr.right - wr.left);
+	float wnd_h = static_cast<float>(wr.bottom - wr.top);*/
+	float wnd_w = static_cast<float>(wr.z - wr.x);
+	float wnd_h = static_cast<float>(wr.w - wr.y);
+
+	float scl_x = (sprite_w / wnd_w) * WINDOW_MODE_RATE;
+	float scl_y = (sprite_h / wnd_h) * WINDOW_MODE_RATE;
+	m_Scale = XMFLOAT3(scl_x, scl_y, 0);
+}
+
+SpriteFont::SpriteFont(int num_r, int num_c, TextureKey key,
+	float sprite_w, float sprite_h, float pixel_x, float pixel_y)
+	//: GraphicsObject()
+	: m_TexPos(0.f, 0.f)
+	, m_TexScl(1.f, 1.f)
+	//, m_Position(0.f, 0.f, 0.f)
+{
+	assert(num_r != 0 && num_c != 0);
+
+	//m_Mesh = StaticGameData::g_Meshs[MeshKey::RECTANGLE];
+	//m_Texture = StaticGameData::g_Textures[key];
+
+	/*auto wr = WindowApp::GetClientRect();
+	float wnd_w = static_cast<float>(wr.right - wr.left);
+	float wnd_h = static_cast<float>(wr.bottom - wr.top);*/
+
+	auto wr = XMFLOAT4(0, 0, 600, 600);
+	float wnd_w = static_cast<float>(wr.z - wr.x);
+	float wnd_h = static_cast<float>(wr.w - wr.y);
+
+	float scl_x = (sprite_w / wnd_w) * WINDOW_MODE_RATE;
+	float scl_y = (sprite_h / wnd_h) * WINDOW_MODE_RATE;
+	m_Scale = XMFLOAT3(scl_x, scl_y, 0);
+
+	m_TexScl.x = 1.f / num_r;
+	m_TexScl.y = 1.f / num_c;
+
+	float pos_x = (pixel_x * 2.f / wnd_w * WINDOW_MODE_RATE) - 1.f;
+	float pos_y = (pixel_y * 2.f / wnd_h * WINDOW_MODE_RATE) - 1.f;
+	m_Position = XMFLOAT3(pos_x, -pos_y, 0.f);
+}
+
+SpriteFont::SpriteFont(char c, TextureKey key, float sprite_w, float sprite_h, float pixel_x, float pixel_y)
+	//: GraphicsObject()
+	: m_TexPos(0.f, 0.f)
+	, m_TexScl(1.f, 1.f)
+
+{
+	/*m_Mesh = StaticGameData::g_Meshs[MeshKey::RECTANGLE];
+	m_Texture = StaticGameData::g_Textures[key];*/
+
+	/*auto wr = WindowApp::GetClientRect();
+	float wnd_w = static_cast<float>(wr.right - wr.left);
+	float wnd_h = static_cast<float>(wr.bottom - wr.top);*/
+
+	auto wr = XMFLOAT4(0, 0, 600, 600);
+	float wnd_w = static_cast<float>(wr.z - wr.x);
+	float wnd_h = static_cast<float>(wr.w - wr.y);
+
+	float scl_x = (sprite_w / wnd_w) * WINDOW_MODE_RATE;
+	float scl_y = (sprite_h / wnd_h) * WINDOW_MODE_RATE;
+	m_Scale = XMFLOAT3(scl_x, scl_y, 0);
+
+	//한 스프라이트의 폭과 높이(현재 가로 10 세로 7. 임시로 숫자만!)
+	m_TexScl.x = 1.f / 10;
+	m_TexScl.y = 1.f / 8;
+
+	float pos_x = (pixel_x * 2.f / wnd_w * WINDOW_MODE_RATE) - 1.f;
+	float pos_y = (pixel_y * 2.f / wnd_h * WINDOW_MODE_RATE) - 1.f;
+	m_Position = XMFLOAT3(pos_x, -pos_y, 0.f);
+
+	//어디를 가리킬 지!
+	//X값; 65,75,85--->0.0 , 66.76,86-->0.1
+	//스프라이트 세로 길이도 바꾸쟝. 5정도로
+	m_TexPos.x = (c - 65) % 10 * 0.1f;
+}
+
+
+//PSOType SpriteFont::GetPSOType()
+//{
+//	return PSOType::SPRITE;
+//}
+
+//void SpriteFont::CreateConstantBuffer()
+//{
+//	m_DescriptorHeap.Create(DescriptorHeapType::CBV_SRV_UAV, 1);
+//
+//	// 상수 버퍼는 256byte의 배수여야 함
+//	UINT64 bytes = static_cast<UINT64>((sizeof(CB_ObjectInfo) + 255) & ~255);
+//
+//	m_ObjectInfoCB.Create(bytes, true);
+//
+//	D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc;
+//	cbv_desc.BufferLocation = m_ObjectInfoCB->GetGPUVirtualAddress();
+//	cbv_desc.SizeInBytes = static_cast<int>(bytes);
+//
+//	Graphics::GraphicsCore::GetDevice()->CreateConstantBufferView(&cbv_desc, m_DescriptorHeap.GetHandle());		// 힙과 버퍼를 묶어 뷰를 생성
+//
+//	auto rtv = m_ObjectInfoCB->Map(0, NULL, reinterpret_cast<void**>(&m_ObjectInfo));
+//}
+//
+//void SpriteFont::UpdateConstantBuffer(ID3D12GraphicsCommandList* cl)
+//{
+//	XMVECTOR pos = XMLoadFloat3(&m_Position);
+//	XMVECTOR rot = XMLoadFloat4(&m_Rotation);
+//	XMVECTOR scl = XMLoadFloat3(&m_Scale);
+//	XMMATRIX world_mtx = XMMatrixAffineTransformation(scl, XMMath::XMVECTOR_ORIGIN, rot, pos);
+//	XMStoreFloat4x4(&(m_ObjectInfo->m_WorldTransform), XMMatrixTranspose(world_mtx));
+//
+//	pos = XMLoadFloat2(&m_TexPos);
+//	XMVECTOR tex_rot{ 0.f, 0.f, 0.f, 1.f };
+//	scl = XMLoadFloat2(&m_TexScl);
+//	XMMATRIX tex_mtx = XMMatrixAffineTransformation(scl, XMMath::XMVECTOR_ORIGIN, tex_rot, pos);
+//	XMStoreFloat4x4(&(m_ObjectInfo->m_TexTransform), XMMatrixTranspose(tex_mtx));
+//
+//	cl->SetGraphicsRootConstantBufferView(2, m_ObjectInfoCB->GetGPUVirtualAddress());
+//}
+
+void SpriteFont::SetTexturePos(float x, float y)
+{
+	m_TexPos.x = x;
+	m_TexPos.y = y;
+}
+
+void SpriteFont::SetTextureScl(float x, float y)
+{
+	m_TexScl.x = x;
+	m_TexScl.y = y;
+}
+
+
+
 
 

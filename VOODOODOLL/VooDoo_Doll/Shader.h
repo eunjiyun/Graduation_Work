@@ -46,6 +46,10 @@ public:
 	int								m_nObjects = 0;//
 	CGameObject** door = NULL;
 	int m_nDoor = 0;
+	CTexture* gameScreen[2];
+	//CGameObject* gameMat[2];
+	CMaterial* gameMat[2];
+
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//

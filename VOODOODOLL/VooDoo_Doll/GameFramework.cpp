@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------------------
 // File: CGameFramework.cpp
 //-----------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
-	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;//ÀüÃ¼È­¸é ¸ğµå¿¡¼­ ¹ÙÅÁÈ­¸éÀÇ ÇØ»óµµ¸¦ ½º¿ÒÃ¼ÀÎ(ÈÄ¸é¹öÆÛ)ÀÇ Å©±â¿¡ ¸Â°Ô º¯°æÇÑ´Ù. 
+	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;//ì „ì²´í™”ë©´ ëª¨ë“œì—ì„œ ë°”íƒ•í™”ë©´ì˜ í•´ìƒë„ë¥¼ ìŠ¤ì™‘ì²´ì¸(í›„ë©´ë²„í¼)ì˜ í¬ê¸°ì— ë§ê²Œ ë³€ê²½í•œë‹¤. 
 
 
 
@@ -492,6 +492,12 @@ void CGameFramework::BuildObjects()
 
 	
 
+	string g_UserName = "VooDooDoll";
+
+	m_Test = new Text( TextureKey::BATTLE_UI_ENGFONT, 1310, 110, g_UserName);
+
+	
+
 	m_pLights = m_pStage->m_pLights;
 	
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
@@ -531,7 +537,40 @@ void CGameFramework::BuildObjects()
 	}
 	CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
 
+	//CPlaneMeshIlluminated* pPlaneMesh = new CPlaneMeshIlluminated(m_pd3dDevice, m_pd3dCommandList, _PLANE_WIDTH, 0.0f, _PLANE_HEIGHT, 0.0f, 0.0f, 0.0f);
+	////CMaterial* pPlaneMaterial = new CMaterial(0);
+	//temp = new CGameObject(1);// Ù´ 
+	////temp->SetMesh(0, pPlaneMesh);
+	//temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMaterials[0]);
+	////temp->m_ppMaterials[0] = new CMaterial(0);
+	////temp->m_ppMaterials[0]->SetAlbedoColor(XMFLOAT4(1, 1, 1, 0));
+	////temp->m_ppMaterials[0]->SetEmissionColor(XMFLOAT4(1, 1, 1, 0));
+	//temp->SetPosition(250, -50, 100);
+	//temp->Rotate(270, 0, 0);
+
+	temp = new CGameObject(1);
+	//temp->m_ppMaterials[0] = new CMaterial(1);
+	//temp->m_ppMaterials[0]->SetTexture(m_pStage->m_ppShaders[0]->gameScreen[0]);
+	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->m_ppObjects[35]->m_ppMaterials[0]);//15 35 36
+	//temp->m_ppMaterials[0] = new CMaterial(1);
+	//temp->m_ppMaterials[1] = new CMaterial(1);
+	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
+	//temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
+	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->gameMat[0]);//15 35 36
+	//temp->SetMaterial(0, m_pStage->m_ppShaders[0]->gameMat[1]);//15 35 36
+	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
 	
+	//temp = m_pStage->m_ppShaders[0]->gameMat[0];
+	//temp->SetMaterial(0, m_pPlayer->m_ppMaterials[0]);
+	//temp = m_pStage->m_ppShaders[0]->m_ppObjects[94];//94
+	temp->SetPosition(83, 82, 100);//100
+	temp->Rotate(270, 0, 0);
+	temp->SetScale(0.7, 0.7, 0.7);
+
+//	temp = m_pStage->m_ppShaders[0]->m_ppObjects[198];//94
+//	temp->SetPosition(50, 100, 100);
+	//temp->Rotate(0, -90, 0);
 
 	
 	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
@@ -595,9 +634,9 @@ void CGameFramework::CreateOtherPlayer(int p_id, short type, XMFLOAT3 Pos, XMFLO
 void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 {
 
-	// ÀÌ ÇÔ¼ö¿¡¼­ ¸ó½ºÅÍ¸¦ µ¿Àû ÇÒ´çÇÏ¿© ¼ÒÈ¯ÇÔ
+	// ì´ í•¨ìˆ˜ì—ì„œ ëª¬ìŠ¤í„°ë¥¼ ë™ì  í• ë‹¹í•˜ì—¬ ì†Œí™˜í•¨
 	if (pMonsterModel[type].empty()) {
-		cout << "»ı¼º½ÇÆĞ\n";
+		cout << "ìƒì„±ì‹¤íŒ¨\n";
 		return;
 	}
 	CMonster* Mon = nullptr;
@@ -605,12 +644,12 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
 
 
-	// Client's monster speed = Server's monster speed * 3 / 10	-> Å¬¶ó´Â 30ms, ¼­¹ö´Â 100ms ÁÖ±â·Î ¾÷µ¥ÀÌÆ®ÇÏ±â ¶§¹®
+	// Client's monster speed = Server's monster speed * 3 / 10	-> í´ë¼ëŠ” 30ms, ì„œë²„ëŠ” 100ms ì£¼ê¸°ë¡œ ì—…ë°ì´íŠ¸í•˜ê¸° ë•Œë¬¸
 	pMonsterModel[type].pop();
 	switch (type)
 	{
 	case 0:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //¼Õ¿¡ Ä®	
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //ì†ì— ì¹¼	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -625,7 +664,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 
 		break;
 	case 1:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//»À´Ù±Í ´Ù¸®
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//ë¼ˆë‹¤ê·€ ë‹¤ë¦¬
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -639,7 +678,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // ¸¶¼ú»ç
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // ë§ˆìˆ ì‚¬
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -659,7 +698,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//¼Õ¿¡ ¹Ù´Ã
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//ì†ì— ë°”ëŠ˜
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -675,7 +714,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//±Í½Å
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//ê·€ì‹ 
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 
@@ -685,7 +724,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 5:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);// ¸Ó¸®¿¡ ¹Ù´Ã
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);// ë¨¸ë¦¬ì— ë°”ëŠ˜
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -749,7 +788,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	}
 				
 	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor; ++i)
-		if(openDoor[i])
+		if(openDoor[i] && true==login)
 			m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
 }
 
@@ -783,7 +822,7 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::FrameAdvance()
 {
-	m_GameTimer.Tick(30.0f);//30ÇÁ·¹ÀÓ
+	m_GameTimer.Tick(30.0f);//30í”„ë ˆì„
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	// Play sound
@@ -805,7 +844,20 @@ void CGameFramework::FrameAdvance()
 			player->Deceleration(fTimeElapsed);			
 		}
 	}
-	m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
+
+	if (-200 > m_pPlayer->GetPosition().y && 500> m_pPlayer->GetPosition().z)
+	{
+		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
+		
+		temp->SetPosition(880, -70, 1000);//-300 500
+		m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
+		m_pCamera->SetLookAt(temp->GetPosition());
+
+	}
+	if(login)
+		m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
+
+	
 	
 	for (auto& monster : Monsters) {
 		monster->Update(fTimeElapsed);
@@ -830,7 +882,7 @@ void CGameFramework::FrameAdvance()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * ::gnRtvDescriptorIncrementSize);
 
-	float pfClearColor[4] = { 0.31f, 0.74f, 0.88f, 1.0f };// ÇÏ´Ã »ö±ò
+	float pfClearColor[4] = { 0.31f, 0.74f, 0.88f, 1.0f };// í•˜ëŠ˜ ìƒ‰ê¹”
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -851,6 +903,10 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage->m_pShadowShader)
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
 
+	
+	
+	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//m_Test->Render()
 	
 
 	

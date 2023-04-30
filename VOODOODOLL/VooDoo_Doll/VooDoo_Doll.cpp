@@ -257,6 +257,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
+		else if (VK_RETURN == wParam)
+		{
+			if (false == gGameFramework.login)
+				gGameFramework.login = true;
+			else
+				gGameFramework.login = false;
+		}
 		break;
 		
 	case WM_KEYDOWN:

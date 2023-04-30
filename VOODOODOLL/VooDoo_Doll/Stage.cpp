@@ -67,8 +67,8 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.0f);*/
 	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,-100.0f, 2300);//-100 150
-	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);
-	//m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
+	//m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);
+	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 
 	m_pLights[1].m_bEnable = false;//true
 	m_pLights[1].m_nType = SPOT_LIGHT;
@@ -196,7 +196,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[33];
+	CTexture* ppTextures[32];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -300,10 +300,36 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3.dds", RESOURCE_TEXTURE2D, 0);
 
+
+
+	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart3.dds", RESOURCE_TEXTURE2D, 0);
+
+	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/youWin3.dds", RESOURCE_TEXTURE2D, 0);
+
 	for (int a = 0; a < 32; ++a)
 	{
 		cout << a << endl;
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
+	}
+
+	/*m_ppShaders[0]->gameMat[0] = new CGameObject(1);
+	m_ppShaders[0]->gameMat[1] = new CGameObject(1);*/
+	for (int h{}; h < 2; ++h)
+	{
+		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
+
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+
+		//pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);//1
+		//m_ppShaders[0]->gameMat[h]->SetMaterial(1, pMaterial);
+		//m_ppShaders[0]->gameMat[h]->SetMesh(0, m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+
+		
+		pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);
+		m_ppShaders[0]->gameMat[h] = pMaterial;
 	}
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
@@ -372,6 +398,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				0 == strcmp("Poster_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(ppTextures[11]);
+				//->SetTexture(m_ppShaders[0]->gameScreen[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 			if (0 == strcmp("Dressing_table_drawer_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
@@ -970,12 +997,17 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
-			m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+
+
+		/*if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh"))
+			cout << "왼쪽벽 번호 : "<<i<<endl;*/
 	}
 
 	for(int j{};j<m_ppShaders[0]->m_nDoor;++j)
 		m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 
+	
 	
 	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//��
 }
@@ -1026,7 +1058,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			//cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			cout << "Name - " <<i<<" "<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";
@@ -1145,48 +1177,81 @@ void CStage::CheckMoveObjectsCollisions(float fTimeElapsed, CPlayer*& pl, vector
 }
 void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm)
 {
+
+	//if (false == tempCheck)
+	//{
+	//	tempRight = cm->GetRightVector();
+	//	tempUp = cm->GetUpVector();
+	//	tempLook = cm->GetLookVector();
+	//	tempPos = cm->GetPosition();
+
+	//	tempCheck = true;
+
+	//	cout << "호출" << endl;
+	//}
+
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
-	XMFLOAT3 xmf3Right = pl->GetRightVector();
-	XMFLOAT3 xmf3Up = pl->GetUpVector();
-	XMFLOAT3 xmf3Look = pl->GetLookVector();
-	xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
-	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
-	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
-	if (cm->GetMode() == THIRD_PERSON_CAMERA) {
-		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
-		XMFLOAT3 xmf3Position = Vector3::Add(pl->GetPosition(), xmf3Offset);
-		XMFLOAT3 ray_castPos = pl->GetPosition();
-		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->GetPosition()));
-		
-		bool collide = false;
-		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
-		{
-			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+	if (-200 > pl->GetPosition().y && 500 > pl->GetPosition().z)
+	{
+		cm->SetLookAt(XMFLOAT3(800, -150, 1000));
+	}
+	else
+	{
+		XMFLOAT3 xmf3Right = pl->GetRightVector();
+		XMFLOAT3 xmf3Up = pl->GetUpVector();
+		XMFLOAT3 xmf3Look = pl->GetLookVector();
+		xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
+		xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
+		xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
+
+		if (cm->GetMode() == THIRD_PERSON_CAMERA) {
+			XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
+			XMFLOAT3 xmf3Position = Vector3::Add(pl->GetPosition(), xmf3Offset);
+			XMFLOAT3 ray_castPos = pl->GetPosition();
+			XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->GetPosition()));
+
+			bool collide = false;
+			while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
 			{
-				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
-					0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
-
-
-				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
-				if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
+				for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 				{
-					collide = true;
+					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
+						0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+
+
+					BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+					if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
+					{
+						collide = true;
+						break;
+					}
+				}
+				if (collide) {
+					xmf3Position = ray_castPos;
 					break;
 				}
+				ray_castPos = Vector3::Add(ray_castPos, dir);
 			}
-			if (collide) {
-				xmf3Position = ray_castPos;
-				break;
-			}
-			ray_castPos = Vector3::Add(ray_castPos, dir);
+
+			//if (-200 > pl->GetPosition().y && 1000 > pl->GetPosition().z)
+			//	cm->SetLookAt(XMFLOAT3(800, -150, 1000));
+			//else 
+			cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
 		}
 
-		cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
+		cm->SetLookAt(pl->GetPosition());
+		
 	}
-
-	cm->SetLookAt(pl->GetPosition());
 	cm->RegenerateViewMatrix();
+
+	//if (-200 > pl->GetPosition().y && 1000 > pl->GetPosition().z)
+	//	cm->SetLookAt(XMFLOAT3(800, -150, 1000));
+	//	cm->SetPosition(XMFLOAT3(400, -150, 500));
+
+	
+
+	
 }
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {

@@ -32,6 +32,11 @@
 #pragma comment(lib, "xaudio2.lib")
 
 
+//ui
+#include <unordered_map>
+#include <utility>
+//#include <pair>
+constexpr float WINDOW_MODE_RATE = 1.f;
 
 
 

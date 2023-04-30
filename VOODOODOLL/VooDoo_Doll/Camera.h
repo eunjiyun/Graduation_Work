@@ -18,10 +18,7 @@ class CPlayer;
 class CCamera
 {
 protected:
-	XMFLOAT3						m_xmf3Position;
-	XMFLOAT3						m_xmf3Right;
-	XMFLOAT3						m_xmf3Up;
-	XMFLOAT3						m_xmf3Look;
+	
 
 	float           				m_fPitch;
 	float           				m_fRoll;
@@ -47,6 +44,11 @@ protected:
 public:
 	XMFLOAT4X4						m_xmf4x4View;
 	XMFLOAT4X4						m_xmf4x4Projection;
+
+	XMFLOAT3						m_xmf3Position;
+	XMFLOAT3						m_xmf3Right;
+	XMFLOAT3						m_xmf3Up;
+	XMFLOAT3						m_xmf3Look;
 
 public:
 	CCamera();

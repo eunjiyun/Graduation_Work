@@ -97,6 +97,10 @@ public:
 	bool wakeUp = true;
 	int whatPlayer = 1;
 	CGameObject* m_pLockedObject = NULL;
+
+	bool login = false;
+	CGameObject* temp = nullptr;
+	Text* m_Test;
 	
 
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
@@ -113,7 +117,7 @@ public:
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;
 
-
+	
 	CLogin* m_pLogin = NULL;
 
 	CPlayer* m_pPlayer = NULL;
@@ -121,6 +125,7 @@ public:
 	vector<CMonster*> Monsters;
 	//CMonster* Mon = nullptr;
 	CCamera* m_pCamera = NULL;
+
 	float time = 0.f;
 	bool openDoor[5]= { false,false,false,false,false };
 
