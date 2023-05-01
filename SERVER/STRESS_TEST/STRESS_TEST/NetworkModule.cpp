@@ -208,6 +208,9 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case CS_CHANGEWEAPON: {
 		break;
 	}
+	case SC_OPEN_DOOR: {
+		break;
+	}
 	default: MessageBox(hWnd, L"Unknown Packet Type", L"ERROR", 0);
 		while (true);
 	}
@@ -287,7 +290,7 @@ void Worker_Thread()
 			delete over;
 		}
 		else {
-			std::cout << "Unknown GQCS event!\n";
+			std::cout << "Unknown GQCS event! - " << over->event_type << endl;
 			while (true);
 		}
 	}

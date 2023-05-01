@@ -16,7 +16,6 @@ private:
     short view_range, type;
     array<float, 4> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
-    atomic<bool> alive = false;
     //AStar_Pool _Pool;
 public:
 
@@ -24,7 +23,8 @@ public:
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook;
     high_resolution_clock::time_point recent_recvedTime;
-    
+    bool alive = false;
+
     short HP, power;
     float speed;
     BoundingBox BB;
@@ -59,8 +59,8 @@ public:
     NPC_State GetState() const { return curState; }
     void SetAttackTimer(float time) { attack_timer = time; }
     float GetAttackTimer() const { return attack_timer; }
-    bool is_alive() { return alive.load(); }
-    void SetAlive(bool in) { alive.store(in); }
+    //bool is_alive() { return alive.load(); }
+    //void SetAlive(bool in) { alive.store(in); }
     bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box);
 };
 

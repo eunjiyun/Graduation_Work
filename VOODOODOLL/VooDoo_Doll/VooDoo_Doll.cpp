@@ -547,9 +547,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
 			(*iter)->SetPosition(targetPos);
 		}
-		XMFLOAT3 deltaPos = Vector3::Subtract(packet->BulletPos, (*iter)->m_ppHat->GetPosition());
-		XMFLOAT3 targetPos = Vector3::Add((*iter)->m_ppHat->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
-		(*iter)->m_hats_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), 30, false);
+		//XMFLOAT3 deltaPos = Vector3::Subtract(packet->BulletPos, (*iter)->m_ppHat->GetPosition());
+		//XMFLOAT3 targetPos = Vector3::Add((*iter)->m_ppHat->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
+		//(*iter)->m_hats_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), 30, false);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}

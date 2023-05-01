@@ -371,6 +371,7 @@ void process_packet(const int c_id, char* packet)
 		case 0:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
+			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
@@ -384,16 +385,20 @@ void process_packet(const int c_id, char* packet)
 		}
 		case 1:
 		{
-			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
+			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
 			vector<Monster*> monstersInRange;
-			for (auto& monster : Monsters) {
-				//lock_guard<mutex> monster_lock{ monster->m_lock };
-				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
-				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
-				{
-					monstersInRange.push_back(monster);
+
+			{
+				shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+				for (auto& monster : Monsters) {
+					//lock_guard<mutex> monster_lock{ monster->m_lock };
+					float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
+					if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
+					{
+						monstersInRange.push_back(monster);
+					}
 				}
 			}
 			if (!monstersInRange.empty())
@@ -439,7 +444,7 @@ void process_packet(const int c_id, char* packet)
 		case 2:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
-			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
@@ -464,7 +469,9 @@ void process_packet(const int c_id, char* packet)
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
 		CL.character_num = (CL.character_num + 1) % 3;
-
+		if (CL.character_num == 2)
+			CL.HP = 100;
+		else CL.HP = 55500;
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
@@ -579,7 +586,7 @@ void worker_thread(HANDLE h_iocp)
 			}
 
 			if (found) {
-				if ((*iter)->is_alive()) {
+				if ((*iter)->alive) {
 					{
 						lock_guard<mutex> mm{ (*iter)->m_lock };
 						(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
@@ -602,8 +609,6 @@ void worker_thread(HANDLE h_iocp)
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
 								cl.send_open_door_packet(cl.cur_stage);
-
-								cout << "clear stage : " << cl.cur_stage << endl;
 							}
 						}
 					}

@@ -9,28 +9,27 @@ constexpr short MAX_USER_PER_ROOM = 4;
 constexpr short MAX_MONSTER_PER_ROOM = 10;
 constexpr short W_WIDTH = 400;
 constexpr short W_HEIGHT = 400;
-constexpr short MELEEATTACK_RANGE = 5;
-constexpr short LONGRANGETTACK_RANGE = 150;
-constexpr short STAGE_SIZE = 1200;
-constexpr short AREA_SIZE = 200;
-constexpr short OBJECT_ARRAY_SIZE = 24;
 
 // Packet ID
 constexpr char CS_LOGIN = 0;
-constexpr char CS_MOVE = 1;
-constexpr char CS_ROTATE = 2;
-constexpr char CS_ATTACK = 3;
-constexpr char CS_COLLECT = 4;
-constexpr char CS_CHANGEWEAPON = 5;
+constexpr char CS_SIGNUP = 1;
+constexpr char CS_SIGNIN = 2;
+constexpr char CS_MOVE = 3;
+constexpr char CS_ROTATE = 4;
+constexpr char CS_ATTACK = 5;
+constexpr char CS_COLLECT = 6;
+constexpr char CS_CHANGEWEAPON = 7;
 
-constexpr char SC_LOGIN_INFO = 6;
-constexpr char SC_ADD_PLAYER = 7;
-constexpr char SC_REMOVE_PLAYER = 8;
-constexpr char SC_MOVE_PLAYER = 9;
-constexpr char SC_ROTATE_PLAYER = 10;
-constexpr char SC_SUMMON_MONSTER = 11;
-constexpr char SC_MOVE_MONSTER = 12;
-constexpr char SC_OPEN_DOOR = 13;
+constexpr char SC_LOGIN_INFO = 8;
+constexpr char SC_ADD_PLAYER = 9;
+constexpr char SC_REMOVE_PLAYER = 10;
+constexpr char SC_MOVE_PLAYER = 11;
+constexpr char SC_ROTATE_PLAYER = 12;
+constexpr char SC_SUMMON_MONSTER = 13;
+constexpr char SC_MOVE_MONSTER = 14;
+constexpr char SC_OPEN_DOOR = 15;
+constexpr char SC_LOGIN_COMPLETE = 16;
+
 #include "stdafx.h"
 
 #define _STRESS_TEST
@@ -42,6 +41,22 @@ struct CS_LOGIN_PACKET {
 	//char	name[NAME_SIZE];
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
+
+struct CS_SIGN_PACKET {
+	unsigned char size;
+	char	type;
+	char id[NAME_SIZE];
+	char password[NAME_SIZE];
+};
+constexpr short CS_SIGN_PACKET_SIZE = sizeof(CS_SIGN_PACKET);
+
+//struct CS_SIGNIN_PACKET {
+//	unsigned char size;
+//	char	type;
+//	char id[NAME_SIZE];
+//	char password[NAME_SIZE];
+//};
+//constexpr short CS_SIGNIN_PACKET_SIZE = sizeof(CS_SIGNIN_PACKET);
 
 struct CS_MOVE_PACKET {
 	unsigned char size;
@@ -64,6 +79,7 @@ struct CS_ROTATE_PACKET {
 	float cxDelta = 0.f;
 	float cyDelta = 0.f;
 	float czDelta = 0.f;
+
 };
 constexpr short CS_ROTATE_PACKET_SIZE = sizeof(CS_ROTATE_PACKET);
 
@@ -141,7 +157,9 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+#ifdef _STRESS_TEST
 	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
+#endif
 	short monster_type;
 	XMFLOAT3 Pos;
 };
@@ -151,7 +169,10 @@ struct SC_MOVE_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short	target_id;
+#ifdef _STRESS_TEST
 	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
+#endif
 	XMFLOAT3 Pos;
 	short HP;
 	bool is_alive;
@@ -167,4 +188,11 @@ struct SC_OPEN_DOOR_PACKET {
 
 };
 constexpr short SC_OPEN_DOOR_PACKET_SIZE = sizeof(SC_OPEN_DOOR_PACKET);
+
+struct SC_LOGIN_COMPLETE_PACKET {
+	unsigned char size;
+	char	type;
+	bool	success;
+};
+constexpr short SC_LOGIN_COMPLETE_PACKET_SIZE = sizeof(SC_LOGIN_COMPLETE_PACKET);
 #pragma pack (pop)
