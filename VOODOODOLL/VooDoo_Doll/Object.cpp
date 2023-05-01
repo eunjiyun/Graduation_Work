@@ -593,25 +593,10 @@ void CAnimationTrack::HandleCallback()
 {
 	if (m_pAnimationCallbackHandler)
 	{
-		/*if (dwDirection == DIR_JUMP)
-			callbackCalled = false;*/
 
 		for (int i = 0; i < m_nCallbackKeys; i++)
 		{
-			if (ANIMATION_TYPE_JUMP == m_nType)
-			{
-				if (::IsEqual(0.6f-m_pCallbackKeys[i].m_fTime, m_fPosition, 0.00165f))// ANIMATION_CALLBACK_JUMP))
-				{
-					//if (!callbackCalled) // 이전에 콜백이 호출되었는지 확인
-					{
-						if (m_pCallbackKeys[i].m_pCallbackData)
-							m_pAnimationCallbackHandler->HandleCallback(m_pCallbackKeys[i].m_pCallbackData, m_fPosition);
-						callbackCalled = true; // 콜백이 호출되었음을 표시
-					}
-					break;
-				}
-			}
-			else if (::IsEqual(m_pCallbackKeys[i].m_fTime, m_fPosition, 0.00165f))//ANIMATION_CALLBACK_EPSILON))
+			if (::IsEqual(m_pCallbackKeys[i].m_fTime, m_fPosition, ANIMATION_CALLBACK_EPSILON))
 			{
 				if (m_pCallbackKeys[i].m_pCallbackData) m_pAnimationCallbackHandler->HandleCallback(m_pCallbackKeys[i].m_pCallbackData, m_fPosition);
 				break;
@@ -787,7 +772,6 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
 	{
-		//callbackCalled = false;
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
@@ -813,11 +797,9 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 					xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[curTrack].m_fWeight));
 					m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
 				}
-				//if (!callbackCalled)
-				{
-					m_pAnimationTracks[curTrack].HandleCallback();
-					callbackCalled = true;
-				}
+
+				m_pAnimationTracks[curTrack].HandleCallback();
+
 			}
 		}
 
@@ -1645,8 +1627,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 					nReads = (UINT)::fread(pAnimationSet->m_ppxmf4x4KeyFrameTransforms[i], sizeof(XMFLOAT4X4), pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames, pInFile);
 #endif
 				}
-			}
 		}
+	}
 		else if (!strcmp(pstrToken, "</AnimationSets>"))
 		{
 			break;

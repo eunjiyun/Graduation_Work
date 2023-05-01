@@ -120,13 +120,13 @@ public:
 	int checkJump = 0;
 
 	const wchar_t* inGame = _T("Sound/inGame.wav");
-	const wchar_t* opening = _T("Sound/opening.wav");//opening
+	const wchar_t* opening = _T("Sound/opening.wav");
 	const wchar_t* closing = _T("Sound/closing.wav");
 	const wchar_t* win = _T("Sound/win.wav");
 	const wchar_t* monster = _T("Sound/monster.wav");
 	//const wchar_t* monsterDie = _T("Sound/mob10die.wav");
 	const wchar_t* door = _T("Sound/door.wav");
-	const wchar_t* jump = _T("Sound/มกวม11.wav");
+	const wchar_t* jump = _T("Sound/jump.wav");
 
 
 	CStage* m_pStage = NULL;

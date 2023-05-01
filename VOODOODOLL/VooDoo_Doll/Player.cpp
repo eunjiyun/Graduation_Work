@@ -282,17 +282,13 @@ void CPlayer::boundingAnimate(float fElapsedTime)
 // 
 #define _WITH_DEBUG_CALLBACK_DATA
 
-float tempPos = -3.f;
 void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosition)//0501
 {
 
 		_TCHAR* pWavName = (_TCHAR*)pCallbackData;
 #ifdef _WITH_DEBUG_CALLBACK_DATA
 		TCHAR pstrDebug[256] = { 0 };
-		if (0 == fTrackPosition)
-			int a = 0;
 
-		cout << "fTrackPosition : " << fTrackPosition << endl;
 		_stprintf_s(pstrDebug, 256, _T("%s(%f)\n"), pWavName, fTrackPosition);
 		OutputDebugString(pstrDebug);
 #endif
@@ -363,87 +359,64 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationController->SetTrackEnable(5, false);
 	m_pSkinnedAnimationController->SetTrackEnable(0, true);
 
-	//PlaySound(_T("Sound/opening.wav"), NULL, SND_FILENAME | SND_ASYNC);
 
-	
-
-	/*m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
-	m_pSkinnedAnimationController->SetCallbackKeys(1, 1);
-	m_pSkinnedAnimationController->SetCallbackKeys(2, 1);
-	m_pSkinnedAnimationController->SetCallbackKeys(3, 1);
-	m_pSkinnedAnimationController->SetCallbackKeys(4, 1);
-	m_pSkinnedAnimationController->SetCallbackKeys(5, 1);*/
-
-	//AnimationControllers[0]
-	//AnimationControllers[0]->SetCallbackKeys(0, 1);
 	AnimationControllers[0]->SetCallbackKeys(1, 1);
 	AnimationControllers[0]->SetCallbackKeys(2, 1);
 	AnimationControllers[0]->SetCallbackKeys(3, 1);
 	AnimationControllers[0]->SetCallbackKeys(4, 1);
-	//AnimationControllers[0]->SetCallbackKeys(5, 1);
+	
 
-	AnimationControllers[1]->SetCallbackKeys(0, 1);
 	AnimationControllers[1]->SetCallbackKeys(1, 1);
 	AnimationControllers[1]->SetCallbackKeys(2, 1);
 	AnimationControllers[1]->SetCallbackKeys(3, 1);
 	AnimationControllers[1]->SetCallbackKeys(4, 1);
-	//AnimationControllers[1]->SetCallbackKeys(5, 1);
 
-	AnimationControllers[2]->SetCallbackKeys(0, 1);
+
 	AnimationControllers[2]->SetCallbackKeys(1, 1);
 	AnimationControllers[2]->SetCallbackKeys(2, 1);
 	AnimationControllers[2]->SetCallbackKeys(3, 1);
 	AnimationControllers[2]->SetCallbackKeys(4, 1);
-	//AnimationControllers[2]->SetCallbackKeys(5, 1);
+
 #ifdef _WITH_SOUND_RESOURCE
 	m_pSkinnedAnimationController->SetCallbackKey(0, 0.1f, _T("Footstep01"));
 	m_pSkinnedAnimationController->SetCallbackKey(1, 0.5f, _T("Footstep02"));
 	m_pSkinnedAnimationController->SetCallbackKey(2, 0.9f, _T("Footstep03"));
 #else
-	//AnimationControllers[0]->SetCallbackKey(0, 0, 0.7f, _T("Sound/opening.wav"));
-	//m_pSkinnedAnimationController->SetCallbackKey(1, 0, 0.6f, _T("Sound/opening.wav"));
+	
 	AnimationControllers[0]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
-	//   m_pSkinnedAnimationController->SetCallbackKey(1, 2, 0.39f, _T("Sound/Footstep03.wav"));
 	AnimationControllers[0]->SetCallbackKey(2, 0, 0.2f, _T("Sound/swordAttack.wav"));
 	AnimationControllers[0]->SetCallbackKey(3, 0, 0.2f, _T("Sound/run.wav"));
 	AnimationControllers[0]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
-	//AnimationControllers[0]->SetCallbackKey(5, 0, 0.2f, _T("Sound/점프11.wav"));//jump.wav
 
-	//AnimationControllers[1]->SetCallbackKey(0, 0, 0.7f, _T("Sound/opening.wav"));
+
 	AnimationControllers[1]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
 	AnimationControllers[1]->SetCallbackKey(2, 0, 0.2f, _T("Sound/gunAttack.wav"));
 	AnimationControllers[1]->SetCallbackKey(3, 0, 0.2f, _T("Sound/run.wav"));
 	AnimationControllers[1]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
-	//AnimationControllers[1]->SetCallbackKey(5, 0, 0.2f, _T("Sound/jump.wav"));
 
-	//AnimationControllers[2]->SetCallbackKey(0, 0, 0.7f, _T("Sound/opening.wav"));
+
 	AnimationControllers[2]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
 	AnimationControllers[2]->SetCallbackKey(2, 0, 0.2f, _T("Sound/attack.wav"));
 	AnimationControllers[2]->SetCallbackKey(3, 0, 0.2f, _T("Sound/run.wav"));
 	AnimationControllers[2]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
-	//AnimationControllers[2]->SetCallbackKey(5, 0, 0.2f, _T("Sound/jump.wav"));
+
 #endif
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
-	//AnimationControllers[0]->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
+
 	AnimationControllers[0]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
 	AnimationControllers[0]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
 	AnimationControllers[0]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 	AnimationControllers[0]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
-	//AnimationControllers[0]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
 
-	//AnimationControllers[1]->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
 	AnimationControllers[1]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
 	AnimationControllers[1]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
 	AnimationControllers[1]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 	AnimationControllers[1]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
-	//AnimationControllers[1]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
 
-	//AnimationControllers[2]->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
-	//AnimationControllers[2]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
@@ -695,10 +668,10 @@ void SoundPlayer::Play()
 void SoundPlayer::Stop()
 {
 	if (sourceVoice_)
-	{// 소스 보이스 중지
+	{
+		// 소스 보이스 중지
 		sourceVoice_->Stop();
 		sourceVoice_->FlushSourceBuffers();
-		//sourceVoice_ = nullptr;
 	}
 }
 

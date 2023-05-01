@@ -743,75 +743,27 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	{
 		if (player->c_id > -1) {
 
-			/*if (!player->onFloor)
-			{
-				playerSound.Initialize();
-				playerSound.LoadWave(jump);
-				playerSound.Play();
-			}*/
 			if (5 == player->m_pSkinnedAnimationController->Cur_Animation_Track)
 			{
-				cout << "커 점프" << endl;
-				XAUDIO2_VOICE_STATE voiceState;
-				cout << "vel x : " << player->m_xmf3Velocity.x << endl;
-				cout << "vel y : " << player->m_xmf3Velocity.y << endl;
-				cout << "vel z : " << player->m_xmf3Velocity.z << endl;
-
-				//if (fabs(0.6 - player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition) < 0.01)//이 조건이 틀려서 
-				//if (0.6f == player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition)//이 조건이 틀려서 
-				//if (player->GetPosition().y<-58 && player->GetPosition().y > -70
-				//	|| player->GetPosition().y < -298)//이 조건이 틀려서 
-				if( player->m_xmf3Velocity.y<=0)//player->onFloor||
+				if (player->m_xmf3Velocity.y <= 0)
 				{
-					cout << "점프 끝" << endl;
 					if (0 != checkJump % 2)
-					//if (0 != voiceState.BuffersQueued)//&& 5> voiceState.BuffersQueued)
-						//if (0.6 == player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition)
-							//player->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_nAnimationSet]->m_fLength)
-						//if (false==player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)//점프는 어떤 조건일 때 멈추는지
 					{
-						cout << "버퍼전 : " << &playerSound.buffer_ << endl;
 						playerSound.Stop();
-						//cout << "버퍼 : " << voiceState.BuffersQueued << endl;
-						cout << "점프 스탑" << endl;
-
-						if (playerSound.sourceVoice_)
-						{
-
-							playerSound.sourceVoice_->GetState(&voiceState);
-							cout << "..." << endl;
-						}
 						++checkJump;
-					}
-					//else
-					{
-						//player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition += 0.1;
 					}
 				}
 				else
 				{
-					
-					if(0==checkJump%2)
-						//if (0 == voiceState.BuffersQueued)// ||0==checkJump )
-					//if (player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
-					//if (5< voiceState.BuffersQueued||  0==voiceState.BuffersQueued)//; !playerSound.sourceVoice_)
+					if (0 == checkJump % 2)
 					{
 						playerSound.Initialize();
 						playerSound.LoadWave(jump);
 						playerSound.Play();
-						//curId = player->c_id;
-						cout << "점프 플레이" << endl;
-
-						if (playerSound.sourceVoice_)
-						{
-
-							playerSound.sourceVoice_->GetState(&voiceState);
-							cout << "..." << endl;
-						}
 						++checkJump;
 					}
 				}
-						
+
 			}
 			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
@@ -915,7 +867,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 						checkDoor[i - 1] = true;
 					}
 				}
-				
+
 				m_pStage->m_ppShaders[0]->door[i - 1]->Animate(fTimeElapsed, false);
 			}
 		}
@@ -1113,8 +1065,6 @@ void CGameFramework::FrameAdvance()
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
-
-
 }
 
 

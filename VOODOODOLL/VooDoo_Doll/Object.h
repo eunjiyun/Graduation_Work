@@ -258,7 +258,6 @@ class CAnimationTrack
 public:
 	CAnimationTrack() {}
 	~CAnimationTrack();
-	bool callbackCalled = false;
 	
 public:
 	BOOL 							m_bEnable = true;//
@@ -313,7 +312,6 @@ class CAnimationController
 public:
 	CAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfo* pModel);
 	~CAnimationController();
-	bool callbackCalled = false;
 public:
 	float 							m_fTime = 0.0f;//
 
@@ -601,7 +599,6 @@ public:
 
 public:
 	virtual void HandleCallback(void* pCallbackData, float fTrackPosition);
-	//static float tempPos = -3.f;
 };
 
 
