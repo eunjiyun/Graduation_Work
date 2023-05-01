@@ -112,6 +112,19 @@ public:
 	CGameTimer					m_GameTimer;
 	SoundPlayer sound[4];
 
+	SoundPlayer monsterSound;
+	//int curId = -1;
+	SoundPlayer doorSound;
+	bool checkDoor[6] = { false,false,false,false,false,false };
+
+	const wchar_t* inGame = _T("Sound/inGame.wav");
+	const wchar_t* opening = _T("Sound/opening.wav");
+	const wchar_t* closing = _T("Sound/closing.wav");
+	const wchar_t* win = _T("Sound/win.wav");
+	const wchar_t* monster = _T("Sound/monster.wav");
+	//const wchar_t* monsterDie = _T("Sound/mob10die.wav");
+	const wchar_t* door = _T("Sound/door.wav");
+
 
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;
@@ -126,8 +139,9 @@ public:
 	CCamera* m_pCamera = NULL;
 
 	float time = 0.f;
-	bool openDoor[5]= { false,false,false,false,false };
-
+	bool openDoor[7]= { false,false,false,false,false,false,false};
+	int curStage = -1;
+	
 	POINT						m_ptOldCursorPos;
 
 	_TCHAR						m_pszFrameRate[70];

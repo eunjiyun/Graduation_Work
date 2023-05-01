@@ -23,21 +23,21 @@ CMonster::CMonster(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dComm
 
 		//AnimationControllers[2]->SetCallbackKeys(0, 1);
 		//m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
-		m_pSkinnedAnimationController->SetCallbackKeys(1, 1);
+		//m_pSkinnedAnimationController->SetCallbackKeys(1, 1);
 		//m_pSkinnedAnimationController->SetCallbackKeys(2, 1);
 		m_pSkinnedAnimationController->SetCallbackKeys(3, 1);
 
-		//m_pSkinnedAnimationController->SetCallbackKey(0, 0, 0.1f, _T("Sound/monster.wav"));
-		m_pSkinnedAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Sound/monster.wav"));
-		//m_pSkinnedAnimationController->SetCallbackKey(2, 0, 0.1f, _T("Sound/monsterAttack.wav"));
+		////m_pSkinnedAnimationController->SetCallbackKey(0, 0, 0.1f, _T("Sound/monster.wav"));
+		//m_pSkinnedAnimationController->SetCallbackKey(1, 0, 0.1f, _T("Sound/monster.wav"));
+		////m_pSkinnedAnimationController->SetCallbackKey(2, 0, 0.1f, _T("Sound/monsterAttack.wav"));
 		m_pSkinnedAnimationController->SetCallbackKey(3, 0, 0.1f, _T("Sound/monsterDeath.wav"));
-		
+		//
 
 
 		CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
-		//m_pSkinnedAnimationController->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
-		m_pSkinnedAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
-		//m_pSkinnedAnimationController->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
+		////m_pSkinnedAnimationController->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
+		//m_pSkinnedAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+		////m_pSkinnedAnimationController->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
 		m_pSkinnedAnimationController->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 		
 	}

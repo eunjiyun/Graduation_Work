@@ -1005,10 +1005,6 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
-
-
-		/*if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh"))
-			cout << "왼쪽벽 번호 : "<<i<<endl;*/
 	}
 
 	for(int j{};j<m_ppShaders[0]->m_nDoor;++j)
@@ -1195,8 +1191,8 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			cm->SetLookAt(XMFLOAT3(800, -150, 1000));
 		}
 	}
-	else if (-200 > pl->GetPosition().y && 500 > pl->GetPosition().z)
-		cm->SetLookAt(XMFLOAT3(800, -150, 1000));
+	else if (-200 > pl->GetPosition().y && 300 > pl->GetPosition().z)
+		cm->SetLookAt(XMFLOAT3(800, -150, 800));
 	else
 	{
 		XMFLOAT3 xmf3Right = pl->GetRightVector();

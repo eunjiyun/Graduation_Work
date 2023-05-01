@@ -690,7 +690,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		door[h]->SetScale(70.0f, 70.0f, 70.0f);
 
 
-		//	cout << h << " y: " << door[h]->GetPosition().y << " z:	" << door[h]->GetPosition().z << endl;
 		switch(h)
 			{
 		case 0:

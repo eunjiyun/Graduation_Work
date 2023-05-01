@@ -1,4 +1,5 @@
 <조작키>
+게임 시작 : ENTER
 이동 : WASD
 가속 : SHIFT
 점프 : SPACE

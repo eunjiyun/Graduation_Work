@@ -516,7 +516,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}
-	case SC_MOVE_MONSTER: {//0322
+	case SC_MOVE_MONSTER: {
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
 		auto targetPlayer = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return Pl->c_id == packet->target_id; });
@@ -524,6 +524,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
 			gGameFramework.Monsters.erase(iter);
+			
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
@@ -556,10 +557,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		SC_OPEN_DOOR_PACKET* packet = reinterpret_cast<SC_OPEN_DOOR_PACKET*>(ptr);
 		int cur_stage = packet->door_num;
 		gGameFramework.openDoor[cur_stage] = true;
-		//for (int i{}; i < gGameFramework.m_pStage->m_ppShaders[0]->m_nDoor; ++i)
-		//	if (abs((*iter)->GetPosition().z - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().z) < 50)
-		//		if (abs((*iter)->GetPosition().y - gGameFramework.m_pStage->m_ppShaders[0]->door[i]->GetPosition().y) < 100)
-		//			gGameFramework.openDoor[i] = packet->doorOpen[i] = true;
+		
 		break;
 	}
 	}

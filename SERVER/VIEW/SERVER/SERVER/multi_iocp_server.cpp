@@ -567,7 +567,7 @@ void worker_thread(HANDLE h_iocp)
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
 			break;
-		case OP_NPC_MOVE://04166
+		case OP_NPC_MOVE://클라그림자
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
 			vector<Monster*>::iterator iter;
@@ -601,12 +601,7 @@ void worker_thread(HANDLE h_iocp)
 						//Initialize_Monster(roomNum, ++PoolMonsters[roomNum].cur_stage);
 						for (auto& cl : clients[roomNum]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
-								if (2 == cl.cur_stage)
-									continue;
-								else if (2 < cl.cur_stage)
-									cl.send_open_door_packet(cl.cur_stage - 1);
-								else
-									cl.send_open_door_packet(cl.cur_stage);
+								cl.send_open_door_packet(cl.cur_stage);
 
 								cout << "clear stage : " << cl.cur_stage << endl;
 							}

@@ -610,6 +610,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 
 	static float start;
 	static float end;
+
 	switch (m_nType)
 	{
 	case ANIMATION_TYPE_LOOP:
@@ -775,7 +776,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 
 		if (m_pAnimationTracks[curTrack].m_bEnable)
 		{
-			if (2 < m_nAnimationTracks)
+			if (2 < m_nAnimationTracks)//문이 아니면
 			{
 				if (2 == curTrack)//player : attack
 					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_ONCE;
@@ -784,6 +785,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 				else if (5 == curTrack)//player : jump 
 					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_JUMP;
 			}
+
 			CAnimationSet* pAnimationSet = m_pAnimationSets->m_pAnimationSets[m_pAnimationTracks[curTrack].m_nAnimationSet];
 			if (pAnimationSet != nullptr) {
 				float fPosition = m_pAnimationTracks[curTrack].UpdatePosition(m_pAnimationTracks[curTrack].m_fPosition, fTimeElapsed, pAnimationSet->m_fLength);
@@ -1889,7 +1891,7 @@ CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 	m_pSkinnedAnimationController->m_pAnimationTracks[1].m_nType = ANIMATION_TYPE_DOOR;
 
 
-	m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
+	/*m_pSkinnedAnimationController->SetCallbackKeys(0, 1);
 	m_pSkinnedAnimationController->SetCallbackKeys(1, 1);
 
 
@@ -1901,7 +1903,7 @@ CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
 	m_pSkinnedAnimationController->SetAnimationCallbackHandler(0, pAnimationCallbackHandler);
-	m_pSkinnedAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+	m_pSkinnedAnimationController->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);*/
 
 	if (_Model)delete _Model;
 }
