@@ -145,6 +145,7 @@ extern float ReadFloatFromFile(FILE* pInFile);
 
 
 #define ANIMATION_CALLBACK_EPSILON		0.00165f
+#define ANIMATION_CALLBACK_JUMP			0.9f//0501
 
 #include "Object.h"
 extern CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int* pnGameObjects);

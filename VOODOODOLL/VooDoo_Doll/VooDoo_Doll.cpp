@@ -397,7 +397,10 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 {
+	if (5 == pl->m_pSkinnedAnimationController->Cur_Animation_Track)
+		int a = 0;
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+	
 
 	if (pl->onFloor == false) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);

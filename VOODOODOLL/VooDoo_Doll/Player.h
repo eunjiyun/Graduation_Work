@@ -20,7 +20,7 @@ protected:
 	float           			m_fYaw = 0.0f;
 	float           			m_fRoll = 0.0f;
 
-	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	
 	XMFLOAT3     				m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float           			m_fMaxVelocityXZ = 0.0f;
 	float           			m_fMaxVelocityY = 0.0f;
@@ -32,6 +32,8 @@ protected:
 	CCamera* m_pCamera = NULL;
 
 public:
+	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
 	CGameObject* m_ppBullet;
 	int c_id = -1;
 	short cur_weapon = 0;
@@ -162,20 +164,17 @@ public:
 	void Play();
 	void Stop();
 
-//private:
-//	IXAudio2* xAudio2_;
-//	IXAudio2MasteringVoice* masterVoice_;
-//	IXAudio2SourceVoice* sourceVoice_;
-//	WAVEFORMATEX waveFormat_;
-//	XAUDIO2_BUFFER buffer_;
+public:
+	IXAudio2SourceVoice* sourceVoice_;
+	XAUDIO2_BUFFER buffer_;
 
 private:
 	IXAudio2* xAudio2_;
 	IXAudio2MasteringVoice* masterVoice_;
-	IXAudio2SourceVoice* sourceVoice_;
+	
 	std::vector<BYTE> audioData_;
 	WAVEFORMATEX waveFormat_;
-	XAUDIO2_BUFFER buffer_;
+	
 };
 
 

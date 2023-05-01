@@ -544,7 +544,7 @@ void CGameFramework::BuildObjects()
 	temp = new CGameObject(1);
 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-	temp->SetPosition(83, 82, 100);
+	temp->SetPosition(84, 82, 107);
 	temp->Rotate(270, 0, 0);
 	temp->SetScale(0.7, 0.7, 0.7);
 
@@ -742,6 +742,77 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	for (auto& player : Players)
 	{
 		if (player->c_id > -1) {
+
+			/*if (!player->onFloor)
+			{
+				playerSound.Initialize();
+				playerSound.LoadWave(jump);
+				playerSound.Play();
+			}*/
+			if (5 == player->m_pSkinnedAnimationController->Cur_Animation_Track)
+			{
+				cout << "커 점프" << endl;
+				XAUDIO2_VOICE_STATE voiceState;
+				cout << "vel x : " << player->m_xmf3Velocity.x << endl;
+				cout << "vel y : " << player->m_xmf3Velocity.y << endl;
+				cout << "vel z : " << player->m_xmf3Velocity.z << endl;
+
+				//if (fabs(0.6 - player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition) < 0.01)//이 조건이 틀려서 
+				//if (0.6f == player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition)//이 조건이 틀려서 
+				//if (player->GetPosition().y<-58 && player->GetPosition().y > -70
+				//	|| player->GetPosition().y < -298)//이 조건이 틀려서 
+				if( player->m_xmf3Velocity.y<=0)//player->onFloor||
+				{
+					cout << "점프 끝" << endl;
+					if (0 != checkJump % 2)
+					//if (0 != voiceState.BuffersQueued)//&& 5> voiceState.BuffersQueued)
+						//if (0.6 == player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition)
+							//player->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_nAnimationSet]->m_fLength)
+						//if (false==player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)//점프는 어떤 조건일 때 멈추는지
+					{
+						cout << "버퍼전 : " << &playerSound.buffer_ << endl;
+						playerSound.Stop();
+						//cout << "버퍼 : " << voiceState.BuffersQueued << endl;
+						cout << "점프 스탑" << endl;
+
+						if (playerSound.sourceVoice_)
+						{
+
+							playerSound.sourceVoice_->GetState(&voiceState);
+							cout << "..." << endl;
+						}
+						++checkJump;
+					}
+					//else
+					{
+						//player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_fPosition += 0.1;
+					}
+				}
+				else
+				{
+					
+					if(0==checkJump%2)
+						//if (0 == voiceState.BuffersQueued)// ||0==checkJump )
+					//if (player->m_pSkinnedAnimationController->m_pAnimationTracks[5].m_bEnable)
+					//if (5< voiceState.BuffersQueued||  0==voiceState.BuffersQueued)//; !playerSound.sourceVoice_)
+					{
+						playerSound.Initialize();
+						playerSound.LoadWave(jump);
+						playerSound.Play();
+						//curId = player->c_id;
+						cout << "점프 플레이" << endl;
+
+						if (playerSound.sourceVoice_)
+						{
+
+							playerSound.sourceVoice_->GetState(&voiceState);
+							cout << "..." << endl;
+						}
+						++checkJump;
+					}
+				}
+						
+			}
 			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
 		}

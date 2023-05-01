@@ -593,9 +593,25 @@ void CAnimationTrack::HandleCallback()
 {
 	if (m_pAnimationCallbackHandler)
 	{
+		/*if (dwDirection == DIR_JUMP)
+			callbackCalled = false;*/
+
 		for (int i = 0; i < m_nCallbackKeys; i++)
 		{
-			if (::IsEqual(m_pCallbackKeys[i].m_fTime, m_fPosition, ANIMATION_CALLBACK_EPSILON))
+			if (ANIMATION_TYPE_JUMP == m_nType)
+			{
+				if (::IsEqual(0.6f-m_pCallbackKeys[i].m_fTime, m_fPosition, 0.00165f))// ANIMATION_CALLBACK_JUMP))
+				{
+					//if (!callbackCalled) // 이전에 콜백이 호출되었는지 확인
+					{
+						if (m_pCallbackKeys[i].m_pCallbackData)
+							m_pAnimationCallbackHandler->HandleCallback(m_pCallbackKeys[i].m_pCallbackData, m_fPosition);
+						callbackCalled = true; // 콜백이 호출되었음을 표시
+					}
+					break;
+				}
+			}
+			else if (::IsEqual(m_pCallbackKeys[i].m_fTime, m_fPosition, 0.00165f))//ANIMATION_CALLBACK_EPSILON))
 			{
 				if (m_pCallbackKeys[i].m_pCallbackData) m_pAnimationCallbackHandler->HandleCallback(m_pCallbackKeys[i].m_pCallbackData, m_fPosition);
 				break;
@@ -771,6 +787,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 	m_fTime += fTimeElapsed;
 	if (m_pAnimationTracks)
 	{
+		//callbackCalled = false;
 		for (int j = 0; j < m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = Matrix4x4::Zero();
 
@@ -796,7 +813,11 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 					xmf4x4Transform = Matrix4x4::Add(xmf4x4Transform, Matrix4x4::Scale(xmf4x4TrackTransform, m_pAnimationTracks[curTrack].m_fWeight));
 					m_pAnimationSets->m_ppAnimatedBoneFrameCaches[j]->m_xmf4x4ToParent = xmf4x4Transform;
 				}
-				m_pAnimationTracks[curTrack].HandleCallback();
+				//if (!callbackCalled)
+				{
+					m_pAnimationTracks[curTrack].HandleCallback();
+					callbackCalled = true;
+				}
 			}
 		}
 
@@ -1045,18 +1066,10 @@ void CGameObject::Animate(float fTimeElapsed, bool onPlayer)
 	if (m_pSkinnedAnimationController) {
 		m_pSkinnedAnimationController->AdvanceTime(fTimeElapsed, m_pSkinnedAnimationController->Cur_Animation_Track, this);
 
-		//if (2 < m_pSkinnedAnimationController->m_nAnimationTracks)
-		{
-			if (m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
-				m_pSkinnedAnimationController->SetTrackEnable(0, true);
-				onAct = false;
-			}
-		}
-		/*else
-		{
-			if(m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false)
+		if (m_pSkinnedAnimationController->m_pAnimationTracks[m_pSkinnedAnimationController->Cur_Animation_Track].m_bEnable == false) {
 			m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		}*/
+			onAct = false;
+		}
 	}
 
 	if (m_pSibling)
@@ -1307,7 +1320,7 @@ void CGameObject::Rotate(XMFLOAT4* pxmf4Quaternion)
 	UpdateTransform(NULL);
 }
 
-//23.02.22
+
 void CGameObject::SetMovingDirection(XMFLOAT3& xmf3MovingDirection)
 {
 	m_xmf3MovingDirection = Vector3::Normalize(xmf3MovingDirection);
@@ -1545,10 +1558,10 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 		else if (!strcmp(pstrToken, "</Frame>"))
 		{
 			break;
-			}
 		}
-	return(pGameObject);
 	}
+	return(pGameObject);
+}
 
 void CGameObject::PrintFrameInfo(CGameObject* pGameObject, CGameObject* pParent)
 {
@@ -1633,13 +1646,13 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 #endif
 				}
 			}
-				}
+		}
 		else if (!strcmp(pstrToken, "</AnimationSets>"))
 		{
 			break;
 		}
-			}
-			}
+	}
+}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
@@ -2083,7 +2096,7 @@ SpriteFontInfo GetFontInfo(TextureKey key)
 	return rtv;
 }
 
-Text::Text( TextureKey key, float x, float y, string contents)
+Text::Text(TextureKey key, float x, float y, string contents)
 	: m_TextureKey(key)
 	, m_Contents(contents)
 	, m_Letters()
@@ -2230,7 +2243,7 @@ SpriteFont::SpriteFont(int num_r, int num_c, TextureKey key,
 }
 
 SpriteFont::SpriteFont(char c, TextureKey key, float sprite_w, float sprite_h, float pixel_x, float pixel_y)
-	//: GraphicsObject()
+//: GraphicsObject()
 	: m_TexPos(0.f, 0.f)
 	, m_TexScl(1.f, 1.f)
 
