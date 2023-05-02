@@ -96,7 +96,8 @@ private:
 public:
 	bool wakeUp = true;
 
-	bool login = false;
+	int gameButton = -1;
+
 	CGameObject* temp = nullptr;
 	Text* m_Test;
 	
@@ -149,8 +150,8 @@ public:
 
 	_TCHAR						m_pszFrameRate[70];
 
-	CGameObject** m_ppBullets = NULL;//ÃÑ¾Ë
-	CGameObject** m_ppCap = NULL;//¸¶¹ý¸ðÀÚ
+	CGameObject** m_ppBullets = NULL;//ï¿½Ñ¾ï¿½
+	CGameObject** m_ppCap = NULL;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	bool onFullScreen = false;
 };
 

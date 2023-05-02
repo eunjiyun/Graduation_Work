@@ -340,9 +340,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case VK_CONTROL:
-			ChangeSwapChainState();
-			break;
 		default:
 			break;
 		}
@@ -544,7 +541,9 @@ void CGameFramework::BuildObjects()
 	temp = new CGameObject(1);
 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-	temp->SetPosition(84, 82, 107);
+
+	temp->SetPosition(84, 75, 108);
+
 	temp->Rotate(270, 0, 0);
 	temp->SetScale(0.7, 0.7, 0.7);
 
@@ -806,7 +805,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 
 	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor + 2; ++i)
 	{
-		if (openDoor[i] && true == login)
+		if (openDoor[i] && 1 == gameButton)
 		{
 			if (2 >= i)
 			{
@@ -915,7 +914,6 @@ void CGameFramework::FrameAdvance()
 	// Wait for sound to finish
 	//Sleep(10000);
 
-
 	if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
 		monsterSound.Stop();//몬스터
 
@@ -928,7 +926,8 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)
+
+	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버
 	{
 		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
@@ -942,22 +941,68 @@ void CGameFramework::FrameAdvance()
 			sound[2].Play();//클로징
 		}
 	}
-	//else if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
-	//{
-	//	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
-	//	temp->SetPosition(880, -70, 800);
-	//	m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
 
-	//	monsterSound.Stop();//몬스터
-	//	sound[0].Stop();//인게임
-	//	sound[3].Play();//윈
-	//}
-	if (login)
+	// else if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
+	// {
+	// 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
+	// 	temp->SetPosition(880, -70, 800);
+	// 	m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+
+	// 	monsterSound.Stop();//몬스터
+	// 	sound[0].Stop();//인게임
+	// 	sound[3].Play();//윈
+	// }
+
+	// hWnd는 게임 창의 윈도우 핸들입니다.
+	RECT rcWindow;
+	GetWindowRect(Get_HWND() , &rcWindow);
+
+	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
+
+	if (false == onFullScreen)
 	{
+		if (526 < m_ptOldCursorPos.x - windowX && 589 > m_ptOldCursorPos.x - windowX
+			&& 287 < m_ptOldCursorPos.y - windowY && 319 > m_ptOldCursorPos.y - windowY)
+			gameButton = 1;
+		else if (531 < m_ptOldCursorPos.x - windowX && 587 > m_ptOldCursorPos.x - windowX
+			&& 352 < m_ptOldCursorPos.y - windowY && 388 > m_ptOldCursorPos.y - windowY)
+			gameButton = 2;
+		else if (499 < m_ptOldCursorPos.x - windowX && 619 > m_ptOldCursorPos.x - windowX
+			&& 419 < m_ptOldCursorPos.y - windowY && 457 > m_ptOldCursorPos.y - windowY)
+			gameButton = 3;
+	}
+	else
+	{
+		if (521 <= m_ptOldCursorPos.x - windowX && 581 >= m_ptOldCursorPos.x - windowX
+			&& 251 <= m_ptOldCursorPos.y - windowY && 285 >= m_ptOldCursorPos.y - windowY)
+			gameButton = 1;
+		else if (524 <= m_ptOldCursorPos.x - windowX && 580 >= m_ptOldCursorPos.x - windowX
+			&& 321 <= m_ptOldCursorPos.y - windowY && 354 >= m_ptOldCursorPos.y - windowY)
+		{
+			gameButton = 2;
+			ChangeSwapChainState();
+		}
+		else if (495 <= m_ptOldCursorPos.x - windowX && 610 >= m_ptOldCursorPos.x - windowX
+			&& 387 <= m_ptOldCursorPos.y - windowY && 428 >= m_ptOldCursorPos.y - windowY)
+			gameButton = 3;
+	}
+	
+	switch (gameButton)
+	{
+	case 1://play
 		sound[1].Stop();//오프닝
 		sound[0].Play();//인게임
 
 		m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
+
+		break;
+	case 2://exit
+		PostQuitMessage(0);
+		break;
+	case 3://settings
+		break;
 	}
 
 

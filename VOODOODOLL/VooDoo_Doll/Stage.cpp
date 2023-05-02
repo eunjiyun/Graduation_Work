@@ -195,6 +195,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	BuildDefaultLightsAndMaterials();//조명
 
 
+
 	for (int a = 0; a < pBoxShader->obj.size(); ++a)
 	{
 		cout << pBoxShader->obj[a]->m_pstrName << endl;
@@ -309,7 +310,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart6.dds", RESOURCE_TEXTURE2D, 0);
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/youWin.dds", RESOURCE_TEXTURE2D, 0);
@@ -319,6 +320,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int a = 0; a < 32; ++a)
 	{
+
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 
@@ -336,7 +338,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-
 		for (UINT k = 0; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
 		{
 			CMaterial* pMaterial = new CMaterial(1);
@@ -1039,14 +1040,10 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 		}
 
-
-
 		if (true == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
 		{
 			continue;
 		}
-
-
 
 		if (pl->obBox.Intersects(oBox) )
 		{
@@ -1072,7 +1069,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 					b2ndDoorPass = true;
 				}
 			}
-
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;
@@ -1205,7 +1201,8 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
 
-	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)
+
+	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버
 	{
 		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
@@ -1213,6 +1210,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			cm->SetLookAt(XMFLOAT3(800, -150, 1000));
 		}
 	}
+
 	//else if (-200 > pl->GetPosition().y && 400 > pl->GetPosition().z)
 	//	cm->SetLookAt(XMFLOAT3(800, -150, 800));
 	else
