@@ -271,6 +271,14 @@ public:
 		do_send(&packet);
 	}
 
+	void send_clear_packet()
+	{
+		SC_GAME_CLEAR_PACKET packet;
+		packet.size = sizeof(SC_GAME_CLEAR_PACKET);
+		packet.type = SC_GAME_CLEAR;
+		do_send(&packet);
+	}
+
 	void send_remove_player_packet(int c_id)
 	{
 		SC_REMOVE_PLAYER_PACKET p;

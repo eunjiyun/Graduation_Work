@@ -7,7 +7,7 @@ Monster::Monster(const Monster& other)
     lock_guard<mutex> ll{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    alive.store(other.alive);
+    alive = other.alive;
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -32,7 +32,7 @@ Monster& Monster::operator=(const Monster& other)
     lock_guard<mutex> l2{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    alive.store(other.alive);
+    alive = other.alive;
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;

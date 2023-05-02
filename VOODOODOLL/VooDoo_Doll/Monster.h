@@ -6,6 +6,7 @@ class CMonster : public CGameObject
 public:
 	CLoadedModelInfo* _Model;
 	CGameObject* m_ppHat = nullptr;
+	CLoadedModelInfo* Hat_Model;
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_hats_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float speed;

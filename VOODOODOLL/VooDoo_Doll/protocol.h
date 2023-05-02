@@ -29,6 +29,7 @@ constexpr char SC_SUMMON_MONSTER = 13;
 constexpr char SC_MOVE_MONSTER = 14;
 constexpr char SC_OPEN_DOOR = 15;
 constexpr char SC_LOGIN_COMPLETE = 16;
+constexpr char SC_GAME_CLEAR = 17;
 
 #include "stdafx.h"
 
@@ -195,4 +196,11 @@ struct SC_LOGIN_COMPLETE_PACKET {
 	bool	success;
 };
 constexpr short SC_LOGIN_COMPLETE_PACKET_SIZE = sizeof(SC_LOGIN_COMPLETE_PACKET);
+
+struct SC_GAME_CLEAR_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+};
+constexpr short SC_GAME_CLEAR_PACKET_SIZE = sizeof(SC_GAME_CLEAR_PACKET);
 #pragma pack (pop)
