@@ -379,6 +379,7 @@ public:
 	CMaterial** m_ppMaterials = NULL;//
 
 	int										m_iObjID = 0; 
+	bool									m_bGetItem = false;
 
 	XMFLOAT4X4						m_xmf4x4ToParent;//
 	XMFLOAT4X4						m_xmf4x4World;//

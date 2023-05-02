@@ -178,9 +178,21 @@ public:
 	CShadowMapShader*			m_pShadowShader = NULL;
 	CDepthRenderShader*		m_pDepthRenderShader = NULL;
 
-	bool										bPass = false;
+	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
+	bool										b1stDoorPass = false;
+	bool										b2ndDoorPass = false;
+	bool										b3rdDoorPass = false;
+	bool										b4thDoorPass = false;
+	bool										b5thDoorPass = false;// 문 통과
+
 	vector<int>							DeleteObject;
 	int											iGetItem = 0;
+	int											iGetCoin = 0;
 	bool										bLightwakeUp = false;
+
+
+	// 문 바운딩박스
+	BoundingOrientedBox	  m_1stDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(10.f, 10.f, 10.f), XMFLOAT4(0.0f, 0.0f, 0.0f, -1.f));
+
 };
 

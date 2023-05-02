@@ -630,10 +630,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 
-
-
-	int l = 0;
-
 	if (0 == strcmp("Models/Scene.bin", pstrFileName))
 	{
 		for (int i = 0; i < m_nObjects; ++i)
@@ -666,14 +662,13 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(xmf3tmp);
-				cout << l << "¹øÂ°	: " << xmf3tmp.x << "	, " << xmf3tmp.y << "	, " << xmf3tmp.z << endl;
-				++l;
+
 			}
 
 		}
 	}
 
-	//Door_01_main_mesh
+
 	m_nDoor = 5;
 	door = new CGameObject * [m_nDoor];
 
@@ -688,12 +683,12 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 		
 		door[h]->SetScale(70.0f, 70.0f, 70.0f);
-
+		memcpy_s(door[h]->m_pstrName, 64, "door", 64);
 
 		switch(h)
 			{
 		case 0:
-			door[h]->SetPosition(469, -64.6, 1228.59);
+			door[h]->SetPosition(469, -64.6, 1235);
 			break;
 		case 1:
 			door[h]->SetPosition(475, -49.4, 2593.3);

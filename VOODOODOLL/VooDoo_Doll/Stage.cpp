@@ -194,6 +194,12 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pLights = new LIGHT[MAX_LIGHTS];
 	BuildDefaultLightsAndMaterials();//조명
 
+
+	for (int a = 0; a < pBoxShader->obj.size(); ++a)
+	{
+		cout << pBoxShader->obj[a]->m_pstrName << endl;
+	}
+
 	int iMaterialCheck = 0;
 
 	CTexture* ppTextures[32];
@@ -313,7 +319,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int a = 0; a < 32; ++a)
 	{
-		cout << a << endl;
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 
@@ -331,7 +336,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-
 
 		for (UINT k = 0; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
 		{
@@ -1004,7 +1008,10 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
-				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
+				{
+					m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+				}
 	}
 
 	for(int j{};j<m_ppShaders[0]->m_nDoor;++j)
@@ -1027,29 +1034,44 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
-		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
-			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh"))
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh"))
 		{
 				continue;
 		}
 
-		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_main_mesh") )
+
+
+		if (true == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
 		{
 			continue;
 		}
 
-		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
-		{
-			if (pl->obBox.Intersects(oBox))
-			{
-				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
-				++iGetItem;
-				bPass = true;
-			}
-		}
 
-		if (pl->obBox.Intersects(oBox))
+
+		if (pl->obBox.Intersects(oBox) )
 		{
+
+			// 아이템 관련
+			if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
+			{
+				++iGetItem;
+				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
+				m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
+				b1stDoorPass = true;
+			}
+
+			if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
+			{
+				++iGetItem;
+				++iGetCoin;
+				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
+				m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
+
+				if (iGetCoin == 5)
+				{
+					b2ndDoorPass = true;
+				}
+			}
 
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
