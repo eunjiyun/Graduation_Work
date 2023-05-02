@@ -524,7 +524,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
 			gGameFramework.Monsters.erase(iter);
-			
+			if ((*iter)->npc_type == 2)
+				gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
@@ -547,9 +548,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
 			(*iter)->SetPosition(targetPos);
 		}
-		//XMFLOAT3 deltaPos = Vector3::Subtract(packet->BulletPos, (*iter)->m_ppHat->GetPosition());
-		//XMFLOAT3 targetPos = Vector3::Add((*iter)->m_ppHat->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1, false));
-		//(*iter)->m_hats_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), 30, false);
 		(*iter)->m_ppHat->SetPosition(packet->BulletPos);
 		break;
 	}
@@ -558,6 +556,20 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		int cur_stage = packet->door_num;
 		gGameFramework.openDoor[cur_stage] = true;
 		
+		break;
+	}
+	case SC_GAME_CLEAR: {
+		gGameFramework.m_pPlayer->onAct = true;
+		gGameFramework.m_pPlayer->alive = false;
+		gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
+		//gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
+		//gGameFramework.temp->SetPosition(880, -70, 800);
+		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+
+		//gGameFramework.monsterSound.Stop();//몬스터
+		//gGameFramework.sound[0].Stop();//인게임
+		//gGameFramework.sound[3].Play();//윈
 		break;
 	}
 	}
@@ -577,6 +589,7 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DW
 	static size_t in_packet_size = 0;
 	static size_t saved_packet_size = 0;
 	static char packet_buffer[BUF_SIZE];
+
 	while (num_bytes != 0) {
 		if (0 == in_packet_size) in_packet_size = ptr[0];
 		if (num_bytes + saved_packet_size >= in_packet_size) {

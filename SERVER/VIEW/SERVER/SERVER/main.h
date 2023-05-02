@@ -8,7 +8,6 @@
 
 enum EVENT_TYPE { EV_MOVE, EV_SUMMON };
 enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP };
-//#define _GRID_MAP 
 
 struct TIMER_EVENT {
 	int room_id;
@@ -39,7 +38,6 @@ wstring ConverttoWchar(const char* str)
 
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
-//concurrent_queue<TIMER_EVENT> timer_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
@@ -48,9 +46,6 @@ array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
 CObjectPool<Monster> MonsterPool(20'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
 
-#ifdef _GRID_MAP
-bool GridMap[2][MAP_X_SIZE][MAP_Z_SIZE];
-#endif
 array<vector< MapObject*>, OBJECT_ARRAY_SIZE> Objects;
 array<Stage_Location_Info, STAGE_NUMBERS> StageLocations;
 
@@ -201,7 +196,13 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	if (GetPosition().y >= -100.f)
 		stage = static_cast<short>((GetPosition().z - 300.f) / STAGE_SIZE);
 	else
-		stage = 3 + static_cast<short>(MAP_Z_SIZE * 0.75f / GetPosition().z );
+		stage = 3 + static_cast<short>((MAP_Z_SIZE - (GetPosition().z - 600.f) ) / STAGE_SIZE);
+
+	if (stage > 6) {
+		cout << "CLEAR\n";
+		send_clear_packet();
+		return;
+	}
 
 	if (stage > cur_stage.load()) {
 		Initialize_Monster(_id / MAX_USER_PER_ROOM, stage);
@@ -223,45 +224,6 @@ int get_new_client_id()
 
 void SESSION::Update()
 {
-	//if (HP <= 0)
-	//{
-	//	direction.store(DIR_DIE);
-	//	_state.store(ST_DEAD);
-	//	return;
-	//}
-
-	//if (Vector3::Length(BulletLook) > 0) {
-	//	float ElapsedTime = duration_cast<milliseconds>(high_resolution_clock::now() - recent_recvedTime).count() / 1000.f;
-
-
-	//	BulletPos = Vector3::Add(BulletPos, Vector3::ScalarProduct(BulletLook, ElapsedTime * 100, false));
-
-	//	for (const auto& obj : Objects[static_cast<int>(BulletPos.z) / AREA_SIZE]) {
-	//		if (obj->m_xmOOBB.Contains(XMLoadFloat3(&BulletPos))) {
-	//			BulletPos.y += 5000;
-	//			BulletLook = XMFLOAT3(0, 0, 0);
-	//			return;
-	//		}
-	//	}
-	//	auto& Monsters = getMonsters(_id);
-	//	shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
-	//	for (auto& monster : Monsters) {
-	//		lock_guard<mutex> mm{ monster->m_lock };
-	//		if (monster->HP > 0 && BoundingBox(BulletPos, BULLET_SIZE).Intersects(monster->BB))
-	//		{
-	//			monster->HP -= 200;
-	//			monster->target_id = _id;
-	//			if (monster->HP <= 0)
-	//				monster->SetState(NPC_State::Dead);
-
-	//			BulletPos.y += 5000;
-	//			BulletLook = XMFLOAT3(0, 0, 0);
-	//			break;
-	//		}
-	//	}
-
-	//	recent_recvedTime = high_resolution_clock::now();
-	//}
 }
 
 
@@ -276,22 +238,11 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3H
 
 	if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.z > MAP_Z_SIZE) return false;
 
-#ifdef _GRID_MAP
-	int _x = static_cast<int>(_pos.x);
-	int _z = static_cast<int>(_pos.z);
-	if (_pos.y < -100) {
-		if (GridMap[0][_x][_z] == false) return false;
-	}
-	else {
-		if (GridMap[1][_x][_z] == false) return false;
-	}
-#else
 	if (Objects[collide_range_z].end() != find_if(Objects[collide_range_z].begin(), Objects[collide_range_z].end(),
 		[check_box](MapObject* MO) {return MO->m_xmOOBB.Intersects(check_box); }))
 	{
 		return false;
 	}
-#endif
 
 	return true;
 }
@@ -401,7 +352,7 @@ int Monster::get_targetID()
 void Monster::Update(float fTimeElapsed)
 {
 	if (2 == type && MagicPos.x < 5000) {
-		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 200.f * fTimeElapsed, false)); // HAT_SPEED = 200.f
+		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 100.f * fTimeElapsed, false)); // HAT_SPEED = 200.f
 		for (auto& player : clients[room_num]) {
 			lock_guard <mutex> ll{ player._s_lock };
 			if (BoundingBox(MagicPos, BULLET_SIZE).Intersects(player.m_xmOOBB))
@@ -563,8 +514,8 @@ void InitializeStages()
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
 			StagesInfo[0].push_back(MI);
-			//cout << ID_constructor << " - " << MI.type << endl;
-			//Vector3::Print(MI.Pos);
+			cout << ID_constructor << " - " << MI.type << endl;
+			Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}

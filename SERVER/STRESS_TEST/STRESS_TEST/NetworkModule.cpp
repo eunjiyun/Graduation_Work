@@ -19,11 +19,11 @@ using namespace chrono;
 
 extern HWND		hWnd;
 
-const static int MAX_TEST = 10000;
+const static int MAX_TEST = 1000;
 const static int MAX_CLIENTS = MAX_TEST * 2;
 const static int INVALID_ID = -1;
-const static int MAX_PACKET_SIZE = 255;
-const static int MAX_BUFF_SIZE = 255;
+const static int MAX_PACKET_SIZE = 512;
+const static int MAX_BUFF_SIZE = 512;
 
 #pragma comment (lib, "ws2_32.lib")
 
@@ -38,9 +38,8 @@ high_resolution_clock::time_point last_connect_time;
 struct OverlappedEx {
 	WSAOVERLAPPED over;
 	WSABUF wsabuf;
-	unsigned char IOCP_buf[MAX_BUFF_SIZE];
+	char IOCP_buf[MAX_BUFF_SIZE];
 	OPTYPE event_type;
-	int event_target;
 };
 
 struct CLIENT {
@@ -211,6 +210,9 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case SC_OPEN_DOOR: {
 		break;
 	}
+	case SC_ROTATE_PLAYER: {
+		break;
+	}
 	default: MessageBox(hWnd, L"Unknown Packet Type", L"ERROR", 0);
 		while (true);
 	}
@@ -220,11 +222,11 @@ void Worker_Thread()
 {
 	while (true) {
 		DWORD io_size;
-		unsigned long long ci;
-		OverlappedEx* over;
-		BOOL ret = GetQueuedCompletionStatus(g_hiocp, &io_size, &ci,
-			reinterpret_cast<LPWSAOVERLAPPED*>(&over), INFINITE);
-		// std::cout << "GQCS :";
+		ULONG_PTR ci;
+		//OverlappedEx* over;
+		WSAOVERLAPPED* ex_over = nullptr;
+		BOOL ret = GetQueuedCompletionStatus(g_hiocp, &io_size, &ci, &ex_over, INFINITE);
+		OverlappedEx* over = reinterpret_cast<OverlappedEx*>(ex_over);
 		int client_id = static_cast<int>(ci);
 		if (FALSE == ret) {
 			int err_no = WSAGetLastError();
@@ -240,12 +242,11 @@ void Worker_Thread()
 			continue;
 		}
 		if (OP_RECV == over->event_type) {
-			//std::cout << "RECV from Client :" << ci;
-			//std::cout << "  IO_SIZE : " << io_size << std::endl;
-			unsigned char* buf = g_clients[ci].recv_over.IOCP_buf;
+			char* buf = g_clients[ci].recv_over.IOCP_buf;
 			unsigned psize = g_clients[ci].curr_packet_size;
 			unsigned pr_size = g_clients[ci].prev_packet_data;
 			while (io_size > 0) {
+				if (ci % 10 == 0) cout << io_size << endl;
 				if (0 == psize) psize = buf[0];
 				if (io_size + pr_size >= psize) {
 					// 지금 패킷 완성 가능
@@ -290,7 +291,7 @@ void Worker_Thread()
 			delete over;
 		}
 		else {
-			std::cout << "Unknown GQCS event! - " << over->event_type << endl;
+			std::cout << "Unknown GQCS event! - " << io_size << endl;
 			while (true);
 		}
 	}
@@ -402,7 +403,7 @@ void Test_Thread()
 			my_packet.type = CS_MOVE;
 			my_packet.direction = rand() % 16;
 			short packet_type = rand() % 10;
-			if (packet_type < 9) {
+			if (packet_type <= 6) {
 				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
 				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
 				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
@@ -412,8 +413,7 @@ void Test_Thread()
 				my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
 				SendPacket(i, &my_packet);
 			}
-			//else if (packet_type == 1) {
-			else {
+			else if (packet_type <= 8) {
 				CS_ATTACK_PACKET my_packet_2;
 				my_packet_2.size = sizeof(CS_ATTACK_PACKET);
 				my_packet_2.type = CS_ATTACK;
@@ -422,15 +422,14 @@ void Test_Thread()
 				my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
 				SendPacket(i, &my_packet_2);
 			}
-			//else if (packet_type == 2) {
-			//	CS_COLLECT_PACKET my_packet_3;
-			//	my_packet_3.size = sizeof(CS_COLLECT_PACKET);
-			//	my_packet_3.type = CS_COLLECT;
-			//	my_packet_3.id = i;
-			//	my_packet_3.pos = g_clients[i].pos;
-			//	SendPacket(i, &my_packet_3);
-			//	break;
-			//}
+			else {
+				CS_CHANGEWEAPON_PACKET my_packet_3;
+				my_packet_3.size = sizeof(CS_CHANGEWEAPON_PACKET);
+				my_packet_3.type = CS_CHANGEWEAPON;
+				my_packet_3.id = i;
+				SendPacket(i, &my_packet_3);
+				break;
+			}
 		}
 	}
 }

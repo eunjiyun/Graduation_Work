@@ -666,7 +666,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
-		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Hat, 1, 2);
+		Mon->Hat_Model = Hat;
+		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Mon->Hat_Model, 1, 2);
 		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
 		Mon->speed = 9.f;
@@ -918,7 +919,7 @@ void CGameFramework::FrameAdvance()
 			sound[2].Play();//클로징
 		}
 	}
-	else if (-200 > m_pPlayer->GetPosition().y && 300 > m_pPlayer->GetPosition().z)
+	else if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
 	{
 		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
 		temp->SetPosition(880, -70, 800);
