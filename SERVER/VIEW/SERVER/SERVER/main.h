@@ -47,7 +47,7 @@ CObjectPool<Monster> MonsterPool(20'000);
 array<vector<MonsterInfo>, 10> StagesInfo;
 
 array<vector< MapObject*>, OBJECT_ARRAY_SIZE> Objects;
-array<Stage_Location_Info, STAGE_NUMBERS> StageLocations;
+array<vector<Key_Object>, 7> Key_Items;
 
 SESSION& getClient(int c_id)
 {
@@ -196,17 +196,18 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	if (GetPosition().y >= -100.f)
 		stage = static_cast<short>((GetPosition().z - 300.f) / STAGE_SIZE);
 	else
-		stage = 3 + static_cast<short>((MAP_Z_SIZE - (GetPosition().z - 600.f) ) / STAGE_SIZE);
+		stage = 3 + static_cast<short>((MAP_Z_SIZE - GetPosition().z) / STAGE_SIZE);
 
-	if (stage > 6) {
+	if (stage == 6 && GetPosition().z < 400.f && getMonsters(_id).size() <= 0) {
 		cout << "CLEAR\n";
-		send_clear_packet();
+		for (auto& cl : getRoom(_id))
+			cl.send_clear_packet();
 		return;
 	}
 
-	if (stage > cur_stage.load()) {
-		Initialize_Monster(_id / MAX_USER_PER_ROOM, stage);
-	}
+	//if (stage > cur_stage.load()) {
+	//	Initialize_Monster(_id / MAX_USER_PER_ROOM, stage);
+	//}
 }
 
 int get_new_client_id()
@@ -495,8 +496,8 @@ void InitializeStages()
 	int ID_constructor = 0;
 	random_device rd;
 	mt19937 gen(rd());
-	uniform_int_distribution<int> x_dis(130, 570);
-	uniform_int_distribution<int> z_dis(1260, 2550);
+	uniform_int_distribution<int> x_dis(150, 500);
+	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
 		//cout << "1 stage\n";
@@ -522,7 +523,7 @@ void InitializeStages()
 	{	// 2stage
 		//cout << "2 stage\n";
 		gen.seed(rd());
-		z_dis.param(uniform_int_distribution<int>::param_type(2650, 3550));
+		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -567,7 +568,7 @@ void InitializeStages()
 	{	// 4stage
 		//cout << "4 stage\n";
 		gen.seed(rd());
-		z_dis.param(uniform_int_distribution<int>::param_type(2650, 3550));
+		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
 		type_dis.param(uniform_int_distribution<int>::param_type(0, 2));
 		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
@@ -590,7 +591,7 @@ void InitializeStages()
 	{	// 5stage
 		//cout << "5 stage\n";
 		gen.seed(rd());
-		z_dis.param(uniform_int_distribution<int>::param_type(1260, 2550));
+		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
 		while (ID_constructor < 50) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -613,7 +614,7 @@ void InitializeStages()
 	{	// 6stage
 		//cout << "6 stage\n";
 		gen.seed(rd());
-		z_dis.param(uniform_int_distribution<int>::param_type(100, 1100));
+		z_dis.param(uniform_int_distribution<int>::param_type(300, 1100));
 		while (ID_constructor < 60) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));

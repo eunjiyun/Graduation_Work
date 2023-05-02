@@ -156,6 +156,7 @@ MapObject** LoadGameObjectsFromFile(char* pstrFileName, int* pnGameObjects)
 
         pGameObject->m_xmOOBB.Transform(pGameObject->m_xmOOBB, XMLoadFloat4x4(&pGameObject->m_xmf4x4World));
 
+        //cout << pGameObject->m_pstrName << endl;
         //if (min_x > pGameObject->m_xmOOBB.Center.x - pGameObject->m_xmOOBB.Extents.x) min_x = pGameObject->m_xmOOBB.Center.x - pGameObject->m_xmOOBB.Extents.x;
         //if (max_x < pGameObject->m_xmOOBB.Center.x + pGameObject->m_xmOOBB.Extents.x) max_x = pGameObject->m_xmOOBB.Center.x + pGameObject->m_xmOOBB.Extents.x;
         //if (min_z > pGameObject->m_xmOOBB.Center.z - pGameObject->m_xmOOBB.Extents.z) min_z = pGameObject->m_xmOOBB.Center.z - pGameObject->m_xmOOBB.Extents.z;

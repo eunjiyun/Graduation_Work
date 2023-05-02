@@ -1213,8 +1213,8 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			cm->SetLookAt(XMFLOAT3(800, -150, 1000));
 		}
 	}
-	else if (-200 > pl->GetPosition().y && 400 > pl->GetPosition().z)
-		cm->SetLookAt(XMFLOAT3(800, -150, 800));
+	//else if (-200 > pl->GetPosition().y && 400 > pl->GetPosition().z)
+	//	cm->SetLookAt(XMFLOAT3(800, -150, 800));
 	else
 	{
 		XMFLOAT3 xmf3Right = pl->GetRightVector();

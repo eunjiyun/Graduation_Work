@@ -292,6 +292,11 @@ void CThirdPersonCamera::Update(XMFLOAT3& camera_pos, XMFLOAT3& xmf3LookAt, floa
 
 void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 {
+	if (m_lock)
+	{
+		m_xmf3Position = XMFLOAT3(800, -150, 700);  
+		return; 
+	}
 	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(m_xmf3Position, xmf3LookAt, m_pPlayer->GetUpVector());
 	m_xmf3Right = XMFLOAT3(mtxLookAt._11, mtxLookAt._21, mtxLookAt._31);
 	m_xmf3Up = XMFLOAT3(mtxLookAt._12, mtxLookAt._22, mtxLookAt._32);

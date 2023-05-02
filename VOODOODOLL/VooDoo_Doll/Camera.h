@@ -49,7 +49,7 @@ public:
 	XMFLOAT3						m_xmf3Right;
 	XMFLOAT3						m_xmf3Up;
 	XMFLOAT3						m_xmf3Look;
-
+	bool							m_lock;
 public:
 	CCamera();
 	CCamera(CCamera* pCamera);

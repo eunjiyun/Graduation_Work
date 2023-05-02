@@ -36,6 +36,18 @@ int main()
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh")) continue;
+
+		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Key_mesh"))
+		{ 
+			Key_Items[0].emplace_back(m_ppObjects[i]->m_xmOOBB, 1);
+			continue;
+		}
+		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "2ndRoomCoin")) {
+			Key_Items[1].emplace_back(m_ppObjects[i]->m_xmOOBB, 0.17f);
+			continue;
+		}
+
+
 		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 
@@ -283,7 +295,6 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
-		CL.send_open_door_packet(0);
 		break;
 	}
 	case CS_SIGNUP: {
@@ -428,10 +439,24 @@ void process_packet(const int c_id, char* packet)
 		}
 		break;
 	}
-	case CS_COLLECT: {
-		CS_COLLECT_PACKET* p = reinterpret_cast<CS_COLLECT_PACKET*>(packet);
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_collect_packet(&CL);
+	case CS_INTERACTION: {
+		CS_INTERACTION_PACKET* p = reinterpret_cast<CS_INTERACTION_PACKET*>(packet);
+		int cur_stage = CL.cur_stage.load();
+		for (auto& item : Key_Items[cur_stage])
+			if (item.m_xmOOBB.Intersects(CL.m_xmOOBB))
+				for (auto& cl : Room)
+					cl.clear_percentage += item.percent;
+		//for (auto& cl : Room) {
+		//	if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(&CL);
+		//}
+
+
+		if (CL.clear_percentage >= 1.f && getMonsters(CL._id).size() <= 0) {
+			for (auto& cl : Room) {
+				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_open_door_packet(CL.cur_stage);
+				cl.clear_percentage = 0.f;
+				if (cl.cur_stage >= 1) cl.clear_percentage = 1.f; // 3번째(코드에선 2번 인덱스) 스테이지부터 퍼즐 미구현이라 임의의 코드로 percent를 100%로 조정함
+			}
 		}
 		break;
 	}
@@ -573,13 +598,13 @@ void worker_thread(HANDLE h_iocp)
 						unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
 						PoolMonsters[roomNum].erase(iter);
 					}
-					if (PoolMonsters[roomNum].size() <= 0) {
-						for (auto& cl : clients[roomNum]) {
-							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
-								cl.send_open_door_packet(cl.cur_stage);
-							}
-						}
-					}
+					//if (PoolMonsters[roomNum].size() <= 0) {
+					//	for (auto& cl : clients[roomNum]) {
+					//		if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
+					//			cl.send_open_door_packet(cl.cur_stage);
+					//		}
+					//	}
+					//}
 				}
 			}
 

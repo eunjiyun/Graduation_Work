@@ -916,7 +916,7 @@ void CGameFramework::FrameAdvance()
 	//Sleep(10000);
 
 
-	if (-200 > m_pPlayer->GetPosition().y && 350 > m_pPlayer->GetPosition().z)
+	if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
 		monsterSound.Stop();//몬스터
 
 	for (auto& player : Players) {
@@ -942,16 +942,16 @@ void CGameFramework::FrameAdvance()
 			sound[2].Play();//클로징
 		}
 	}
-	else if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
-	{
-		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
-		temp->SetPosition(880, -70, 800);
-		m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+	//else if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
+	//{
+	//	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[1];
+	//	temp->SetPosition(880, -70, 800);
+	//	m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
 
-		monsterSound.Stop();//몬스터
-		sound[0].Stop();//인게임
-		sound[3].Play();//윈
-	}
+	//	monsterSound.Stop();//몬스터
+	//	sound[0].Stop();//인게임
+	//	sound[3].Play();//윈
+	//}
 	if (login)
 	{
 		sound[1].Stop();//오프닝

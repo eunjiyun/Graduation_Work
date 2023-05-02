@@ -283,18 +283,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 				gGameFramework.m_pPlayer->onAct = true;
 			}
-			//else if (wParam == 'C' || wParam == 'c')
-			//{
-			//	gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
-			//	CS_COLLECT_PACKET p;
-			//	p.size = sizeof(CS_COLLECT_PACKET);
-			//	p.type = CS_COLLECT;
-			//	p.id = gGameFramework.m_pPlayer->c_id;
-			//	p.pos = gGameFramework.m_pPlayer->GetPosition();
-			//	OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-			//	int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
-			//	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-			//} 
+			else if (wParam == 'C' || wParam == 'c')
+			{
+				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
+				CS_INTERACTION_PACKET p;
+				p.size = sizeof(CS_INTERACTION_PACKET);
+				p.type = CS_INTERACTION;
+				p.id = gGameFramework.m_pPlayer->c_id;
+				p.pos = gGameFramework.m_pPlayer->GetPosition();
+				OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+			} 
 			else if (wParam == 'Q' || wParam == 'q')
 			{
 				CS_CHANGEWEAPON_PACKET p;
@@ -456,7 +456,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->HP = packet->HP;
 		if (packet->HP <= 0) {
 			(*iter)->onAct = true;
-			(*iter)->alive = false;			
+			(*iter)->alive = false;
 			(*iter)->cxDelta = (*iter)->cyDelta = (*iter)->czDelta = 0;
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(4, true);
@@ -489,8 +489,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 		break;
 	}
-	case CS_COLLECT: {
-		CS_COLLECT_PACKET* packet = reinterpret_cast<CS_COLLECT_PACKET*>(ptr);
+	case CS_INTERACTION: {
+		CS_INTERACTION_PACKET* packet = reinterpret_cast<CS_INTERACTION_PACKET*>(ptr);
 		//auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
 		//(*iter)->onAct = true;
 		//(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
@@ -556,21 +556,22 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		SC_OPEN_DOOR_PACKET* packet = reinterpret_cast<SC_OPEN_DOOR_PACKET*>(ptr);
 		int cur_stage = packet->door_num;
 		gGameFramework.openDoor[cur_stage] = true;
-		
+
 		break;
 	}
 	case SC_GAME_CLEAR: {
 		gGameFramework.m_pPlayer->onAct = true;
 		gGameFramework.m_pPlayer->alive = false;
 		gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
-		//gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
-		//gGameFramework.temp->SetPosition(880, -70, 800);
-		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
-		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+		gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
+		gGameFramework.temp->SetPosition(880, -70, 800);
+		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+		gGameFramework.m_pCamera->m_lock = true;
 
-		//gGameFramework.monsterSound.Stop();//몬스터
-		//gGameFramework.sound[0].Stop();//인게임
-		//gGameFramework.sound[3].Play();//윈
+		gGameFramework.monsterSound.Stop();//몬스터
+		gGameFramework.sound[0].Stop();//인게임
+		gGameFramework.sound[3].Play();//윈
 		break;
 	}
 	}

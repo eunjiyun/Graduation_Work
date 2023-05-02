@@ -47,6 +47,12 @@ public:
 
 };
 
+class Key_Object
+{
+public:
+    BoundingOrientedBox		m_xmOOBB;
+    float percent;
+};
 void Transform_BoundingBox(BoundingBox* _BoundingBox, XMFLOAT4X4 _xmfWorld);
 
 void LoadMeshFromFile(MapObject& obj, char* pstrFileName);

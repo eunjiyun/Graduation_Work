@@ -17,7 +17,7 @@ constexpr char CS_SIGNIN = 2;
 constexpr char CS_MOVE = 3;
 constexpr char CS_ROTATE = 4;
 constexpr char CS_ATTACK = 5;
-constexpr char CS_COLLECT = 6;
+constexpr char CS_INTERACTION = 6;
 constexpr char CS_CHANGEWEAPON = 7;
 
 constexpr char SC_LOGIN_INFO = 8;
@@ -30,6 +30,7 @@ constexpr char SC_MOVE_MONSTER = 14;
 constexpr char SC_OPEN_DOOR = 15;
 constexpr char SC_LOGIN_COMPLETE = 16;
 constexpr char SC_GAME_CLEAR = 17;
+constexpr char SC_INTERACTION = 18;
 
 #include "stdafx.h"
 
@@ -92,13 +93,13 @@ struct CS_ATTACK_PACKET {
 };
 constexpr short CS_ATTACK_PACKET_SIZE = sizeof(CS_ATTACK_PACKET);
 
-struct CS_COLLECT_PACKET {
+struct CS_INTERACTION_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
 	XMFLOAT3 pos;
 };
-constexpr short CS_COLLECT_PACKET_SIZE = sizeof(CS_COLLECT_PACKET);
+constexpr short CS_INTERACTION_PACKET_SIZE = sizeof(CS_INTERACTION_PACKET);
 
 struct CS_CHANGEWEAPON_PACKET {
 	unsigned char size;
@@ -203,4 +204,11 @@ struct SC_GAME_CLEAR_PACKET {
 	short	id;
 };
 constexpr short SC_GAME_CLEAR_PACKET_SIZE = sizeof(SC_GAME_CLEAR_PACKET);
+
+struct SC_INTERACTION_PACKET {
+	unsigned char size;
+	char	type;
+	short	obj_id;
+};
+constexpr short SC_INTERACTION_PACKET_SIZE = sizeof(SC_INTERACTION_PACKET);
 #pragma pack (pop)

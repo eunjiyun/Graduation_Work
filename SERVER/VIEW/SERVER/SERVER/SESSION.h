@@ -124,6 +124,7 @@ public:
 	short error_stack;
 	short character_num;
 	int recent_recvedTime;
+	float clear_percentage;
 public:
 	SESSION()
 	{
@@ -143,6 +144,7 @@ public:
 		error_stack = 0;
 		character_num = 0;
 		HP = 0;
+		clear_percentage = 0.f;
 	}
 
 	~SESSION() {}
@@ -150,7 +152,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 400, -59,600 };//플레이어 위치
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * _id, -59,600 };//플레이어 위치
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -162,6 +164,7 @@ public:
 		error_stack = 0;
 		character_num = 0;
 		HP =  55500;
+		clear_percentage = 0.f;
 	}
 	void do_recv()
 	{
@@ -225,12 +228,12 @@ public:
 		do_send(&p);
 	}
 
-	void send_collect_packet(SESSION* Player)
+	void send_interaction_packet(SESSION* Player)
 	{
-		CS_COLLECT_PACKET p;
-		p.id = Player->_id;
-		p.size = sizeof(CS_COLLECT_PACKET);
-		p.type = CS_COLLECT;
+		SC_INTERACTION_PACKET p;
+		p.obj_id = Player->_id;
+		p.size = sizeof(SC_INTERACTION_PACKET);
+		p.type = SC_INTERACTION;
 		do_send(&p);
 	}
 
