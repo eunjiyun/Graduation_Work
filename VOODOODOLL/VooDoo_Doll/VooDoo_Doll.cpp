@@ -417,6 +417,7 @@ void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
 		return;
 	}
+	else pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 
 	pl->onRun = p->direction & DIR_RUN;
 
@@ -469,9 +470,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->HP = packet->HP;
 		if (packet->HP <= 0) {
 			(*iter)->onAct = true;
-
 			(*iter)->alive = false;
-
 			(*iter)->cxDelta = (*iter)->cyDelta = (*iter)->czDelta = 0;
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			(*iter)->m_pSkinnedAnimationController->SetTrackEnable(4, true);
@@ -504,17 +503,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 		break;
 	}
-
-	case CS_INTERACTION: {
-		CS_INTERACTION_PACKET* packet = reinterpret_cast<CS_INTERACTION_PACKET*>(ptr);
-
-		//auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
-		//(*iter)->onAct = true;
-		//(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-		//(*iter)->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-		break;
-	}
-
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* packet = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });

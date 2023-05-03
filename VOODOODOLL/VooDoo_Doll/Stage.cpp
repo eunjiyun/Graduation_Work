@@ -1041,7 +1041,6 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				pl->SetPosition(Pos);
 				pl->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
 				pl->onFloor = true;
-				pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 				continue;
 			}
 
