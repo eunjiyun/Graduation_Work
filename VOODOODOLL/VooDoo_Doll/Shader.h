@@ -42,13 +42,19 @@ protected:
 	float								m_fElapsedTime = 0.0f;//
 
 public:
-	CGameObject** m_ppObjects = 0;//
-	int								m_nObjects = 0;//
-	CGameObject** door = NULL;
-	int m_nDoor = 0;
-	CTexture* gameScreen[3];
-	CMaterial* gameMat[3];
+	CGameObject**	m_ppObjects = 0;//
+	int							m_nObjects = 0;//
+	CGameObject**	door = NULL;
+	int							m_nDoor = 0;
+	CTexture*				gameScreen[3];
+	CMaterial*				gameMat[3];
 
+
+public:
+	vector<CGameObject*>		p1stRoomPuzzle;
+	vector<CGameObject*>		p2ndRoomPuzzle;
+
+public:
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//

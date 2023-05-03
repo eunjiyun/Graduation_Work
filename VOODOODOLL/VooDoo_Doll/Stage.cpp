@@ -155,9 +155,6 @@ void CStage::BuildDefaultLightsAndMaterials()
 			m_pLights[i].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 			m_pLights[i].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-			cout << i <<"	: "<<m_pLights[i].m_xmf3Position.x << "	, " << m_pLights[i].m_xmf3Position.y << "	, " << m_pLights[i].m_xmf3Position.z << endl;
-			/*m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i - 5].x, mpObjVec[i - 5].y + 5, mpObjVec[i - 5].z);
-			*///m_pLights->m_pLights[5].m_xmf3Position = pos;
 		}
 	}
 }
@@ -195,12 +192,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	BuildDefaultLightsAndMaterials();//조명
 
 
-
-	for (int a = 0; a < pBoxShader->obj.size(); ++a)
-	{
-		cout << pBoxShader->obj[a]->m_pstrName << endl;
-	}
-
 	int iMaterialCheck = 0;
 
 	CTexture* ppTextures[32];
@@ -233,7 +224,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[8]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wooden_Chair_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 	
 	ppTextures[9] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[9]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Door_Frame_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[9]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/paper_type_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 	
 	ppTextures[10] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[10]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/cart_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -289,28 +280,19 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
-	//ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	//ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/booktexture1.dds", RESOURCE_TEXTURE2D, 0);
-
-	//ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	//ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/booktexture2.dds", RESOURCE_TEXTURE2D, 0);
-
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Door_main_mat_inst_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1.dds", RESOURCE_TEXTURE2D, 0);	
+	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3.dds", RESOURCE_TEXTURE2D, 0);
 
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart6.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart14.dds", RESOURCE_TEXTURE2D, 0);
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/youWin.dds", RESOURCE_TEXTURE2D, 0);
@@ -318,7 +300,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 32; ++a)
+	for (int a = 0; a < 31; ++a)
 	{
 
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
@@ -353,7 +335,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			if (0 == strcmp("Bedroom_wall_d_02_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("Bedroom_wall_b_01_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("Bedroom_wall_b_06_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Bedroom_wall_c_04_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+				0 == strcmp("Bedroom_wall_c_04_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Bedroom_wall_b_05_dense_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				if (0 == iMaterialCheck)
 				{
@@ -461,24 +444,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}	
 			
-			if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Book_02_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-
-
-
-				0 == strcmp("BookS3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("BookS4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("BookS6", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Books2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Books7", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Books9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) 
-				)
+			if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_01_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Book_02_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_02_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_03_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
+				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_04_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[22]);
+				pMaterial->SetTexture(ppTextures[3]); // 임시 
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
+
 			if (0 == strcmp("Large_Shelf", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(ppTextures[23]);
@@ -505,46 +479,21 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
-			if (0 == strcmp("Books4", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
-				0 == strcmp("BookS10", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("BookS5", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
-				0 == strcmp("BookS7", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[22]);
-				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-
-			if (0 == strcmp("BookS1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) || 
-				0 == strcmp("BookS2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("Books3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("BookS11", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
-				0 == strcmp("BookS9", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[22]);
-				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-
-			if (0 == strcmp("Door_01_main_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) )
+			if (0 == strcmp("Candle1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(ppTextures[28]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
-			if (0 == strcmp("Candle1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			if (0 == strcmp("Candle2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(ppTextures[29]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
-			if (0 == strcmp("Candle2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-			{
-				pMaterial->SetTexture(ppTextures[30]);
-				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-			}
-
 			if (0 == strcmp("Candle3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[31]);
+				pMaterial->SetTexture(ppTextures[30]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -1035,7 +984,8 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
-		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh"))
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")||
+			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "stone"))
 		{
 				continue;
 		}
@@ -1233,8 +1183,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			{
 				for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 				{
-					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh") ||
-						0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 
 
 					BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;

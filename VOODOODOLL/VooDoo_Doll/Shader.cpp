@@ -649,10 +649,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 			//문 넣지 않기
 			if (-70 > m_ppObjects[i]->GetPosition().y)
-				if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_main_mesh"))
-					if (strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh"))
-						if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
-							boxShader->obj.push_back(m_ppObjects[i]);
+				if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
+					boxShader->obj.push_back(m_ppObjects[i]);
 
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1")|| 
@@ -662,8 +660,23 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(xmf3tmp);
-
 			}
+
+
+			if (10 == m_ppObjects[i]->m_iObjID)
+			{
+				p1stRoomPuzzle.push_back(m_ppObjects[i]);
+				cout << "p1stRoomPuzzle		: " << m_ppObjects[i]->m_pstrName << endl;
+			}
+
+			if (1 == m_ppObjects[i]->m_iObjID || 408 == m_ppObjects[i]->m_iObjID ||
+				409 == m_ppObjects[i]->m_iObjID || 410 == m_ppObjects[i]->m_iObjID ||
+				411 == m_ppObjects[i]->m_iObjID || 412 == m_ppObjects[i]->m_iObjID)
+			{
+				p2ndRoomPuzzle.push_back(m_ppObjects[i]);
+				cout << "p2ndRoomPuzzle		: " << m_ppObjects[i]->m_pstrName << endl;
+			}
+
 
 		}
 	}
@@ -688,21 +701,23 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		switch(h)
 			{
 		case 0:
-			door[h]->SetPosition(469, -64.6, 1235);
+			/*door[h]->SetPosition(469, -64.6, 1235);*/
+			door[h]->SetPosition(469, -40, 1237.5);
 			break;
 		case 1:
-			door[h]->SetPosition(475, -49.4, 2593.3);
+			door[h]->SetPosition(475, -40, 2593.3);
 			break;
 		case 2:
-			door[h]->SetPosition(233, -303.3, 3597.59);
+			door[h]->SetPosition(222, -282, 3601.2004);
 			break;
 		case 3:
-			door[h]->SetPosition(471, -303.3, 2584.59);
+			door[h]->SetPosition(471, -282, 2588.7);
 			break;
 		case 4:
-			door[h]->SetPosition(231, -303.5, 1228.59);
+			door[h]->SetPosition(231, -282, 1239.2);
 			break;
 			}
+
 		if (-150 > door[h]->GetPosition().y)
 		{
 			door[h]->Rotate(0, 180, 0);

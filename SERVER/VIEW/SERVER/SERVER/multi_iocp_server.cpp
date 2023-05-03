@@ -35,7 +35,7 @@ int main()
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh") ||
-			0 == strcmp(m_ppObjects[i]->m_pstrName, "Door_01_Frame_mesh")) continue;
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "stone")) continue;
 
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Key_mesh"))
 		{ 
