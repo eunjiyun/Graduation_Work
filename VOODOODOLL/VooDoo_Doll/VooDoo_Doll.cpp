@@ -379,6 +379,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
+		gGameFramework.exit = true;
+		if (gGameFramework.onFullScreen)
+			gGameFramework.ChangeSwapChainState();
+
 		::PostQuitMessage(0);
 		break;
 	default:
