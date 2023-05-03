@@ -505,6 +505,22 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
+
+		if (10 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		{
+			p1stRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
+			cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+		}
+
+		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		{
+			p2ndRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
+			cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+		}
+
+
 		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
 		//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		/*cout << "Center: ";

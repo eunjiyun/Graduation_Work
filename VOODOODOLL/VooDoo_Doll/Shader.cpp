@@ -653,7 +653,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 					boxShader->obj.push_back(m_ppObjects[i]);
 
 
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1")|| 
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2") ||
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle3"))
 			{
@@ -661,23 +661,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();
 				mpObjVec.push_back(xmf3tmp);
 			}
-
-
-			if (10 == m_ppObjects[i]->m_iObjID)
-			{
-				p1stRoomPuzzle.push_back(m_ppObjects[i]);
-				cout << "p1stRoomPuzzle		: " << m_ppObjects[i]->m_pstrName << endl;
-			}
-
-			if (1 == m_ppObjects[i]->m_iObjID || 408 == m_ppObjects[i]->m_iObjID ||
-				409 == m_ppObjects[i]->m_iObjID || 410 == m_ppObjects[i]->m_iObjID ||
-				411 == m_ppObjects[i]->m_iObjID || 412 == m_ppObjects[i]->m_iObjID)
-			{
-				p2ndRoomPuzzle.push_back(m_ppObjects[i]);
-				cout << "p2ndRoomPuzzle		: " << m_ppObjects[i]->m_pstrName << endl;
-			}
-
-
 		}
 	}
 

@@ -51,10 +51,6 @@ public:
 
 
 public:
-	vector<CGameObject*>		p1stRoomPuzzle;
-	vector<CGameObject*>		p2ndRoomPuzzle;
-
-public:
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//
