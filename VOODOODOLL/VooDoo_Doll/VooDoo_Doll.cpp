@@ -253,6 +253,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (gGameFramework.onFullScreen)
 				gGameFramework.ChangeSwapChainState();
 
+			gGameFramework.exit = true;
 			PostQuitMessage(0);
 		}
 		else if (wParam == 'N' || wParam == 'n')

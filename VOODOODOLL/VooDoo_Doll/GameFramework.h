@@ -97,6 +97,7 @@ public:
 	bool wakeUp = true;
 
 	int gameButton = -1;
+	bool exit = false;
 
 	CGameObject* temp = nullptr;
 	Text* m_Test;

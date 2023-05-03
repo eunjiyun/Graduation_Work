@@ -576,10 +576,15 @@ void CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
-	if (m_pPlayer) m_pPlayer->Release();
+	if (!exit)
+	{
+		if (m_pPlayer) m_pPlayer->Release();
+	
 
-	for (auto& player : Players)
-		delete player;
+		for (auto& player : Players)//05033
+			delete player;
+	}
+	
 	for (auto& monster : Monsters)
 		delete monster;
 
@@ -805,7 +810,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 
 	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor + 2; ++i)
 	{
-		if (openDoor[i] && 1 == gameButton)
+		if (openDoor[i])
 		{
 			if (2 >= i)
 			{
@@ -955,7 +960,7 @@ void CGameFramework::FrameAdvance()
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
 	RECT rcWindow;
-	GetWindowRect(Get_HWND() , &rcWindow);
+	GetWindowRect(Get_HWND(), &rcWindow);
 
 	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
 	int windowX = rcWindow.left;
@@ -968,7 +973,10 @@ void CGameFramework::FrameAdvance()
 			gameButton = 1;
 		else if (531 < m_ptOldCursorPos.x - windowX && 587 > m_ptOldCursorPos.x - windowX
 			&& 352 < m_ptOldCursorPos.y - windowY && 388 > m_ptOldCursorPos.y - windowY)
+		{
 			gameButton = 2;
+			exit = true;
+		}
 		else if (499 < m_ptOldCursorPos.x - windowX && 619 > m_ptOldCursorPos.x - windowX
 			&& 419 < m_ptOldCursorPos.y - windowY && 457 > m_ptOldCursorPos.y - windowY)
 			gameButton = 3;
@@ -982,18 +990,50 @@ void CGameFramework::FrameAdvance()
 			&& 321 <= m_ptOldCursorPos.y - windowY && 354 >= m_ptOldCursorPos.y - windowY)
 		{
 			gameButton = 2;
+			exit = true;
 			ChangeSwapChainState();
 		}
 		else if (495 <= m_ptOldCursorPos.x - windowX && 610 >= m_ptOldCursorPos.x - windowX
 			&& 387 <= m_ptOldCursorPos.y - windowY && 428 >= m_ptOldCursorPos.y - windowY)
 			gameButton = 3;
 	}
-	
+
 	switch (gameButton)
 	{
 	case 1://play
 		sound[1].Stop();//오프닝
 		sound[0].Play();//인게임
+
+		ShowCursor(false);
+
+		//// 스프라이트 배치를 생성합니다.
+		//std::unique_ptr<DirectX::SpriteBatch> spriteBatch(new DirectX::SpriteBatch(m_d3dDevice.Get(), m_commandList.Get()));
+
+		//// 스프라이트 텍스쳐를 로드합니다.
+		//Microsoft::WRL::ComPtr<ID3D12Resource> texture;
+		//Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
+		//CreateDDSTextureFromFile(m_d3dDevice.Get(), L"ui_sprite.dds", texture.GetAddressOf(), textureUploadHeap.GetAddressOf());
+
+		//// 스프라이트 배치를 시작합니다.
+		//spriteBatch->Begin(DirectX::SpriteSortMode_Deferred, m_states->NonPremultiplied());
+
+		//// UI 스프라이트를 그립니다.
+		//const DirectX::XMFLOAT2 position = DirectX::XMFLOAT2(0.0f, m_outputSize.Height - m_spriteSize.y); // 좌측 하단 위치
+		//spriteBatch->Draw(texture.Get(), m_spriteSize, position);
+
+		//// 스프라이트 배치를 종료합니다.
+		//spriteBatch->End();
+
+		//// 스프라이트를 생성합니다.
+		//auto device = m_d3dDevice.Get();
+		//auto context = m_d3dContext.Get();
+		//auto spriteBatch = std::make_unique<DirectX::SpriteBatch>(context);
+
+		//// 스프라이트를 렌더링합니다.
+		//spriteBatch->Begin();
+		//spriteBatch->Draw(m_texture.Get(), XMFLOAT2(0, 0), nullptr, Colors::White);
+		//spriteBatch->End();
+
 
 		m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
 

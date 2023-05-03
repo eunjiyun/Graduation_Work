@@ -129,7 +129,7 @@ ID3D12Resource* CTexture::CreateTexture(ID3D12Device* pd3dDevice, ID3D12Graphics
 	return(m_ppd3dTextures[nIndex]);
 }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
+D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)//0503
 {
 	ID3D12Resource* pShaderResource = GetResource(nIndex);
 	D3D12_RESOURCE_DESC d3dResourceDesc;
@@ -702,7 +702,11 @@ CAnimationController::CAnimationController(ID3D12Device* pd3dDevice, ID3D12Graph
 
 CAnimationController::~CAnimationController()
 {
-	if (m_pAnimationTracks) delete[] m_pAnimationTracks;
+	if (m_pAnimationTracks != nullptr)
+	{
+		delete[] m_pAnimationTracks;
+		m_pAnimationTracks = nullptr;
+	}
 
 	for (int i = 0; i < m_nSkinnedMeshes; i++)
 	{

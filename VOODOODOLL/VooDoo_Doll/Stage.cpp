@@ -327,7 +327,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	
 	for (int h{}; h < 3; ++h)
 	{
-		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
+		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);//0503
 
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
@@ -899,7 +899,7 @@ void CStage::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 		{
 			ID3D12Resource* pShaderResource = pTexture->GetResource(i);
 			D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
-			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);//0307 pShaderResource�� null
+			pd3dDevice->CreateShaderResourceView(pShaderResource, &d3dShaderResourceViewDesc, m_d3dSrvCPUDescriptorNextHandle);
 			m_d3dSrvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 			pTexture->SetGpuDescriptorHandle(i, m_d3dSrvGPUDescriptorNextHandle);
 			m_d3dSrvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;

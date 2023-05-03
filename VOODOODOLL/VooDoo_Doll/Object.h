@@ -318,7 +318,7 @@ public:
 	short Cur_Animation_Track = 0;//
 
 	int 							m_nAnimationTracks = 0;//
-	CAnimationTrack* m_pAnimationTracks = NULL;//
+	CAnimationTrack* m_pAnimationTracks = nullptr;//
 
 	CAnimationSets* m_pAnimationSets = NULL;//
 
