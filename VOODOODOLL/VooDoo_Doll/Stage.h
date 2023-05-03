@@ -192,9 +192,8 @@ public:
 
 
 	public:
-		/*vector<CGameObject*>		p1stRoomPuzzle;
-		vector<CGameObject*>		p2ndRoomPuzzle;*/
-		array<vector<CGameObject*>, 7> pPuzzles;
+		vector<CGameObject*>		p1stRoomPuzzle;
+		vector<CGameObject*>		p2ndRoomPuzzle;
 
 
 	// 문 바운딩박스

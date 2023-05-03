@@ -212,7 +212,6 @@ constexpr short SC_GAME_CLEAR_PACKET_SIZE = sizeof(SC_GAME_CLEAR_PACKET);
 struct SC_INTERACTION_PACKET {
 	unsigned char size;
 	char	type;
-	short	stage_id;
 	short	obj_id;
 };
 constexpr short SC_INTERACTION_PACKET_SIZE = sizeof(SC_INTERACTION_PACKET);

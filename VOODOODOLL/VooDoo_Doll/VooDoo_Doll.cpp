@@ -590,12 +590,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.monsterSound.Stop();//몬스터
 		gGameFramework.sound[0].Stop();//인게임
 		gGameFramework.sound[3].Play();//윈
-		break;
-	}
-	case SC_INTERACTION: {
-		SC_INTERACTION_PACKET* packet = reinterpret_cast<SC_INTERACTION_PACKET*>(ptr);
-		gGameFramework.m_pStage->pPuzzles[packet->stage_id][packet->obj_id]->m_bGetItem = true;
-		gGameFramework.m_pStage->DeleteObject.push_back(gGameFramework.m_pStage->pPuzzles[packet->stage_id][packet->obj_id]->m_iObjID);
+
 		break;
 	}
 	}

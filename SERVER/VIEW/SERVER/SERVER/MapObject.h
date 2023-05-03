@@ -52,7 +52,6 @@ class Key_Object
 public:
     BoundingOrientedBox		m_xmOOBB;
     float percent;
-    unsigned short obj_id;
 };
 void Transform_BoundingBox(BoundingBox* _BoundingBox, XMFLOAT4X4 _xmfWorld);
 

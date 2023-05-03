@@ -508,16 +508,16 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 		if (10 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
-			pPuzzles[0].push_back(m_ppShaders[0]->m_ppObjects[i]);
-			//cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			p1stRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
+			cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
 		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
-			pPuzzles[1].push_back(m_ppShaders[0]->m_ppObjects[i]);
-			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			p2ndRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
+			cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
 
@@ -1014,27 +1014,28 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 
 		if (pl->obBox.Intersects(oBox) )
 		{
-			//// 아이템 관련
-			//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
-			//{
-			//	++iGetItem;
-			//	DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
-			//	m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
-			//	b1stDoorPass = true;
-			//}
 
-			//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
-			//{
-			//	++iGetItem;
-			//	++iGetCoin;
-			//	DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
-			//	m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
+			// 아이템 관련
+			if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
+			{
+				++iGetItem;
+				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
+				m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
+				b1stDoorPass = true;
+			}
 
-			//	if (iGetCoin == 5)
-			//	{
-			//		b2ndDoorPass = true;
-			//	}
-			//}
+			if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
+			{
+				++iGetItem;
+				++iGetCoin;
+				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
+				m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
+
+				if (iGetCoin == 5)
+				{
+					b2ndDoorPass = true;
+				}
+			}
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;

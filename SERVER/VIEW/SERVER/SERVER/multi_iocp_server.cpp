@@ -28,10 +28,10 @@ int main()
 	wcout.imbue(locale("korean"));
 	setlocale(LC_ALL, "korean");
 
-	int* m_nObjects = new int(0);
-	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", m_nObjects);
+	int m_nObjects = 0;
+	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", &m_nObjects);
 
-	for (int i = 0; i < *m_nObjects; i++) {
+	for (int i = 0; i < m_nObjects; i++) {
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh") ||
@@ -39,11 +39,11 @@ int main()
 
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Key_mesh"))
 		{ 
-			Key_Items[0].emplace_back(m_ppObjects[i]->m_xmOOBB, 1, i);
+			Key_Items[0].emplace_back(m_ppObjects[i]->m_xmOOBB, 1);
 			continue;
 		}
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "2ndRoomCoin")) {
-			Key_Items[1].emplace_back(m_ppObjects[i]->m_xmOOBB, 0.17f, i);
+			Key_Items[1].emplace_back(m_ppObjects[i]->m_xmOOBB, 0.17f);
 			continue;
 		}
 
@@ -55,7 +55,6 @@ int main()
 			Objects[j].emplace_back(m_ppObjects[i]);
 		}
 	}
-	delete m_nObjects;
 	delete[] m_ppObjects;
 
 	InitializeStages();
@@ -443,19 +442,14 @@ void process_packet(const int c_id, char* packet)
 	case CS_INTERACTION: {
 		CS_INTERACTION_PACKET* p = reinterpret_cast<CS_INTERACTION_PACKET*>(packet);
 		int cur_stage = CL.cur_stage.load();
-		//for (auto& item : Key_Items[cur_stage])
-		//	if (item.m_xmOOBB.Intersects(CL.m_xmOOBB))
-		//		for (auto& cl : Room) {
-		//			cl.clear_percentage += item.percent;
-		//			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(cur_stage, item.obj_id);
-		//		}
-		for (size_t i = 0; i < Key_Items[cur_stage].size(); i++) {
-			if (Key_Items[cur_stage][i].m_xmOOBB.Intersects(CL.m_xmOOBB))
-				for (auto& cl : Room) {
-					cl.clear_percentage += Key_Items[cur_stage][i].percent;
-					if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(cur_stage, i);
-				}
-		}
+		for (auto& item : Key_Items[cur_stage])
+			if (item.m_xmOOBB.Intersects(CL.m_xmOOBB))
+				for (auto& cl : Room)
+					cl.clear_percentage += item.percent;
+		//for (auto& cl : Room) {
+		//	if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(&CL);
+		//}
+
 
 		if (CL.clear_percentage >= 1.f && getMonsters(CL._id).size() <= 0) {
 			for (auto& cl : Room) {
