@@ -228,10 +228,11 @@ public:
 		do_send(&p);
 	}
 
-	void send_interaction_packet(SESSION* Player)
+	void send_interaction_packet(int _stage_id, int _obj_id)
 	{
 		SC_INTERACTION_PACKET p;
-		p.obj_id = Player->_id;
+		p.stage_id = _stage_id;
+		p.obj_id = _obj_id;
 		p.size = sizeof(SC_INTERACTION_PACKET);
 		p.type = SC_INTERACTION;
 		do_send(&p);
