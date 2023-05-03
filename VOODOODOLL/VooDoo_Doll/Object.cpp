@@ -663,9 +663,9 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		break;
 	case ANIMATION_TYPE_JUMP:
 		m_fPosition = fTrackPosition - fTrackElapsedTime;
-		if (m_fPosition < 0.1)
+		if (m_fPosition <= 0.3)
 		{
-			m_fPosition = 0.6;
+			m_fPosition = 0.3;
 		}
 		break;
 	}

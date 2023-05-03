@@ -593,18 +593,14 @@ void worker_thread(HANDLE h_iocp)
 					timer_queue.push(ev);
 				}
 				else {
-					MonsterPool.ReturnMemory(*iter);
 					{
 						unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
-						PoolMonsters[roomNum].erase(iter);
+						iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; }); // re-find iter after locking
+						if (iter != PoolMonsters[roomNum].end()) {
+							PoolMonsters[roomNum].erase(iter);
+						}
 					}
-					//if (PoolMonsters[roomNum].size() <= 0) {
-					//	for (auto& cl : clients[roomNum]) {
-					//		if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) {
-					//			cl.send_open_door_packet(cl.cur_stage);
-					//		}
-					//	}
-					//}
+					MonsterPool.ReturnMemory(*iter);
 				}
 			}
 

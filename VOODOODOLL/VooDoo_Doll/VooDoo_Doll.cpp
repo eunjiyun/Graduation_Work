@@ -294,7 +294,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			else if (wParam == 'C' || wParam == 'c')
 			{
-				gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
 				CS_INTERACTION_PACKET p;
 				p.size = sizeof(CS_INTERACTION_PACKET);
 				p.type = CS_INTERACTION;
@@ -542,9 +541,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		if (packet->is_alive == false) {
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
-			gGameFramework.Monsters.erase(iter);
 			if ((*iter)->npc_type == 2)
 				gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
+			gGameFramework.Monsters.erase(iter);
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {

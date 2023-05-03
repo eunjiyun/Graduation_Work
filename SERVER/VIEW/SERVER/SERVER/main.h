@@ -205,9 +205,9 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		return;
 	}
 
-	//if (stage > cur_stage.load()) {
-	//	Initialize_Monster(_id / MAX_USER_PER_ROOM, stage);
-	//}
+	if (stage > cur_stage.load()) {
+		Initialize_Monster(_id / MAX_USER_PER_ROOM, stage);
+	}
 }
 
 int get_new_client_id()
@@ -382,6 +382,8 @@ void Monster::Update(float fTimeElapsed)
 		if (target_id != -1) {
 			SetState(NPC_State::Chase);
 			cur_animation_track = 1;
+			Update(fTimeElapsed);
+			return;
 		}
 	}
 		break;
@@ -498,7 +500,7 @@ void InitializeStages()
 	mt19937 gen(rd());
 	uniform_int_distribution<int> x_dis(150, 500);
 	uniform_int_distribution<int> z_dis(1300, 2500);
-	uniform_int_distribution<int> type_dis(0, 2);
+	uniform_int_distribution<int> type_dis(0, 1);
 	{	// 1stage
 		//cout << "1 stage\n";
 
@@ -513,10 +515,10 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), 1, ID_constructor);
 			StagesInfo[0].push_back(MI);
-			cout << ID_constructor << " - " << MI.type << endl;
-			Vector3::Print(MI.Pos);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
 			ID_constructor++;
 		}
 	}
@@ -546,7 +548,7 @@ void InitializeStages()
 		//cout << "3 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
-
+		type_dis.param(uniform_int_distribution<int>::param_type(0, 2));
 		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -569,7 +571,6 @@ void InitializeStages()
 		//cout << "4 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		type_dis.param(uniform_int_distribution<int>::param_type(0, 2));
 		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
