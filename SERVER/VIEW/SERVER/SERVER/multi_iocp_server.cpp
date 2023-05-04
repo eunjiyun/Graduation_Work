@@ -296,6 +296,8 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
+		for (auto& monster : getMonsters(c_id))
+			CL.send_summon_monster_packet(monster);
 		break;
 	}
 	case CS_SIGNUP: {

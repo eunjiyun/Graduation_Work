@@ -152,7 +152,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * _id, -59,600 };//플레이어 위치
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * _id, -259,4500 };// 중간발표 데모를 위해 시작위치를 임의로 조정
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -164,7 +164,7 @@ public:
 		error_stack = 0;
 		character_num = 0;
 		HP =  55500;
-		clear_percentage = 0.f;
+		clear_percentage = 1.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
 	}
 	void do_recv()
 	{

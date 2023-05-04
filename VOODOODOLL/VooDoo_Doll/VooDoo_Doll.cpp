@@ -525,7 +525,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_MOVE_MONSTER: {
 		SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
-		auto targetPlayer = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return Pl->c_id == packet->target_id; });
+		if (iter == gGameFramework.Monsters.end()) return;
 		if (packet->is_alive == false) {
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
