@@ -158,6 +158,7 @@ public:
 
 	CShader**					m_ppShaders = NULL;
 	int								m_nShaders = 0;
+	CObjectsShader* pObjectShader = nullptr;
 
 	ID3D12PipelineState*								m_pd3dPipelineState = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;

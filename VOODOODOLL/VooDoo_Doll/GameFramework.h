@@ -100,6 +100,8 @@ public:
 	bool exit = false;
 
 	CGameObject* temp = nullptr;
+	vector<CGameObject*> findItem;
+
 	Text* m_Test;
 	
 

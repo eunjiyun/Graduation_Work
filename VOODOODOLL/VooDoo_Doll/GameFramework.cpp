@@ -586,7 +586,7 @@ void CGameFramework::ReleaseObjects()
 		if (m_pPlayer) m_pPlayer->Release();
 	
 
-		for (auto& player : Players)//05033
+		for (auto& player : Players)
 			delete player;
 	}
 	
@@ -813,6 +813,9 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
+	if(0==Monsters.size())
+		monsterSound.Stop();
+
 	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor + 2; ++i)
 	{
 		if (openDoor[i])
@@ -821,8 +824,8 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			{
 				if (curStage == i - 1)
 				{
-					if (0 != i)
-						monsterSound.Stop();
+					/*if (0 != i)
+						monsterSound.Stop();*/
 					curStage = i;
 				}
 				if (2 != i)
@@ -849,13 +852,13 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 					m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
 				}
 			}
-			else if (i == m_pStage->m_ppShaders[0]->m_nDoor + 1)
-				monsterSound.Stop();
+			/*else if (i == m_pStage->m_ppShaders[0]->m_nDoor + 1)
+				monsterSound.Stop();*/
 			else
 			{
 				if (curStage == i - 1)
 				{
-					monsterSound.Stop();
+					//monsterSound.Stop();
 					curStage = i;
 				}
 
@@ -1009,7 +1012,7 @@ void CGameFramework::FrameAdvance()
 		sound[1].Stop();//오프닝
 		sound[0].Play();//인게임
 
-		ShowCursor(false);
+		ShowCursor(false);//마우스
 
 		//// 스프라이트 배치를 생성합니다.
 		//std::unique_ptr<DirectX::SpriteBatch> spriteBatch(new DirectX::SpriteBatch(m_d3dDevice.Get(), m_commandList.Get()));
@@ -1093,8 +1096,22 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
+	//for (int i{}; i < m_pStage->pObjectShader->m_nObjects; ++i)
+	//	if (false== m_pStage->pObjectShader->m_ppObjects[i]->m_bGetItem)//0505
+	//		findItem.push_back(m_pStage->pObjectShader->m_ppObjects[i]);
+
+
 	if (m_pStage->m_pShadowShader)
-		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
+	{
+		/*for (const auto& o : m_pStage->m_pShadowShader->m_pObjectsShader->obj)
+		{
+			for (const auto& f : findItem)
+				if (strcmp(o->m_pstrName, f->m_pstrName))
+					o->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		}*/
+
+				m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
+	}
 
 
 

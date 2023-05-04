@@ -502,6 +502,7 @@ SoundPlayer::SoundPlayer()
 {
 	ZeroMemory(&waveFormat_, sizeof(waveFormat_));
 	ZeroMemory(&buffer_, sizeof(buffer_));
+	ZeroMemory(&xb, sizeof(xb));
 }
 
 SoundPlayer::~SoundPlayer()
@@ -534,12 +535,26 @@ bool SoundPlayer::Initialize()
 	waveFormat.nBlockAlign = 4;
 	waveFormat.wBitsPerSample = 16;
 	waveFormat.cbSize = 0;
+	waveFormat_ = waveFormat;
 	
 	// 소스 보이스 생성
 	hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat);
 	if (FAILED(hr)) {
 		return false;
 	}
+
+	//// 기본 사운드 디바이스 정보 가져오기
+	//DSOUND_CAPS caps;
+	//hr = xAudio2_->GetCaps(&caps);
+	//DWORD primaryChannels = caps.dwMaxHwMixingAllBuffers;
+	//DWORD primaryFrequency = caps.dwMaxHwMixingStaticBuffers;
+
+	//// 기본 사운드 디바이스와 버퍼 포맷 정보 출력
+	//std::cout << "Primary sound device information:\n";
+	//std::cout << "Channels: " << primaryChannels << "\n";
+	//std::cout << "Frequency: " << primaryFrequency << "\n";
+	//std::cout << "Format: " << waveFormat.nChannels << " channels, " << 
+		//waveFormat.wBitsPerSample << " bits per sample, " << waveFormat.nSamplesPerSec << " samples per second\n";
 
 	return true;
 }
@@ -627,11 +642,18 @@ HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename, WAVEFORMATEX* waveFor
 
 	// 반환값 설정
 	waveFormat = pWaveFormat;
+	waveFormat_ = *pWaveFormat;
 	buffer_.pAudioData = pData;
 	buffer_.AudioBytes = header.subchunk2Size;
 
 	buffer_.Flags = XAUDIO2_END_OF_STREAM; // 스트림의 끝임을 나타냄
 	buffer_.LoopCount = XAUDIO2_LOOP_INFINITE; // 루프 횟수를 무한대로 설정
+
+	xb.pAudioData = pData;
+	xb.AudioBytes = header.subchunk2Size;
+
+	xb.Flags = XAUDIO2_END_OF_STREAM; // 스트림의 끝임을 나타냄
+	xb.LoopCount = XAUDIO2_LOOP_INFINITE; // 루프 횟수를 무한대로 설정
 
 	// 파일 닫기
 	fclose(file);
@@ -643,7 +665,7 @@ bool SoundPlayer::LoadWave(const wchar_t* filename)
 {
 	HRESULT hr;
 	// WAVE 파일 로드
-	hr = LoadWaveFile(filename, &waveFormat_);//0501
+	hr = LoadWaveFile(filename, &waveFormat_);
 
 
 	if (FAILED(hr)) {
@@ -651,10 +673,36 @@ bool SoundPlayer::LoadWave(const wchar_t* filename)
 	}
 
 	// 소스 보이스에 버퍼 설정
-	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);
+	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);//0504
 	if (FAILED(hr)) {
 		return false;
 	}
+
+
+	//// 이전 버퍼가 모두 재생될 때까지 대기
+	//XAUDIO2_VOICE_STATE state;
+	//while (true) {
+	//	sourceVoice_->GetState(&state);
+	//	if (state.BuffersQueued == 0) {
+	//		break;
+	//	}
+	//	Sleep(1); // 대기
+	//}
+
+	//// 버퍼 크기 계산
+	//WAVEFORMATEX wfx = waveFormat_;// buffer_.GetFormat();
+	//UINT32 maxBufferSize = wfx.nAvgBytesPerSec * 3;// BUFFER_DURATION_IN_SECONDS;
+	//// 버퍼 동적 할당
+	//BYTE* buffer = new BYTE[maxBufferSize];
+	//ZeroMemory(buffer, maxBufferSize);
+	//// 버퍼 설정
+	////XAUDIO2_BUFFER xb = { 0 };
+	//xb.AudioBytes = maxBufferSize/4;
+	//xb.pAudioData = buffer;
+	//hr = sourceVoice_->SubmitSourceBuffer(&xb);
+	//if (FAILED(hr)) {
+	//	// 오류 처리
+	//}
 
 	return true;
 }

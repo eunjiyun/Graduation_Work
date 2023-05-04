@@ -167,13 +167,15 @@ public:
 public:
 	IXAudio2SourceVoice* sourceVoice_;
 	XAUDIO2_BUFFER buffer_;
+	XAUDIO2_BUFFER xb = { 0 };
+	WAVEFORMATEX waveFormat_;
 
 private:
 	IXAudio2* xAudio2_;
 	IXAudio2MasteringVoice* masterVoice_;
 	
 	std::vector<BYTE> audioData_;
-	WAVEFORMATEX waveFormat_;
+
 	
 };
 

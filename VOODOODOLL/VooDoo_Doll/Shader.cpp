@@ -648,9 +648,16 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				boxShader->obj.push_back(m_ppObjects[i]);
 
 			//문 넣지 않기
-			if (-70 > m_ppObjects[i]->GetPosition().y)
+			if (-70 < m_ppObjects[i]->GetPosition().y)
+			//if (200 < m_ppObjects[i]->GetPosition().y)// && 460 > m_ppObjects[i]->GetPosition().y) //Bedroom_wall_b_01_dense_mesh
+			{
 				if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
+					//if (strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh"))
+				{
 					boxShader->obj.push_back(m_ppObjects[i]);
+					//cout << "이름 : " << m_ppObjects[i]->m_pstrName << endl << endl;
+				}
+			}
 
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||

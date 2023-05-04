@@ -66,7 +66,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 	/*m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.0f);*/
-	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,-100.0f, 2300);//-100 150
+	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,200-60.0f, 2300);//-100 
 	//m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 
@@ -180,7 +180,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	m_nShaders = 1;
 	m_ppShaders = new CShader * [m_nShaders];
-	CObjectsShader* pObjectShader = new CObjectsShader();
+	pObjectShader = new CObjectsShader();
 	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 	mpObjVec = pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, "Models/Scene.bin", pBoxShader);
 	//Find_LightPosition();
@@ -975,7 +975,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
-				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
+				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)//0505
 				{
 					m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 				}
