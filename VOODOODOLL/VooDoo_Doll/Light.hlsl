@@ -212,58 +212,68 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 	float4 cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	float fShadowFactor = 1.0f;
 	[unroll]
-	for (int i = 0; i < MAX_SHADOW_LIGHTS; i++)
+
+	//if (id == 1)
 	{
-		if (gLights[i].m_bEnable)
+		for (int i = 0; i < MAX_SHADOW_LIGHTS; i++)
 		{
+			if (gLights[i].m_bEnable)
+			{
 
 #ifdef _WITH_PCF_FILTERING
-			if (bShadow) fShadowFactor = Compute3x3ShadowFactor(uvs[i].xy / uvs[i].ww, uvs[i].z / uvs[i].w, i);
+				if (bShadow) fShadowFactor = Compute3x3ShadowFactor(uvs[i].xy / uvs[i].ww, uvs[i].z / uvs[i].w, i);
 #else
-			if (bShadow) fShadowFactor = gtxtDepthTextures[i].SampleCmpLevelZero(gssComparisonPCFShadow, uvs[i].xy / uvs[i].ww, uvs[i].z / uvs[i].w).r;
+				if (bShadow) fShadowFactor = gtxtDepthTextures[i].SampleCmpLevelZero(gssComparisonPCFShadow, uvs[i].xy / uvs[i].ww, uvs[i].z / uvs[i].w).r;
 #endif
 
-			float4 shadowColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+				float4 shadowColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-
-			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
-			{
-
-				if (fShadowFactor != 0.f)
+				if (id == 1)
 				{
-					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-					cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
+					if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
+					{
+
+						if (fShadowFactor != 0.f)
+						{
+							cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+							cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
+						}
+						else
+						{
+							cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+						}
+					}
+					else if (gLights[i].m_nType == POINT_LIGHT)
+					{
+						if (fShadowFactor != 0.f)
+						{
+							cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+							cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
+						}
+						else
+						{
+							cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+						}
+					}
+					else if (gLights[i].m_nType == SPOT_LIGHT)
+					{
+						if (fShadowFactor != 0.f)
+						{
+							cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+							cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
+						}
+						else
+						{
+							cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+						}
+					}
 				}
 				else
 				{
-					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
+					cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 				}
+				cColor += gLights[i].m_cAmbient * gMaterial.m_cAmbient;
 			}
-			else if (gLights[i].m_nType == POINT_LIGHT)
-			{
-				if (fShadowFactor != 0.f)
-				{
-					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-					cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-				}
-				else
-				{
-					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-				}
-			}
-			else if (gLights[i].m_nType == SPOT_LIGHT)
-			{
-				if (fShadowFactor != 0.f)
-				{
-					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-					cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
-				}
-				else
-				{
-					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-				}
-			}
-			cColor += gLights[i].m_cAmbient * gMaterial.m_cAmbient;
 		}
 	}
 

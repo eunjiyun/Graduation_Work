@@ -72,7 +72,7 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
 		if (dwDirection & DIR_JUMP && onFloor) {
-			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 15); onFloor = false; 
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 15); onFloor = false;
 			//m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			//m_pSkinnedAnimationController->SetTrackEnable(5, true);
 		}
@@ -245,11 +245,11 @@ void CPlayer::OnPrepareRender()
 	m_xmf4x4ToParent._21 = m_xmf3Up.x; m_xmf4x4ToParent._22 = m_xmf3Up.y; m_xmf4x4ToParent._23 = m_xmf3Up.z;
 	m_xmf4x4ToParent._31 = m_xmf3Look.x; m_xmf4x4ToParent._32 = m_xmf3Look.y; m_xmf4x4ToParent._33 = m_xmf3Look.z;
 	m_xmf4x4ToParent._41 = m_xmf3Position.x; m_xmf4x4ToParent._42 = m_xmf3Position.y; m_xmf4x4ToParent._43 = m_xmf3Position.z;
-	
+
 	m_xmf4x4ToParent = Matrix4x4::Multiply(XMMatrixScaling(m_xmf3Scale.x, m_xmf3Scale.y, m_xmf3Scale.z), m_xmf4x4ToParent);
 }
 
-void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,bool shadow, CCamera* pCamera)
+void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, bool shadow, CCamera* pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
@@ -285,19 +285,19 @@ void CPlayer::boundingAnimate(float fElapsedTime)
 void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosition)//0501
 {
 
-		_TCHAR* pWavName = (_TCHAR*)pCallbackData;
+	_TCHAR* pWavName = (_TCHAR*)pCallbackData;
 #ifdef _WITH_DEBUG_CALLBACK_DATA
-		TCHAR pstrDebug[256] = { 0 };
+	TCHAR pstrDebug[256] = { 0 };
 
-		_stprintf_s(pstrDebug, 256, _T("%s(%f)\n"), pWavName, fTrackPosition);
-		OutputDebugString(pstrDebug);
+	_stprintf_s(pstrDebug, 256, _T("%s(%f)\n"), pWavName, fTrackPosition);
+	OutputDebugString(pstrDebug);
 #endif
 #ifdef _WITH_SOUND_RESOURCE
-		PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
+	PlaySound(pWavName, ::ghAppInstance, SND_RESOURCE | SND_ASYNC);
 #else
-		PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
+	PlaySound(pWavName, NULL, SND_FILENAME | SND_ASYNC);
 #endif
-	
+
 }
 
 CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, int choosePl)
@@ -364,7 +364,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	AnimationControllers[0]->SetCallbackKeys(2, 1);
 	AnimationControllers[0]->SetCallbackKeys(3, 1);
 	AnimationControllers[0]->SetCallbackKeys(4, 1);
-	
+
 
 	AnimationControllers[1]->SetCallbackKeys(1, 1);
 	AnimationControllers[1]->SetCallbackKeys(2, 1);
@@ -382,7 +382,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationController->SetCallbackKey(1, 0.5f, _T("Footstep02"));
 	m_pSkinnedAnimationController->SetCallbackKey(2, 0.9f, _T("Footstep03"));
 #else
-	
+
 	AnimationControllers[0]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
 	AnimationControllers[0]->SetCallbackKey(2, 0, 0.2f, _T("Sound/swordAttack.wav"));
 	AnimationControllers[0]->SetCallbackKey(3, 0, 0.2f, _T("Sound/run.wav"));
@@ -500,9 +500,12 @@ void CTerrainPlayer::Update(float fTimeElapsed)
 SoundPlayer::SoundPlayer()
 	: xAudio2_(nullptr), masterVoice_(nullptr), sourceVoice_(nullptr)
 {
+	/*for (int i{}; i < 7; ++i)
+		sourceVoice[i] = nullptr;*/
+
 	ZeroMemory(&waveFormat_, sizeof(waveFormat_));
 	ZeroMemory(&buffer_, sizeof(buffer_));
-	ZeroMemory(&xb, sizeof(xb));
+	//ZeroMemory(&xb, sizeof(xb));
 }
 
 SoundPlayer::~SoundPlayer()
@@ -514,34 +517,49 @@ bool SoundPlayer::Initialize()
 {
 	HRESULT hr;
 
-	// XAudio2 객체 생성
-	hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
-	if (FAILED(hr)) {
-		return false;
+	//if (nullptr == &xAudio2_)
+	{// XAudio2 객체 생성
+		hr = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
+		if (FAILED(hr)) {
+			return false;
+		}
 	}
 
-	// 마스터 보이스 생성
-	hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
-	if (FAILED(hr)) {
-		return false;
+	//if (nullptr == &masterVoice_)
+	{// 마스터 보이스 생성
+		hr = xAudio2_->CreateMasteringVoice(&masterVoice_);
+		if (FAILED(hr)) {
+			return false;
+		}
 	}
 
+	waveFormat_.wFormatTag = WAVE_FORMAT_PCM;
+	waveFormat_.nChannels = 2;
+	waveFormat_.nSamplesPerSec = 48000;
+	waveFormat_.nAvgBytesPerSec = 48000 * 4;
+	waveFormat_.nBlockAlign = 4;
+	waveFormat_.wBitsPerSample = 16;
+	waveFormat_.cbSize = 0;
 
-	WAVEFORMATEX waveFormat;
-	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	waveFormat.nChannels = 2;
-	waveFormat.nSamplesPerSec = 48000;
-	waveFormat.nAvgBytesPerSec = 48000 * 4;
-	waveFormat.nBlockAlign = 4;
-	waveFormat.wBitsPerSample = 16;
-	waveFormat.cbSize = 0;
-	waveFormat_ = waveFormat;
-	
+
 	// 소스 보이스 생성
-	hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat);
+	hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat_);
 	if (FAILED(hr)) {
 		return false;
 	}
+
+	//for (int i{}; i < 7; ++i)
+	//{
+	//	if (nullptr == sourceVoice[i])
+	//	{
+	//		// 소스 보이스 생성
+	//		hr = xAudio2_->CreateSourceVoice(&sourceVoice[i], &waveFormat_);
+	//		if (FAILED(hr)) {
+	//			return false;
+	//		}
+	//		break;
+	//	}
+	//}
 
 	//// 기본 사운드 디바이스 정보 가져오기
 	//DSOUND_CAPS caps;
@@ -565,6 +583,14 @@ void SoundPlayer::Terminate()
 		sourceVoice_->DestroyVoice();
 		sourceVoice_ = nullptr;
 	}
+	/*for (int i{}; i < 7; ++i)
+	{
+		if (sourceVoice[i] != nullptr) {
+			sourceVoice[i]->DestroyVoice();
+			sourceVoice[i] = nullptr;
+		}
+		delete sourceVoice;
+	}*/
 
 	if (masterVoice_ != nullptr) {
 		masterVoice_->DestroyVoice();
@@ -577,7 +603,7 @@ void SoundPlayer::Terminate()
 	}
 }
 
-HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename, WAVEFORMATEX* waveFormat)
+HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename)
 {
 	// WAV 파일을 읽기 전용으로 열기
 	FILE* file = nullptr;
@@ -641,7 +667,6 @@ HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename, WAVEFORMATEX* waveFor
 	}
 
 	// 반환값 설정
-	waveFormat = pWaveFormat;
 	waveFormat_ = *pWaveFormat;
 	buffer_.pAudioData = pData;
 	buffer_.AudioBytes = header.subchunk2Size;
@@ -665,18 +690,33 @@ bool SoundPlayer::LoadWave(const wchar_t* filename)
 {
 	HRESULT hr;
 	// WAVE 파일 로드
-	hr = LoadWaveFile(filename, &waveFormat_);
+	hr = LoadWaveFile(filename);
 
 
 	if (FAILED(hr)) {
 		return false;
 	}
+
+	//sourceVoice_->Stop();
+	//sourceVoice_->FlushSourceBuffers();
+	//sourceVoice_->DestroyVoice();
+	//sourceVoice_ = nullptr;
+
+	//if (nullptr == sourceVoice_)
+	//{
+	//	// 소스 보이스 생성
+	//	hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat_);
+	//	if (FAILED(hr)) {
+	//		return false;
+	//	}
+	//}
 
 	// 소스 보이스에 버퍼 설정
 	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);//0504
 	if (FAILED(hr)) {
 		return false;
 	}
+
 
 
 	//// 이전 버퍼가 모두 재생될 때까지 대기
@@ -721,6 +761,7 @@ void SoundPlayer::Stop()
 		sourceVoice_->Stop();
 		sourceVoice_->FlushSourceBuffers();
 	}
+	//Terminate();
 }
 
 

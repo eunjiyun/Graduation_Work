@@ -158,7 +158,7 @@ public:
 	void Terminate();
 
 	//HRESULT LoadWaveFile(const wchar_t* filename, WAVEFORMATEX** ppWaveFormat, BYTE** ppData, UINT32* pBufferSize);
-	HRESULT LoadWaveFile(const wchar_t* filename, WAVEFORMATEX* waveFormat);
+	HRESULT LoadWaveFile(const wchar_t* filename);
 	bool LoadWave(const wchar_t* filename);
 
 	void Play();
@@ -166,6 +166,8 @@ public:
 
 public:
 	IXAudio2SourceVoice* sourceVoice_;
+	IXAudio2SourceVoice* sourceVoice[7];
+
 	XAUDIO2_BUFFER buffer_;
 	XAUDIO2_BUFFER xb = { 0 };
 	WAVEFORMATEX waveFormat_;

@@ -121,7 +121,11 @@ public:
 	SoundPlayer doorSound;
 	SoundPlayer playerSound;
 	bool checkDoor[6] = { false,false,false,false,false,false };
+	bool checkDoorSound = false;
+	bool checkDoorSound2 = false;
 	int checkJump = 0;
+	int curStage = -1;
+	
 
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
@@ -142,12 +146,11 @@ public:
 	CPlayer* m_pPlayer = NULL;
 	vector<CPlayer*> Players;
 	vector<CMonster*> Monsters;
-	//CMonster* Mon = nullptr;
 	CCamera* m_pCamera = NULL;
 
 	float time = 0.f;
 	bool openDoor[7]= { false,false,false,false,false,false,false};
-	int curStage = -1;
+	
 	
 	POINT						m_ptOldCursorPos;
 

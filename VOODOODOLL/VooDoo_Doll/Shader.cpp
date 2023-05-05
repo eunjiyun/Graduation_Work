@@ -647,14 +647,21 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
 				boxShader->obj.push_back(m_ppObjects[i]);
 
+			
 			//문 넣지 않기
-			if (-70 < m_ppObjects[i]->GetPosition().y)
+			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
 			{
-				if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
+				if (-70 < m_ppObjects[i]->GetPosition().y)
 				{
 					boxShader->obj.push_back(m_ppObjects[i]);
+					boxShader->obj[m_nBoxObj++]->shadowID = 1;	
 				}
+				/*else
+				{
+					boxShader->obj[m_nBoxObj++]->shadowID = 0;
+				}*/
 			}
+		
 
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||
@@ -709,8 +716,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		{
 			door[h]->Rotate(0, 180, 0);
 		}
-
-		boxShader->obj.push_back(door[h]);
+		else
+			boxShader->obj.push_back(door[h]);
 	}
 
 
@@ -738,14 +745,8 @@ void CObjectsShader::ReleaseObjects()
 
 void CObjectsShader::AnimateObjects(float fTimeElapsed)
 {
-
-	//for (int i{}; i < 4; ++i)
-	//	door[i]->Animate(fTimeElapsed, false);//0424
-
-
 	for (int j = 0; j < m_nObjects; j++)
 		m_ppObjects[j]->Animate(fTimeElapsed, false);
-
 }
 
 void CObjectsShader::ReleaseUploadBuffers()

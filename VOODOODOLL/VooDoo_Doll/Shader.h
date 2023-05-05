@@ -48,6 +48,7 @@ public:
 	int							m_nDoor = 0;
 	CTexture*				gameScreen[3];
 	CMaterial*				gameMat[3];
+	int m_nBoxObj = 0;
 
 
 public:

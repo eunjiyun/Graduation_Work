@@ -37,7 +37,6 @@
 #include <utility>
 //#include <pair>
 constexpr float WINDOW_MODE_RATE = 1.f;
-#include <DirectXMath.h>
 //#include <SpriteBatch.h>
 //#include <SimpleMath.h>
 #include<memory>

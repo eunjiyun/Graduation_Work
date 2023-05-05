@@ -481,7 +481,7 @@ void CGameFramework::BuildObjects()
 
 	// Initialize SoundPlayer
 	sound[0].Initialize();
-	sound[0].LoadWave(inGame);
+	sound[0].LoadWave(inGame);//0504
 
 
 	sound[1].Initialize();
@@ -494,6 +494,15 @@ void CGameFramework::BuildObjects()
 
 	sound[3].Initialize();
 	sound[3].LoadWave(win);
+
+	/*doorSound.Initialize();
+	doorSound.LoadWave(door);
+
+	playerSound.Initialize();
+	playerSound.LoadWave(jump);
+
+	monsterSound.Initialize();
+	monsterSound.LoadWave(monster);*/
 
 
 
@@ -592,6 +601,17 @@ void CGameFramework::ReleaseObjects()
 	
 	for (auto& monster : Monsters)
 		delete monster;
+
+	if (sound)
+	{
+		for(int i{};i<4;++i)
+			sound[i].~SoundPlayer();
+		//delete sound;
+	}
+	playerSound.~SoundPlayer();
+	monsterSound.~SoundPlayer();
+	doorSound.~SoundPlayer();
+
 
 
 	if (m_pStage) m_pStage->ReleaseObjects();
@@ -757,9 +777,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			{
 				if (player->m_xmf3Velocity.y <= 0)
 				{
-					if (0 != checkJump % 2)
+					if (0 != checkJump % 2 )
 					{
 						playerSound.Stop();
+						playerSound.Terminate();
 						++checkJump;
 					}
 				}
@@ -813,21 +834,24 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
-	if(0==Monsters.size())
-		monsterSound.Stop();
+	if (0 == Monsters.size())
+	{
+		if (monsterSound.sourceVoice_)
+		{
+			monsterSound.Stop();
+			monsterSound.Terminate();
+		}
+	}
 
-	for (int i{}; i < m_pStage->m_ppShaders[0]->m_nDoor + 2; ++i)
+	for (int i{}; i < 7; ++i)
 	{
 		if (openDoor[i])
 		{
 			if (2 >= i)
 			{
 				if (curStage == i - 1)
-				{
-					/*if (0 != i)
-						monsterSound.Stop();*/
 					curStage = i;
-				}
+
 				if (2 != i)
 				{
 					if (m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_fPosition
@@ -835,7 +859,12 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 						m_pAnimationSets[m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nAnimationSet]->m_fLength
 						&& i == curStage)
 					{
-						doorSound.Stop();
+						if (false == checkDoorSound)
+						{
+							doorSound.Stop();
+							doorSound.Terminate();
+							checkDoorSound = true;
+						}
 					}
 					else
 					{
@@ -846,41 +875,47 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 							doorSound.Play();
 
 							checkDoor[i] = true;
+							checkDoorSound = false;
 						}
 					}
 
 					m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
 				}
 			}
-			/*else if (i == m_pStage->m_ppShaders[0]->m_nDoor + 1)
-				monsterSound.Stop();*/
 			else
 			{
-				if (curStage == i - 1)
+				
+				if (curStage == i - 2)
+					curStage = i-1;
+				
+				if (m_pStage->m_ppShaders[0]->door[i-1]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_fPosition
+					== m_pStage->m_ppShaders[0]->door[i-1]->m_pSkinnedAnimationController->m_pAnimationSets->
+					m_pAnimationSets[m_pStage->m_ppShaders[0]->door[i-1]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nAnimationSet]->m_fLength
+					&& i== curStage+1)
 				{
-					//monsterSound.Stop();
-					curStage = i;
-				}
 
-				if (m_pStage->m_ppShaders[0]->door[i - 1]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_fPosition
-					== m_pStage->m_ppShaders[0]->door[i - 1]->m_pSkinnedAnimationController->m_pAnimationSets->
-					m_pAnimationSets[m_pStage->m_ppShaders[0]->door[i - 1]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nAnimationSet]->m_fLength
-					&& i == curStage)
-				{
-					doorSound.Stop();
+					if (false == checkDoorSound2)
+					{
+						doorSound.Stop();
+						doorSound.Terminate();
+						checkDoorSound2 = true;
+					}
 				}
 				else
 				{
-					if (false == checkDoor[i - 1])
+					if (false == checkDoor[i-1 ])
 					{
+
 						doorSound.Initialize();
 						doorSound.LoadWave(door);
 						doorSound.Play();
 
-						checkDoor[i - 1] = true;
+						checkDoor[i-1 ] = true;
+						checkDoorSound2 = false;
 					}
 				}
 
+				
 				m_pStage->m_ppShaders[0]->door[i - 1]->Animate(fTimeElapsed, false);
 			}
 		}
@@ -927,8 +962,11 @@ void CGameFramework::FrameAdvance()
 	// Wait for sound to finish
 	//Sleep(10000);
 
-	if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
-		monsterSound.Stop();//몬스터
+	//if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
+	//{
+	//	monsterSound.Stop();//몬스터
+	//	monsterSound.Terminate();
+	//}
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
@@ -950,6 +988,7 @@ void CGameFramework::FrameAdvance()
 			m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
 
 			monsterSound.Stop();//몬스터
+			monsterSound.Terminate();
 			sound[0].Stop();//인게임
 			sound[2].Play();//클로징
 		}

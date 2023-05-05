@@ -575,7 +575,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
 		gGameFramework.m_pCamera->m_lock = true;
 
-		gGameFramework.monsterSound.Stop();//몬스터
+		//gGameFramework.monsterSound.Stop();//몬스터
 		gGameFramework.sound[0].Stop();//인게임
 		gGameFramework.sound[3].Play();//윈
 		break;
