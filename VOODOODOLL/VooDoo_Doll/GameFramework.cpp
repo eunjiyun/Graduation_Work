@@ -1096,21 +1096,10 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
-	//for (int i{}; i < m_pStage->pObjectShader->m_nObjects; ++i)
-	//	if (false== m_pStage->pObjectShader->m_ppObjects[i]->m_bGetItem)//0505
-	//		findItem.push_back(m_pStage->pObjectShader->m_ppObjects[i]);
-
 
 	if (m_pStage->m_pShadowShader)
 	{
-		/*for (const auto& o : m_pStage->m_pShadowShader->m_pObjectsShader->obj)
-		{
-			for (const auto& f : findItem)
-				if (strcmp(o->m_pstrName, f->m_pstrName))
-					o->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-		}*/
-
-				m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
+		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
 	}
 
 

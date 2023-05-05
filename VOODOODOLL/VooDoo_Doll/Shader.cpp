@@ -649,13 +649,10 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 			//문 넣지 않기
 			if (-70 < m_ppObjects[i]->GetPosition().y)
-			//if (200 < m_ppObjects[i]->GetPosition().y)// && 460 > m_ppObjects[i]->GetPosition().y) //Bedroom_wall_b_01_dense_mesh
 			{
 				if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
-					//if (strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh"))
 				{
 					boxShader->obj.push_back(m_ppObjects[i]);
-					//cout << "이름 : " << m_ppObjects[i]->m_pstrName << endl << endl;
 				}
 			}
 
@@ -684,12 +681,12 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		door[h]->m_pSkinnedAnimationController->SetTrackEnable(0, true);
 		door[h]->m_pSkinnedAnimationController->SetTrackEnable(1, false);
 
-		
+
 		door[h]->SetScale(70.0f, 70.0f, 70.0f);
 		memcpy_s(door[h]->m_pstrName, 64, "door", 64);
 
-		switch(h)
-			{
+		switch (h)
+		{
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
 			door[h]->SetPosition(469, -40, 1237.5);
@@ -706,13 +703,13 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		case 4:
 			door[h]->SetPosition(231, -282, 1239.2);
 			break;
-			}
+		}
 
 		if (-150 > door[h]->GetPosition().y)
 		{
 			door[h]->Rotate(0, 180, 0);
 		}
-		
+
 		boxShader->obj.push_back(door[h]);
 	}
 
@@ -776,8 +773,8 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 		{
 			m_ppObjects[j]->shadowID = 1;
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+		}
 	}
-}
 }
 
 //=====================================================================================================================
@@ -863,10 +860,11 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 
 	UpdateShaderVariables(pd3dCommandList);
 
+
 	for (const auto& o : m_pObjectsShader->obj)
 	{
-		o->shadowID = 1;
-		o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+		if (false == o->m_bGetItem)
+			o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 	}
 
 	for (const auto& monster : Monsters) {
@@ -1219,7 +1217,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 			player->shadowID = 1;
 			player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 			player->m_ppBullet->shadowID = 1;
-			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);//0416
+			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 		}
 	}
 
@@ -1227,7 +1225,8 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	{
 		o->shadowID = 1;
 		if (strcmp(o->m_pstrName, "Dense_Floor_mesh"))
-			o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			if (false == o->m_bGetItem)
+				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 	}
 }
 

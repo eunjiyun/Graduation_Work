@@ -974,11 +974,15 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+		{
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
+			{
 				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)//0505
 				{
 					m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 				}
+			}
+		}
 	}
 
 	for(int j{};j<m_ppShaders[0]->m_nDoor;++j)
