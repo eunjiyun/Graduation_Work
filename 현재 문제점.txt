@@ -6,3 +6,4 @@
 5. 323호 pc에서 컴파일하니까 soundplayer:loadwave 함수 매부의 submitsourcebuffer에서 액세스 위반 에러가 발생
 : Sourcevoice가 nullptr
 6. 게임 오버시 게임 오버 화면에서 카메라가 벗어나는 문제
+7. 플레이어가 계단을 내려가면 계단에 사선으로 그림자가 생기는 문제

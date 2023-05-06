@@ -973,7 +973,8 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))
+		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
+			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
 		{
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 			{

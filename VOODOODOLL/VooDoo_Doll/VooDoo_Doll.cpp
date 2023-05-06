@@ -142,11 +142,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	memset(&svr_addr, 0, sizeof(svr_addr));
 	svr_addr.sin_family = AF_INET;
 	svr_addr.sin_port = htons(SERVER_PORT);
-	//1. 14.36.243.235
-	//2. 14.36.243.161
-	//3. 윤은지 노트북 : 172.30.1.25
-	//4. 로컬 : 127.0.0.1
-	inet_pton(AF_INET, "172.30.1.25", &svr_addr.sin_addr);
+
+	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
 	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
 	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
 
