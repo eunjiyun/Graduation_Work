@@ -21,7 +21,7 @@ public:
 
     float g_distance = 0;
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
-    XMFLOAT3 MagicLook;
+    XMFLOAT3 MagicLook = { 0, 0, 0 };
     high_resolution_clock::time_point recent_recvedTime;
     bool alive = false;
 

@@ -445,12 +445,6 @@ void process_packet(const int c_id, char* packet)
 	case CS_INTERACTION: {
 		CS_INTERACTION_PACKET* p = reinterpret_cast<CS_INTERACTION_PACKET*>(packet);
 		int cur_stage = CL.cur_stage.load();
-		//for (auto& item : Key_Items[cur_stage])
-		//	if (item.m_xmOOBB.Intersects(CL.m_xmOOBB))
-		//		for (auto& cl : Room) {
-		//			cl.clear_percentage += item.percent;
-		//			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(cur_stage, item.obj_id);
-		//		}
 		for (size_t i = 0; i < Key_Items[cur_stage].size(); i++) {
 			if (Key_Items[cur_stage][i].m_xmOOBB.Intersects(CL.m_xmOOBB))
 				for (auto& cl : Room) {

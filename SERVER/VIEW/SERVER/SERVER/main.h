@@ -352,14 +352,16 @@ int Monster::get_targetID()
 
 void Monster::Update(float fTimeElapsed)
 {
-	if (2 == type && MagicPos.x < 5000) {
+	if (Vector3::Length(MagicLook) > 0.f) {
 		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 100.f * fTimeElapsed, false)); // HAT_SPEED = 200.f
+		Vector3::Print(MagicPos);
 		for (auto& player : clients[room_num]) {
 			lock_guard <mutex> ll{ player._s_lock };
 			if (BoundingBox(MagicPos, BULLET_SIZE).Intersects(player.m_xmOOBB))
 			{
 				player.HP -= GetPower();
 				MagicPos.x = 5000;
+				MagicLook.x = MagicLook.y = MagicLook.z = 0.f;
 				if (player.HP <= 0)
 				{
 					player._state.store(ST_DEAD);
@@ -370,9 +372,19 @@ void Monster::Update(float fTimeElapsed)
 				}
 			}
 		}
-		for (auto& obj : Objects[static_cast<int>(MagicPos.z) / AREA_SIZE]) {
-			if (obj->m_xmOOBB.Contains(XMLoadFloat3(&MagicPos)))
-				MagicPos.x = 5000;
+		try {
+			for (auto& obj : Objects[static_cast<int>(MagicPos.z) / AREA_SIZE]) {
+				if (obj->m_xmOOBB.Contains(XMLoadFloat3(&MagicPos))) {
+					MagicPos.x = 5000;
+					MagicLook.x = MagicLook.y = MagicLook.z = 0.f;
+				}
+
+			}
+		}
+		catch (const exception& e) {
+			cout << "Hat Update catched error -" << e.what() << endl;
+			MagicPos = Pos;
+			return;
 		}
 	}
 	switch (GetState())
@@ -438,6 +450,7 @@ void Monster::Update(float fTimeElapsed)
 			cur_animation_track = 0;
 			target_id = -1;
 			SetAttackTimer(attack_cycle);
+
 			break;
 		}
 		if (attacked == false && GetAttackTimer() <= attack_cycle / 2.f) {
@@ -500,7 +513,7 @@ void InitializeStages()
 	mt19937 gen(rd());
 	uniform_int_distribution<int> x_dis(150, 500);
 	uniform_int_distribution<int> z_dis(1300, 2500);
-	uniform_int_distribution<int> type_dis(0, 1);
+	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
 		//cout << "1 stage\n";
 
@@ -515,7 +528,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), 1, ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
 			StagesInfo[0].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -548,7 +561,6 @@ void InitializeStages()
 		//cout << "3 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
-		type_dis.param(uniform_int_distribution<int>::param_type(0, 2));
 		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
