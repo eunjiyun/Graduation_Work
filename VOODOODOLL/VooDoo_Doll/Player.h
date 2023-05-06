@@ -128,8 +128,6 @@ public:
 	virtual void Move(ULONG nDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Update(float fTimeElapsed);
-
-	//SoundPlayer player;
 };
 
 struct WAVEHEADER
@@ -157,7 +155,6 @@ public:
 	bool Initialize();
 	void Terminate();
 
-	//HRESULT LoadWaveFile(const wchar_t* filename, WAVEFORMATEX** ppWaveFormat, BYTE** ppData, UINT32* pBufferSize);
 	HRESULT LoadWaveFile(const wchar_t* filename);
 	bool LoadWave(const wchar_t* filename);
 
@@ -166,19 +163,15 @@ public:
 
 public:
 	IXAudio2SourceVoice* sourceVoice_;
-	IXAudio2SourceVoice* sourceVoice[7];
+
 
 	XAUDIO2_BUFFER buffer_;
-	XAUDIO2_BUFFER xb = { 0 };
 	WAVEFORMATEX waveFormat_;
 
 private:
 	IXAudio2* xAudio2_;
 	IXAudio2MasteringVoice* masterVoice_;
-	
 	std::vector<BYTE> audioData_;
-
-	
 };
 
 
