@@ -1135,8 +1135,11 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
-	if (-70 > m_pPlayer->GetPosition().y)
+	//if (-260 > m_pPlayer->GetPosition().y)//-70 -290
+	if (-70 > m_pPlayer->GetPosition().y)//-70 -290
 		firstFloor = true;
+	else
+		firstFloor = false;
 
 	if (m_pStage->m_pShadowShader)
 	{

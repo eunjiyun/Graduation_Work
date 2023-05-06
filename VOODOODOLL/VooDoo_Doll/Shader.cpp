@@ -639,33 +639,21 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
 
 
-				//Bedroom_wall_d_02_dense_mesh r
-				//Bedroom_wall_d_02_dense_mesh	l
-				//Ceiling_concrete_base_mesh up	
 
-			//¹Ù´Ú ³Ö±â
+				//¹Ù´Ú ³Ö±â
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
 				boxShader->obj.push_back(m_ppObjects[i]);
 
-			//¹Ù´Ú ³Ö±â
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
-				boxShader->obj.push_back(m_ppObjects[i]);
+			//°è´Ü ³Ö±â
+			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
+				//boxShader->obj.push_back(m_ppObjects[i]);
 
 
 			//¹® ³ÖÁö ¾Ê±â
 			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Bedroom_wall_b_01_dense_mesh
-				if (strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh"))
-				{
-					//if (-70 < m_ppObjects[i]->GetPosition().y)
-					{
-						boxShader->obj.push_back(m_ppObjects[i]);
-						boxShader->obj[m_nBoxObj++]->shadowID = 1;
-					}
-					/*else
-					{
-						boxShader->obj[m_nBoxObj++]->shadowID = 0;
-					}*/
-				}
+			{
+				boxShader->obj.push_back(m_ppObjects[i]);
+			}
 
 
 
@@ -780,7 +768,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 			m_ppObjects[j]->shadowID = 1;
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 		}
-	}
+}
 }
 
 //=====================================================================================================================
@@ -871,48 +859,73 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 	{
 		if (false == o->m_bGetItem)
 		{
-			if (-70 < o->GetPosition().y)//-70
+			if (-70 < o->GetPosition().y)
 			{
-				//if (-70 < Players[0]->GetPosition().y)
-				if (false == firFloor)
+				if (false == firFloor)//2Ãþ
 				{
 					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					light[0].m_xmf3Position = XMFLOAT3(562 , 140.0f, 2300);//-100 
 				}
 			}
 			else
 			{
-				//if (-70 > Players[0]->GetPosition().y)
-				if (true == firFloor)
+				if (true == firFloor)//1Ãþ
 				{
 					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-					light[0].m_xmf3Position = XMFLOAT3(512+50 , -30.0f, 2300);//512 - 50     -100
+					light[0].m_xmf3Position = XMFLOAT3(562, -30.0f, 2300);
 				}
 			}
 
 			if (0 == strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
 				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 
-			if (0 == strcmp(o->m_pstrName, "Stair_step_01_mesh"))
-				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			//if (0 == strcmp(o->m_pstrName, "Stair_step_01_mesh"))
+				//o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 		}
 	}
 
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
-			monster->shadowID = 1;
-			monster->m_ppHat->shadowID = 1;
-			monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-			monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			if (-70 < monster->GetPosition().y)
+			{
+				if (false == firFloor)//2Ãþ
+				{
+					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
+			else
+			{
+				if (true == firFloor)//1Ãþ
+				{
+					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
+			
 		}
 	}
 
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
-			player->shadowID = 1;
-			player->m_ppBullet->shadowID = 1;
-			player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			
+			//if (-70 < player->GetPosition().y)
+			{
+				//if (false == firFloor)//2Ãþ
+				{
+					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
+			//else
+			//{
+			//	if (true == firFloor)//1Ãþ
+			//	{
+			//		player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			//		player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			//	}
+			//}
 		}
 	}
 
@@ -1235,19 +1248,44 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
-			monster->shadowID = 1;
-			monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-			monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			if (-70 < monster->GetPosition().y)
+			{
+				if (false == firFloor)
+				{
+					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
+			else
+			{
+				if (true == firFloor)
+				{
+					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
 		}
 	}
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 
-			player->shadowID = 1;
-			player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-			player->m_ppBullet->shadowID = 1;
-			player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			//if (-70 < player->GetPosition().y)
+			{
+				//if (false == firFloor)
+				{
+					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
+			/*else
+			{
+				if (true == firFloor)
+				{
+					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}*/
 		}
 	}
 
@@ -1255,28 +1293,26 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	{
 		o->shadowID = 1;
 		if (strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-			if (strcmp(o->m_pstrName, "Stair_step_01_mesh"))
-		{
-			if (false == o->m_bGetItem)
+			//if (strcmp(o->m_pstrName, "Stair_step_01_mesh"))
 			{
-				if (-70 < o->GetPosition().y)//-70
+				if (false == o->m_bGetItem)
 				{
-					//if (-70 < Players[0]->GetPosition().y)
-					if (false == firFloor)
+					if (-70 < o->GetPosition().y)
 					{
-						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						if (false == firFloor)
+						{
+							o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						}
 					}
-				}
-				else
-				{
-					//if (-70 > Players[0]->GetPosition().y)
-					if (true == firFloor)
+					else
 					{
-						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						if (true == firFloor)
+						{
+							o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						}
 					}
 				}
 			}
-		}
 	}
 }
 

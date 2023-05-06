@@ -66,7 +66,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 	/*m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.0f);*/
-	m_pLights[0].m_xmf3Position = XMFLOAT3(512 - 50,200-60.0f, 2300);//-100 
+	m_pLights[0].m_xmf3Position = XMFLOAT3(512 + 50,200-60.0f, 2300);//-100 
 	//m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 
@@ -974,7 +974,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
+			//if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
 		{
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 			{
