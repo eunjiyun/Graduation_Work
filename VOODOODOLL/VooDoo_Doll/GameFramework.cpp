@@ -1102,7 +1102,7 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
-	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, Monsters, Players);
+	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, Monsters, Players,firstFloor);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -1135,14 +1135,14 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
+	if (-70 > m_pPlayer->GetPosition().y)
+		firstFloor = true;
 
 	if (m_pStage->m_pShadowShader)
 	{
-		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players);
+		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights,firstFloor);
 	}
-
-
-
+	
 	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	//m_Test->Render()
 

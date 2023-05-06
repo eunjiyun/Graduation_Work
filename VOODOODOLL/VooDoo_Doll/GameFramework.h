@@ -98,7 +98,7 @@ public:
 
 	int gameButton = -1;
 	bool exit = false;
-
+	bool firstFloor = false;
 	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;
 
@@ -150,7 +150,6 @@ public:
 
 	float time = 0.f;
 	bool openDoor[7]= { false,false,false,false,false,false,false};
-	
 	
 	POINT						m_ptOldCursorPos;
 

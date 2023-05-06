@@ -924,12 +924,12 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 }
 
-void CStage::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT* light, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players)
+void CStage::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT* light, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players,bool firFloor)
 {
 	if (m_pDepthRenderShader)
 	{
 		m_pDepthRenderShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
-		m_pDepthRenderShader->PrepareShadowMap(pd3dCommandList, light, Monsters, Players);
+		m_pDepthRenderShader->PrepareShadowMap(pd3dCommandList, light, Monsters, Players,firFloor);
 	}
 }
 void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)

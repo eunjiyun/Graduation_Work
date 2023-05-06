@@ -651,7 +651,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			//문 넣지 않기
 			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
 			{
-				if (-70 < m_ppObjects[i]->GetPosition().y)
+				//if (-70 < m_ppObjects[i]->GetPosition().y)
 				{
 					boxShader->obj.push_back(m_ppObjects[i]);
 					boxShader->obj[m_nBoxObj++]->shadowID = 1;	
@@ -716,7 +716,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		{
 			door[h]->Rotate(0, 180, 0);
 		}
-		else
+		//else
 			boxShader->obj.push_back(door[h]);
 	}
 
@@ -854,7 +854,7 @@ void CShadowMapShader::ReleaseObjects()
 		m_pDepthTexture->Release();
 }
 
-void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players)
+void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players, LIGHT* light,bool firFloor)
 {
 	CShader::Render(pd3dCommandList, pCamera);
 
@@ -865,7 +865,28 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 	for (const auto& o : m_pObjectsShader->obj)
 	{
 		if (false == o->m_bGetItem)
-			o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+		{
+			if (-70 < o->GetPosition().y)
+			{
+				//if (-70 < Players[0]->GetPosition().y)
+				if(false==firFloor)
+				{
+					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
+			else
+			{
+				//if (-70 > Players[0]->GetPosition().y)
+				if (true == firFloor)
+				{
+					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					light[0].m_xmf3Position = XMFLOAT3(512 - 50, -100.0f, 2300);
+				}
+			}
+
+			if (0==strcmp(o->m_pstrName, "Dense_Floor_mesh"))
+				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+		}
 	}
 
 	for (const auto& monster : Monsters) {
@@ -1130,7 +1151,7 @@ void CDepthRenderShader::ReleaseShaderVariables()
 	}
 }
 
-void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT* m_pLights, vector<CMonster*> Monsters, vector<CPlayer*> Players)
+void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT* m_pLights, vector<CMonster*> Monsters, vector<CPlayer*> Players,bool firFloor)
 {
 	for (int j = 0; j < MAX_SHADOW_LIGHTS; j++)
 	{
@@ -1183,7 +1204,7 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 
 			pd3dCommandList->OMSetRenderTargets(1 + j, &m_pd3dRtvCPUDescriptorHandles[j], TRUE, &m_d3dDsvDescriptorCPUHandle);
 
-			Render(pd3dCommandList, m_ppDepthRenderCameras[j], Monsters, Players);
+			Render(pd3dCommandList, m_ppDepthRenderCameras[j], Monsters, Players,firFloor);
 
 			::SynchronizeResourceTransition(pd3dCommandList, m_pDepthTexture->GetResource(j), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
 		}
@@ -1194,7 +1215,7 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 	}
 }
 
-void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players)
+void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players,bool firFloor)
 {
 	CShader::Render(pd3dCommandList, pCamera);
 
@@ -1226,8 +1247,27 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	{
 		o->shadowID = 1;
 		if (strcmp(o->m_pstrName, "Dense_Floor_mesh"))
+		{
 			if (false == o->m_bGetItem)
-				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			{
+				if (-70 < o->GetPosition().y)
+				{
+					//if (-70 < Players[0]->GetPosition().y)
+					if(false==firFloor)
+					{
+						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					}
+				}
+				else
+				{
+					//if (-70 > Players[0]->GetPosition().y)
+					if (true== firFloor)
+					{
+						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					}
+				}
+			}
+		}
 	}
 }
 
