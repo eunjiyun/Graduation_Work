@@ -19,6 +19,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dSrvGPUDescriptorNextHandle;
 
 CStage::CStage()
 {
+
 }
 
 CStage::~CStage()
@@ -138,7 +139,7 @@ void CStage::BuildDefaultLightsAndMaterials()
 		m_pLights[5].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 		m_pLights[5].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-		for (int i = 6; i < MAX_LIGHTS; ++i)
+		for (int i = 6; i < MAX_LIGHTS-5; ++i)
 		{
 			m_pLights[i].m_bEnable = false;
 			m_pLights[i].m_nType = POINT_LIGHT;
@@ -154,8 +155,27 @@ void CStage::BuildDefaultLightsAndMaterials()
 			m_pLights[i].m_fFalloff = 100.0f;
 			m_pLights[i].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
 			m_pLights[i].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-
 		}
+
+		// 퍼즐 조명 
+		for (int i = MAX_LIGHTS - 5; i < MAX_LIGHTS; ++i)
+		{
+			m_pLights[i].m_bEnable = true;
+			m_pLights[i].m_nType = POINT_LIGHT;
+			m_pLights[i].m_fRange = 50.0f;
+
+			m_pLights[i].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+			m_pLights[i].m_xmf4Diffuse = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
+			m_pLights[i].m_xmf4Specular = XMFLOAT4(0.7f, 0.7f, 0.7f, 0.0f);
+			/*m_pLights[i].m_xmf3Position = XMFLOAT3(580.f, -192.9157f,1052.653f);*/
+			m_pLights[i].m_xmf3Position = XMFLOAT3(mpObjVec[i - 6].x, mpObjVec[i - 6].y, mpObjVec[i - 6].z);
+			m_pLights[i].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, -1.0f);
+			m_pLights[i].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+			m_pLights[i].m_fFalloff = 100.0f;
+			m_pLights[i].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
+			m_pLights[i].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
+		}
+
 	}
 }
 
@@ -169,11 +189,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
-
-
-
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
+	m_vecDoorBounding.push_back(m_1stDoorBoundingBox);
+	m_vecDoorBounding.push_back(m_2ndDoorBoundingBox);
+	m_vecDoorBounding.push_back(m_3rdDoorBoundingBox);
+	m_vecDoorBounding.push_back(m_4thDoorBoundingBox);
+	m_vecDoorBounding.push_back(m_5thDoorBoundingBox);
 
 	pBoxShader = new CBoxShader();
 
@@ -505,19 +527,28 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
+		cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "		: " << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
 
-		if (10 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			p1stRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
 			cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
-		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			p2ndRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
 			cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+		}
+
+		if (0 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 398 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			399 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 400 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			401 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		{
+			p2ndRoomPuzzle.push_back(m_ppShaders[0]->m_ppObjects[i]);
+			cout << "p6thRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
 
@@ -914,7 +945,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 		m_pLights[1].m_bEnable = false;
 
-		Lighthing();
 	}
 
 	static float fAngle = 0.0f;
@@ -1007,24 +1037,21 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 		}
 
-		if (true == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
+		 //아이템 관련
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
 		{
-			continue;
-		}
-
-		if (pl->obBox.Intersects(oBox) )
-		{
-
-			// 아이템 관련
-			if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
+			if (pl->obBox.Intersects(oBox))
 			{
 				++iGetItem;
 				DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
 				m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
 				b1stDoorPass = true;
 			}
+		}
 
-			if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
+		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
+		{
+			if (pl->obBox.Intersects(oBox))
 			{
 				++iGetItem;
 				++iGetCoin;
@@ -1036,6 +1063,15 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 					b2ndDoorPass = true;
 				}
 			}
+		}
+
+		if (true == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
+		{
+			continue;
+		}
+
+		if (pl->obBox.Intersects(oBox) )
+		{
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;
@@ -1225,6 +1261,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	}
 	cm->RegenerateViewMatrix();
 }
+
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
 	float Dot = Vector3::DotProduct(MovVec, ObjLook);
@@ -1234,67 +1271,12 @@ XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 }
 
 
-XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB)
-{
-	XMVECTOR xmV1min = XMLoadFloat3(&pBouningBoxA.Center) - XMLoadFloat3(&pBouningBoxA.Extents);
-	XMVECTOR xmV1max = XMLoadFloat3(&pBouningBoxA.Center) + XMLoadFloat3(&pBouningBoxA.Extents);
-	XMVECTOR xmV2min = XMLoadFloat3(&pBouningBoxB.Center) - XMLoadFloat3(&pBouningBoxB.Extents);
-	XMVECTOR xmV2max = XMLoadFloat3(&pBouningBoxB.Center) + XMLoadFloat3(&pBouningBoxB.Extents);
-
-	bool bIntersect = XMVector3GreaterOrEqual(xmV1min, xmV2max) || XMVector3GreaterOrEqual(xmV2min, xmV1max);
-
-	if (bIntersect)
-	{
-		return XMFLOAT3(0, 0, 0); 
-	}
-
-	XMFLOAT3 xmf3Direction = { 0,0,0 };
-	XMFLOAT3 xmf3Subtraction = { 0,0,0 };
-
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
-	{
-		xmf3Direction.x = xmf3Subtraction.x;
-	}
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
-	{
-		xmf3Direction.x = -xmf3Subtraction.x;
-	}
-
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
-	{
-		xmf3Direction.y = xmf3Subtraction.y;
-	}
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
-	{
-		xmf3Direction.y = -xmf3Subtraction.y;
-	}
-
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
-	{
-		xmf3Direction.z = xmf3Subtraction.z;
-	}
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
-	{
-		xmf3Direction.z = -xmf3Subtraction.z;
-	}
-
-	XMStoreFloat3(&xmf3Direction, XMVector3Normalize(XMLoadFloat3(&xmf3Direction)));
-	return xmf3Direction;
-}
-
-
-void CStage::Lighthing()
+void CStage::Lighthing(CPlayer*& pl)
 {
 
 	for (int iNum = 6; iNum < MAX_LIGHTS; ++iNum)
 	{
-		float fDisatnce = CalculateDistance(m_pPlayer->GetPosition(), m_pLights[iNum].m_xmf3Position);
+		float fDisatnce = CalculateDistance(pl->GetPosition(), m_pLights[iNum].m_xmf3Position);
 
 		if (300.f > fDisatnce)
 		{
@@ -1309,6 +1291,19 @@ void CStage::Lighthing()
 
 }
 
+void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
+{
+	XMVECTOR playerPosition = XMLoadFloat3(&pl->GetPosition()); // 플레이어 위치 벡터
+	XMVECTOR playerVelocity = XMLoadFloat3(&pl->GetVelocity()); // 플레이어 이동 속도 벡터
+	XMVECTOR slidingVector = XMVectorZero(); // 슬라이딩 벡터 초기화
+
+	for (int a = 0; a < 5; a++)
+	{
+
+	}
+}
+
+
 float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 {
 
@@ -1320,3 +1315,6 @@ float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 	XMStoreFloat(&fDisatnce, XMVector3Length(diff));
 	return fDisatnce;
 }
+
+
+

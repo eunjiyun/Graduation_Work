@@ -655,7 +655,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2") ||
-				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle3"))
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle3") ||
+				0 == strcmp(m_ppObjects[i]->m_pstrName, "Button"))
 			{
 
 				XMFLOAT3 xmf3tmp = m_ppObjects[i]->GetPosition();

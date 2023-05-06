@@ -9,7 +9,7 @@
 #include "Monster.h"
 
 
-#define MAX_LIGHTS						32//5+26
+#define MAX_LIGHTS						37//5+26+5
 #define POINT_LIGHT						1
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
@@ -98,9 +98,9 @@ public:
 	void CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm);
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec);
 
-	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);
+	void Lighthing(CPlayer*& pl);
 
-	void Lighthing();
+	void CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl);
 
 	float CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight);
 
@@ -185,6 +185,7 @@ public:
 	bool										b4thDoorPass = false;
 	bool										b5thDoorPass = false;// 문 통과
 
+	
 	vector<int>							DeleteObject;
 	int											iGetItem = 0;
 	int											iGetCoin = 0;
@@ -194,10 +195,16 @@ public:
 	public:
 		vector<CGameObject*>		p1stRoomPuzzle;
 		vector<CGameObject*>		p2ndRoomPuzzle;
+		vector<CGameObject*>		p6thRoomPuzzle;
 
 
 	// 문 바운딩박스
-	BoundingOrientedBox	  m_1stDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(10.f, 10.f, 10.f), XMFLOAT4(0.0f, 0.0f, 0.0f, -1.f));
-
+	BoundingOrientedBox	  m_1stDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	BoundingOrientedBox	  m_2ndDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	BoundingOrientedBox	  m_3rdDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	BoundingOrientedBox	  m_4thDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	BoundingOrientedBox	  m_5thDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+	
+	vector<BoundingOrientedBox> m_vecDoorBounding;
 };
 

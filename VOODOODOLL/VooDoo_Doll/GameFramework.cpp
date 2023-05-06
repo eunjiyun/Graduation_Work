@@ -932,6 +932,8 @@ void CGameFramework::FrameAdvance()
 			player->Update(fTimeElapsed);
 			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
+			m_pStage->Lighthing(player);
+			m_pStage->CheckDoorCollisions(fTimeElapsed, player);
 			player->Deceleration(fTimeElapsed);
 		}
 	}
