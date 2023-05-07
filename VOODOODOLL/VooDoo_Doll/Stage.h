@@ -198,13 +198,5 @@ public:
 		vector<CGameObject*>		p6thRoomPuzzle;
 
 
-	// 문 바운딩박스
-	BoundingOrientedBox	  m_1stDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
-	BoundingOrientedBox	  m_2ndDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
-	BoundingOrientedBox	  m_3rdDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
-	BoundingOrientedBox	  m_4thDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
-	BoundingOrientedBox	  m_5thDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
-	
-	vector<BoundingOrientedBox> m_vecDoorBounding;
 };
 

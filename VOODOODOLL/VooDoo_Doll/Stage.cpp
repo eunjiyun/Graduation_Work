@@ -191,12 +191,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
-	m_vecDoorBounding.push_back(m_1stDoorBoundingBox);
-	m_vecDoorBounding.push_back(m_2ndDoorBoundingBox);
-	m_vecDoorBounding.push_back(m_3rdDoorBoundingBox);
-	m_vecDoorBounding.push_back(m_4thDoorBoundingBox);
-	m_vecDoorBounding.push_back(m_5thDoorBoundingBox);
-
 	pBoxShader = new CBoxShader();
 
 

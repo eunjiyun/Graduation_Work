@@ -49,6 +49,8 @@ public:
 	CTexture*				gameScreen[3];
 	CMaterial*				gameMat[3];
 
+public:
+	vector<CGameObject*>		pDoor;
 
 public:
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;//

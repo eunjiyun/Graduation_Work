@@ -687,18 +687,23 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
 			door[h]->SetPosition(469, -40, 1237.5);
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 1:
 			door[h]->SetPosition(475, -40, 2593.3);
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 2:
 			door[h]->SetPosition(222, -282, 3601.2004);
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 3:
 			door[h]->SetPosition(471, -282, 2588.7);
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 4:
 			door[h]->SetPosition(231, -282, 1239.2);
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 			}
 
@@ -706,7 +711,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		{
 			door[h]->Rotate(0, 180, 0);
 		}
-		
+		pDoor.push_back(door[h]);
 		boxShader->obj.push_back(door[h]);
 	}
 
