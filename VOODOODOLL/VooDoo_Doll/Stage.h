@@ -100,7 +100,7 @@ public:
 
 	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);
 
-	void Lighthing();
+	void Lighthing(CPlayer*& pl);
 
 	float CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight);
 
@@ -196,10 +196,6 @@ public:
 		/*vector<CGameObject*>		p1stRoomPuzzle;
 		vector<CGameObject*>		p2ndRoomPuzzle;*/
 		array<vector<CGameObject*>, 7> pPuzzles;
-
-
-	// 문 바운딩박스
-	BoundingOrientedBox	  m_1stDoorBoundingBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(10.f, 10.f, 10.f), XMFLOAT4(0.0f, 0.0f, 0.0f, -1.f));
 
 };
 

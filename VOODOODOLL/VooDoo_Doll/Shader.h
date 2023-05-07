@@ -50,6 +50,8 @@ public:
 	CMaterial*				gameMat[3];
 	int m_nBoxObj = 0;
 
+public:
+	vector<CGameObject*>		pDoor;
 
 public:
 	ID3D12PipelineState* m_pd3dPipelineState = NULL;//

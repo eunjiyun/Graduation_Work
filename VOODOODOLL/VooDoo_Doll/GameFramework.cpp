@@ -973,6 +973,7 @@ void CGameFramework::FrameAdvance()
 			player->Update(fTimeElapsed);
 			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
+			m_pStage->Lighthing(player);
 			player->Deceleration(fTimeElapsed);
 		}
 	}

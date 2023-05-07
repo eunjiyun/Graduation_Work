@@ -506,15 +506,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 
-		if (10 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[0].push_back(m_ppShaders[0]->m_ppObjects[i]);
 			//cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
-		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[1].push_back(m_ppShaders[0]->m_ppObjects[i]);
 			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
@@ -913,8 +913,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 
 		m_pLights[1].m_bEnable = false;
-
-		Lighthing();
 	}
 
 	static float fAngle = 0.0f;
@@ -1019,27 +1017,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 
 		if (pl->obBox.Intersects(oBox) )
 		{
-			//// 아이템 관련
-			//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
-			//{
-			//	++iGetItem;
-			//	DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
-			//	m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
-			//	b1stDoorPass = true;
-			//}
 
-			//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin"))
-			//{
-			//	++iGetItem;
-			//	++iGetCoin;
-			//	DeleteObject.push_back(m_ppShaders[0]->m_ppObjects[i]->m_iObjID);
-			//	m_ppShaders[0]->m_ppObjects[i]->m_bGetItem = true;
-
-			//	if (iGetCoin == 5)
-			//	{
-			//		b2ndDoorPass = true;
-			//	}
-			//}
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
 				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;
@@ -1203,7 +1181,9 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			{
 				for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 				{
-					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")||
+						0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin") ||
+						0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh") ) continue;
 
 
 					BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
@@ -1292,12 +1272,12 @@ XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBo
 }
 
 
-void CStage::Lighthing()
+void CStage::Lighthing(CPlayer*& pl)
 {
 
 	for (int iNum = 6; iNum < MAX_LIGHTS; ++iNum)
 	{
-		float fDisatnce = CalculateDistance(m_pPlayer->GetPosition(), m_pLights[iNum].m_xmf3Position);
+		float fDisatnce = CalculateDistance(pl->GetPosition(), m_pLights[iNum].m_xmf3Position);
 
 		if (300.f > fDisatnce)
 		{
@@ -1309,7 +1289,6 @@ void CStage::Lighthing()
 			m_pLights[iNum].m_bEnable = false;
 		}
 	}
-
 }
 
 float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
