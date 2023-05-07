@@ -587,7 +587,7 @@ D3D12_SHADER_BYTECODE CObjectsShader::CreatePixelShader()
 
 void CObjectsShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ÀÇ ¹è¼ö
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes * m_nObjects, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbGameObjects->Map(0, NULL, (void**)&m_pcbMappedGameObjects);
@@ -640,16 +640,16 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 
 
-				//¹Ù´Ú ³Ö±â
+				//ï¿½Ù´ï¿½ ï¿½Ö±ï¿½
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
 				boxShader->obj.push_back(m_ppObjects[i]);
 
-			//°è´Ü ³Ö±â
+			//ï¿½ï¿½ï¿½ ï¿½Ö±ï¿½
 			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
 				//boxShader->obj.push_back(m_ppObjects[i]);
 
 
-			//¹® ³ÖÁö ¾Ê±â
+			//ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½
 			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Bedroom_wall_b_01_dense_mesh
 			{
 				boxShader->obj.push_back(m_ppObjects[i]);
@@ -689,23 +689,23 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		{
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
-			door[h]->SetPosition(469, -40, 1237.5);
+			door[h]->SetPosition(469.f, -40.f, 1237.5f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 1:
-			door[h]->SetPosition(475, -40, 2593.3);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+			door[h]->SetPosition(475.f, -40.f, 2593.3f);
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 2:
-			door[h]->SetPosition(222, -282, 3601.2004);
+			door[h]->SetPosition(222.f, -282.f, 3601.2004f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 3:
-			door[h]->SetPosition(471, -282, 2588.7);
+			door[h]->SetPosition(471.f, -282.f, 2588.7f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
-		case 4:
-			door[h]->SetPosition(231, -282, 1239.2);
+		case 4: 
+			door[h]->SetPosition(231.f, -282.f, 1239.2f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		}
@@ -765,7 +765,7 @@ void CObjectsShader::ReleaseUploadBuffers()
 
 void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
 {
-	CShader::Render(pd3dCommandList, pCamera);//¸Ê ¼ÎÀÌ´õ Àû¿ë
+	CShader::Render(pd3dCommandList, pCamera);//ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½
 
 	for (int j = 0; j < m_nObjects; j++)
 	{
@@ -867,7 +867,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 		{
 			if (-70 < o->GetPosition().y)
 			{
-				if (false == firFloor)//2Ãþ
+				if (false == firFloor)//2ï¿½ï¿½
 				{
 					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					light[0].m_xmf3Position = XMFLOAT3(562 , 140.0f, 2300);//-100 
@@ -875,7 +875,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			}
 			else
 			{
-				if (true == firFloor)//1Ãþ
+				if (true == firFloor)//1ï¿½ï¿½
 				{
 					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					light[0].m_xmf3Position = XMFLOAT3(562, -30.0f, 2300);
@@ -894,7 +894,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 		if (monster->c_id > -1) {
 			if (-70 < monster->GetPosition().y)
 			{
-				if (false == firFloor)//2Ãþ
+				if (false == firFloor)//2ï¿½ï¿½
 				{
 					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
@@ -902,7 +902,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			}
 			else
 			{
-				if (true == firFloor)//1Ãþ
+				if (true == firFloor)//1ï¿½ï¿½
 				{
 					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
@@ -918,7 +918,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			
 			//if (-70 < player->GetPosition().y)
 			{
-				//if (false == firFloor)//2Ãþ
+				//if (false == firFloor)//2ï¿½ï¿½
 				{
 					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
@@ -926,7 +926,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			}
 			//else
 			//{
-			//	if (true == firFloor)//1Ãþ
+			//	if (true == firFloor)//1ï¿½ï¿½
 			//	{
 			//		player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 			//		player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
@@ -1155,7 +1155,7 @@ void CDepthRenderShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12G
 {
 	UINT ncbDepthElementBytes;
 
-	ncbDepthElementBytes = ((sizeof(TOLIGHTSPACES) + 255) & ~255); //256ÀÇ ¹è¼ö
+	ncbDepthElementBytes = ((sizeof(TOLIGHTSPACES) + 255) & ~255); //256ï¿½ï¿½ ï¿½ï¿½ï¿½
 	m_pd3dcbToLightSpaces = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbDepthElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	m_pd3dcbToLightSpaces->Map(0, NULL, (void**)&m_pcbMappedToLightSpaces);

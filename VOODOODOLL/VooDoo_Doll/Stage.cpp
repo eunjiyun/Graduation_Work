@@ -26,13 +26,13 @@ CStage::~CStage()
 }
 
 
-double GetDegreeWithTwoVectors(XMFLOAT3& v1, XMFLOAT3& v2)
+float GetDegreeWithTwoVectors(XMFLOAT3& v1, XMFLOAT3& v2)
 {
 	float dot = Vector3::DotProduct(v1, v2);
 	float v1Length = Vector3::Length(v1);
 	float v2Length = Vector3::Length(v2);
 
-	double angleRadian = acos(dot / (v1Length * v2Length));
+	float angleRadian = acos(dot / (v1Length * v2Length));
 
 	return XMConvertToDegrees(angleRadian);
 }
@@ -321,7 +321,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-		for (UINT k = 0; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
+		for (int k = 0; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
 		{
 			CMaterial* pMaterial = new CMaterial(1);
 			pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);

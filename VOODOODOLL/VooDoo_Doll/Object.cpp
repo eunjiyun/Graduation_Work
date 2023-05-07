@@ -665,7 +665,7 @@ float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, 
 		m_fPosition = fTrackPosition - fTrackElapsedTime;
 		if (m_fPosition <= 0.3)
 		{
-			m_fPosition = 0.3;
+			m_fPosition = 0.3f;
 		}
 		break;
 	}
@@ -2100,7 +2100,7 @@ Text::Text(TextureKey key, float x, float y, string contents)
 
 void Text::PushBack(char letter)
 {
-	int pos = m_Contents.size();
+	size_t pos = m_Contents.size();
 	m_Contents.push_back(letter);
 
 	int row, col;

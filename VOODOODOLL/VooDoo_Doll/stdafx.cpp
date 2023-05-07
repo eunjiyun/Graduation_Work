@@ -360,7 +360,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 		pGameObject->m_ppMaterials = new CMaterial * [nMaterials];
 
-		for (int m = 0; m < nMaterials; m++) 
+		for (unsigned m = 0; m < nMaterials; m++) 
 			pGameObject->m_ppMaterials[m] = NULL;
 
 		CGameObject* pObjectFound = NULL;

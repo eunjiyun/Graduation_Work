@@ -373,7 +373,7 @@ void Monster::Update(float fTimeElapsed)
 			}
 		}
 		try {
-			for (auto& obj : Objects[static_cast<int>(MagicPos.z) / AREA_SIZE]) {
+			for (auto& obj : Objects.at(static_cast<int>(MagicPos.z) / AREA_SIZE)) {
 				if (obj->m_xmOOBB.Contains(XMLoadFloat3(&MagicPos))) {
 					MagicPos.x = 5000;
 					MagicLook.x = MagicLook.y = MagicLook.z = 0.f;

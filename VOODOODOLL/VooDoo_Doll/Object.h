@@ -762,7 +762,7 @@ public:
 
 	void PushBack(char letter);
 	void PopBack();
-	int Size() { return m_Contents.size(); }
+	size_t Size() { return m_Contents.size(); }
 	string GetString() { return m_Contents; }
 
 	void operator=(const string& text);

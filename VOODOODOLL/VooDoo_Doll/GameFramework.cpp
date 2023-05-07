@@ -559,7 +559,7 @@ void CGameFramework::BuildObjects()
 
 	temp->SetPosition(84, 75, 108);
 	temp->Rotate(270, 0, 0);
-	temp->SetScale(0.7, 0.7, 0.7);
+	temp->SetScale(0.7f, 0.7f, 0.7f);
 
 
 	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
