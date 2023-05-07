@@ -690,23 +690,23 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
 			door[h]->SetPosition(469.f, -40.f, 1237.5f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));*/
 			break;
 		case 1:
 			door[h]->SetPosition(475.f, -40.f, 2593.3f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2593.3f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));*/
 			break;
 		case 2:
 			door[h]->SetPosition(222.f, -282.f, 3601.2004f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));*/
 			break;
 		case 3:
 			door[h]->SetPosition(471.f, -282.f, 2588.7f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));*/
 			break;
 		case 4: 
 			door[h]->SetPosition(231.f, -282.f, 1239.2f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
+			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1235.f), XMFLOAT3(13.f, 30.f, 13.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));*/
 			break;
 		}
 
