@@ -143,7 +143,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	svr_addr.sin_family = AF_INET;
 	svr_addr.sin_port = htons(SERVER_PORT);
 
-	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+	inet_pton(AF_INET, "14.36.243.161", &svr_addr.sin_addr);
 	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
 	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
 
@@ -483,7 +483,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
 			(*iter)->SetVelocity(packet->vel);
 			(*iter)->SetPosition(targetPos);
-			(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));
+			/*(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));*/
 		}
 		break;
 	}

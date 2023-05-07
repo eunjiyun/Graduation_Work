@@ -1004,7 +1004,9 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 		BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
 		if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")||
-			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "stone"))
+			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "stone") ||
+			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin") ||
+			0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh"))
 		{
 				continue;
 		}
@@ -1180,9 +1182,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			{
 				for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 				{
-					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")||
-						0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "2ndRoomCoin") ||
-						0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Key_mesh") ) continue;
+					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh") ) continue;
 
 
 					BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
