@@ -907,8 +907,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 	if (m_pLights)
 	{
-		m_pLights[4].m_xmf3Position = m_pPlayer->GetPosition();
-		m_pLights[4].m_xmf3Position.y = m_pPlayer->GetPosition().y + 10;
+		m_pLights[4].m_xmf3Position = m_pPlayer->obBox.Center;
 		m_pLights[4].m_xmf3Direction = m_pPlayer->GetLookVector();
 
 
@@ -1020,7 +1019,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
-				Pos.y = oBox.Center.y + oBox.Extents.y + pl->obBox.Extents.y;
+				Pos.y = oBox.Center.y + oBox.Extents.y;
 				pl->SetPosition(Pos);
 				pl->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
 				pl->onFloor = true;
@@ -1172,9 +1171,9 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 		if (cm->GetMode() == THIRD_PERSON_CAMERA) {
 			XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
-			XMFLOAT3 xmf3Position = Vector3::Add(pl->GetPosition(), xmf3Offset);
-			XMFLOAT3 ray_castPos = pl->GetPosition();
-			XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->GetPosition()));
+			XMFLOAT3 xmf3Position = Vector3::Add(pl->obBox.Center, xmf3Offset);
+			XMFLOAT3 ray_castPos = pl->obBox.Center;
+			XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->obBox.Center));
 
 			bool collide = false;
 			while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
@@ -1200,10 +1199,10 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				ray_castPos = Vector3::Add(ray_castPos, dir);
 			}
 
-			cm->Update(xmf3Position, pl->GetPosition(), fTimeElapsed);
+			cm->Update(xmf3Position, pl->obBox.Center, fTimeElapsed);
 		}
 
-		cm->SetLookAt(pl->GetPosition());
+		cm->SetLookAt(pl->obBox.Center);
 		
 	}
 	cm->RegenerateViewMatrix();
@@ -1277,7 +1276,7 @@ void CStage::Lighthing(CPlayer*& pl)
 
 	for (int iNum = 6; iNum < MAX_LIGHTS; ++iNum)
 	{
-		float fDisatnce = CalculateDistance(pl->GetPosition(), m_pLights[iNum].m_xmf3Position);
+		float fDisatnce = CalculateDistance(pl->obBox.Center, m_pLights[iNum].m_xmf3Position);
 
 		if (300.f > fDisatnce)
 		{

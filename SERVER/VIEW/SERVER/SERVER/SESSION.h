@@ -140,7 +140,7 @@ public:
 		//_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 4, 12));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 10, 12));
 		error_stack = 0;
 		character_num = 0;
 		HP = 0;
@@ -152,7 +152,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * _id, -59,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * _id, -50,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -309,6 +309,7 @@ public:
 	void UpdateBoundingBox()
 	{
 		m_xmOOBB.Center = m_xmf3Position;
+		m_xmOOBB.Center.y += 10.f;
 	}
 
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)

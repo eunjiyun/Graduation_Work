@@ -752,8 +752,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(15, 20, 12));
 		Mon->SetPosition(Pos);
 		Monsters.push_back(Mon);
-		cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";
-		Vector3::Print(Mon->GetPosition());
+		//cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";
+		//Vector3::Print(Mon->GetPosition());
 
 		if (0 == Mon->c_id % 10)
 		{
@@ -1202,8 +1202,8 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
-	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
-	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
+	//XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
+	//_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 

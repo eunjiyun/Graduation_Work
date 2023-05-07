@@ -483,6 +483,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
 			(*iter)->SetVelocity(packet->vel);
 			(*iter)->SetPosition(targetPos);
+			(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));
 		}
 		break;
 	}

@@ -94,6 +94,7 @@ void CPlayer::Move(const XMFLOAT3& xmf3Shift, bool bUpdateVelocity)
 		m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Shift);
 		m_pCamera->Move(xmf3Shift);
 		obBox.Center = m_xmf3Position;
+		obBox.Center.y += 10.f;
 	}
 }
 
@@ -185,6 +186,7 @@ void CPlayer::Update(float fTimeElapsed)
 	Move(xmf3Velocity, false);
 
 	obBox.Center = m_xmf3Position;
+	obBox.Center.y += 10.f;
 }
 
 void CPlayer::Deceleration(float fTimeElapsed)
@@ -270,6 +272,7 @@ void CPlayer::OnUpdateTransform()
 void CPlayer::UpdateBoundingBox()
 {
 	obBox.Center = m_xmf3Position;
+	obBox.Center.y += 10.f;
 }
 
 void CPlayer::boundingAnimate(float fElapsedTime)
@@ -422,7 +425,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	//m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 4, 10));
 
-	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 4, 12), XMFLOAT4(0, 0, 0, 1));
+	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 10, 12), XMFLOAT4(0, 0, 0, 1));
 
 
 

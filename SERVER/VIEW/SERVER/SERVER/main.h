@@ -173,10 +173,11 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		return;
 	}
 
-
+	XMFLOAT3 newCenter = newPos;
+	newCenter.y += 10.f;
 	try {
-		for (const auto& object : Objects.at(static_cast<int>(newPos.z) / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
-			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newPos))) {
+		for (const auto& object : Objects.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
+			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newCenter))) {
 				m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 				return;
 			}
@@ -354,7 +355,6 @@ void Monster::Update(float fTimeElapsed)
 {
 	if (Vector3::Length(MagicLook) > 0.f) {
 		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 100.f * fTimeElapsed, false)); // HAT_SPEED = 200.f
-		Vector3::Print(MagicPos);
 		for (auto& player : clients[room_num]) {
 			lock_guard <mutex> ll{ player._s_lock };
 			if (BoundingBox(MagicPos, BULLET_SIZE).Intersects(player.m_xmOOBB))
@@ -520,7 +520,7 @@ void InitializeStages()
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -59, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -528,7 +528,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			StagesInfo[0].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -542,7 +542,7 @@ void InitializeStages()
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -59, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -550,7 +550,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -59, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			StagesInfo[1].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -564,7 +564,7 @@ void InitializeStages()
 		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -572,7 +572,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			StagesInfo[2].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -586,7 +586,7 @@ void InitializeStages()
 		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -594,7 +594,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			StagesInfo[3].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -608,7 +608,7 @@ void InitializeStages()
 		while (ID_constructor < 50) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -616,7 +616,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			StagesInfo[4].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -631,7 +631,7 @@ void InitializeStages()
 		while (ID_constructor < 60) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -300, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Objects[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -639,7 +639,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -300, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			StagesInfo[5].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
