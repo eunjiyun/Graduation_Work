@@ -143,7 +143,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	svr_addr.sin_family = AF_INET;
 	svr_addr.sin_port = htons(SERVER_PORT);
 
-	inet_pton(AF_INET, "14.36.243.161", &svr_addr.sin_addr);
+	inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
 	ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
 	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
 
