@@ -178,6 +178,7 @@ public:
 	CBoxShader*							pBoxShader = NULL;
 	CShadowMapShader*			m_pShadowShader = NULL;
 	CDepthRenderShader*		m_pDepthRenderShader = NULL;
+	CTextureToViewportShader* m_pShadowMapToViewport = NULL;
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;

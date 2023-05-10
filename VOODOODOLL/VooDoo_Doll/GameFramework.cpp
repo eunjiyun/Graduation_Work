@@ -307,7 +307,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN://0503
+	case WM_RBUTTONDOWN:
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
@@ -481,7 +481,7 @@ void CGameFramework::BuildObjects()
 
 	// Initialize SoundPlayer
 	sound[0].Initialize();
-	sound[0].LoadWave(inGame);//0504
+	sound[0].LoadWave(inGame);
 
 
 	sound[1].Initialize();
@@ -504,7 +504,8 @@ void CGameFramework::BuildObjects()
 	monsterSound.Initialize();
 	monsterSound.LoadWave(monster);*/
 
-
+	healthBar = new CMesh;
+	healthBar->recCreate(50, 50, m_pd3dDevice, m_pd3dCommandList);
 
 	string g_UserName = "VooDooDoll";
 
@@ -572,7 +573,8 @@ void CGameFramework::BuildObjects()
 	m_pStage->m_pShadowShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, NULL, DXGI_FORMAT_D32_FLOAT);//pipelinestate null
 	m_pStage->m_pShadowShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pStage->m_pDepthRenderShader->GetDepthTexture());
 
-
+	m_pStage->m_pShadowMapToViewport = new CTextureToViewportShader();
+	m_pStage->m_pShadowMapToViewport->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -1147,11 +1149,40 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights,firstFloor);
 	}
 	
+	
 	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	//m_Test->Render()
 
+	healthBar->rectangleRender(m_pd3dCommandList);
 
+	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton)
+	{
+		if (false == m_pStage->m_pShadowMapToViewport->init)
+		{
+			if (1 != m_pStage->m_pShadowMapToViewport->curPl)
+			{
+				m_pStage->m_pShadowMapToViewport->maxHp = 1000;
+				m_pStage->m_pShadowMapToViewport->beforeHp = 1000;
+				
 
+				if (2 != m_pStage->m_pShadowMapToViewport->curPl)
+					++m_pStage->m_pShadowMapToViewport->curPl;
+				else
+					m_pStage->m_pShadowMapToViewport->curPl = 0;
+			}
+			else
+			{
+				m_pStage->m_pShadowMapToViewport->maxHp = 700;
+				m_pStage->m_pShadowMapToViewport->beforeHp = 700;
+				m_pStage->m_pShadowMapToViewport->curPl = 2;
+			}
+			m_pStage->m_pShadowMapToViewport->init = true;
+			
+		}
+		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP);
+	};
+
+	
 
 	/*for (auto& player : Players) {
 		if (player->c_id > -1) {
@@ -1202,8 +1233,8 @@ void CGameFramework::FrameAdvance()
 
 	m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 	size_t nLength = _tcslen(m_pszFrameRate);
-	//XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
-	//_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
+	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
+	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
 

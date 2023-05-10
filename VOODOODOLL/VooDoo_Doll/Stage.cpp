@@ -558,11 +558,23 @@ void CStage::ReleaseObjects()
 		}
 		delete[] m_ppShaders;
 	}
+	if (m_pDepthRenderShader)
+	{
+		m_pDepthRenderShader->ReleaseShaderVariables();
+		m_pDepthRenderShader->ReleaseObjects();
+		m_pDepthRenderShader->Release();
+	}
 	if (m_pShadowShader)
 	{
 		m_pShadowShader->ReleaseShaderVariables();
 		m_pShadowShader->ReleaseObjects();
 		m_pShadowShader->Release();
+	}
+	if (m_pShadowMapToViewport)
+	{
+		m_pShadowMapToViewport->ReleaseShaderVariables();
+		m_pShadowMapToViewport->ReleaseObjects();
+		m_pShadowMapToViewport->Release();
 	}
 
 

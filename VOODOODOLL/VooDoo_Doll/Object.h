@@ -406,8 +406,7 @@ public:
 	bool onAct = false;
 	bool dieOnce = false;//
 	bool onFloor = false;
-	int plWhat = 1;
-
+	
 	int c_id = -1;//monster id //
 	int npc_type = -1;//monster type //
 

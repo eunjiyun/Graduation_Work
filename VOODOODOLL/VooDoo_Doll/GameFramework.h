@@ -125,7 +125,7 @@ public:
 	bool checkDoorSound2 = false;
 	int checkJump = 0;
 	int curStage = -1;
-	
+	CMesh* healthBar = nullptr;
 
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
@@ -150,6 +150,7 @@ public:
 
 	float time = 0.f;
 	bool openDoor[7]= { false,false,false,false,false,false,false};
+
 	
 	POINT						m_ptOldCursorPos;
 

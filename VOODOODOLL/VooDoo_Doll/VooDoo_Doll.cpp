@@ -315,6 +315,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+
+				gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
 			}
 			else if (wParam == 'U' || wParam == 'u')
 			{

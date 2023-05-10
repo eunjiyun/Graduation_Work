@@ -1018,7 +1018,7 @@ CGameObject* CGameObject::FindFrame(char* pstrFrameName)
 {
 	CGameObject* pFrameObject = NULL;
 
-	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName)))//0218
+	if (!strncmp(m_pstrFrameName, pstrFrameName, strlen(pstrFrameName)))
 		return(this);
 
 	if (m_pSibling) if (pFrameObject = m_pSibling->FindFrame(pstrFrameName)) return(pFrameObject);
@@ -2117,7 +2117,7 @@ void Text::PushBack(char letter)
 	let->SetTexturePos(static_cast<float>(col) / m_FontInfo.num_c, static_cast<float>(row) / m_FontInfo.num_r);
 
 	// °´Ã¼ Ãß°¡ 
-	//m_Letters.push_back(let);
+	m_Letters.push_back(let);
 }
 
 void Text::PopBack()
@@ -2173,7 +2173,7 @@ void Text::CreateLettersFromContents()
 		let->SetTexturePos(static_cast<float>(col) / m_FontInfo.num_c, static_cast<float>(row) / m_FontInfo.num_r);
 
 		// °´Ã¼ Ãß°¡ 
-		//m_Letters.push_back(let);
+		m_Letters.push_back(let);
 	}
 }
 

@@ -336,3 +336,30 @@ public:
 
 //==========================================================================================================================
 
+class CTextureToViewportShader : public CShader
+{
+public:
+	CTextureToViewportShader();
+	virtual ~CTextureToViewportShader();
+
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
+	virtual void ReleaseObjects();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float);
+
+protected:
+	CTexture* m_pDepthTexture = NULL;
+public:
+	bool init = false;
+	int curPl = -1;
+	float hpBar = 5;
+	float maxHp = -1;
+	float beforeHp = -1;
+};

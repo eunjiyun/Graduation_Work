@@ -26,6 +26,79 @@ class CGameObject;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+struct Vertex abstract
+{
+	explicit Vertex() = default;
+	~Vertex() = default;
+};
+
+struct PosTex : public Vertex {
+	PosTex() : m_Position(), m_Texcoord() { }
+	~PosTex() { }
+
+	//static D3D12_INPUT_LAYOUT_DESC GetInputLayoutDesc();
+
+	XMFLOAT3 m_Position;
+	XMFLOAT2 m_Texcoord;
+};
+
+class GpuResource
+{
+public:
+	explicit GpuResource(){}
+	virtual ~GpuResource(){}
+
+public:
+	ID3D12Resource* operator->() { return m_Resource.Get(); }
+	const ID3D12Resource* operator->() const { return m_Resource.Get(); }
+
+	ID3D12Resource* Get() { return m_Resource.Get(); }
+
+protected:
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_Resource;
+};
+
+class UploadBuffer : public GpuResource
+{
+public:
+	UploadBuffer(){}
+	explicit UploadBuffer(UINT64 bytes){}
+	~UploadBuffer(){}
+
+public:
+	void Create(UINT64 bytes){}
+
+	void* GetCPUPointer() {
+		D3D12_RANGE read_range = { 0, 0 };
+		void* data_begin = nullptr;
+
+		m_Resource->Map(NULL, &read_range, &data_begin);
+		return data_begin;
+	}
+
+	void CopyData(void* src){}
+
+private:
+
+};
+// vertex buffer, index buffer, constant buffer모두 이걸로 퉁치자
+class GpuBuffer : public GpuResource
+{
+public:
+	GpuBuffer() { };
+	~GpuBuffer() { };
+
+	void Create(UINT64 bytes);
+	void Create(UINT64 bytes, bool cb){}
+
+	void CopyData(UploadBuffer& uploader){}
+	void TransitionResourceState(D3D12_RESOURCE_STATES state){}
+
+private:
+	inline UINT64 GetSize() { return m_Resource->GetDesc().Width; }
+};
+
 class CMesh
 {
 public:
@@ -35,43 +108,49 @@ public:
 	virtual ~CMesh();
 
 private:
-	int								m_nReferences = 0;//
+	int								m_nReferences = 0;
 
 public:
-	char							m_pstrMeshName[64] = { 0 };//
-	BoundingBox						m_xmBoundingBox;//
-	BoundingOrientedBox				OBBox;//
-	XMFLOAT3* m_pxmf3Positions = NULL;//
-	XMFLOAT3* m_pxmf3Normals = NULL;//
-	int								m_nVertices = 0;//
+	GpuBuffer m_VertexBuffer;
+	GpuBuffer m_IndexBuffer;
+
+	UploadBuffer m_VertexUploadBuffer;
+	UploadBuffer m_IndexUploadBuffer;
+
+	char							m_pstrMeshName[64] = { 0 };
+	BoundingBox						m_xmBoundingBox;
+	BoundingOrientedBox				OBBox;
+	XMFLOAT3* m_pxmf3Positions = NULL;
+	XMFLOAT3* m_pxmf3Normals = NULL;
+	int								m_nVertices = 0;
 	XMFLOAT2* m_pxmf2TextureCoords = NULL;
 
 	ID3D12Resource*									m_pd3dTextureCoordsBuffer = NULL;
 	ID3D12Resource*									m_pd3dTextureCoordUploadBuffer;
 
-	UINT* m_pnIndices = NULL;//
-	UINT							m_nSubsets = 0;//
-	UINT* m_pnSubSetIndices2 = NULL;//
-	UINT* m_pnSubSetStartIndices = NULL;//
-	UINT** m_ppnSubSetIndices = NULL;//
+	UINT* m_pnIndices = NULL;
+	UINT							m_nSubsets = 0;
+	UINT* m_pnSubSetIndices2 = NULL;
+	UINT* m_pnSubSetStartIndices = NULL;
+	UINT** m_ppnSubSetIndices = NULL;
 
-	ID3D12Resource* m_pd3dPositionBuffer = NULL;//
-	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;//
+	ID3D12Resource* m_pd3dPositionBuffer = NULL;
+	ID3D12Resource* m_pd3dPositionUploadBuffer = NULL;
 
-	ID3D12Resource* m_pd3dNormalBuffer = NULL;//
-	ID3D12Resource* m_pd3dNormalUploadBuffer = NULL;//
+	ID3D12Resource* m_pd3dNormalBuffer = NULL;
+	ID3D12Resource* m_pd3dNormalUploadBuffer = NULL;
 
-	UINT							m_nVertexBufferViews = 0;//
-	D3D12_VERTEX_BUFFER_VIEW* m_pd3dVertexBufferViews = NULL;//
+	UINT							m_nVertexBufferViews = 0;
+	D3D12_VERTEX_BUFFER_VIEW* m_pd3dVertexBufferViews = NULL;
 
-	ID3D12Resource** m_ppd3dIndexBuffers = NULL;//
-	ID3D12Resource** m_ppd3dIndexUploadBuffers = NULL;//
+	ID3D12Resource** m_ppd3dIndexBuffers = NULL;
+	ID3D12Resource** m_ppd3dIndexUploadBuffers = NULL;
 
-	D3D12_INDEX_BUFFER_VIEW* m_pd3dIndexBufferViews = NULL;//
+	D3D12_INDEX_BUFFER_VIEW* m_pd3dIndexBufferViews = NULL;
 
 	char* pstrFileName;
-	UINT							m_nIndices = 0;//
-	int* m_pnSubSetIndices = NULL;//
+	UINT							m_nIndices = 0;
+	int* m_pnSubSetIndices = NULL;
 
 	UINT							m_nStride = 0;
 	ID3D12Resource* m_pd3dVertexBuffer = NULL;
@@ -80,23 +159,23 @@ public:
 
 
 protected:
-	UINT							m_nType = 0x00;//
+	UINT							m_nType = 0x00;
 
-	XMFLOAT3						m_xmf3AABBCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);//
-	XMFLOAT3						m_xmf3AABBExtents = XMFLOAT3(0.0f, 0.0f, 0.0f);//
+	XMFLOAT3						m_xmf3AABBCenter = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3						m_xmf3AABBExtents = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	D3D12_PRIMITIVE_TOPOLOGY		m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;//
-	UINT							m_nSlot = 0;//
-	UINT							m_nOffset = 0;//
+	D3D12_PRIMITIVE_TOPOLOGY		m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	UINT							m_nSlot = 0;
+	UINT							m_nOffset = 0;
 
 protected:
 	
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;//
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
 
-	int								m_nSubMeshes = 0;//
-	ID3D12Resource** m_ppd3dSubSetIndexBuffers = NULL;//
-	ID3D12Resource** m_ppd3dSubSetIndexUploadBuffers = NULL;//
-	D3D12_INDEX_BUFFER_VIEW* m_pd3dSubSetIndexBufferViews = NULL;//
+	int								m_nSubMeshes = 0;
+	ID3D12Resource** m_ppd3dSubSetIndexBuffers = NULL;
+	ID3D12Resource** m_ppd3dSubSetIndexUploadBuffers = NULL;
+	D3D12_INDEX_BUFFER_VIEW* m_pd3dSubSetIndexBufferViews = NULL;
 
 public:
 	UINT GetType() { return(m_nType); }
@@ -109,6 +188,9 @@ public:
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT nSubset);
+	void recCreate(float width, float height, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void initBuffers(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void rectangleRender(ID3D12GraphicsCommandList* pd3dCommandList);// , int nSubSet, UINT nSubset);
 	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 
 	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);
