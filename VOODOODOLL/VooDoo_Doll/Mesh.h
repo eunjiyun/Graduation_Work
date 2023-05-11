@@ -191,6 +191,7 @@ public:
 	void recCreate(float width, float height, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void initBuffers(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void rectangleRender(ID3D12GraphicsCommandList* pd3dCommandList);// , int nSubSet, UINT nSubset);
+	void recRender(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 
 	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName);

@@ -129,110 +129,53 @@ void CMesh::recCreate(float width, float height, ID3D12Device* pd3dDevice, ID3D1
 
 	unsigned short indices[6] = { 0, 1, 2, 2, 1, 3 };
 
-	XMFLOAT3 pos;
-	float temp = 0.f;
-
-	temp =( vertices[0].m_Position.x + vertices[1].m_Position.x + vertices[2].m_Position.x + vertices[3].m_Position.x)/4;
-	pos.x = temp;
-
-	temp = (vertices[0].m_Position.y + vertices[1].m_Position.y + vertices[2].m_Position.y + vertices[3].m_Position.y) / 4;
-	pos.y = temp;
-
-	temp = (vertices[0].m_Position.z + vertices[1].m_Position.z + vertices[2].m_Position.z + vertices[3].m_Position.z) / 4;
-	pos.z = temp;
-
-
-	//// 버퍼 세팅
-	//m_VertexBuffer.Create(sizeof(PosTex) * m_VertexCount);
-	//m_IndexBuffer.Create(sizeof(short) * m_IndexCount);
-	//m_VertexUploadBuffer.Create(sizeof(PosTex) * m_VertexCount);                              
-	//m_IndexUploadBuffer.Create(sizeof(short) * m_IndexCount);
-
-	//// 버텍스 버퍼 설정
-	//UINT8* data_begin = reinterpret_cast<UINT8*>(m_VertexUploadBuffer.GetCPUPointer());
-	//memcpy(data_begin, vertices, sizeof(PosTex) * m_VertexCount);
-	//m_VertexUploadBuffer->Unmap(NULL, NULL);
-
-	//// 인덱스 버퍼 설정
-	//data_begin = reinterpret_cast<UINT8*>(m_IndexUploadBuffer.GetCPUPointer());
-	//memcpy(data_begin, indices, sizeof(short) * m_IndexCount);
-	//m_IndexUploadBuffer->Unmap(NULL, NULL);
-
 	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, vertices, sizeof(PosTex) * m_VertexCount, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
-	//m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
-
-	//initBuffers(pd3dDevice, pd3dCommandList);
+	
+	initBuffers(pd3dDevice, pd3dCommandList);
 }
 void CMesh::initBuffers(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{//0509
-
+{
 	UINT m_VertexCount = 4;
 	UINT m_IndexCount = 6;
-
-	/*auto command_list = Graphics::GraphicsCore::GetCommandList();
-
-	command_list->CopyResource(m_VertexBuffer.Get(), m_VertexUploadBuffer.Get());
-	command_list->CopyResource(m_IndexBuffer.Get(), m_IndexUploadBuffer.Get());
-
-	D3D12_RESOURCE_BARRIER resource_barrier[2];
-	resource_barrier[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	resource_barrier[0].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resource_barrier[0].Transition.pResource = m_VertexBuffer.Get();
-	resource_barrier[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	resource_barrier[0].Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-	resource_barrier[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-	resource_barrier[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	resource_barrier[1].Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	resource_barrier[1].Transition.pResource = m_IndexBuffer.Get();
-	resource_barrier[1].Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-	resource_barrier[1].Transition.StateAfter = D3D12_RESOURCE_STATE_INDEX_BUFFER;
-	resource_barrier[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-	command_list->ResourceBarrier(2, resource_barrier);*/
 
 	
 	m_nVertexBufferViews = 1;
 	m_pd3dVertexBufferViews = new D3D12_VERTEX_BUFFER_VIEW[m_nVertexBufferViews];
 
-	//m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_pxmf3Positions, sizeof(PosTex) * m_VertexCount, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
-
+	
 	m_pd3dVertexBufferViews[0].BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
-	//m_pd3dVertexBufferViews[0].BufferLocation = m_VertexBuffer->GetGPUVirtualAddress();
-	//m_pd3dVertexBufferViews[0].StrideInBytes = sizeof(XMFLOAT3);
 	m_pd3dVertexBufferViews[0].SizeInBytes = sizeof(PosTex) * m_VertexCount;
-	//m_pd3dVertexBufferViews[0].SizeInBytes = sizeof(XMFLOAT3) * m_nVertices;
 	m_pd3dVertexBufferViews[0].StrideInBytes = sizeof(PosTex);
 
-	//m_pd3dIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[1];
-	//m_ppnSubSetIndices = new UINT * [1];
-	//m_pnSubSetIndices2 = new UINT[1];
-	//m_ppnSubSetIndices[0] = new UINT[1];// m_pnSubSetIndices2[0]];
-	//m_ppd3dIndexUploadBuffers = new ID3D12Resource * [1];
+
+	// 인덱스 버퍼 생성
+	UINT indices[] = { 0, 1, 2, 2, 1, 3 };
+	m_ppd3dIndexBuffers = new ID3D12Resource * [1];
+	m_ppd3dIndexUploadBuffers = new ID3D12Resource * [1];
+	m_pd3dIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[1];
+
+	m_ppd3dIndexBuffers[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, indices, sizeof(indices), D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, m_ppd3dIndexUploadBuffers);
 
 
+	m_pnSubSetIndices2 = new UINT[1];
+	m_pnSubSetIndices2[0] = 6;
+	m_nSubsets = 1;
 
-	//m_ppd3dIndexBuffers[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppnSubSetIndices[0], sizeof(UINT) * m_pnSubSetIndices2[0], D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_ppd3dIndexUploadBuffers[0]);
-	//
-	///*m_ppd3dIndexBuffers[0] = ::CreateCommittedResource(
-	//	heap_properties.Get(),
-	//	D3D12_HEAP_FLAG_NONE,
-	//	resource_desc.Get(),
-	//	D3D12_RESOURCE_STATE_COPY_DEST,
-	//	NULL,
-	//	IID_PPV_ARGS(m_Resource.GetAddressOf();*/
-	//
-	//m_pd3dIndexBufferViews[0].BufferLocation = m_ppd3dIndexBuffers[0]->GetGPUVirtualAddress();
-	//m_pd3dIndexBufferViews[0].Format = DXGI_FORMAT_R16_UINT;// DXGI_FORMAT_R32_UINT;
-	//m_pd3dIndexBufferViews[0].SizeInBytes = sizeof(short) * m_IndexCount; //sizeof(UINT) * m_pnSubSetIndices2[i];
-
-
-
-	//m_pd3dIndexBufferViews[0].BufferLocation = m_IndexBuffer->GetGPUVirtualAddress();//m_pd3dIndexBufferViews[0]
-	//m_pd3dIndexBufferViews[0].Format = DXGI_FORMAT_R16_UINT;
-	//m_pd3dIndexBufferViews[0].SizeInBytes = sizeof(short) * m_IndexCount;
+	// 인덱스 버퍼 뷰 설정
+	m_pd3dIndexBufferViews[0].BufferLocation = m_ppd3dIndexBuffers[0]->GetGPUVirtualAddress();
+	m_pd3dIndexBufferViews[0].Format = DXGI_FORMAT_R32_UINT;
+	m_pd3dIndexBufferViews[0].SizeInBytes = sizeof(indices);
 }
+void CMesh::rectangleRender(ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->IASetVertexBuffers(0, 1, m_pd3dVertexBufferViews);
+	pd3dCommandList->IASetIndexBuffer(&m_pd3dIndexBufferViews[0]); // 인덱스 버퍼 설정
 
-void CMesh::rectangleRender(ID3D12GraphicsCommandList* pd3dCommandList)//, int nSubSet, UINT nSubset)
+	// 렌더링 명령을 수행하는 코드
+	pd3dCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0); // 인덱스 개수를 6으로 설정
+}
+void CMesh::recRender(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	/*cl->IASetPrimitiveTopology(mesh->GetPrimitiveTopology());
 	cl->IASetVertexBuffers(0, 1, &mesh->m_VertexBufferView);
@@ -250,6 +193,13 @@ void CMesh::rectangleRender(ID3D12GraphicsCommandList* pd3dCommandList)//, int n
 	//pd3dCommandList->IASetIndexBuffer(m_pd3dIndexBufferViews);//&mesh->m_IndexBufferView
 	//pd3dCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0);//mesh->m_IndexCount
 	pd3dCommandList->DrawInstanced(4, 1, 0, 0);//mesh->m_IndexCount
+
+
+
+	/*CShader::Render(pd3dCommandList, pCamera);
+
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(6, 1, 0, 0);*/
 }
 
 

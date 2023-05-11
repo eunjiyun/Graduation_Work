@@ -352,14 +352,15 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float,int);
+	void hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float);
 
 protected:
 	CTexture* m_pDepthTexture = NULL;
 public:
-	bool init = false;
+	bool init = true;
 	int curPl = -1;
-	float hpBar = 5;
+	float hpBar = 0;
 	float maxHp = -1;
 	float beforeHp = -1;
 };

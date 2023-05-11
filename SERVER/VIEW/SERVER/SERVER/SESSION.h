@@ -163,7 +163,7 @@ public:
 		cur_stage = 0;
 		error_stack = 0;
 		character_num = 0;
-		HP = 1000;// 55500;
+		HP =  55500;
 		clear_percentage = 1.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
 	}
 	void do_recv()

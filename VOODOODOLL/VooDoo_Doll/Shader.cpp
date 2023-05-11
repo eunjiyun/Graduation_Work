@@ -1435,30 +1435,26 @@ void CTextureToViewportShader::ReleaseObjects()
 {
 }
 
-void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float plHp)
+void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float plHp,int whatObj)
 {
-	if (0 > plHp)
-		hpBar = 35;
-
-	if (beforeHp > plHp)
+	if (0 == whatObj)
 	{
-		if (27 > hpBar && 0 < beforeHp)
-		{
-			if (27 > maxHp / plHp * 5)
-				hpBar = maxHp / plHp * 5;
-		}
+		hpBarSet(pd3dCommandList, pCamera, plHp);
 
-		beforeHp= plHp;
+		//D3D12_VIEWPORT d3dViewport = { 0.0f, 0.0f, FRAME_BUFFER_WIDTH * 0.25f, FRAME_BUFFER_HEIGHT * 0.25f, 0.0f, 1.0f };
+		D3D12_RECT d3dScissorRect = { 55,18, 154.22f-hpBar, FRAME_BUFFER_HEIGHT / 9.5f};
+		//pd3dCommandList->RSSetViewports(1, &d3dViewport);
+		pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
-		cout << "maxHp : " << maxHp << endl;
-		cout << "hpBar : " << hpBar << endl;
-		cout << "beforeHp	: " << beforeHp << endl;
+		
 	}
-	
-	//D3D12_VIEWPORT d3dViewport = { 0.0f, 0.0f, FRAME_BUFFER_WIDTH * 0.25f, FRAME_BUFFER_HEIGHT * 0.25f, 0.0f, 1.0f };
-	D3D12_RECT d3dScissorRect = { 20,20, FRAME_BUFFER_WIDTH / hpBar, FRAME_BUFFER_HEIGHT / 12 };
-	//pd3dCommandList->RSSetViewports(1, &d3dViewport);
-	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+	else if (1 == whatObj)
+	{
+		//D3D12_VIEWPORT d3dViewport = { 0.0f, 0.0f, FRAME_BUFFER_WIDTH * 0.25f, FRAME_BUFFER_HEIGHT * 0.25f, 0.0f, 1.0f };
+		D3D12_RECT d3dScissorRect = {10,20, FRAME_BUFFER_WIDTH / 16, FRAME_BUFFER_HEIGHT / 12 };
+		//pd3dCommandList->RSSetViewports(1, &d3dViewport);
+		pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+	}
 
 	CShader::Render(pd3dCommandList, pCamera);
 
@@ -1467,4 +1463,28 @@ void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList
 
 	//pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	//pCamera->UpdateShaderVariables(pd3dCommandList);
+}
+
+void CTextureToViewportShader::hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp)
+{
+	if (0 > plHp)
+		hpBar = 100.f;
+
+	//범위 = 1/12 + (0.35 * (1/4.15 - 1/12))
+	//hpBar = 1 / 12 + (plHp / maxHp * (1 / 4.15f - 1 / 12));
+	hpBar = (maxHp - plHp) / (maxHp/100);
+	if (beforeHp > plHp)
+	{
+		//if (12.f > hpBar * 4.15f && 0 < plHp)// beforeHp)
+		//{
+		//	if (12.f  > maxHp / plHp  * 4.15f)
+		//		hpBar = maxHp / plHp ;
+		//}
+
+		beforeHp = plHp;
+
+		/*cout << "maxHp : " << maxHp << endl;
+		cout << "hpBar : " << hpBar << endl;
+		cout << "plHp	: " << plHp << endl;*/
+	}
 }

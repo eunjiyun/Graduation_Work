@@ -101,6 +101,7 @@ public:
 	bool firstFloor = false;
 	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;
+	//bool setButton = false;
 
 	Text* m_Test;
 	
@@ -125,6 +126,8 @@ public:
 	bool checkDoorSound2 = false;
 	int checkJump = 0;
 	int curStage = -1;
+
+	
 	CMesh* healthBar = nullptr;
 
 	const wchar_t* inGame = _T("Sound/inGame.wav");

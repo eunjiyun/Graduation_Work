@@ -169,9 +169,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
-
-
-
 	CMaterial::PrepareShaders(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 
 
@@ -194,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[32];
+	CTexture* ppTextures[33];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -289,10 +286,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3.dds", RESOURCE_TEXTURE2D, 0);
 
+	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp3.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);
+
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);//gameStart
 
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -301,22 +303,32 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 31; ++a)
-	{
 
+
+	for (int a = 0; a < 33; ++a)
+	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 
 	
 	for (int h{}; h < 3; ++h)
 	{
-		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);//0503
+		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
 
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 
 		pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);
 		m_ppShaders[0]->gameMat[h] = pMaterial;
+	}
+
+	for (int u{}; u < 2; ++u)
+	{
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+
+		pMaterial->SetTexture(ppTextures[31+u]);
+		hpUi[u]->m_ppMaterials[0] = pMaterial;
 	}
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)

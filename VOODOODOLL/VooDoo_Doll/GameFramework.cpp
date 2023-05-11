@@ -470,11 +470,32 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	Scene_Change(m_eCurrentScene);
+
+	m_pStage->hpUi = new CGameObject * [2];
+	m_pStage->hpUi[0] = new CGameObject(1);
+	m_pStage->hpUi[1] = new CGameObject(1);
+	//healthBar = new CMesh;
+	//healthBar->recCreate(50, 50, m_pd3dDevice, m_pd3dCommandList);
+	//m_pStage->hpUi->m_ppMeshes[0] = healthBar;
+	
+	//m_pStage->hpUi->SetScale(0.1, 0.1, 0.1);
+	
+	//m_pStage->hpUi->SetMesh(1, healthBar);
+
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	if (m_pStage)
 	{
 		m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	}
+
+	m_pStage->hpUi[0]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+	m_pStage->hpUi[0]->SetPosition(50, -57, 188);//-63 -57
+	m_pStage->hpUi[0]->SetScale(0.07f, 0.3f, 0.15f);
+
+	m_pStage->hpUi[1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+	m_pStage->hpUi[1]->SetPosition(50, -57, 280);//-63
+	m_pStage->hpUi[1]->SetScale(0.07f, 0.3f, 0.38f);
+	//m_pStage->hpUi->SetPosition(0, 0, 0);
 
 
 
@@ -500,12 +521,21 @@ void CGameFramework::BuildObjects()
 
 	playerSound.Initialize();
 	playerSound.LoadWave(jump);
-
+	
 	monsterSound.Initialize();
 	monsterSound.LoadWave(monster);*/
 
-	healthBar = new CMesh;
-	healthBar->recCreate(50, 50, m_pd3dDevice, m_pd3dCommandList);
+	temp = new CGameObject(1);
+	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
+	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+
+	temp->SetPosition(84, 75, 108);
+	temp->Rotate(270, 0, 0);
+	temp->SetScale(0.7f, 0.7f, 0.7f);
+
+	
+
+	
 
 	string g_UserName = "VooDooDoll";
 
@@ -554,13 +584,7 @@ void CGameFramework::BuildObjects()
 
 
 
-	temp = new CGameObject(1);
-	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
-	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-
-	temp->SetPosition(84, 75, 108);
-	temp->Rotate(270, 0, 0);
-	temp->SetScale(0.7f, 0.7f, 0.7f);
+	
 
 
 	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
@@ -575,6 +599,9 @@ void CGameFramework::BuildObjects()
 
 	m_pStage->m_pShadowMapToViewport = new CTextureToViewportShader();
 	m_pStage->m_pShadowMapToViewport->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+	m_pStage->hpRec= new CTextureToViewportShader();
+	m_pStage->hpRec->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -981,21 +1008,7 @@ void CGameFramework::FrameAdvance()
 	}
 
 
-	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버
-	{
-		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
-			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
-		{
-			temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			temp->SetPosition(880, -65, 1000);
-			m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
-
-			monsterSound.Stop();//몬스터
-			monsterSound.Terminate();
-			sound[0].Stop();//인게임
-			sound[2].Play();//클로징
-		}
-	}
+	
 
 	// else if (-200 > m_pPlayer->GetPosition().y && 400 > m_pPlayer->GetPosition().z)
 	// {
@@ -1134,6 +1147,34 @@ void CGameFramework::FrameAdvance()
 		m_pStage->bLightwakeUp = true;
 
 
+	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버
+	{
+		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
+			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
+		{
+			temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
+			temp->SetPosition(880, -65, 1000);
+			m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
+
+			monsterSound.Stop();//몬스터
+			monsterSound.Terminate();
+			sound[0].Stop();//인게임
+			sound[2].Play();//클로징
+		}
+	}
+
+	//if (-64 > m_pPlayer->GetPosition().y && false==setButton)
+	//{
+	//	m_pStage->hpUi[0]->SetPosition(50, m_pPlayer->GetPosition().y + 6, 188);//-63
+	//	m_pStage->hpUi[1]->SetPosition(50, m_pPlayer->GetPosition().y + 6, 280);//-63
+
+	//	setButton = true;
+	//}
+	if (1 == gameButton && true==m_pPlayer->alive )
+	{
+		m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	}
 
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
@@ -1153,17 +1194,29 @@ void CGameFramework::FrameAdvance()
 	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	//m_Test->Render()
 
-	healthBar->rectangleRender(m_pd3dCommandList);
+	//healthBar->rectangleRender(m_pd3dCommandList);
+	
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton)
 	{
+		if (-1 == m_pStage->m_pShadowMapToViewport->curPl)
+		{
+			m_pStage->m_pShadowMapToViewport->maxHp = 55500;
+			m_pStage->m_pShadowMapToViewport->beforeHp = 55500;
+			//m_pPlayer->HP = 3500;
+			m_pStage->m_pShadowMapToViewport->curPl = 0;
+
+			//cout << "init" << endl;
+		}
+
 		if (false == m_pStage->m_pShadowMapToViewport->init)
 		{
+			//cout << "switch" << endl;
 			if (1 != m_pStage->m_pShadowMapToViewport->curPl)
 			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 1000;
-				m_pStage->m_pShadowMapToViewport->beforeHp = 1000;
-				
+				m_pStage->m_pShadowMapToViewport->maxHp = 55500;
+				m_pStage->m_pShadowMapToViewport->beforeHp = 55500;
+				//m_pPlayer->HP = 3500;
 
 				if (2 != m_pStage->m_pShadowMapToViewport->curPl)
 					++m_pStage->m_pShadowMapToViewport->curPl;
@@ -1172,15 +1225,22 @@ void CGameFramework::FrameAdvance()
 			}
 			else
 			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 700;
-				m_pStage->m_pShadowMapToViewport->beforeHp = 700;
+				m_pStage->m_pShadowMapToViewport->maxHp = 100;
+				m_pStage->m_pShadowMapToViewport->beforeHp = 100;
+				m_pPlayer->HP = 100;
 				m_pStage->m_pShadowMapToViewport->curPl = 2;
 			}
 			m_pStage->m_pShadowMapToViewport->init = true;
 			
 		}
-		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP);
+		
+		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP, 0);
+		//m_pStage->hpRec->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP, 1);
+
+		//m_pStage->hpUi->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	};
+
+	
 
 	
 

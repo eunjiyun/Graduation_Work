@@ -336,7 +336,8 @@ VS_TEXTURED_OUTPUT VSTextureToViewport(uint nVertexID : SV_VertexID)
 	return(output);
 }
 
-float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
+float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target//(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
+//float4 PSTextureToViewport(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 {
 	//float fDepthFromLight0 = gtxtDepthTextures[1].SampleLevel(gssBorder, input.uv, 0).r;
 
@@ -344,4 +345,37 @@ float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
 	//return((float4)(0* 0.8f));
 	//return((float4)(1.f,0.f,0.f,1.f));
 	return float4(1.f,0.f,0.f,0.f);
+
+
+
+
+	//float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uvs[0].xy);
+	//float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uvs[0].xy);
+	//float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uvs[0].xy);
+	//float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uvs[0].xy);
+	//float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uvs[0].xy);
+
+	////float3 normalW;
+	//float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	////if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	////{
+	////	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+	////	float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] ¡æ [-1, 1]
+	////	normalW = normalize(mul(vNormal, TBN));
+	////}
+	////else
+	////{
+	////	normalW = normalize(input.normalW);
+	////}
+
+	//float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs,gShadowID);
+
+	////return(cIllumination);
+
+	//return(lerp(cColor, cIllumination, 0.5f));
 }
