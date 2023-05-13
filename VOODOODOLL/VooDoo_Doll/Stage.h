@@ -9,7 +9,7 @@
 #include "Monster.h"
 
 
-#define MAX_LIGHTS						32//5+26
+#define MAX_LIGHTS						37 //5+26+5
 #define POINT_LIGHT						1
 #define SPOT_LIGHT						2
 #define DIRECTIONAL_LIGHT				3
@@ -96,13 +96,17 @@ public:
 	void CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& Pl);
 	void CheckMoveObjectsCollisions(float TimeElapsed, CPlayer*& pl, vector<CMonster*>& monsters, vector<CPlayer*>& players);
 	void CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& cm);
+	void CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl);
 	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec);
 
-	XMFLOAT3 Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB);
 
 	void Lighthing(CPlayer*& pl);
 
+	void ChangeTexture(int iState);
+
 	float CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight);
+
+	void Pushing_Button(CPlayer*& pl);
 
 
 	CPlayer* m_pPlayer = NULL;
@@ -196,8 +200,6 @@ public:
 
 
 	public:
-		/*vector<CGameObject*>		p1stRoomPuzzle;
-		vector<CGameObject*>		p2ndRoomPuzzle;*/
 		array<vector<CGameObject*>, 7> pPuzzles;
 
 };

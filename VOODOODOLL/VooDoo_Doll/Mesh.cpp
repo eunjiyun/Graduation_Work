@@ -262,6 +262,7 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			nReads = (UINT)::fread(&OBBox.Center, sizeof(float), 3, pFile);
 			nReads = (UINT)::fread(&OBBox.Extents, sizeof(float), 3, pFile);
 			nReads = (UINT)::fread(&OBBox.Orientation, sizeof(float), 4, pFile);
+			//cout << OBBox.Orientation.x << ",	" << OBBox.Orientation.y << ",	" << OBBox.Orientation.z << ",	" << OBBox.Orientation.w << endl;
 
 			if (0 == strncmp(pstrFileName, "Bedroom_wall", 12))
 			{

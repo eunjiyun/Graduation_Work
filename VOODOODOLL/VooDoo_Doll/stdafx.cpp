@@ -442,6 +442,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		pGameObject->m_iObjID = iObjectID;
 		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
 
+		//cout << i<<"	:>	"<<pGameObject->m_pstrName << endl;
 
 		pGameObject->SetMesh(0, pMesh);
 

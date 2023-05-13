@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[33];
+	CTexture* ppTextures[38];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -260,13 +260,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[21]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Ceiling_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[22] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[22]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Bookwtextb_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[22]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Booknotext.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[23] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[23]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Large_Shelf_Large_Shelf_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[24] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[24]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Blackboard_Blackboard_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[24]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Blackboard.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[25] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[25]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Info_Board_Info_Board_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
@@ -278,18 +278,36 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_Off.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_Off.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_Off.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp3.dds", RESOURCE_TEXTURE2D, 0);
+
 	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[33] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_8_Albedo.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[34] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[36] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[36]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[37] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[37]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);
+
+
 
 
 
@@ -305,7 +323,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	for (int a = 0; a < 33; ++a)
+	for (int a = 0; a < 38; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -462,7 +480,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_03_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_04_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[3]); // 임시 
+				pMaterial->SetTexture(ppTextures[22]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -510,6 +528,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
+			if (0 == strcmp("ButtonBottom", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
+				0 == strcmp("Button", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+			{
+				pMaterial->SetTexture(ppTextures[33]);
+				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+			}
+
 			++iMaterialCheck;
 		}
 		iMaterialCheck = 0;
@@ -517,6 +542,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
+		cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
 
 		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
@@ -524,7 +550,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			//cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
-		if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+		if (2 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 392 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
@@ -532,6 +558,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
+
+		if (410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			414 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 416 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			418 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		{
+			pPuzzles[5].push_back(m_ppShaders[0]->m_ppObjects[i]);
+		}
 
 		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
 		//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
@@ -1231,67 +1264,91 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	}
 	cm->RegenerateViewMatrix();
 }
+
+void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
+{
+	XMFLOAT3 Vel = pl->GetVelocity();
+	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
+
+	pl->onFloor = false;
+	for (int i = 0; i < m_ppShaders[0]->pDoor.size(); i++)
+	{
+		BoundingOrientedBox oBox = m_ppShaders[0]->pDoor[i]->obBox;
+
+		if (pl->obBox.Intersects(oBox))
+		{
+			cout << "Hit" << endl;
+
+			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
+				XMFLOAT3 Pos = pl->GetPosition();
+				Pos.y = oBox.Center.y + oBox.Extents.y;
+				pl->SetPosition(Pos);
+				pl->SetVelocity(XMFLOAT3(Vel.x, 0.0f, Vel.z));
+				pl->onFloor = true;
+				continue;
+			}
+
+
+			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, 0, 1));
+			XMFLOAT3 ObjLook = { 0,0,0 };
+
+
+			if ((int)angle % 90 == 0)
+			{
+				XMVECTOR xmVector = XMLoadFloat3(&oBox.Extents);
+				XMVECTOR xmQuaternion = XMLoadFloat4(&oBox.Orientation);
+
+				// Rotate the vector using the quaternion
+				XMVECTOR rotatedVector = XMVector3Rotate(xmVector, xmQuaternion);
+
+				// Convert the rotated vector back to an XMFLOAT3
+				XMFLOAT3 realExtents;
+				XMStoreFloat3(&realExtents, rotatedVector);
+
+				realExtents.x = sqrtf(realExtents.x * realExtents.x);
+				realExtents.y = sqrtf(realExtents.y * realExtents.y);
+				realExtents.z = sqrtf(realExtents.z * realExtents.z);
+
+				if (oBox.Center.x - realExtents.x < pl->obBox.Center.x && oBox.Center.x + realExtents.x > pl->obBox.Center.x) {
+					if (oBox.Center.z < pl->obBox.Center.z) ObjLook = { 0,0,1 };
+					else ObjLook = { 0, 0, -1 };
+				}
+				else if (oBox.Center.x < pl->obBox.Center.x) ObjLook = { 1,0,0 };
+				else ObjLook = { -1, 0, 0 };
+
+			}
+			else
+			{
+
+				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pl->obBox.Center, oBox.Center, angle);
+
+				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
+					if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders[0]->m_ppObjects[i]->GetLook();
+					else ObjLook = Vector3::ScalarProduct(m_ppShaders[0]->m_ppObjects[i]->GetLook(), -1);
+				}
+				else if (oBox.Center.x < RotatedPos.x) ObjLook = m_ppShaders[0]->m_ppObjects[i]->GetRight();
+				else ObjLook = Vector3::ScalarProduct(m_ppShaders[0]->m_ppObjects[i]->GetRight(), -1);
+			}
+			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
+				continue;
+
+			XMFLOAT3 ReflectVec = Vector3::ScalarProduct(MovVec, -1, false);
+
+			pl->Move(ReflectVec, false);
+
+			MovVec = GetReflectVec(ObjLook, MovVec);
+			pl->Move(MovVec, false);
+		}
+	}
+}
+
+
 XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
 {
 	float Dot = Vector3::DotProduct(MovVec, ObjLook);
 	XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
 	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
 	return SlidingVec;
-}
-
-
-XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB)
-{
-	XMVECTOR xmV1min = XMLoadFloat3(&pBouningBoxA.Center) - XMLoadFloat3(&pBouningBoxA.Extents);
-	XMVECTOR xmV1max = XMLoadFloat3(&pBouningBoxA.Center) + XMLoadFloat3(&pBouningBoxA.Extents);
-	XMVECTOR xmV2min = XMLoadFloat3(&pBouningBoxB.Center) - XMLoadFloat3(&pBouningBoxB.Extents);
-	XMVECTOR xmV2max = XMLoadFloat3(&pBouningBoxB.Center) + XMLoadFloat3(&pBouningBoxB.Extents);
-
-	bool bIntersect = XMVector3GreaterOrEqual(xmV1min, xmV2max) || XMVector3GreaterOrEqual(xmV2min, xmV1max);
-
-	if (bIntersect)
-	{
-		return XMFLOAT3(0, 0, 0); 
-	}
-
-	XMFLOAT3 xmf3Direction = { 0,0,0 };
-	XMFLOAT3 xmf3Subtraction = { 0,0,0 };
-
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
-	{
-		xmf3Direction.x = xmf3Subtraction.x;
-	}
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
-	{
-		xmf3Direction.x = -xmf3Subtraction.x;
-	}
-
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
-	{
-		xmf3Direction.y = xmf3Subtraction.y;
-	}
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
-	{
-		xmf3Direction.y = -xmf3Subtraction.y;
-	}
-
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
-	{
-		xmf3Direction.z = xmf3Subtraction.z;
-	}
-	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
-	{
-		xmf3Direction.z = -xmf3Subtraction.z;
-	}
-
-	XMStoreFloat3(&xmf3Direction, XMVector3Normalize(XMLoadFloat3(&xmf3Direction)));
-	return xmf3Direction;
 }
 
 
@@ -1312,7 +1369,31 @@ void CStage::Lighthing(CPlayer*& pl)
 			m_pLights[iNum].m_bEnable = false;
 		}
 	}
+
+	//if (0 == strcmp("Candle1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+	//{
+	//	pMaterial->SetTexture(ppTextures[28]);
+	//	m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//}
+
+	//if (0 == strcmp("Candle2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+	//{
+	//	pMaterial->SetTexture(ppTextures[29]);
+	//	m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//}
+
+	//if (0 == strcmp("Candle3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
+	//{
+	//	pMaterial->SetTexture(ppTextures[30]);
+	//	m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+	//}
 }
+
+void CStage::ChangeTexture(int iState)
+{
+	
+}
+
 
 float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 {
@@ -1324,4 +1405,26 @@ float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 	float fDisatnce;
 	XMStoreFloat(&fDisatnce, XMVector3Length(diff));
 	return fDisatnce;
+}
+
+
+
+
+void CStage::Pushing_Button(CPlayer*& pl)
+{
+	int iAnswer[5] = { 4, 1, 5, 0,2 };
+	int iHit[5] = {};
+
+	for (int iNum = 32; iNum < MAX_LIGHTS; ++iNum)
+	{
+		for (int i = 0; i < pPuzzles[5].size(); i++)
+		{
+			BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
+
+			if (pl->obBox.Intersects(oBox))
+			{
+				cout << "DTU" << endl;
+			}
+		}
+	}
 }
