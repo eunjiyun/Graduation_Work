@@ -51,17 +51,17 @@ array<vector<Key_Object>, 7> Key_Items;
 
 SESSION& getClient(int c_id)
 {
-	return clients[c_id / 4][c_id % 4];
+	return clients[c_id / MAX_USER_PER_ROOM][c_id % MAX_USER_PER_ROOM];
 }
 
 array<SESSION, MAX_USER_PER_ROOM>& getRoom(int c_id)
 {
-	return clients[c_id / 4];
+	return clients[c_id / MAX_USER_PER_ROOM];
 }
 
 threadsafe_vector<Monster*>& getMonsters(int c_id)
 {
-	return PoolMonsters[c_id / 4];
+	return PoolMonsters[c_id / MAX_USER_PER_ROOM];
 }
 
 vector<MapObject*>& getPartialObjects(XMFLOAT3 Pos)
@@ -126,7 +126,6 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	p.HP = M->HP;
 	p.is_alive = M->alive;
 	p.animation_track = M->cur_animation_track; // 원래 p.animation_track = (short)M->GetState();가 맞는데 2번 귀신이 애니메이션이 빠져 있어서 이렇게 함
-	//p.Chasing_PlayerID = M->target_id;
 	p.BulletPos = M->MagicPos;
 
 #ifdef _STRESS_TEST
@@ -135,7 +134,7 @@ void SESSION::send_NPCUpdate_packet(Monster* M)
 	do_send(&p);
 }
 
-void Initialize_Monster(int roomNum, int stageNum)//0326
+void Initialize_Monster(int roomNum, int stageNum)
 {
 	if (PoolMonsters[roomNum].size() > 0) return;
 
@@ -165,15 +164,15 @@ void Initialize_Monster(int roomNum, int stageNum)//0326
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// check velocity
-	static const float max_distance = 100.f;
+	static const float max_distance_squared = 10000.f;
 	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
 	float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
-	if (distance_squared > max_distance * max_distance) {
+	if (distance_squared > max_distance_squared) {
 		m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
 		return;
 	}
 
-	XMFLOAT3 newCenter = newPos;
+	XMFLOAT3 newCenter = newPos; // 캐릭터의 위치와 충돌박스의 위치의 차이 때문에 충돌체크는 y축 +10해서 계산해야함
 	newCenter.y += 10.f;
 	try {
 		for (const auto& object : Objects.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
@@ -458,7 +457,7 @@ void Monster::Update(float fTimeElapsed)
 				MagicPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
 				MagicLook = Vector3::Normalize(distanceVector);
 			}
-			else if (MELEEATTACK_RANGE > g_distance) {
+			else if (attack_range > g_distance) {
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
 				//cout << "plHP : " << targetPlayer->HP << endl;

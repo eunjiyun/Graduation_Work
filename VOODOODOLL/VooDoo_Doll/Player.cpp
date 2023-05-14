@@ -72,7 +72,9 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDistance);
 
 		if (dwDirection & DIR_JUMP && onFloor) {
-			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 15); onFloor = false;
+			xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance * 15); 
+			onFloor = false;
+			m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 			//m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->Cur_Animation_Track, false);
 			//m_pSkinnedAnimationController->SetTrackEnable(5, true);
 		}

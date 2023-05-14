@@ -19,7 +19,7 @@ using namespace chrono;
 
 extern HWND		hWnd;
 
-const static int MAX_TEST = 1000;
+const static int MAX_TEST = 9000;
 const static int MAX_CLIENTS = MAX_TEST * 2;
 const static int INVALID_ID = -1;
 const static int MAX_PACKET_SIZE = 512;
@@ -169,7 +169,7 @@ void ProcessPacket(int ci, unsigned char packet[])
 	break;
 	case SC_SUMMON_MONSTER:
 	{
-		if (ci % 4 == 1) {
+		if (ci % MAX_USER_PER_ROOM == 1) {
 			SC_SUMMON_MONSTER_PACKET* p = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(packet);
 			//cout << p->room_num << "몬스터 소환\n";
 			g_monsters[p->room_num * 10 + p->id].connected = true;
@@ -179,9 +179,9 @@ void ProcessPacket(int ci, unsigned char packet[])
 		}
 	}
 	break;
-	case SC_MOVE_MONSTER: 
+	case SC_MOVE_MONSTER:
 	{
-		if (ci % 4 == 1) {
+		if (ci % MAX_USER_PER_ROOM == 1) {
 			SC_MOVE_MONSTER_PACKET* p = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(packet);
 			if (p->is_alive == false) {
 				g_monsters[p->room_num * 10 + p->id].connected = false;
@@ -201,9 +201,6 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case CS_ATTACK: {
 		break;
 	}
-	case CS_COLLECT: {
-		break;
-	}
 	case CS_CHANGEWEAPON: {
 		break;
 	}
@@ -213,8 +210,9 @@ void ProcessPacket(int ci, unsigned char packet[])
 	case SC_ROTATE_PLAYER: {
 		break;
 	}
-	default: MessageBox(hWnd, L"Unknown Packet Type", L"ERROR", 0);
-		while (true);
+	default: {
+		break;
+	}
 	}
 }
 
@@ -246,7 +244,6 @@ void Worker_Thread()
 			unsigned psize = g_clients[ci].curr_packet_size;
 			unsigned pr_size = g_clients[ci].prev_packet_data;
 			while (io_size > 0) {
-				if (ci % 10 == 0) cout << io_size << endl;
 				if (0 == psize) psize = buf[0];
 				if (io_size + pr_size >= psize) {
 					// 지금 패킷 완성 가능
@@ -476,8 +473,8 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	int index_2 = 0;
 	for (int i = 0; i < num_connections; ++i)
 		if (true == g_clients[i].connected) {
-			point_cloud[index * 2] = g_clients[i].pos.x - 100.f;
-			point_cloud[index * 2 + 1] = g_clients[i].pos.z - 1200.f;
+			point_cloud[index * 2] = g_clients[i].pos.x;
+			point_cloud[index * 2 + 1] = g_clients[i].pos.z;
 			index++;
 		}
 
@@ -485,8 +482,8 @@ void GetPointCloud(int* size, int* size_2, float** points, float** points_2)
 	for (int i = 0; i < MAX_CLIENTS; ++i)
 		if (g_monsters[i].connected == true)
 		{
-			point_cloud_2[index_2 * 2] = g_monsters[i].pos.x - 100.f;
-			point_cloud_2[index_2 * 2 + 1] = g_monsters[i].pos.z - 1200.f;
+			point_cloud_2[index_2 * 2] = g_monsters[i].pos.x;
+			point_cloud_2[index_2 * 2 + 1] = g_monsters[i].pos.z;
 			index_2++;
 		}
 

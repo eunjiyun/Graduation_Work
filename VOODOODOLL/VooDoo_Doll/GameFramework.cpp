@@ -565,7 +565,7 @@ void CGameFramework::BuildObjects()
 
 	Players.push_back(m_pPlayer);
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 2; i++) {
 		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 		Players.push_back(pAirplanePlayer);
 	}

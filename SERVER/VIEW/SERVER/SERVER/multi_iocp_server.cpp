@@ -289,8 +289,8 @@ void process_packet(const int c_id, char* packet)
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		CL.send_login_info_packet();
 		CL._state.store(ST_INGAME);
+		CL.send_login_info_packet();
 		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
 			pl.send_add_player_packet(&CL);
@@ -465,9 +465,9 @@ void process_packet(const int c_id, char* packet)
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
 		CL.character_num = (CL.character_num + 1) % 3;
-		if (CL.character_num == 2)
-			CL.HP = 100;
-		else CL.HP = 55500;
+		//if (CL.character_num == 2)
+		//	CL.HP = 100;
+		//else CL.HP = 55500;
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
@@ -508,8 +508,8 @@ void worker_thread(HANDLE h_iocp)
 		switch (ex_over->_comp_type) {
 		case OP_ACCEPT: {
 			int client_id = get_new_client_id();
-			SESSION& CL = getClient(client_id);
 			if (client_id != -1) {
+				SESSION& CL = getClient(client_id);
 				CL._state.store(ST_ALLOC);
 				CL._socket = g_c_socket;
 				CL._id = client_id;

@@ -3,12 +3,17 @@
 constexpr short PORT_NUM = 3500;
 constexpr short BUF_SIZE = 512;
 constexpr short NAME_SIZE = 20;
-constexpr short MAX_USER = 10000;
-constexpr short MAX_ROOM = 2500;
-constexpr short MAX_USER_PER_ROOM = 4;
+constexpr short MAX_USER = 9000;
+constexpr short MAX_ROOM = 3000;
+constexpr short MAX_USER_PER_ROOM = 3;
 constexpr short MAX_MONSTER_PER_ROOM = 10;
 constexpr short W_WIDTH = 400;
 constexpr short W_HEIGHT = 400;
+constexpr short MELEEATTACK_RANGE = 5;
+constexpr short LONGRANGETTACK_RANGE = 150;
+constexpr short STAGE_SIZE = 1200;
+constexpr short AREA_SIZE = 200;
+constexpr short OBJECT_ARRAY_SIZE = 24;
 
 // Packet ID
 constexpr char CS_LOGIN = 0;
@@ -17,7 +22,7 @@ constexpr char CS_SIGNIN = 2;
 constexpr char CS_MOVE = 3;
 constexpr char CS_ROTATE = 4;
 constexpr char CS_ATTACK = 5;
-constexpr char CS_COLLECT = 6;
+constexpr char CS_INTERACTION = 6;
 constexpr char CS_CHANGEWEAPON = 7;
 
 constexpr char SC_LOGIN_INFO = 8;
@@ -29,6 +34,8 @@ constexpr char SC_SUMMON_MONSTER = 13;
 constexpr char SC_MOVE_MONSTER = 14;
 constexpr char SC_OPEN_DOOR = 15;
 constexpr char SC_LOGIN_COMPLETE = 16;
+constexpr char SC_GAME_CLEAR = 17;
+constexpr char SC_INTERACTION = 18;
 
 #include "stdafx.h"
 
@@ -79,7 +86,6 @@ struct CS_ROTATE_PACKET {
 	float cxDelta = 0.f;
 	float cyDelta = 0.f;
 	float czDelta = 0.f;
-
 };
 constexpr short CS_ROTATE_PACKET_SIZE = sizeof(CS_ROTATE_PACKET);
 
@@ -91,13 +97,13 @@ struct CS_ATTACK_PACKET {
 };
 constexpr short CS_ATTACK_PACKET_SIZE = sizeof(CS_ATTACK_PACKET);
 
-struct CS_COLLECT_PACKET {
+struct CS_INTERACTION_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
 	XMFLOAT3 pos;
 };
-constexpr short CS_COLLECT_PACKET_SIZE = sizeof(CS_COLLECT_PACKET);
+constexpr short CS_INTERACTION_PACKET_SIZE = sizeof(CS_INTERACTION_PACKET);
 
 struct CS_CHANGEWEAPON_PACKET {
 	unsigned char size;
@@ -195,4 +201,19 @@ struct SC_LOGIN_COMPLETE_PACKET {
 	bool	success;
 };
 constexpr short SC_LOGIN_COMPLETE_PACKET_SIZE = sizeof(SC_LOGIN_COMPLETE_PACKET);
+
+struct SC_GAME_CLEAR_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+};
+constexpr short SC_GAME_CLEAR_PACKET_SIZE = sizeof(SC_GAME_CLEAR_PACKET);
+
+struct SC_INTERACTION_PACKET {
+	unsigned char size;
+	char	type;
+	short	stage_id;
+	short	obj_id;
+};
+constexpr short SC_INTERACTION_PACKET_SIZE = sizeof(SC_INTERACTION_PACKET);
 #pragma pack (pop)

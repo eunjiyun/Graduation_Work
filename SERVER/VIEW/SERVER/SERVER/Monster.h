@@ -14,7 +14,7 @@ class Monster
 {
 private:
     short view_range, type;
-    array<float, 4> distances = { 10000.f };
+    array<float, 3> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
     //AStar_Pool _Pool;
 public:

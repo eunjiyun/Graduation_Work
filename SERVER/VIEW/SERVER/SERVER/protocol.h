@@ -3,9 +3,9 @@
 constexpr short PORT_NUM = 3500;
 constexpr short BUF_SIZE = 512;
 constexpr short NAME_SIZE = 20;
-constexpr short MAX_USER = 10000;
-constexpr short MAX_ROOM = 2500;
-constexpr short MAX_USER_PER_ROOM = 4;
+constexpr short MAX_USER = 9000;
+constexpr short MAX_ROOM = 3000;
+constexpr short MAX_USER_PER_ROOM = 3;
 constexpr short MAX_MONSTER_PER_ROOM = 10;
 constexpr short W_WIDTH = 400;
 constexpr short W_HEIGHT = 400;
@@ -39,7 +39,7 @@ constexpr char SC_INTERACTION = 18;
 
 #include "stdafx.h"
 
-//#define _STRESS_TEST
+#define _STRESS_TEST
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {
