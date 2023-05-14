@@ -39,9 +39,6 @@ public:
 	void CreateOtherPlayer(int p_id, short type, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Up, XMFLOAT3 Right);
 	void SummonMonster(int npc_id, int type, XMFLOAT3 Pos);
 
-	/*HWND Get_HWNG() { return m_hWnd; }
-	LONG Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
-	LONG Get_OldCursorPointY() { return m_ptOldCursorPos.y; }*/
 	HWND	Get_HWND() { return m_hWnd; }
 	void			Change_Scene(SCENEID _eSceneid);
 	LONG		Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
@@ -101,10 +98,9 @@ public:
 	bool firstFloor = false;
 	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;
-	//bool setButton = false;
 
 	Text* m_Test;
-	
+
 
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	queue<CLoadedModelInfo*> MagiciansHat;
@@ -118,7 +114,6 @@ public:
 	SoundPlayer sound[4];
 
 	SoundPlayer monsterSound;
-	//int curId = -1;
 	SoundPlayer doorSound;
 	SoundPlayer playerSound;
 	bool checkDoor[6] = { false,false,false,false,false,false };
@@ -127,8 +122,6 @@ public:
 	int checkJump = 0;
 	int curStage = -1;
 
-	
-	CMesh* healthBar = nullptr;
 
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
@@ -143,7 +136,7 @@ public:
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;
 
-	
+
 	CLogin* m_pLogin = NULL;
 
 	CPlayer* m_pPlayer = NULL;
@@ -152,9 +145,9 @@ public:
 	CCamera* m_pCamera = NULL;
 
 	float time = 0.f;
-	bool openDoor[7]= { false,false,false,false,false,false,false};
+	bool openDoor[7] = { false,false,false,false,false,false,false };
 
-	
+
 	POINT						m_ptOldCursorPos;
 
 	_TCHAR						m_pszFrameRate[70];

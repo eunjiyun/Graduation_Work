@@ -91,118 +91,6 @@ void CMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT
 	}
 }
 
-void GpuBuffer::Create(UINT64 bytes)
-{
-	/*HeapProperties heap_properties{ D3D12_HEAP_TYPE_DEFAULT };
-	ResourceDesc resource_desc{ (UINT64)bytes };
-
-	Graphics::GraphicsCore::GetDevice()->CreateCommittedResource(
-		heap_properties.Get(),
-		D3D12_HEAP_FLAG_NONE,
-		resource_desc.Get(),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		NULL,
-		IID_PPV_ARGS(m_Resource.GetAddressOf())
-	);*/
-}
-
-void CMesh::recCreate(float width, float height, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	UINT m_VertexCount = 4;
-	UINT m_IndexCount = 6;
-
-	PosTex vertices[4];
-
-	float l = -(width / 2);//-25
-	float r = +(width / 2);//25
-	float b = -(height / 2);//-25
-	float t = +(height / 2);//25
-
-	vertices[0].m_Position = XMFLOAT3(l, t, 0);
-	vertices[0].m_Texcoord = XMFLOAT2(0, 0);
-	vertices[1].m_Position = XMFLOAT3(r, t, 0);
-	vertices[1].m_Texcoord = XMFLOAT2(1, 0);
-	vertices[2].m_Position = XMFLOAT3(l, b, 0);
-	vertices[2].m_Texcoord = XMFLOAT2(0, 1);
-	vertices[3].m_Position = XMFLOAT3(r, b, 0);
-	vertices[3].m_Texcoord = XMFLOAT2(1, 1);
-
-	unsigned short indices[6] = { 0, 1, 2, 2, 1, 3 };
-
-	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, vertices, sizeof(PosTex) * m_VertexCount, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dPositionUploadBuffer);
-	
-	initBuffers(pd3dDevice, pd3dCommandList);
-}
-void CMesh::initBuffers(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	UINT m_VertexCount = 4;
-	UINT m_IndexCount = 6;
-
-	
-	m_nVertexBufferViews = 1;
-	m_pd3dVertexBufferViews = new D3D12_VERTEX_BUFFER_VIEW[m_nVertexBufferViews];
-
-	
-	m_pd3dVertexBufferViews[0].BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
-	m_pd3dVertexBufferViews[0].SizeInBytes = sizeof(PosTex) * m_VertexCount;
-	m_pd3dVertexBufferViews[0].StrideInBytes = sizeof(PosTex);
-
-
-	// 인덱스 버퍼 생성
-	UINT indices[] = { 0, 1, 2, 2, 1, 3 };
-	m_ppd3dIndexBuffers = new ID3D12Resource * [1];
-	m_ppd3dIndexUploadBuffers = new ID3D12Resource * [1];
-	m_pd3dIndexBufferViews = new D3D12_INDEX_BUFFER_VIEW[1];
-
-	m_ppd3dIndexBuffers[0] = ::CreateBufferResource(pd3dDevice, pd3dCommandList, indices, sizeof(indices), D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_INDEX_BUFFER, m_ppd3dIndexUploadBuffers);
-
-
-	m_pnSubSetIndices2 = new UINT[1];
-	m_pnSubSetIndices2[0] = 6;
-	m_nSubsets = 1;
-
-	// 인덱스 버퍼 뷰 설정
-	m_pd3dIndexBufferViews[0].BufferLocation = m_ppd3dIndexBuffers[0]->GetGPUVirtualAddress();
-	m_pd3dIndexBufferViews[0].Format = DXGI_FORMAT_R32_UINT;
-	m_pd3dIndexBufferViews[0].SizeInBytes = sizeof(indices);
-}
-void CMesh::rectangleRender(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pd3dCommandList->IASetVertexBuffers(0, 1, m_pd3dVertexBufferViews);
-	pd3dCommandList->IASetIndexBuffer(&m_pd3dIndexBufferViews[0]); // 인덱스 버퍼 설정
-
-	// 렌더링 명령을 수행하는 코드
-	pd3dCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0); // 인덱스 개수를 6으로 설정
-}
-void CMesh::recRender(ID3D12GraphicsCommandList* pd3dCommandList)
-{
-	/*cl->IASetPrimitiveTopology(mesh->GetPrimitiveTopology());
-	cl->IASetVertexBuffers(0, 1, &mesh->m_VertexBufferView);
-	cl->IASetIndexBuffer(&mesh->m_IndexBufferView);
-	cl->DrawIndexedInstanced(mesh->m_IndexCount, 1, 0, 0, 0);*/
-
-
-	//pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//pd3dCommandList->IASetVertexBuffers(0, 1, m_pd3dVertexBufferViews);//&mesh->m_VertexBufferView
-	//pd3dCommandList->IASetIndexBuffer(&m_pd3dIndexBufferViews[nSubset]);//&mesh->m_IndexBufferView
-	//pd3dCommandList->DrawIndexedInstanced(m_pnSubSetIndices2[nSubset], 1, 0, 0, 0);//mesh->m_IndexCount
-
-	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pd3dCommandList->IASetVertexBuffers(0, 1, m_pd3dVertexBufferViews);//&mesh->m_VertexBufferView
-	//pd3dCommandList->IASetIndexBuffer(m_pd3dIndexBufferViews);//&mesh->m_IndexBufferView
-	//pd3dCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0);//mesh->m_IndexCount
-	pd3dCommandList->DrawInstanced(4, 1, 0, 0);//mesh->m_IndexCount
-
-
-
-	/*CShader::Render(pd3dCommandList, pCamera);
-
-	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	pd3dCommandList->DrawInstanced(6, 1, 0, 0);*/
-}
-
-
 
 void CMesh::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
 {
@@ -282,8 +170,6 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, pFile);
 			m_pxmf3Normals = new XMFLOAT3[m_nVertices];
 			nReads = (UINT)::fread(m_pxmf3Normals, sizeof(float), 3 * m_nVertices, pFile);
-
-			
 		}
 		else if (!strcmp(pstrToken, "<TextureCoords>:"))
 		{
@@ -545,7 +431,7 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 					if (!strcmp(pstrToken, "<SubMesh>:"))
 					{
 						int nIndex = 0;
-						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, pInFile); //i
+						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, pInFile); 
 						nReads = (UINT)::fread(&(m_pnSubSetIndices[i]), sizeof(int), 1, pInFile);
 						if (m_pnSubSetIndices[i] > 0)
 						{

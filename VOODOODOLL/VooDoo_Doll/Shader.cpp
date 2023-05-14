@@ -688,7 +688,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
 			door[h]->SetPosition(469.f, -43.f, 1240.f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f,50.f, 1.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f, 50.f, 1.f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
 		case 1:
 			door[h]->SetPosition(475.f, -43.f, 2591.5f);
@@ -702,7 +702,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			door[h]->SetPosition(471.f, -282.f, 2588.7f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(471.f, -300.f, 2588.7f), XMFLOAT3(90.f, 50.f, 0.001f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
-		case 4: 
+		case 4:
 			door[h]->SetPosition(231.f, -282.f, 1239.2f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(231.f, -300.f, 1239.2f), XMFLOAT3(90.f, 50.f, 0.001f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
@@ -773,7 +773,7 @@ void CObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera*
 			m_ppObjects[j]->shadowID = 1;
 			m_ppObjects[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 		}
-}
+	}
 }
 
 //=====================================================================================================================
@@ -869,7 +869,7 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 				if (false == firFloor)//2��
 				{
 					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-					light[0].m_xmf3Position = XMFLOAT3(562 , 140.0f, 2300);//-100 
+					light[0].m_xmf3Position = XMFLOAT3(562, 140.0f, 2300);//-100 
 				}
 			}
 			else
@@ -907,14 +907,14 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 				}
 			}
-			
+
 		}
 	}
 
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
-			
+
 			//if (-70 < player->GetPosition().y)
 			{
 				//if (false == firFloor)//2��
@@ -1299,25 +1299,25 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 		o->shadowID = 1;
 		if (strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
 			//if (strcmp(o->m_pstrName, "Stair_step_01_mesh"))
+		{
+			if (false == o->m_bGetItem)
 			{
-				if (false == o->m_bGetItem)
+				if (-70 < o->GetPosition().y)
 				{
-					if (-70 < o->GetPosition().y)
+					if (false == firFloor)
 					{
-						if (false == firFloor)
-						{
-							o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-						}
+						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					}
-					else
+				}
+				else
+				{
+					if (true == firFloor)
 					{
-						if (true == firFloor)
-						{
-							o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-						}
+						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					}
 				}
 			}
+		}
 	}
 }
 
@@ -1434,56 +1434,25 @@ void CTextureToViewportShader::ReleaseObjects()
 {
 }
 
-void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float plHp,int whatObj)
+void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp)
 {
-	if (0 == whatObj)
-	{
-		hpBarSet(pd3dCommandList, pCamera, plHp);
+	hpBarSet(pd3dCommandList, pCamera, plHp);
 
-		//D3D12_VIEWPORT d3dViewport = { 0.0f, 0.0f, FRAME_BUFFER_WIDTH * 0.25f, FRAME_BUFFER_HEIGHT * 0.25f, 0.0f, 1.0f };
-		D3D12_RECT d3dScissorRect = { 55,18, 154.22f-hpBar, FRAME_BUFFER_HEIGHT / 9.5f};
-		//pd3dCommandList->RSSetViewports(1, &d3dViewport);
-		pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
-
-		
-	}
-	else if (1 == whatObj)
-	{
-		//D3D12_VIEWPORT d3dViewport = { 0.0f, 0.0f, FRAME_BUFFER_WIDTH * 0.25f, FRAME_BUFFER_HEIGHT * 0.25f, 0.0f, 1.0f };
-		D3D12_RECT d3dScissorRect = {10,20, FRAME_BUFFER_WIDTH / 16, FRAME_BUFFER_HEIGHT / 12 };
-		//pd3dCommandList->RSSetViewports(1, &d3dViewport);
-		pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
-	}
+	//D3D12_RECT d3dScissorRect = { 55,18, 154.22f - hpBar, FRAME_BUFFER_HEIGHT / 9.5f };
+	D3D12_RECT d3dScissorRect = { 38,27, 230.f - hpBar, FRAME_BUFFER_HEIGHT / 11.f };
+	
+	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
 	CShader::Render(pd3dCommandList, pCamera);
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
-
-	//pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	//pCamera->UpdateShaderVariables(pd3dCommandList);
 }
 
 void CTextureToViewportShader::hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp)
 {
 	if (0 > plHp)
-		hpBar = 100.f;
+		hpBar = 190.f;
 
-	//범위 = 1/12 + (0.35 * (1/4.15 - 1/12))
-	//hpBar = 1 / 12 + (plHp / maxHp * (1 / 4.15f - 1 / 12));
-	hpBar = (maxHp - plHp) / (maxHp/100);
-	if (beforeHp > plHp)
-	{
-		//if (12.f > hpBar * 4.15f && 0 < plHp)// beforeHp)
-		//{
-		//	if (12.f  > maxHp / plHp  * 4.15f)
-		//		hpBar = maxHp / plHp ;
-		//}
-
-		beforeHp = plHp;
-
-		/*cout << "maxHp : " << maxHp << endl;
-		cout << "hpBar : " << hpBar << endl;
-		cout << "plHp	: " << plHp << endl;*/
-	}
+	hpBar = (maxHp - plHp) / (maxHp / 190);
 }

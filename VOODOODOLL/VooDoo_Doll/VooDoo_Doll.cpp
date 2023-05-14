@@ -249,15 +249,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//23.01.03
 	//p를 누르면 종료
 	case WM_CHAR:
-		if (wParam == 'P' || wParam == 'p')
-		{
-			if (gGameFramework.onFullScreen)
-				gGameFramework.ChangeSwapChainState();
-
-			gGameFramework.exit = true;
-			PostQuitMessage(0);
-		}
-		else if (wParam == 'N' || wParam == 'n')
+		if (wParam == 'N' || wParam == 'n')
 		{
 			if (true == gGameFramework.wakeUp)
 				gGameFramework.wakeUp = false;
