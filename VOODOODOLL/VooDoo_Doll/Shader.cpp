@@ -688,23 +688,24 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
 			door[h]->SetPosition(469.f, -43.f, 1240.f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f));
+			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
 			break;
 		case 1:
 			door[h]->SetPosition(475.f, -43.f, 2591.5f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2591.5f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(475.f, -64.6f, 2591.5f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f));
 			break;
 		case 2:
 			door[h]->SetPosition(222.f, -282.f, 3601.2004f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(222.f, -300.f, 3601.2004f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(222.f, -300.f, 3601.2004f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
 		case 3:
 			door[h]->SetPosition(471.f, -282.f, 2588.7f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(471.f, -300.f, 2588.7f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(471.f, -300.f, 2588.7f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
 		case 4:
 			door[h]->SetPosition(231.f, -282.f, 1239.2f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(231.f, -300.f, 1239.2f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(231.f, -300.f, 1239.2f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
 		}
 

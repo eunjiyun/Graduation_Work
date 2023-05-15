@@ -1001,7 +1001,7 @@ void CGameFramework::FrameAdvance()
 			player->Update(fTimeElapsed);
 			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
 			// 문과의 충돌처리
-			/*m_pStage->CheckDoorCollisions( fTimeElapsed, player);*/
+			//m_pStage->CheckDoorCollisions( fTimeElapsed, player);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
 			m_pStage->Lighthing(player);
 			m_pStage->Pushing_Button(player);

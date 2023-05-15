@@ -1286,13 +1286,11 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 
 	pl->onFloor = false;
-	for (int i = 0; i < m_ppShaders[0]->pDoor.size(); i++)
+	for (int i = 0; i < 5; i++)
 	{
-		BoundingOrientedBox oBox = m_ppShaders[0]->pDoor[i]->obBox;
-
+		BoundingOrientedBox oBox = m_ppShaders[0]->door[i]->obBox;
 		if (pl->obBox.Intersects(oBox))
 		{
-			cout << "Hit" << endl;
 
 			if (pl->obBox.Center.y > oBox.Center.y + oBox.Extents.y && Vel.y <= 0) {
 				XMFLOAT3 Pos = pl->GetPosition();
@@ -1303,8 +1301,7 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-
-			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->m_ppObjects[i]->GetLook(), XMFLOAT3(0, 0, 1));
+			float angle = GetDegreeWithTwoVectors(m_ppShaders[0]->door[i]->GetLook(), XMFLOAT3(0, 0, 1));
 			XMFLOAT3 ObjLook = { 0,0,0 };
 
 
@@ -1338,11 +1335,11 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 				XMFLOAT3 RotatedPos = RotatePointBaseOnPoint(pl->obBox.Center, oBox.Center, angle);
 
 				if (oBox.Center.x - oBox.Extents.x < RotatedPos.x && oBox.Center.x + oBox.Extents.x > RotatedPos.x) {
-					if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders[0]->m_ppObjects[i]->GetLook();
-					else ObjLook = Vector3::ScalarProduct(m_ppShaders[0]->m_ppObjects[i]->GetLook(), -1);
+					if (oBox.Center.z < RotatedPos.z) ObjLook = m_ppShaders[0]->door[i]->GetLook();
+					else ObjLook = Vector3::ScalarProduct(m_ppShaders[0]->door[i]->GetLook(), -1);
 				}
-				else if (oBox.Center.x < RotatedPos.x) ObjLook = m_ppShaders[0]->m_ppObjects[i]->GetRight();
-				else ObjLook = Vector3::ScalarProduct(m_ppShaders[0]->m_ppObjects[i]->GetRight(), -1);
+				else if (oBox.Center.x < RotatedPos.x) ObjLook = m_ppShaders[0]->door[i]->GetRight();
+				else ObjLook = Vector3::ScalarProduct(m_ppShaders[0]->door[i]->GetRight(), -1);
 			}
 			if (Vector3::DotProduct(MovVec, ObjLook) > 0)
 				continue;
