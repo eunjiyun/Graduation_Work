@@ -196,6 +196,10 @@ public:
 	int											iGetItem = 0;
 	int											iGetCoin = 0;
 	bool										bLightwakeUp = false;
+	CTexture*								pCandleTextures[6] = {};
+	CTexture*								pButtonTextures[2] = {};
+	int											m_iHitNum = 0;
+	int											m_iHit[5] = {};
 
 
 	public:

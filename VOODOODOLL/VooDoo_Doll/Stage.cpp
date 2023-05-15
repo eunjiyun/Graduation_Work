@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[38];
+	CTexture* ppTextures[30];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -278,37 +278,38 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_Off.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);//hp bar10
 
 	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_Off.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_Off.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);//hp bar10
-
-	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);//slider 
-
-	ppTextures[33] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_8_Albedo.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[34] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[36] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[36]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);
-
-	ppTextures[37] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[37]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);//slider 
 
 
+	
+	// 버튼 퍼즐 오브젝트
+	pButtonTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3); 
+	pButtonTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_8_Albedo.dds", RESOURCE_TEXTURE2D, 0);
 
+	pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);
+
+	// 캔들 오브젝트
+	pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
+
+	pCandleTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);
+
+	pCandleTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);
+
+	pCandleTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_Off.dds", RESOURCE_TEXTURE2D, 0);
+
+	pCandleTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_Off.dds", RESOURCE_TEXTURE2D, 0);
+
+	pCandleTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_Off.dds", RESOURCE_TEXTURE2D, 0);
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -323,9 +324,19 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	for (int a = 0; a < 38; ++a)
+	for (int a = 0; a < 30; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
+	}
+
+	for (int a = 0; a < 6; ++a)
+	{
+		CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
+	}
+
+	for (int a = 0; a < 2; ++a)
+	{
+		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
 	}
 
 	
@@ -345,7 +356,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 
-		pMaterial->SetTexture(ppTextures[31+u]);
+		pMaterial->SetTexture(ppTextures[28+u]);
 		hpUi[u]->m_ppMaterials[0] = pMaterial;
 	}
 
@@ -512,26 +523,26 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 			if (0 == strcmp("Candle1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[28]);
+				pMaterial->SetTexture(pCandleTextures[3]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
 			if (0 == strcmp("Candle2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[29]);
+				pMaterial->SetTexture(pCandleTextures[4]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
 			if (0 == strcmp("Candle3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[30]);
+				pMaterial->SetTexture(pCandleTextures[5]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
 			if (0 == strcmp("ButtonBottom", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)||
 				0 == strcmp("Button", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-				pMaterial->SetTexture(ppTextures[33]);
+				pMaterial->SetTexture(pButtonTextures[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -542,7 +553,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-		cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
+		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
+
+
+		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
 
 		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
@@ -559,14 +573,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		}
 
 
-		if (410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			414 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 416 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			418 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			413 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 415 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			417 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[5].push_back(m_ppShaders[0]->m_ppObjects[i]);
+			m_ppShaders[0]->m_ppObjects[i]->obBox =
+				BoundingOrientedBox(m_ppShaders[0]->m_ppObjects[i]->GetPosition(), XMFLOAT3(3.f, 3.f, 2.5f), XMFLOAT4(0, 0, 0, 1));
 		}
 
-		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
 		//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		/*cout << "Center: ";
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
@@ -1370,23 +1385,6 @@ void CStage::Lighthing(CPlayer*& pl)
 		}
 	}
 
-	//if (0 == strcmp("Candle1", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-	//{
-	//	pMaterial->SetTexture(ppTextures[28]);
-	//	m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-	//}
-
-	//if (0 == strcmp("Candle2", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-	//{
-	//	pMaterial->SetTexture(ppTextures[29]);
-	//	m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-	//}
-
-	//if (0 == strcmp("Candle3", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
-	//{
-	//	pMaterial->SetTexture(ppTextures[30]);
-	//	m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-	//}
 }
 
 void CStage::ChangeTexture(int iState)
@@ -1408,23 +1406,61 @@ float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 }
 
 
-
+// 409, 411, 413, 415, 417
 
 void CStage::Pushing_Button(CPlayer*& pl)
 {
-	int iAnswer[5] = { 4, 1, 5, 0,2 };
-	int iHit[5] = {};
+	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
+	int iResult = 0; // 틀릴 경우 -1
 
-	for (int iNum = 32; iNum < MAX_LIGHTS; ++iNum)
-	{
-		for (int i = 0; i < pPuzzles[5].size(); i++)
+		for (int i = 0; i < 5; i++)
 		{
 			BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
 
-			if (pl->obBox.Intersects(oBox))
+			if (false == pPuzzles[5][i]->m_bGetItem)
 			{
-				cout << "DTU" << endl;
+				if (pl->obBox.Intersects(oBox))
+				{
+					pPuzzles[5][i]->m_bGetItem = true;
+					m_iHit[m_iHitNum] = pPuzzles[5][i]->m_iObjID;
+					cout << m_iHitNum <<"	|"<< m_iHit[m_iHitNum] << endl;
+					m_iHitNum++;
+				}
+			}
+
+			if (5 == m_iHitNum)
+			{
+				for (int k = 0; k < 5; k++)
+				{
+					if (iAnswer[k] == m_iHit[k])
+					{
+						iResult++;
+					}
+					else
+					{
+						iResult = -1;
+					}
+				}
+			}
+
+			if (5 == iResult)
+			{
+				cout << "Right!" << endl;
+				b5thDoorPass = true;
+				break;
+			}
+
+			else if (-1 == iResult)
+			{
+				cout << "Lose" << endl;
+
+
+				for (int i = 0; i < 5; i++)
+				{
+					pPuzzles[5][i]->m_bGetItem = false;
+				}
+				m_iHitNum = 0;
 			}
 		}
-	}
+
 }
