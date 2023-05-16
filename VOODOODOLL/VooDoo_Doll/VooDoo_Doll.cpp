@@ -315,11 +315,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_SIGN_PACKET p;
 				p.size = sizeof(CS_SIGN_PACKET);
 				p.type = CS_SIGNUP;	
-				string PLAYER_NAME = "0430TESTID";			// 회원가입 화면에서 입력한 아이디 
-				string PLAYER_PASSWORD = "0430TESTPW";		// 회원가입 화면에서 입력한 아이디 
-				strcpy_s(p.id, PLAYER_NAME.c_str());
-				strcpy_s(p.password, PLAYER_PASSWORD.c_str());
-				cout << p.id << ", " << p.password << endl;
+				auto PLAYER_NAME = L"id_0517";			// 회원가입 화면에서 입력한 아이디 
+				auto PLAYER_PASSWORD = L"pw_0517";		// 회원가입 화면에서 입력한 아이디 
+				wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
+				wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
+				wcout << p.id << ", " << p.password << endl;
 				cout << "SIGNUP_PACKET SENT\n";
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
@@ -330,11 +330,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_SIGN_PACKET p;
 				p.size = sizeof(CS_SIGN_PACKET);
 				p.type = CS_SIGNIN;
-				string PLAYER_NAME = "0430TESTID";			// 로그인 화면에서 입력한 아이디 
-				string PLAYER_PASSWORD = "0430TESTID";		// 로그인 화면에서 입력한 비밀번호
-				strcpy_s(p.id, PLAYER_NAME.c_str());
-				strcpy_s(p.password, PLAYER_PASSWORD.c_str());
-				cout << p.id << ", " << p.password << endl;
+				auto PLAYER_NAME = L"id_0517";				// 로그인 화면에서 입력한 아이디 
+				auto PLAYER_PASSWORD = L"pw_0517";		// 로그인 화면에서 입력한 비밀번호
+				wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
+				wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
+				wcout << p.id << ", " << p.password << endl;
 				cout << "SIGNIN_PACKET SENT\n";
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);

@@ -22,8 +22,8 @@ struct TIMER_EVENT {
 
 struct DB_EVENT {
 	unsigned short session_id;
-	char user_id[20];
-	char user_password[20];
+	wchar_t user_id[ID_SIZE];
+	wchar_t user_password[PASSWORD_SIZE];
 	int _event;
 };
 
@@ -512,7 +512,7 @@ void InitializeStages()
 	mt19937 gen(rd());
 	uniform_int_distribution<int> x_dis(150, 500);
 	uniform_int_distribution<int> z_dis(1300, 2500);
-	uniform_int_distribution<int> type_dis(0, 1);
+	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
 		//cout << "1 stage\n";
 

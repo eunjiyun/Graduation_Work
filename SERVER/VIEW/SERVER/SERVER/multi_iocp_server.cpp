@@ -7,6 +7,8 @@
 #include <unordered_set>
 #include "main.h"
 #include <sqlext.h>
+#include <sql.h>
+#include <sqltypes.h>
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 
@@ -130,152 +132,108 @@ void DB_Thread()
 	SQLHDBC hdbc;
 	SQLHSTMT hstmt = 0;
 	SQLRETURN retcode;
-	SQLWCHAR szUser_ID[NAME_SIZE], szUser_PWD[NAME_SIZE];
+	SQLWCHAR szUser_ID[ID_SIZE], szUser_PWD[PASSWORD_SIZE];
 	SQLINTEGER dUser_ClearTime, dUser_CurStage;
 
 	setlocale(LC_ALL, "korean");
 
 	SQLLEN cbID = 0, cbPWD = 0, cbClearTime = 0, cbCurStage = 0;
 
-	//// Allocate environment handle  
-	//retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+	// Allocate environment handle  
+	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
 
-	//// Set the ODBC version environment attribute  
-	//if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-	//	retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+	// Set the ODBC version environment attribute  
+	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
 
-	//	// Allocate connection handle  
-	//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-	//		retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+		// Allocate connection handle  
+		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
 
 
-	//		// Set login timeout to 5 seconds  
-	//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-	//			SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
-
-	//			// Connect to data source  
-	//			//retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-	//			//SQLWCHAR* ConnStrIn = L"DRIVER={SQL Server};SERVER=127.0.0.1;DATABASE=VOODOODOLL_DB;UID=dbAdmin_master;PWD=2018180005";
-	//			retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)L"dbAdmin_master", SQL_NTS, (SQLWCHAR*)L"2018180005", SQL_NTS);
-	//			cout << retcode << endl;
-	//			// Allocate statement handle  
-	//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-	//				retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-	//				printf("ODBC Connect OK \n");
-	//			}
-	//			else 									
-	//				HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-	//		}
-	//	}
-	//}
-
-	while (1)
-	{
-		DB_EVENT ev;
-		if (db_queue.try_pop(ev))
-		{
-			// Allocate environment handle  
-			retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-
-			// Set the ODBC version environment attribute  
+			// Set login timeout to 5 seconds  
 			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
+				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
-				// Allocate connection handle  
+				// Connect to data source  
+				//retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VooDooDoll_DB", SQL_NTS, (SQLWCHAR*)L"dbAdmin", SQL_NTS, (SQLWCHAR*)L"2018180005", SQL_NTS);
+
+
+				SQLWCHAR* connectionString = (SQLWCHAR*)L"DRIVER=SQL Server;SERVER=14.36.243.161;DATABASE=VooDooDoll_DB; UID=dbAdmin; PWD=2018180005;";
+
+				retcode = SQLDriverConnect(hdbc, NULL, connectionString, SQL_NTS, NULL, 1024, NULL, SQL_DRIVER_NOPROMPT);
+
+				// Allocate statement handle  
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-
-					// Set login timeout to 5 seconds  
-					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
-
-						// Connect to data source  
-						retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VOODOODOLL_DB", SQL_NTS, (SQLWCHAR*)NULL, 0, NULL, 0);
-
-						// Allocate statement handle  
-						if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-
-							printf("ODBC Connect OK \n");
-
-
-							wchar_t query[100];
-							switch (ev._event) {
-							case EV_SIGNUP:
-								swprintf(query, L"INSERT INTO user_data (ID, Password, clearTime, curStage) VALUES ('%hs', '%hs', 0, 0)", ev.user_id, ev.user_password);
-								printf("%ls\n", query);
-								retcode = SQLExecDirect(hstmt, (SQLWCHAR*)query, SQL_NTS);
-								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									printf("INSERT OK \n");
-								}
-								else {
-									printf("INSERT FAILED \n");
-									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-								}
-								break;
-							case EV_SIGNIN:
-								swprintf(query, L"SELECT ID, Password, clearTime, curStage FROM user_data WHERE ID='%hs' AND Password='%hs'", ev.user_id, ev.user_password);
-								printf("%ls\n", query);
-								retcode = SQLExecDirect(hstmt, (SQLWCHAR*)query, SQL_NTS);
-								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									printf("SELECT OK \n");
-									OVER_EXP* ov = new OVER_EXP();
-									ov->_comp_type = OP_LOGGEDIN;
-									PostQueuedCompletionStatus(h_iocp, 1, ev.session_id, &ov->_over);
-								}
-								else {
-									printf("SELECT FAILED \n");
-									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-								}
-								break;
-							}
-
-							//retcode = SQLExecDirect(hstmt, (SQLWCHAR*)L"SELECT ID, Password, clearTime, curStage FROM user_data", SQL_NTS);
-							//if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-
-							//	printf("Select OK \n");
-
-							//	// Bind columns 1, 2, and 3  
-							//	retcode = SQLBindCol(hstmt, 1, SQL_C_WCHAR, szUser_ID, 100, &cbID);
-							//	retcode = SQLBindCol(hstmt, 2, SQL_C_WCHAR, szUser_PWD, NAME_SIZE, &cbPWD);
-							//	retcode = SQLBindCol(hstmt, 3, SQL_C_LONG, &dUser_ClearTime, 100, &cbClearTime);
-							//	retcode = SQLBindCol(hstmt, 4, SQL_C_LONG, &dUser_CurStage, 100, &cbCurStage);
-
-							//	// Fetch and print each row of data. On an error, display a message and exit.  
-							//	for (int i = 0; ; i++) {
-							//		retcode = SQLFetch(hstmt);
-							//		if (retcode == SQL_ERROR || retcode == SQL_SUCCESS_WITH_INFO)
-							//			HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO)
-							//		{
-							//			//replace wprintf with printf
-							//			//%S with %ls
-							//			//warning C4477: 'wprintf' : format string '%S' requires an argument of type 'char *'
-							//			//but variadic argument 2 has type 'SQLWCHAR *'
-							//			//wprintf(L"%d: %S %S %S\n", i + 1, sCustID, szName, szPhone);  
-							//			wprintf(L"%d: %s %s %d %d\n", i + 1, szUser_ID, szUser_PWD, dUser_ClearTime, dUser_CurStage);
-							//		}
-							//		else
-							//			break;
-							//	}
-							//}
-
-							// Process data  
-							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-								SQLCancel(hstmt);
-								SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-							}
-
-							SQLDisconnect(hdbc);
-						}
-
-						SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-					}
+					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
+					printf("ODBC Connect OK \n");
 				}
-				SQLFreeHandle(SQL_HANDLE_ENV, henv);
+				else
+					HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+
+				while (1)
+				{
+					DB_EVENT ev;
+					if (db_queue.try_pop(ev)) {
+						cout << "GET REQUEST\n";
+						SQLWCHAR* param1 = ev.user_id;
+						SQLWCHAR* param2 = ev.user_password;
+						switch (ev._event) {
+						case EV_SIGNUP:
+							//SQLWCHAR* procedureName = L"sign_up";
+							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_up(?, ?)}", SQL_NTS);
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 20, 0, (SQLPOINTER)param2, 0, NULL);
+
+								retcode = SQLExecute(hstmt);
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									printf("SIGNUP OK \n");
+								}
+								else {
+									printf("SIGNUP FAILED \n");
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
+							}
+							else {
+								printf("SQLPrepare failed \n");
+								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							}
+							break;
+						case EV_SIGNIN:
+							//SQLWCHAR* procedureName = L"sign_in";
+							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 20, 0, (SQLPOINTER)param2, 0, NULL);
+
+								retcode = SQLExecute(hstmt);
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									printf("LOGIN OK \n");
+								}
+								else {
+									printf("LOGIN FAILED \n");
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
+							}
+							else {
+								printf("SQLPrepare failed \n");
+								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							}
+							break;
+						}
+					}
+					else this_thread::sleep_for(100ms);
+				}
+
+				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+					SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+				}
+				SQLDisconnect(hdbc);
 			}
+			SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		}
-		else this_thread::sleep_for(100ms);
+		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 	}
 }
 
@@ -304,8 +262,8 @@ void process_packet(const int c_id, char* packet)
 		CS_SIGN_PACKET* p = reinterpret_cast<CS_SIGN_PACKET*>(packet);
 		DB_EVENT ev;
 		ev._event = EV_SIGNUP;
-		strncpy_s(ev.user_id, sizeof(ev.user_id), p->id, _TRUNCATE);
-		strncpy_s(ev.user_password, sizeof(ev.user_password), p->password, _TRUNCATE);
+		wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(wchar_t), p->id);
+		wcscpy_s(ev.user_password, sizeof(ev.user_password) / sizeof(wchar_t), p->password);
 		ev.session_id = c_id;
 		db_queue.push(ev);
 		break;
@@ -314,8 +272,8 @@ void process_packet(const int c_id, char* packet)
 		CS_SIGN_PACKET* p = reinterpret_cast<CS_SIGN_PACKET*>(packet);
 		DB_EVENT ev;
 		ev._event = EV_SIGNIN;
-		strncpy_s(ev.user_id, sizeof(ev.user_id), p->id, _TRUNCATE);
-		strncpy_s(ev.user_password, sizeof(ev.user_password), p->password, _TRUNCATE);
+		wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(wchar_t), p->id);
+		wcscpy_s(ev.user_password, sizeof(ev.user_password) / sizeof(wchar_t), p->password);
 		ev.session_id = c_id;
 		db_queue.push(ev);
 		break;
@@ -603,10 +561,10 @@ void worker_thread(HANDLE h_iocp)
 						}
 					}
 					MonsterPool.ReturnMemory(*iter);
-#ifdef _STRESS_TEST
-					if (PoolMonsters[roomNum].size() <= 0)
-						Initialize_Monster(roomNum, 1);
-#endif
+//#ifdef _STRESS_TEST
+//					if (PoolMonsters[roomNum].size() <= 0)
+//						Initialize_Monster(roomNum, 1);
+//#endif
 				}
 			}
 

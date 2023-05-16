@@ -19,7 +19,7 @@ using namespace chrono;
 
 extern HWND		hWnd;
 
-const static int MAX_TEST = 9000;
+const static int MAX_TEST = 1000;
 const static int MAX_CLIENTS = MAX_TEST * 2;
 const static int INVALID_ID = -1;
 const static int MAX_PACKET_SIZE = 512;
@@ -399,13 +399,13 @@ void Test_Thread()
 			CS_MOVE_PACKET my_packet;
 			my_packet.size = sizeof(my_packet);
 			my_packet.type = CS_MOVE;
-			my_packet.direction = rand() % 16;
+			my_packet.direction = rand() % 8;
 			short packet_type = rand() % 10;
 			if (packet_type <= 6) {
-				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 3));
-				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
-				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-3, 0, 0));
-				if (my_packet.direction & 8) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(3, 0, 0));
+				if (my_packet.direction & 1) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, 1));
+				//if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(0, 0, -3));
+				if (my_packet.direction & 2) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(-1, 0, 0));
+				if (my_packet.direction & 4) g_clients[i].pos = Vector3::Add(g_clients[i].pos, XMFLOAT3(1, 0, 0));
 				my_packet.pos = g_clients[i].pos;
 				my_packet.id = i;
 				my_packet.move_time = static_cast<unsigned>(duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count());
