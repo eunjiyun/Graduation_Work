@@ -140,6 +140,7 @@ void ProcessPacket(int ci, unsigned char packet[])
 				g_clients[my_id].connected = false;
 			if (-1 != my_id) {
 				g_clients[my_id].pos = move_packet->Pos;
+				//cout << g_clients[my_id].pos.x << ", " << g_clients[my_id].pos.y << ", " << g_clients[my_id].pos.z << endl;
 			}
 			if (ci == my_id) {
 				auto d_ms = duration_cast<milliseconds>(high_resolution_clock::now().time_since_epoch()).count() - move_packet->move_time;

@@ -73,7 +73,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 0;
         HP = 250;
         power = 30;
-        view_range = 500;
+        view_range = 1000;
         speed = 40.f;
         attack_cycle = (71.f / 30.f); // 2.366667√ 
         attack_timer = attack_cycle;
@@ -83,7 +83,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 1;
         HP = 150;
         power = 30;
-        view_range = 500;
+        view_range = 1000;
         speed = 50.f;
         attack_range = 3.f;
         attack_cycle = (56.f / 30.f); // 2.366667√ 

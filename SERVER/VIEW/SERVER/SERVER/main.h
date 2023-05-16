@@ -512,7 +512,7 @@ void InitializeStages()
 	mt19937 gen(rd());
 	uniform_int_distribution<int> x_dis(150, 500);
 	uniform_int_distribution<int> z_dis(1300, 2500);
-	uniform_int_distribution<int> type_dis(0, 2);
+	uniform_int_distribution<int> type_dis(0, 1);
 	{	// 1stage
 		//cout << "1 stage\n";
 

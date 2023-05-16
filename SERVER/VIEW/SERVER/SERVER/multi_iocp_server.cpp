@@ -603,6 +603,10 @@ void worker_thread(HANDLE h_iocp)
 						}
 					}
 					MonsterPool.ReturnMemory(*iter);
+#ifdef _STRESS_TEST
+					if (PoolMonsters[roomNum].size() <= 0)
+						Initialize_Monster(roomNum, 1);
+#endif
 				}
 			}
 

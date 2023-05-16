@@ -4,7 +4,7 @@
 #include <memory>
 #include "stdafx.h"
 
-#define _USE_MYLOCKFREEQUEUE 
+//#define _USE_MYLOCKFREEQUEUE 
 
 template <class T>
 class Node {
@@ -39,7 +39,7 @@ public:
                     if (oldTail->next.compare_exchange_strong(oldNext, newNode)) {
                         tail.compare_exchange_strong(oldTail, newNode);
                         size.fetch_add(1);
-                        cout << size.load() << endl;
+                        //cout << size.load() << endl;
                         return true;
                     }
                 }
@@ -70,7 +70,7 @@ public:
                         }
                         value = oldNext->data;
                         size.fetch_sub(1);
-                        cout << size.load() << endl;
+                        //cout << size.load() << endl;
                         return true;
                     }
                 }
@@ -130,7 +130,7 @@ public:
     {
         cout << "CurrentSize - " << objectQueue.get_size() << endl;
     }
-#elif
+#else
 private:
     concurrent_queue<T*> objectQueue;
 public:
