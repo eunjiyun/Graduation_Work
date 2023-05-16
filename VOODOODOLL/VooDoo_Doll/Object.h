@@ -526,6 +526,8 @@ public:
 		m_xmf3FirePosition = xmf3FirePosition;
 		SetPosition(xmf3FirePosition);
 	}
+
+	void RenderText(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, CCamera* pCamera);
 };
 
 

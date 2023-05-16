@@ -40,6 +40,15 @@ constexpr float WINDOW_MODE_RATE = 1.f;
 //#include <SpriteBatch.h>
 //#include <SimpleMath.h>
 #include<memory>
+#include <d3d12.h>
+#include <d3dcompiler.h>
+#include <dxgi1_6.h>
+#include <d2d1_3.h>
+#include <dwrite_3.h>
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
 
 
 

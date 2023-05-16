@@ -155,8 +155,7 @@ public:
 	UINT							m_nStride = 0;
 	ID3D12Resource* m_pd3dVertexBuffer = NULL;
 	ID3D12Resource* m_pd3dVertexUploadBuffer = NULL;
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dVertexBufferView;
-
+	
 
 protected:
 	UINT							m_nType = 0x00;

@@ -475,7 +475,10 @@ void CGameFramework::BuildObjects()
 	m_pStage->hpUi[0] = new CGameObject(1);
 	m_pStage->hpUi[1] = new CGameObject(1);
 
-
+	m_pStage->userId = new CGameObject * [10];
+	for(int i{};i<10;++i)
+		m_pStage->userId[i] = new CGameObject(1);
+	
 
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	if (m_pStage)
@@ -488,6 +491,19 @@ void CGameFramework::BuildObjects()
 
 	m_pStage->hpUi[1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
 	m_pStage->hpUi[1]->SetScale(0.05f, 0.3f, 0.7f);
+
+	for (int i{}; i < 10; ++i)
+	{
+		m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+		m_pStage->userId[i]->SetScale(0.05f, 0.3f, 0.1f);
+		m_pStage->userId[i]->SetPosition(50, -55, 178+25*i);
+	}
+	m_pStage->userId[4]->m_ppMaterials[0] = m_pStage->userId[1]->m_ppMaterials[0];//d
+	m_pStage->userId[5]->m_ppMaterials[0] = m_pStage->userId[2]->m_ppMaterials[0];//d
+	m_pStage->userId[6]->m_ppMaterials[0] = m_pStage->userId[2]->m_ppMaterials[0];//d
+	m_pStage->userId[7]->m_ppMaterials[0] = m_pStage->userId[2]->m_ppMaterials[0];//d
+	m_pStage->userId[8]->m_ppMaterials[0] = m_pStage->userId[2]->m_ppMaterials[0];//d
+	m_pStage->userId[9]->m_ppMaterials[0] = m_pStage->userId[3]->m_ppMaterials[0];//d
 
 	// Initialize SoundPlayer
 	sound[0].Initialize();
@@ -528,8 +544,77 @@ void CGameFramework::BuildObjects()
 
 	string g_UserName = "VooDooDoll";
 
-	m_Test = new Text(TextureKey::BATTLE_UI_ENGFONT, 1310, 110, g_UserName);
+	
+	//m_Test = new Text(TextureKey::BATTLE_UI_ENGFONT, 1310, 110, g_UserName);
 
+	//// Direct2D 초기화
+	//ComPtr<ID2D1Factory3> d2dFactory;
+	//HRESULT h = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory3), &d2dFactory);
+
+	//ComPtr<IDXGIDevice> dxgiDevice;
+	//h = m_pd3dDevice->QueryInterface(IID_PPV_ARGS(&dxgiDevice));
+
+	//if(SUCCEEDED(h))
+	//{
+	//	// IDXGIDevice 인터페이스 지원됨
+	//	// 추가적인 작업 수행
+	//	// 예: dxgiDevice->GetAdapter() 등
+
+	//	cout << "성공" << endl;
+	//}
+	//else
+	//{
+	//	// IDXGIDevice 인터페이스 지원되지 않음
+	//	// 처리 방법 결정
+
+	//	cout << "실패" << endl;
+	//}
+
+	//ComPtr<ID2D1Device2> d2dDevice;
+	//h = d2dFactory->CreateDevice(dxgiDevice.Get(), &d2dDevice);
+
+	//ComPtr<ID2D1Device> d2dDevice;
+	//h = d2dFactory->CreateDevice(m_pd3dDevice, &d2dDevice);
+
+	//
+	//h = d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2dDeviceContext);
+
+
+	//// Direct2D 초기화
+	//ComPtr<ID2D1Device> d2dDevice;
+	//HRESULT h = D2D1CreateDevice(m_pd3dDevice, D2D1_CREATION_PROPERTIES(), &d2dDevice);
+
+	//ComPtr<ID2D1DeviceContext> d2dDeviceContext;
+	//d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2dDeviceContext);
+
+	//// DWrite 팩토리 생성
+	//IDWriteFactory* dwriteFactory;
+	//h = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), (IUnknown**)(&dwriteFactory));
+
+	//
+	//h = dwriteFactory->CreateTextFormat(
+	//	L"Arial", // 폰트 이름
+	//	nullptr, // 폰트 컬렉션
+	//	DWRITE_FONT_WEIGHT_NORMAL,
+	//	DWRITE_FONT_STYLE_NORMAL,
+	//	DWRITE_FONT_STRETCH_NORMAL,
+	//	16.0f, // 폰트 크기
+	//	L"en-US", // 로케일
+	//	&textFormat
+	//);
+
+	//// 텍스트 색상 지정
+	//D2D1_COLOR_F textColor = D2D1::ColorF(D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f));
+	//
+	//h = d2dDeviceContext->CreateSolidColorBrush(textColor, &textBrush);
+	
+	m_pStage->text = new CGameObject(1);
+	
+	m_pStage->text->m_ppMeshes[0] = new CMesh;
+	m_pStage->text->m_ppMaterials[0] = m_pStage->texMat;
+
+
+	//text->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
 
 
 	m_pLights = m_pStage->m_pLights;
@@ -996,6 +1081,38 @@ void CGameFramework::FrameAdvance()
 	// 	sound[3].Play();//윈
 	// }
 
+
+
+
+
+
+	//// 텍스트 출력
+	//D2D1_RECT_F textRect = D2D1::RectF(100.0f, 100.0f, 300.0f, 200.0f); // 텍스트 위치 및 크기
+	//d2dDeviceContext->DrawText(
+	//	L"Hello, World!", // 출력할 텍스트
+	//	wcslen(L"Hello, World!"), // 텍스트 길이
+	//	textFormat.Get(), // 텍스트 포맷
+	//	textRect, // 출력 영역
+	//	textBrush.Get() // 텍스트 브러시
+	//);
+
+	//// 텍스트 출력
+	//d2dDeviceContext->BeginDraw();
+	//d2dDeviceContext->SetTransform(D2D1::IdentityMatrix());
+	//d2dDeviceContext->DrawText(
+	//	L"VooDooDoll",
+	//	9,
+	//	textFormat,
+	//	D2D1::RectF(0, 0, 200, 200),
+	//	textBrush);
+	//d2dDeviceContext->EndDraw();
+
+	//m_pStage->text->RenderText(m_pd3dCommandList, m_pd3dDevice, m_pCamera);
+	//RenderText();
+
+
+
+
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Update(fTimeElapsed);
@@ -1172,7 +1289,32 @@ void CGameFramework::FrameAdvance()
 		m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	}
-	
+
+	if (-1 == gameButton)
+	{
+		if ('v' == input || true == userName[0])
+		{
+			m_pStage->userId[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			userName[0] = true;
+		}
+		if ('d' == input || true == userName[1])
+		{
+			m_pStage->userId[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			userName[1] = true;
+		}
+		if ('o' == input || true == userName[2])
+		{
+			m_pStage->userId[2]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			userName[2] = true;
+		}
+		if ('l' == input || true == userName[3])
+		{
+			m_pStage->userId[3]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			userName[3] = true;
+		}
+	}
+
+
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
@@ -1214,8 +1356,8 @@ void CGameFramework::FrameAdvance()
 			}
 			else
 			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 100;
-				m_pPlayer->HP = 100;
+				m_pStage->m_pShadowMapToViewport->maxHp = 55500;
+				//m_pPlayer->HP = 55500;
 				m_pStage->m_pShadowMapToViewport->curPl = 2;
 			}
 			m_pStage->m_pShadowMapToViewport->init = true;
@@ -1282,3 +1424,209 @@ void CGameFramework::FrameAdvance()
 
 
 
+//// 텍스트 출력 함수
+//void RenderText()
+//{
+//	// 텍스트를 그리기 위한 정점 데이터
+//	struct Vertex
+//	{
+//		XMFLOAT3 position;
+//		XMFLOAT2 texCoord;
+//	};
+//
+//	// 텍스트의 정점 데이터
+//	Vertex vertices[] =
+//	{
+//		// 정점 위치         텍스처 좌표
+//		{ XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT2(0.0f, 0.0f) },
+//		{ XMFLOAT3(100.0f, 0.0f, 0.0f), XMFLOAT2(1.0f, 0.0f) },
+//		{ XMFLOAT3(0.0f, 100.0f, 0.0f), XMFLOAT2(0.0f, 1.0f) },
+//		{ XMFLOAT3(100.0f, 100.0f, 0.0f), XMFLOAT2(1.0f, 1.0f) }
+//	};
+//
+//	// 정점 버퍼 생성
+//	D3D12_HEAP_PROPERTIES vbHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+//	D3D12_RESOURCE_DESC vbResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices));
+//	ID3D12Resource* vertexBuffer;
+//	m_pd3dDevice->CreateCommittedResource(
+//		&vbHeapProperties,
+//		D3D12_HEAP_FLAG_NONE,
+//		&vbResourceDesc,
+//		D3D12_RESOURCE_STATE_GENERIC_READ,
+//		nullptr,
+//		IID_PPV_ARGS(&vertexBuffer)
+//	);
+//
+//	// 정점 버퍼에 데이터 복사
+//	UINT8* pVertexDataBegin;
+//	CD3DX12_RANGE readRange(0, 0);
+//	vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+//	memcpy(pVertexDataBegin, vertices, sizeof(vertices));
+//	vertexBuffer->Unmap(0, nullptr);
+//
+//	// 텍스트를 그리기 위한 인덱스 데이터
+//	WORD indices[] =
+//	{
+//		0, 1, 2, // 삼각형 1
+//		2, 1, 3  // 삼각형 2
+//	};
+//
+//	// 인덱스 버퍼 생성
+//	D3D12_HEAP_PROPERTIES ibHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+//	D3D12_RESOURCE_DESC ibResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(indices));
+//	ID3D12Resource* indexBuffer;
+//	m_pd3dDevice->CreateCommittedResource(
+//		&ibHeapProperties,
+//		D3D12_HEAP_FLAG_NONE,
+//		&ibResourceDesc,
+//		D3D12_RESOURCE_STATE_GENERIC_READ,
+//		nullptr,
+//		IID_PPV_ARGS(&indexBuffer)
+//	);
+//
+//	// 인덱스 버퍼에 데이터 복사
+//	UINT8* pIndexDataBegin;
+//	indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pIndexDataBegin));
+//	memcpy(pIndexDataBegin, indices, sizeof(indices));
+//	indexBuffer->Unmap(0, nullptr);
+//
+//	// 셰이더 컴파일 및 로드, 파이프라인 설정 등의 작업 생략
+//
+//	// 그래픽 명령 리스트 작성 시작
+//	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, nullptr);
+//
+//	// 렌더 타겟 설정 등의 작업 생략
+//
+//	// 렌더 타겟과 셰이더 리소스 바인딩
+//	m_pd3dCommandList->SetGraphicsRootSignature(m_pd3dRootSignature);
+//	m_pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+//	m_pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dDescriptorHeap);
+//	m_pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//
+//	// 정점 버퍼 설정
+//	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+//	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+//	vbView.StrideInBytes = sizeof(Vertex);
+//	vbView.SizeInBytes = sizeof(vertices);
+//	m_pd3dCommandList->IASetVertexBuffers(0, 1, &vbView);
+//
+//	// 인덱스 버퍼 설정
+//	D3D12_INDEX_BUFFER_VIEW ibView = {};
+//	ibView.BufferLocation = indexBuffer->GetGPUVirtualAddress();
+//	ibView.Format = DXGI_FORMAT_R16_UINT;
+//	ibView.SizeInBytes = sizeof(indices);
+//	m_pd3dCommandList->IASetIndexBuffer(&ibView);
+//
+//	// 그리기 호출
+//	m_pd3dCommandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+//
+//	// 그래픽 명령 리스트 실행 등의 작업 생략
+//
+//	// 텍스트 출력 함수 호출 시 화면에 텍스트가 그려짐
+//
+//	// ...
+//
+//	// 텍스트 출력 함수 호출 후 화면에 그려진 텍스트를 스왑체인에 표시하는 등의 작업 생략
+//}
+
+void CGameFramework::RenderText()
+{
+	// 텍스트를 그리기 위한 정점 데이터
+	struct Vertex
+	{
+		XMFLOAT3 position;
+		XMFLOAT2 texCoord;
+	};
+
+	// 텍스트의 정점 데이터
+	Vertex vertices[] =
+	{
+		// 정점 위치         텍스처 좌표
+		{ XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT2(0.0f, 0.0f) },
+		{ XMFLOAT3(100.0f, 0.0f, 0.0f), XMFLOAT2(1.0f, 0.0f) },
+		{ XMFLOAT3(0.0f, 100.0f, 0.0f), XMFLOAT2(0.0f, 1.0f) },
+		{ XMFLOAT3(100.0f, 100.0f, 0.0f), XMFLOAT2(1.0f, 1.0f) }
+	};
+
+	// ...
+
+	// 텍스트 출력에 사용할 문자열
+	const wchar_t* text = L"VooDooDoll";
+
+	// 문자열의 길이
+	int textLength = wcslen(text);
+
+	// 텍스처 좌표를 계산하여 정점 데이터에 적용
+	for (int i = 0; i < textLength; ++i)
+	{
+		vertices[i].texCoord.x = static_cast<float>(i) / static_cast<float>(textLength - 1);
+		vertices[i + 1].texCoord.x = static_cast<float>(i + 1) / static_cast<float>(textLength - 1);
+	}
+
+	// ...
+
+	// 그래픽 명령 리스트 작성 시작
+	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, nullptr);
+
+	// ...
+
+
+	// 정점 버퍼 생성
+	//D3D12_HEAP_PROPERTIES vbHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	D3D12_HEAP_PROPERTIES vbHeapProperties = {};
+	vbHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+	vbHeapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	vbHeapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+	vbHeapProperties.CreationNodeMask = 1;
+	vbHeapProperties.VisibleNodeMask = 1;
+	//D3D12_RESOURCE_DESC vbResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices));
+	D3D12_RESOURCE_DESC vbResourceDesc = {};
+	vbResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+	vbResourceDesc.Alignment = 0;
+	vbResourceDesc.Width = sizeof(vertices);
+	vbResourceDesc.Height = 1;
+	vbResourceDesc.DepthOrArraySize = 1;
+	vbResourceDesc.MipLevels = 1;
+	vbResourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+	vbResourceDesc.SampleDesc.Count = 1;
+	vbResourceDesc.SampleDesc.Quality = 0;
+	vbResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	vbResourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
+
+	ID3D12Resource* vertexBuffer;
+	m_pd3dDevice->CreateCommittedResource(
+		&vbHeapProperties,
+		D3D12_HEAP_FLAG_NONE,
+		&vbResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&vertexBuffer)
+	);
+
+	//// 정점 버퍼에 데이터 복사
+	//D3D12_RANGE readRange = {}; // 매핑 범위를 나타내는 D3D12_RANGE 구조체 초기화
+	//UINT8* pVertexDataBegin;
+	//vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin));
+	//memcpy(pVertexDataBegin, vertices, sizeof(vertices));
+	//vertexBuffer->Unmap(0, nullptr);
+
+
+	// 텍스트 출력에 사용할 정점 버퍼 설정
+	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+	vbView.BufferLocation = vertexBuffer->GetGPUVirtualAddress();
+	vbView.StrideInBytes = sizeof(Vertex);
+	vbView.SizeInBytes = sizeof(vertices) - sizeof(Vertex) + sizeof(Vertex) * textLength;
+	m_pd3dCommandList->IASetVertexBuffers(0, 1, &vbView);
+
+	// ...
+
+	// 그리기 호출
+	m_pd3dCommandList->DrawIndexedInstanced(6, textLength - 1, 0, 0, 0);
+
+	// ...
+
+	// 텍스트 출력 함수 호출 시 화면에 "VooDooDoll"이 그려짐
+
+	// ...
+}

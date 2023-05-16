@@ -1631,8 +1631,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 					nReads = (UINT)::fread(pAnimationSet->m_ppxmf4x4KeyFrameTransforms[i], sizeof(XMFLOAT4X4), pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames, pInFile);
 #endif
 				}
+			}
 		}
-	}
 		else if (!strcmp(pstrToken, "</AnimationSets>"))
 		{
 			break;
@@ -2318,7 +2318,118 @@ void SpriteFont::SetTextureScl(float x, float y)
 	m_TexScl.y = y;
 }
 
+//void CGameObject::RenderText(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, CCamera* pCamera)
+//{
+//	// 텍스트를 그리기 위한 정점 데이터
+//	//Vertex data for drawing text
+//	struct Vertex
+//	{
+//		XMFLOAT3 position;
+//		XMFLOAT2 texCoord;
+//	};
+//
+//	// 텍스트의 정점 데이터
+//	//vertex data of text
+//	Vertex vertices[] =
+//	{
+//		// 정점 위치         텍스처 좌표
+//		//vertex position texture coordinates
+//		{ XMFLOAT3(250.0f, 250.0f, 0.0f), XMFLOAT2(0.0f, 0.0f) },
+//		{ XMFLOAT3(350.0f, 250.0f, 0.0f), XMFLOAT2(1.0f, 0.0f) },
+//		{ XMFLOAT3(250.0f, 350.0f, 0.0f), XMFLOAT2(0.0f, 1.0f) },
+//		 { XMFLOAT3(350.0f, 350.0f, 0.0f), XMFLOAT2(1.0f, 1.0f) }
+//	};
+//
+//	// 텍스트 출력에 사용할 문자열
+//	//String to use for text output
+//	const wchar_t* text = L"VooDooDoll";
+//
+//	// 문자열의 길이
+//	//length of string
+//	int textLength = wcslen(text);
+//
+//	// 텍스처 좌표를 계산하여 정점 데이터에 적용
+//	//Calculate texture coordinates and apply them to vertex data
+//	for (int i = 0; i < textLength; ++i)
+//	{
+//		vertices[i].texCoord.x = static_cast<float>(i) / static_cast<float>(textLength - 1);
+//		vertices[i + 1].texCoord.x = static_cast<float>(i + 1) / static_cast<float>(textLength - 1);
+//	}
+//
+//	m_ppMeshes[0]->m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, vertices, sizeof(Vertex) * 4,
+//		D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_ppMeshes[0]->m_pd3dPositionUploadBuffer);
+//
+//	m_ppMeshes[0]->m_nVertexBufferViews = 1;
+//	m_ppMeshes[0]->m_pd3dVertexBufferViews = new D3D12_VERTEX_BUFFER_VIEW[m_ppMeshes[0]->m_nVertexBufferViews];
+//
+//	m_ppMeshes[0]->m_pd3dVertexBufferViews[0].BufferLocation = m_ppMeshes[0]->m_pd3dPositionBuffer->GetGPUVirtualAddress();
+//	m_ppMeshes[0]->m_pd3dVertexBufferViews[0].StrideInBytes = sizeof(Vertex);
+//	m_ppMeshes[0]->m_pd3dVertexBufferViews[0].SizeInBytes = sizeof(vertices) - sizeof(Vertex) + sizeof(Vertex) * textLength;
+//
+//
+//	if (m_ppMaterials[0])
+//	{
+//		if (m_ppMaterials[0]->m_pShader)
+//			m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+//
+//		m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+//
+//		pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
+//	}
+//
+//	pd3dCommandList->IASetVertexBuffers(0, 1, m_ppMeshes[0]->m_pd3dVertexBufferViews);
+//	pd3dCommandList->DrawIndexedInstanced(6, textLength - 1, 0, 0, 0);
+//}
+void CGameObject::RenderText(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, CCamera* pCamera)
+{
+	//// 텍스트를 그리기 위한 정점 데이터
+	//// Vertex data for drawing text
+	//struct Vertex
+	//{
+	//	XMFLOAT3 position;
+	//	XMFLOAT2 texCoord;
+	//};
 
+	//// 텍스트의 정점 데이터
+	//// Vertex data of text
+	//const wchar_t* text = L"VooDooDoll";
+	//int textLength = wcslen(text);
+	//Vertex* vertices = new Vertex[textLength + 1];
 
+	//// 텍스처 좌표를 계산하여 정점 데이터에 적용
+	//// Calculate texture coordinates and apply them to vertex data
+	//for (int i = 0; i < textLength; ++i)
+	//{
+	//	vertices[i].position = XMFLOAT3(250.0f + 100.0f * i, 250.0f, 0.0f);
+	//	vertices[i].texCoord = XMFLOAT2(static_cast<float>(i) / static_cast<float>(textLength - 1), 0.0f);
+	//}
+	//vertices[textLength].position = XMFLOAT3(250.0f + 100.0f * textLength, 250.0f, 0.0f);
+	//vertices[textLength].texCoord = XMFLOAT2(1.0f, 0.0f);
 
+	//m_ppMeshes[0]->m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, nullptr, sizeof(Vertex) * (textLength + 1),
+	//	D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_ppMeshes[0]->m_pd3dPositionUploadBuffer);
 
+	////::UpdateSubresources(pd3dCommandList, m_ppMeshes[0]->m_pd3dPositionBuffer, m_ppMeshes[0]->m_pd3dPositionUploadBuffer, 0, 0, 1, &vertices);
+	//memcpy((void**)(m_ppMeshes[0]->m_pd3dPositionUploadBuffer->GetGPUVirtualAddress()), vertices, sizeof(Vertex) * 4);
+
+	//m_ppMeshes[0]->m_nVertexBufferViews = 1;
+	//m_ppMeshes[0]->m_pd3dVertexBufferViews = new D3D12_VERTEX_BUFFER_VIEW[m_ppMeshes[0]->m_nVertexBufferViews];
+
+	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].BufferLocation = m_ppMeshes[0]->m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].StrideInBytes = sizeof(Vertex);
+	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].SizeInBytes = sizeof(Vertex) * (textLength + 1);
+
+	//if (m_ppMaterials[0])
+	//{
+	//	if (m_ppMaterials[0]->m_pShader)
+	//		m_ppMaterials[0]->m_pShader->Render(pd3dCommandList, pCamera);
+
+	//	m_ppMaterials[0]->UpdateShaderVariable(pd3dCommandList);
+
+	//	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
+	//}
+
+	//pd3dCommandList->IASetVertexBuffers(0, 1, m_ppMeshes[0]->m_pd3dVertexBufferViews);
+	//pd3dCommandList->DrawInstanced(textLength + 1, 1, 0, 0);
+	//delete[] vertices;
+}

@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[30];
+	CTexture* ppTextures[34];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -227,7 +227,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[10]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/cart_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 	
 	ppTextures[11] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[11]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Poster_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[11]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Poster_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);//UI_ENGFONT Poster_mat_BaseMap
 	
 	ppTextures[12] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[12]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/dressing_table_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -283,6 +283,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);//slider 
 
+	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/v.dds", RESOURCE_TEXTURE2D, 0);//slider 
+
+	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/d.dds", RESOURCE_TEXTURE2D, 0);//slider 
+
+	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/o.dds", RESOURCE_TEXTURE2D, 0);//slider 
+
+	ppTextures[33] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/l.dds", RESOURCE_TEXTURE2D, 0);//slider 
+
 
 	
 	// 버튼 퍼즐 오브젝트
@@ -313,7 +325,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);//gameStart UI_ENGFONT
 
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -324,7 +336,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	for (int a = 0; a < 30; ++a)
+	for (int a = 0; a < 34; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -358,6 +370,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 		pMaterial->SetTexture(ppTextures[28+u]);
 		hpUi[u]->m_ppMaterials[0] = pMaterial;
+	}
+	for (int u{}; u < 4; ++u)
+	{
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+
+		pMaterial->SetTexture(ppTextures[30 + u]);
+		userId[u]->m_ppMaterials[0] = pMaterial;
 	}
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
@@ -427,6 +447,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				pMaterial->SetTexture(ppTextures[11]);
 				//->SetTexture(m_ppShaders[0]->gameScreen[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+				texMat = pMaterial;
 			}
 			if (0 == strcmp("Dressing_table_drawer_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Dressing_table_mirror_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))

@@ -59,6 +59,8 @@ public:
 	SCENEID m_ePrevScene;
 
 
+
+
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;
@@ -92,6 +94,9 @@ private:
 
 public:
 	bool wakeUp = true;
+	char input;
+	bool userName[4] = { false,false,false,false };
+	vector<char> userId;
 
 	int gameButton = -1;
 	bool exit = false;
@@ -99,7 +104,12 @@ public:
 	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;
 
+	void RenderText();
 	Text* m_Test;
+	ComPtr<ID2D1DeviceContext2> d2dDeviceContext;
+	ComPtr<IDWriteTextFormat> textFormat;
+	ComPtr<ID2D1SolidColorBrush> textBrush;
+	
 
 
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;

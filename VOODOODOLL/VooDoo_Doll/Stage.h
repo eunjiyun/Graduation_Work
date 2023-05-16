@@ -184,6 +184,7 @@ public:
 	CDepthRenderShader*		m_pDepthRenderShader = NULL;
 	CTextureToViewportShader* m_pShadowMapToViewport = NULL;
 	CGameObject** hpUi = nullptr;
+	CGameObject** userId = nullptr;
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;
@@ -204,6 +205,8 @@ public:
 
 	public:
 		array<vector<CGameObject*>, 7> pPuzzles;
+		CMaterial* texMat = nullptr;
+		CGameObject* text = nullptr;
 
 };
 
