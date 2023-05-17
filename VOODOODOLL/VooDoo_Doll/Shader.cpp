@@ -627,7 +627,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 	mpObjVec.resize(0);
 
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);//0517
 
 
 	if (0 == strcmp("Models/Scene.bin", pstrFileName))
@@ -637,7 +637,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 
 			/*m_ppObjects[i]->m_xmOOBB = BoundingOrientedBox(XMFLOAT3(m_ppObjects[i]->GetPosition().x, m_ppObjects[i]->GetPosition().y,
 				m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
-
 
 
 				//�ٴ� �ֱ�
@@ -713,7 +712,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		{
 			door[h]->Rotate(0, 180, 0);
 		}
-		//else
 		pDoor.push_back(door[h]);
 		cout << door[h]->obBox.Center.x << ",	" << door[h]->obBox.Center.y << ",	" << door[h]->obBox.Center.z << endl;
 		boxShader->obj.push_back(door[h]);

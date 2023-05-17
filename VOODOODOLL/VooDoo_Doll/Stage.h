@@ -33,7 +33,7 @@ struct LIGHT
 	XMFLOAT4							m_xmf4Specular;
 	XMFLOAT3							m_xmf3Position;
 	float 								m_fFalloff;
-	XMFLOAT3							m_xmf3Direction;//0316 이게0 0 0이면 xmmatrixlooktolh 에서 오류
+	XMFLOAT3							m_xmf3Direction;
 	float 								m_fTheta; //cos(m_fTheta)
 	XMFLOAT3							m_xmf3Attenuation;
 	float								m_fPhi; //cos(m_fPhi)
@@ -153,8 +153,7 @@ public:
 	XMFLOAT3					m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	LIGHT*						m_pLights = NULL;
-	LIGHTS*						m_pShadowLights = NULL;
-
+	
 	int								m_nLights = 0;
 	MATERIALS*				m_pMaterials = NULL;
 	ID3D12Resource*		m_pd3dcbMaterials = NULL;
@@ -177,14 +176,13 @@ public:
 	float							mpTime = 0.f;
 	XMFLOAT4X4				m_xmf4x4World = Matrix4x4::Identity();
 
-	int whatPlayer = 1;
-
 	CBoxShader*							pBoxShader = NULL;
 	CShadowMapShader*			m_pShadowShader = NULL;
 	CDepthRenderShader*		m_pDepthRenderShader = NULL;
 	CTextureToViewportShader* m_pShadowMapToViewport = NULL;
 	CGameObject** hpUi = nullptr;
 	CGameObject** userId = nullptr;
+
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;
@@ -205,8 +203,5 @@ public:
 
 	public:
 		array<vector<CGameObject*>, 7> pPuzzles;
-		CMaterial* texMat = nullptr;
-		CGameObject* text = nullptr;
-
 };
 

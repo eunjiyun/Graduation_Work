@@ -440,7 +440,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 		strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
 		pGameObject->m_iObjID = iObjectID;
-		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath);
+		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath,i);
 
 		//cout << i<<"	:>	"<<pGameObject->m_pstrName << endl;
 

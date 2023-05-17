@@ -256,16 +256,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		else if (wParam == 'V' || wParam == 'v')
-			gGameFramework.input = 'v';
-		else if (wParam == 'D' || wParam == 'd')
-			gGameFramework.input = 'd';
-		else if (wParam == 'O' || wParam == 'o')
-			gGameFramework.input = 'o';
-		else if (wParam == 'L' || wParam == 'l')
-			gGameFramework.input = 'l';
-
-		gGameFramework.userId.push_back(wParam);
+		
+		
+		if(false== gGameFramework.login[0])
+			gGameFramework.userId.push_back(wParam);
 
 		break;
 		

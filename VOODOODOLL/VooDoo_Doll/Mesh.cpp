@@ -9,10 +9,10 @@
 CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
-CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
+CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName,int i)
 {
 	if (pstrFileName)
-		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName);
+		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName,i);
 }
 
 
@@ -97,7 +97,7 @@ void CMesh::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pCont
 }
 
 
-void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName)
+void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName,int i)
 {
 #ifdef _WITH_TEXT_MESH
 	ifstream InFile(pstrFileName);
@@ -150,7 +150,6 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			nReads = (UINT)::fread(&OBBox.Center, sizeof(float), 3, pFile);
 			nReads = (UINT)::fread(&OBBox.Extents, sizeof(float), 3, pFile);
 			nReads = (UINT)::fread(&OBBox.Orientation, sizeof(float), 4, pFile);
-			//cout << OBBox.Orientation.x << ",	" << OBBox.Orientation.y << ",	" << OBBox.Orientation.z << ",	" << OBBox.Orientation.w << endl;
 
 			if (0 == strncmp(pstrFileName, "Bedroom_wall", 12))
 			{
@@ -176,6 +175,34 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			nReads = (UINT)::fread(&m_nVertices, sizeof(int), 1, pFile);
 			m_pxmf2TextureCoords = new XMFLOAT2[m_nVertices];
 			nReads = (UINT)::fread(m_pxmf2TextureCoords, sizeof(float), 2 * m_nVertices, pFile);
+
+			if (0==strcmp(pstrFileName, "Models/Ceiling_concrete_base_mesh.bin"))//Dense_Floor_mesh  Models/  Ceiling_concrete_base_mesh
+			{
+				
+					for (int u{}; u < m_nVertices; ++u)//0517
+					{
+						
+						if (113 <= i && 166 >= i)
+						{
+							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);//A
+							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 113)) - (0.9f - 0.1f * (i - 113))) + 0.9f - 0.1f * (i - 113);//113-122
+						}
+						else if (167 <= i && 175 >= i)
+						{
+							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 107) / 10) - (0.875f - 0.125f * ((i - 107) / 10))) + 0.875f - 0.125f * ((i - 107) / 10);
+							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 107)) - (0.9f - 0.1f * (i - 107))) + 0.9f - 0.1f * (i - 107);
+						}
+						else if (49 == i)
+						{
+							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * 6 - (0.875f - 0.125f * 6)) + 0.875f - 0.125f * 6;
+							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * 69) - (0.9f - 0.1f * 69)) + 0.9f - 0.1f * 69;
+						}
+		
+					}
+				
+				
+				
+			}
 		}
 		else if (!strcmp(pstrToken, "<Indices>:"))
 		{

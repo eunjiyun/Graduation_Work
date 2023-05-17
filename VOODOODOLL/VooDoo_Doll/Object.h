@@ -366,49 +366,48 @@ public:
 	virtual ~CGameObject();
 
 public:
-	int								m_nReferences = 0;// //
+	int								m_nReferences = 0;
 
 public:
-	char							m_pstrName[64] = { '\0' };// //
+	char							m_pstrName[64] = { '\0' };
 	char							m_pstrTextureName[64] = { '\0' };
-	CMesh** m_ppMeshes;// //
-	int								m_nMeshes;//
-	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle;//
-	char							m_pstrFrameName[64];//
-	int								m_nMaterials = 0;//
-	CMaterial** m_ppMaterials = NULL;//
+	CMesh** m_ppMeshes;
+	int								m_nMeshes;
+	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle;
+	char							m_pstrFrameName[64];
+	int								m_nMaterials = 0;
+	CMaterial** m_ppMaterials = NULL;
 
 	int										m_iObjID = 0; 
 	bool									m_bGetItem = false;
 
-	XMFLOAT4X4						m_xmf4x4ToParent;//
-	XMFLOAT4X4						m_xmf4x4World;//
+	XMFLOAT4X4						m_xmf4x4ToParent;
+	XMFLOAT4X4						m_xmf4x4World;
 
-	CGameObject* m_pParent = NULL;//
-	CGameObject* m_pChild = NULL;//
-	CGameObject* m_pSibling = NULL;//
+	CGameObject* m_pParent = NULL;
+	CGameObject* m_pChild = NULL;
+	CGameObject* m_pSibling = NULL;
 
-	CAnimationController* m_pSkinnedAnimationController = NULL;//
+	CAnimationController* m_pSkinnedAnimationController = NULL;
 
-	ID3D12Resource* m_pd3dcbGameObject = NULL;// //
-	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;//
+	ID3D12Resource* m_pd3dcbGameObject = NULL;
+	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
 
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;//
-	BoundingBox			m_xmOOBB = BoundingBox();// //
+	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
+	BoundingBox			m_xmOOBB = BoundingBox();
 	BoundingOrientedBox			obBox = BoundingOrientedBox();
 
 
-	bool						m_bActive = false;//
-	bool onAttack = false;//
-	bool onRun = false;//
+	bool						m_bActive = false;
+	bool onAttack = false;
+	bool onRun = false;
 	bool onDie = false;
-	bool onCollect = false;//
+	bool onCollect = false;
 	bool onAct = false;
-	bool dieOnce = false;//
 	bool onFloor = false;
 	
-	int c_id = -1;//monster id //
-	int npc_type = -1;//monster type //
+	int c_id = -1;//monster id 
+	int npc_type = -1;//monster type 
 
 	bool isChild = false;
 
@@ -526,8 +525,6 @@ public:
 		m_xmf3FirePosition = xmf3FirePosition;
 		SetPosition(xmf3FirePosition);
 	}
-
-	void RenderText(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, CCamera* pCamera);
 };
 
 
@@ -613,174 +610,5 @@ public:
 	virtual ~CDoor();
 };
 
-enum class TextureKey {
-	LOBBY_BG,
-	LOBBY_BG_FWD,
-	LOBBY_READY,
 
-	SKYBOX_TOP,
-	SKYBOX_SIDE,
-	PKN1_PKN2, MSH1, TREE, ARCH, PKN3, HFPK, ONIO, MSH2, ROK1, ROK2, LTRE,
-	SNAL, CATS, SOFA, CHAR, BPOT, STL1_STL2, MGST, BASN, PDW1, PDW2,
-	BSF1, BSF2, FBU1, FBU2, CHDW, MOPP, INLI, DESK,
-	CUSN, SIGN, SPMP, LEV1, LEV2, DRW2, DRW1, LEAV, TX97, TX64,
-	GEMB, GEMR, GEMW, GEMP, MSTB, MSTR, MSTW, MSTP, FENC, MPED, BENC, WICH, NMGD,
-	TXNM, TXWC, TETX, SCS1, SCS2, ROOT, COMEHERE,
-
-	TERN,
-
-	// Player
-	NM_HAND,
-	WC_HAND,
-
-	// UI
-	BATTLE_UI_WS_LEFT,
-	BATTLE_UI_WS_RIGHT,
-	BATTLE_UI_WS_BLUE,
-	BATTLE_UI_WS_PURPLE,
-	BATTLE_UI_WS_RED,
-	BATTLE_UI_WS_WHITE,
-	BATTLE_UI_WS_BLUE_BROKEN,
-	BATTLE_UI_WS_PURPLE_BROKEN,
-	BATTLE_UI_WS_RED_BROKEN,
-	BATTLE_UI_WS_WHITE_BROKEN,
-
-	BATTLE_UI_SKILL_FRAME,
-	BATTLE_UI_SKILL_DASH_ICON,
-	BATTLE_UI_SKILL_FAKE_DIE_ICON,
-	BATTLE_UI_SKILL_HALT_ICON,
-	BATTLE_UI_SKILL_GEM_TRANSPARENT_ICON,
-
-	BATTLE_UI_SOUL_FONT,
-	BATTLE_UI_SOUL_ICON,
-	BATTLE_UI_SPEED_ICON,
-	BATTLE_UI_TIMER_ICON,
-	BATTLE_UI_ENGFONT,
-	BATTLE_UI_SKILL_COOLTIME_FILTER,
-	BATTLE_UI_BAR_BG,
-	BATTLE_UI_BAR_FILL,
-	BATTLE_UI_BAR_RESPAWN,
-	BATTLE_UI_BAR_FAKEDEATH,
-	BATTLE_UI_CHARSKILL_BG,
-	BATTLE_UI_CHARSKILL_FONT_RED,
-	BATTLE_UI_CHARSKILL_FONT_BLUE,
-
-	//LOBBY
-	LOBBY_LOGIN,
-	LOBBY_SPANI_SPIDER,
-	LOBBY_SPANI_WITCH,
-	LOBBY_SPANI_NMGD1,
-	LOBBY_SPANI_NMGD2,
-	LOBBY_SPANI_NMGD3,
-	LOBBY_SPANI_NMGD4,
-
-	LOBBY_GAME_START_BUTTON,
-	LOBBY_GAME_QUIT_BUTTON,
-
-	LOBBY_LOADING_ICON,
-	LOBBY_QUIT_FINDING_GAME,
-
-	LOBBY_ID_ICON,
-	LOBBY_ID_BG,
-
-	//LOGIN
-	LOGIN_BG,
-	LOGIN_LOGO,
-	LOGIN_SELECTED,
-	LOGIN_LOGIN_BOX,
-	LOGIN_REGISTER_BOX,
-	LOGIN_REGISTER_BUTTON,
-	LOGIN_LOGIN_BUTTON,
-	LOGIN_QUIT_BUTTON,
-	LOGIN_BACK_BUTTON,
-
-	//WCWIN
-	WCWIN_BG,
-	WCWIN_WICH,
-	WCWIN_NM1,
-	WCWIN_NM2,
-	WCWIN_NM3,
-	WCWIN_SOUL,
-
-	//NMWIN
-	NMWIN_BG,
-	NMWIN_NM1,
-	NMWIN_NM2,
-	NMWIN_NM3,
-	NMWIN_NM4,
-	NMWIN_WICH,
-
-	//EFFECT & ETC
-	EF_CONFETTI,
-	RESULT_TOLOBBY_ICON
-
-
-};
-
-class SpriteFont //: public GraphicsObject
-{
-public:
-	explicit SpriteFont(TextureKey key, float width, float height);
-	explicit SpriteFont(int num_r, int num_c, TextureKey key, float sprite_w, float sprite_h, float pixel_x, float pixel_y);
-	explicit SpriteFont(char c, TextureKey key, float sprite_w, float sprite_h, float pixel_x, float pixel_y);
-
-public:
-	//virtual PSOType GetPSOType() override;
-
-	/*virtual void CreateConstantBuffer() override;
-	virtual void UpdateConstantBuffer(ID3D12GraphicsCommandList* cl) override;*/
-
-	void SetTexturePos(float x, float y);
-	void SetTextureScl(float x, float y);
-
-//public:
-	//XMFLOAT3 m_Position;
-
-
-private:
-	XMFLOAT2 m_TexPos;
-	XMFLOAT2 m_TexScl;
-
-	XMFLOAT3 m_Scale;
-	XMFLOAT3 m_Position;
-};
-
-
-
-struct SpriteFontInfo
-{
-	int num_r;
-	int num_c;
-	float width;
-	float height;
-};
-
-class Text
-{
-public:
-	//explicit Text(Scene* scene, TextureKey key, float x, float y, string contents);
-	explicit Text(TextureKey key, float x, float y, string contents);
-
-	void PushBack(char letter);
-	void PopBack();
-	size_t Size() { return m_Contents.size(); }
-	string GetString() { return m_Contents; }
-
-	void operator=(const string& text);
-	void operator=(string&& text);
-
-
-private:
-	void CreateLettersFromContents();
-
-private:
-	//Scene* m_Scene;
-	TextureKey			m_TextureKey;
-	POINTF				m_Pos;
-	string				m_Contents;
-	list<SpriteFont*>	m_Letters;
-
-	SpriteFontInfo m_FontInfo;
-	unordered_map<char, pair<int, int>> m_CharRowCol;
-};
 

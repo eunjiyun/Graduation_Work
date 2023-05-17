@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[34];
+	CTexture* ppTextures[31];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -284,16 +284,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);//slider 
 
 	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/v.dds", RESOURCE_TEXTURE2D, 0);//slider 
-
-	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/d.dds", RESOURCE_TEXTURE2D, 0);//slider 
-
-	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/o.dds", RESOURCE_TEXTURE2D, 0);//slider 
-
-	ppTextures[33] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/l.dds", RESOURCE_TEXTURE2D, 0);//slider 
+	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_ENGFONT.dds", RESOURCE_TEXTURE2D, 0);//slider 
 
 
 	
@@ -336,7 +327,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	for (int a = 0; a < 34; ++a)
+	for (int a = 0; a < 31; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -371,12 +362,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMaterial->SetTexture(ppTextures[28+u]);
 		hpUi[u]->m_ppMaterials[0] = pMaterial;
 	}
-	for (int u{}; u < 4; ++u)
+	
+	for (int u{}; u < 10; ++u)
 	{
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
 
-		pMaterial->SetTexture(ppTextures[30 + u]);
+		pMaterial->SetTexture(ppTextures[30]);
 		userId[u]->m_ppMaterials[0] = pMaterial;
 	}
 
@@ -445,9 +437,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				0 == strcmp("Poster_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(ppTextures[11]);
-				//->SetTexture(m_ppShaders[0]->gameScreen[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-				texMat = pMaterial;
 			}
 			if (0 == strcmp("Dressing_table_drawer_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Dressing_table_mirror_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
@@ -505,6 +495,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			{
 				pMaterial->SetTexture(ppTextures[21]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
+
+				//cout << "천장 i " << i << endl;
 			}	
 			
 			if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_01_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||

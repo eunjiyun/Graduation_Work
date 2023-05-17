@@ -75,16 +75,9 @@ public:
 	void Move(const XMFLOAT3& xmf3Shift, bool bVelocity = false);
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
-	
-	virtual void playerAttack(int, CGameObject*, CGameObject***) {}
-	virtual void playerRun() {}
-	virtual void playerDie() {}
-	virtual void playerCollect(){}
-	
 
 	virtual void Update(float fTimeElapsed);
-	virtual void otherPlayerUpdate(float fTimeElapsed) {};
-
+	
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
 	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
 
