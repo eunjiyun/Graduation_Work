@@ -570,9 +570,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
 
 		gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
-		gGameFramework.temp->SetPosition(880, -70, 800);
-		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
-		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+		gGameFramework.screen = true;
+		//gGameFramework.temp->SetPosition(880, -70, 800);
+		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
 		gGameFramework.m_pCamera->m_lock = true;
 
 		//gGameFramework.monsterSound.Stop();//몬스터

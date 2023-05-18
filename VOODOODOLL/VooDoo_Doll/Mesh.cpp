@@ -182,17 +182,25 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 					for (int u{}; u < m_nVertices; ++u)//0517
 					{
 						
-						if (113 <= i && 166 >= i)
+						if (113 <= i && 166 >= i)//A ~ _
 						{
-							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);//A
-							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 113)) - (0.9f - 0.1f * (i - 113))) + 0.9f - 0.1f * (i - 113);//113-122
+							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);
+
+							/*if (113 <= i && 122 >= i)
+								m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.08f * ((i - 113) / 10) - (0.92f - 0.08f * ((i - 113) / 10))) + 0.92f - 0.08f * ((i - 113) / 10);
+							else if(123 <= i && 132 >= i)
+								m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);
+							else
+								m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);*/
+
+							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 113)) - (0.9f - 0.1f * (i - 113))) + 0.9f - 0.1f * (i - 113);
 						}
-						else if (167 <= i && 175 >= i)
+						else if (167 <= i && 175 >= i)//0 ~ 8
 						{
 							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 107) / 10) - (0.875f - 0.125f * ((i - 107) / 10))) + 0.875f - 0.125f * ((i - 107) / 10);
 							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 107)) - (0.9f - 0.1f * (i - 107))) + 0.9f - 0.1f * (i - 107);
 						}
-						else if (49 == i)
+						else if (49 == i)//9
 						{
 							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * 6 - (0.875f - 0.125f * 6)) + 0.875f - 0.125f * 6;
 							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * 69) - (0.9f - 0.1f * 69)) + 0.9f - 0.1f * 69;

@@ -303,6 +303,16 @@ void CGameFramework::ChangeSwapChainState()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+
+	// hWnd는 게임 창의 윈도우 핸들입니다.
+	RECT rcWindow;
+	GetWindowRect(Get_HWND(), &rcWindow);
+
+	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
+
+
 	if (m_pStage) m_pStage->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
 	{
@@ -311,6 +321,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
+		//cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
+		//cout << "y : " << m_ptOldCursorPos.y - windowY << endl;
 
 		break;
 	case WM_LBUTTONUP:
@@ -499,8 +511,10 @@ void CGameFramework::BuildObjects()
 
 	for (int i{}; i < 10; ++i)
 	{
-		m_pStage->userId[i]->SetScale(0.05f, 0.3f, 0.1f);
-		m_pStage->userId[i]->SetPosition(50, -105, 178 + 25 * i);
+		//m_pStage->userId[i]->SetScale(0.05f, 0.3f, 0.1f);
+		//m_pStage->userId[i]->SetPosition(50, -105, 178 + 25 * i);
+		m_pStage->userId[i]->SetScale(0.033f, 0.3f, 0.05f);
+		m_pStage->userId[i]->SetPosition(50, -140, 452 + 12 * i);
 	}
 
 
@@ -522,13 +536,13 @@ void CGameFramework::BuildObjects()
 	sound[3].LoadWave(win);
 
 	temp = new CGameObject(1);
-	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
+	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[3];
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
 
-	temp->SetPosition(84, 75, 108);
-	temp->Rotate(270, 0, 0);
-	temp->SetScale(0.7f, 0.7f, 0.7f);
-
+	//temp->SetPosition(108, 82, 140);
+	//temp->Rotate(270, 0, 0);
+	temp->SetScale(0.718f, 0.7f, 2.3f);
+	temp->SetPosition(50, -209, 690);
 
 	m_pLights = m_pStage->m_pLights;
 
@@ -982,6 +996,9 @@ void CGameFramework::FrameAdvance()
 	}
 
 
+	if(true==login[0])
+		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
+
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
 	RECT rcWindow;
@@ -993,33 +1010,36 @@ void CGameFramework::FrameAdvance()
 
 	if (false == onFullScreen)
 	{
-		if (526 <= m_ptOldCursorPos.x - windowX && 589 >= m_ptOldCursorPos.x - windowX
-			&& 302 <= m_ptOldCursorPos.y - windowY && 335 >= m_ptOldCursorPos.y - windowY)
+		if (521 <= m_ptOldCursorPos.x - windowX && 584 >= m_ptOldCursorPos.x - windowX
+			&& 294 <= m_ptOldCursorPos.y - windowY && 321 >= m_ptOldCursorPos.y - windowY)
+		{
 			gameButton = 1;
-		else if (528 <= m_ptOldCursorPos.x - windowX && 587 >= m_ptOldCursorPos.x - windowX
-			&& 372 <= m_ptOldCursorPos.y - windowY && 409 >= m_ptOldCursorPos.y - windowY)
+			screen = false;
+		}
+		else if (524 <= m_ptOldCursorPos.x - windowX && 583 >= m_ptOldCursorPos.x - windowX
+			&& 349 <= m_ptOldCursorPos.y - windowY && 381 >= m_ptOldCursorPos.y - windowY)
 		{
 			gameButton = 2;
 			exit = true;
 		}
-		else if (499 <= m_ptOldCursorPos.x - windowX && 617 >= m_ptOldCursorPos.x - windowX
-			&& 440 <= m_ptOldCursorPos.y - windowY && 474 >= m_ptOldCursorPos.y - windowY)
+		else if (495 <= m_ptOldCursorPos.x - windowX && 615 >= m_ptOldCursorPos.x - windowX
+			&& 407 <= m_ptOldCursorPos.y - windowY && 440 >= m_ptOldCursorPos.y - windowY)
 			gameButton = 3;
 	}
 	else
 	{
-		if (518 <= m_ptOldCursorPos.x - windowX && 580 >= m_ptOldCursorPos.x - windowX
-			&& 265 <= m_ptOldCursorPos.y - windowY && 304 >= m_ptOldCursorPos.y - windowY)
+		if (515 <= m_ptOldCursorPos.x - windowX && 579 >= m_ptOldCursorPos.x - windowX
+			&& 257 <= m_ptOldCursorPos.y - windowY && 290 >= m_ptOldCursorPos.y - windowY)
 			gameButton = 1;
-		else if (521 <= m_ptOldCursorPos.x - windowX && 577 >= m_ptOldCursorPos.x - windowX
-			&& 337 <= m_ptOldCursorPos.y - windowY && 374 >= m_ptOldCursorPos.y - windowY)
+		else if (516 <= m_ptOldCursorPos.x - windowX && 574 >= m_ptOldCursorPos.x - windowX
+			&& 316 <= m_ptOldCursorPos.y - windowY && 346 >= m_ptOldCursorPos.y - windowY)
 		{
 			gameButton = 2;
 			exit = true;
 			ChangeSwapChainState();
 		}
-		else if (493 <= m_ptOldCursorPos.x - windowX && 611 >= m_ptOldCursorPos.x - windowX
-			&& 409 <= m_ptOldCursorPos.y - windowY && 445 >= m_ptOldCursorPos.y - windowY)
+		else if (488 <= m_ptOldCursorPos.x - windowX && 603 >= m_ptOldCursorPos.x - windowX
+			&& 375 <= m_ptOldCursorPos.y - windowY && 409 >= m_ptOldCursorPos.y - windowY)
 			gameButton = 3;
 	}
 
@@ -1086,9 +1106,10 @@ void CGameFramework::FrameAdvance()
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
 		{
 			temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			temp->SetPosition(880, -65, 1000);
-			m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
-
+			//temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			//temp->SetPosition(880, -65, 1000);
+			//m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
+			screen = true;
 			monsterSound.Stop();//몬스터
 			monsterSound.Terminate();
 			sound[0].Stop();//인게임
@@ -1115,7 +1136,7 @@ void CGameFramework::FrameAdvance()
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	}
 
-	if (-1 == gameButton)
+	if (false==login[0])
 	{
 		if (!userId.empty())
 		{
@@ -1161,7 +1182,8 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 	}
-
+	if(true==screen)
+		temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
@@ -1179,7 +1201,7 @@ void CGameFramework::FrameAdvance()
 	}
 
 
-	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{

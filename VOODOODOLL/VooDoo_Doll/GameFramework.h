@@ -118,7 +118,7 @@ public:
 
 	CGameTimer					m_GameTimer;
 	SoundPlayer sound[4];
-
+	bool screen = true;
 	SoundPlayer monsterSound;
 	SoundPlayer doorSound;
 	SoundPlayer playerSound;

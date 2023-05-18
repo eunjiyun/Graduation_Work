@@ -316,14 +316,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);//gameStart UI_ENGFONT
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/a.dds", RESOURCE_TEXTURE2D, 0);
 
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/youWin.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/yowWin3.dds", RESOURCE_TEXTURE2D, 0);
 
 	m_ppShaders[0]->gameScreen[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver2.dds", RESOURCE_TEXTURE2D, 0);
+
+	m_ppShaders[0]->gameScreen[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/sign4.dds", RESOURCE_TEXTURE2D, 0);//login
 
 
 
@@ -343,7 +346,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	}
 
 	
-	for (int h{}; h < 3; ++h)
+	for (int h{}; h < 4; ++h)
 	{
 		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
 
@@ -495,8 +498,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			{
 				pMaterial->SetTexture(ppTextures[21]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
-
-				//cout << "천장 i " << i << endl;
 			}	
 			
 			if (0 == strcmp("Book_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||	0 == strcmp("Book_01_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
