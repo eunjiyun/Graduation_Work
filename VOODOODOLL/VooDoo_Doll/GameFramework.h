@@ -158,8 +158,8 @@ public:
 
 	_TCHAR						m_pszFrameRate[70];
 
-	CGameObject** m_ppBullets = NULL;//�Ѿ�
-	CGameObject** m_ppCap = NULL;//��������
+	CGameObject** m_ppBullets = NULL;
+	CGameObject** m_ppCap = NULL;
 	bool onFullScreen = false;
 };
 

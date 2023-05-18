@@ -2,7 +2,8 @@
 
 constexpr short PORT_NUM = 3500;
 constexpr short BUF_SIZE = 512;
-constexpr short NAME_SIZE = 20;
+constexpr short ID_SIZE = 10;
+constexpr short PASSWORD_SIZE = 20;
 constexpr short MAX_USER = 9000;
 constexpr short MAX_ROOM = 3000;
 constexpr short MAX_USER_PER_ROOM = 3;
@@ -52,8 +53,8 @@ constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 struct CS_SIGN_PACKET {
 	unsigned char size;
 	char	type;
-	char id[NAME_SIZE];
-	char password[NAME_SIZE];
+	wchar_t id[ID_SIZE];
+	wchar_t password[PASSWORD_SIZE];
 };
 constexpr short CS_SIGN_PACKET_SIZE = sizeof(CS_SIGN_PACKET);
 
