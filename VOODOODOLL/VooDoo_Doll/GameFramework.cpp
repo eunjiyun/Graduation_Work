@@ -303,7 +303,7 @@ void CGameFramework::ChangeSwapChainState()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-
+	//마우스 입력
 	// hWnd는 게임 창의 윈도우 핸들입니다.
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
@@ -312,6 +312,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
+	XMFLOAT2 sign[4];
 
 	if (m_pStage) m_pStage->OnProcessingMouseMessage(hWnd, nMessageID, wParam, lParam);
 	switch (nMessageID)
@@ -323,6 +324,35 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 		//cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
 		//cout << "y : " << m_ptOldCursorPos.y - windowY << endl;
+
+		if (false == onFullScreen)
+		{
+			sign[0].x = 256; sign[1].x = 364;
+			sign[0].y = 375; sign[1].y = 417;
+
+			sign[2].x = 418; sign[3].x = 521;
+			sign[2].y = 376; sign[3].y = 417;
+		}
+		else
+		{
+			sign[0].x = 247; sign[1].x = 356;
+			sign[0].y = 342; sign[1].y = 387;
+
+			sign[2].x = 410; sign[3].x = 516;
+			sign[2].y = 343; sign[3].y = 386;
+		}
+
+
+		if (sign[0].x <= m_ptOldCursorPos.x - windowX && sign[1].x >=m_ptOldCursorPos.x - windowX
+			&& sign[0].y <=m_ptOldCursorPos.y - windowY && sign[1].y >= m_ptOldCursorPos.y - windowY)
+		{
+			signIn = 0;
+		}
+		else if (sign[2].x <= m_ptOldCursorPos.x - windowX && sign[3].x >= m_ptOldCursorPos.x - windowX
+			&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
+		{
+			signIn = 1;
+		}
 
 		break;
 	case WM_LBUTTONUP:
@@ -345,7 +375,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		switch (wParam)
 		{
 		case VK_ESCAPE:
-			exit = true;
+			m_pStage->exitGame = true;
 			if (onFullScreen)
 				ChangeSwapChainState();
 
@@ -354,8 +384,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_RETURN:
 			if (false == login[0])
 				login[0] = true;
-			else
-				login[1] = true;
+			//else
+				//login[1] = true;
 			break;
 		case VK_F1:
 		case VK_F2:
@@ -494,6 +524,9 @@ void CGameFramework::BuildObjects()
 	m_pStage->userId = new CGameObject * [10];
 	for (int i{}; i < 10; ++i)
 		m_pStage->userId[i] = new CGameObject(1);
+	m_pStage->userPw = new CGameObject * [10];
+	for (int i{}; i < 10; ++i)
+		m_pStage->userPw[i] = new CGameObject(1);
 
 
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
@@ -515,6 +548,13 @@ void CGameFramework::BuildObjects()
 		//m_pStage->userId[i]->SetPosition(50, -105, 178 + 25 * i);
 		m_pStage->userId[i]->SetScale(0.033f, 0.3f, 0.05f);
 		m_pStage->userId[i]->SetPosition(50, -140, 452 + 12 * i);
+	}
+	for (int i{}; i < 10; ++i)
+	{
+		//m_pStage->userId[i]->SetScale(0.05f, 0.3f, 0.1f);
+		//m_pStage->userId[i]->SetPosition(50, -105, 178 + 25 * i);
+		m_pStage->userPw[i]->SetScale(0.033f, 0.3f, 0.05f);
+		m_pStage->userPw[i]->SetPosition(50, -156, 452 + 12 * i);
 	}
 
 
@@ -620,7 +660,7 @@ void CGameFramework::BuildObjects()
 
 void CGameFramework::ReleaseObjects()
 {
-	if (!exit)
+	if (!m_pStage->exitGame)
 	{
 		if (m_pPlayer) m_pPlayer->Release();
 
@@ -1001,7 +1041,8 @@ void CGameFramework::FrameAdvance()
 	}
 
 
-	if(true==login[0])
+	//if (true == login[1])
+	if(true==loginSign[1])
 		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 
 
@@ -1025,7 +1066,7 @@ void CGameFramework::FrameAdvance()
 			&& 349 <= m_ptOldCursorPos.y - windowY && 381 >= m_ptOldCursorPos.y - windowY)
 		{
 			gameButton = 2;
-			exit = true;
+			m_pStage->exitGame = true;
 		}
 		else if (495 <= m_ptOldCursorPos.x - windowX && 615 >= m_ptOldCursorPos.x - windowX
 			&& 407 <= m_ptOldCursorPos.y - windowY && 440 >= m_ptOldCursorPos.y - windowY)
@@ -1040,7 +1081,7 @@ void CGameFramework::FrameAdvance()
 			&& 316 <= m_ptOldCursorPos.y - windowY && 346 >= m_ptOldCursorPos.y - windowY)
 		{
 			gameButton = 2;
-			exit = true;
+			m_pStage->exitGame = true;
 			ChangeSwapChainState();
 		}
 		else if (488 <= m_ptOldCursorPos.x - windowX && 603 >= m_ptOldCursorPos.x - windowX
@@ -1141,50 +1182,81 @@ void CGameFramework::FrameAdvance()
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	}
 
-	if (false==login[0])
+
+	//if (false == login[1])
+	if(false==loginSign[1])
 	{
 		if (!userId.empty())
 		{
-			for (int i{}; i < userId.size(); ++i)
+			for (int u{}; u < 26; ++u)
 			{
-				if (9 < i)
-					continue;
+				if ('A' == userId[userId.size() - 1] - u)
+					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[113 + u]->m_ppMeshes[0]);
 
-				if (false == fontSet[i])
+				else if ('a' == userId[userId.size() - 1] - u)
+					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[139 + u]->m_ppMeshes[0]);
+				else if ('0' == userId[userId.size() - 1] - u)
 				{
-					for (int u{}; u < 26; ++u)
-					{
-						if ('A' == userId[userId.size() - 1] - u)
-							m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[113 + u]->m_ppMeshes[0]);
-
-						else if ('a' == userId[userId.size() - 1] - u)
-							m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[139 + u]->m_ppMeshes[0]);
-						else if ('0' == userId[userId.size() - 1] - u)
-						{
-							if (9 > u)
-								m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[167 + u]->m_ppMeshes[0]);
-						}
-						else if ('9' == userId[userId.size() - 1])
-						{
-							if (0 == u)
-								m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[49]->m_ppMeshes[0]);
-						}
-						else if ('*' == userId[userId.size() - 1])
-						{
-							if (0 == u)
-								m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
-						}
-						else if ('_' == userId[userId.size() - 1])
-						{
-							if (0 == u)
-								m_pStage->userId[i]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
-						}
-					}
-					fontSet[i] = true;
+					if (9 > u)
+						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[167 + u]->m_ppMeshes[0]);
 				}
-
-				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+				else if ('9' == userId[userId.size() - 1])
+				{
+					if (0 == u)
+						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[49]->m_ppMeshes[0]);
+				}
+				else if ('*' == userId[userId.size() - 1])
+				{
+					if (0 == u)
+						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
+				}
+				else if ('_' == userId[userId.size() - 1])
+				{
+					if (0 == u)
+						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
+				}
 			}
+
+			for (int i{}; i < userId.size(); ++i)
+				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		}
+
+		if (!userPw.empty())
+		{
+			for (int u{}; u < 26; ++u)
+			{
+				if ('A' == userPw[userPw.size() - 1] - u)
+					m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[113 + u]->m_ppMeshes[0]);
+
+				else if ('a' == userPw[userPw.size() - 1] - u)
+					m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[139 + u]->m_ppMeshes[0]);
+				else if ('0' == userPw[userPw.size() - 1] - u)
+				{
+					if (9 > u)
+						m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[167 + u]->m_ppMeshes[0]);
+				}
+				else if ('9' == userPw[userPw.size() - 1])
+				{
+					if (0 == u)
+						m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[49]->m_ppMeshes[0]);
+				}
+				else if ('*' == userPw[userPw.size() - 1])
+				{
+					if (0 == u)
+						m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
+				}
+				else if ('_' == userPw[userPw.size() - 1])
+				{
+					if (0 == u)
+						m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
+				}
+			}
+
+			for (int i{}; i < userId.size(); ++i)
+				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+
+			for (int i{}; i < userPw.size(); ++i)
+				m_pStage->userPw[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
 	//if(true==screen)
@@ -1207,7 +1279,7 @@ void CGameFramework::FrameAdvance()
 
 	if (true == screen)
 		temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-	
+
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
 		if (-1 == m_pStage->m_pShadowMapToViewport->curPl)

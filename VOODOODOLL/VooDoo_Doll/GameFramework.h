@@ -96,11 +96,13 @@ public:
 	bool wakeUp = true;
 
 	vector<char> userId;
+	vector<char> userPw;
 
-	bool fontSet[10] = { false,false,false,false ,false,false,false,false ,false,false };
-
+	int signIn = -1;
+	bool loginSign[2] = { false,false };
+	
 	int gameButton = -1;
-	bool exit = false;
+	
 	bool firstFloor = false;
 	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;

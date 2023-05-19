@@ -54,7 +54,7 @@ void ProcessInput()
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
-	if (GetCapture() == gGameFramework.Get_HWND()) 
+	if (GetCapture() == gGameFramework.Get_HWND())
 	{
 		::SetCursor(NULL);
 		POINT ptCursorPos;
@@ -156,7 +156,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 	ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
 	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-	
+
 	do_recv();
 #pragma endregion 
 
@@ -244,6 +244,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 
+
 	switch (message)
 	{
 	case WM_CHAR:
@@ -254,13 +255,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		
-		
-		if(false== gGameFramework.login[0] && wParam!=VK_RETURN)
+		if (false == gGameFramework.login[0] && wParam != VK_RETURN && 10 > gGameFramework.userId.size())
 			gGameFramework.userId.push_back(wParam);
+		else if (false == gGameFramework.login[1] && wParam != VK_RETURN && 10 > gGameFramework.userPw.size())
+			gGameFramework.userPw.push_back(wParam);
 
 		break;
-		
 	case WM_KEYDOWN:
 		if (wParam == VK_CONTROL)//full screen
 		{
@@ -271,7 +271,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			gGameFramework.ChangeSwapChainState();
 		}
-		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true) 
+		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
 		{
 			if (wParam == 'Z' || wParam == 'z')
 			{
@@ -286,7 +286,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 				gGameFramework.m_pPlayer->onAct = true;
 			}
-
 			else if (wParam == 'C' || wParam == 'c')
 			{
 				CS_INTERACTION_PACKET p;
@@ -297,8 +296,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-			} 
-
+			}
 			else if (wParam == 'Q' || wParam == 'q')
 			{
 				CS_CHANGEWEAPON_PACKET p;
@@ -312,39 +310,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
 			}
-			else if (wParam == 'U' || wParam == 'u')
-			{
-				CS_SIGN_PACKET p;
-				p.size = sizeof(CS_SIGN_PACKET);
-				p.type = CS_SIGNUP;	
-				auto PLAYER_NAME = L"id_0517";			// 회원가입 화면에서 입력한 아이디 
-				auto PLAYER_PASSWORD = L"pw_0517";		// 회원가입 화면에서 입력한 아이디 
-				wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
-				wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
-				wcout << p.id << ", " << p.password << endl;
-				cout << "SIGNUP_PACKET SENT\n";
-				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
-				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-			}
-			else if (wParam == 'G' || wParam == 'g')
-			{
-				CS_SIGN_PACKET p;
-				p.size = sizeof(CS_SIGN_PACKET);
-				p.type = CS_SIGNIN;
-				auto PLAYER_NAME = L"id_0517";				// 로그인 화면에서 입력한 아이디 
-				auto PLAYER_PASSWORD = L"pw_0517";		// 로그인 화면에서 입력한 비밀번호
-				wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
-				wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
-				wcout << p.id << ", " << p.password << endl;
-				cout << "SIGNIN_PACKET SENT\n";
-				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
-				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-			}
-
 		}
-		break;
 		break;
 	case WM_KEYUP:
 	case WM_LBUTTONDOWN:
@@ -354,6 +320,72 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
 		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+
+
+		if (0 == gGameFramework.signIn)
+		{
+			if (false == gGameFramework.loginSign[0])
+			{
+				CS_SIGN_PACKET p;
+				p.size = sizeof(CS_SIGN_PACKET);
+				p.type = CS_SIGNUP;
+				//auto PLAYER_NAME = L"id_0517";			// 회원가입 화면에서 입력한 아이디 
+				//auto PLAYER_PASSWORD = L"pw_0517";		// 회원가입 화면에서 입력한 아이디 
+				//wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
+				//wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
+
+				p.id = gGameFramework.userId;
+				p.password = gGameFramework.userPw;
+				
+				//wcout << p.id << ", " << p.password << endl;
+				for (int i{}; i < p.id.size(); ++i)
+					cout << p.id[i];
+				cout << ", ";
+				for (int i{}; i < p.password.size(); ++i)
+					cout << p.password[i];
+				cout << endl;
+
+				cout << "SIGNUP_PACKET SENT\n";
+				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+
+				gGameFramework.loginSign[0] = true;
+			}
+		}
+		else if (1 == gGameFramework.signIn)
+		{
+			if (false == gGameFramework.loginSign[1])
+			{
+				CS_SIGN_PACKET p;
+				p.size = sizeof(CS_SIGN_PACKET);
+				p.type = CS_SIGNIN;
+				//auto PLAYER_NAME = L"id_0517";				// 로그인 화면에서 입력한 아이디 
+				//auto PLAYER_PASSWORD = L"pw_0517";		// 로그인 화면에서 입력한 비밀번호
+				//wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
+				//wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
+
+				p.id = gGameFramework.userId;
+				p.password = gGameFramework.userPw;
+				
+
+				//wcout << p.id << ", " << p.password << endl;
+				for (int i{}; i < p.id.size(); ++i)
+					cout << p.id[i];
+				cout << ", ";
+				for (int i{}; i < p.password.size(); ++i)
+					cout << p.password[i];
+				cout << endl;
+				
+
+				cout << "SIGNIN_PACKET SENT\n";
+				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
+				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+
+				gGameFramework.loginSign[1] = true;
+			}
+		}
 		break;
 	case WM_COMMAND:
 		wmId = LOWORD(wParam);
@@ -375,7 +407,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
-		gGameFramework.exit = true;
+		gGameFramework.m_pStage->exitGame = true;
 		if (gGameFramework.onFullScreen)
 			gGameFramework.ChangeSwapChainState();
 
@@ -408,7 +440,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-	
+
 
 	if (pl->onFloor == false) {
 		pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);

@@ -182,7 +182,7 @@ public:
 	CTextureToViewportShader* m_pShadowMapToViewport = NULL;
 	CGameObject** hpUi = nullptr;
 	CGameObject** userId = nullptr;
-
+	CGameObject** userPw = nullptr;
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;
@@ -199,7 +199,7 @@ public:
 	CTexture*								pButtonTextures[2] = {};
 	int											m_iHitNum = 0;
 	int											m_iHit[5] = {};
-
+	bool exitGame = false;
 
 	public:
 		array<vector<CGameObject*>, 7> pPuzzles;

@@ -326,7 +326,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);//gameOver2
 
 	m_ppShaders[0]->gameScreen[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/sign.dds", RESOURCE_TEXTURE2D, 0);//sign4
+	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/05192.dds", RESOURCE_TEXTURE2D, 0);//sign4
 
 
 
@@ -640,9 +640,12 @@ void CStage::ReleaseObjects()
 	}
 	if (m_pShadowShader)
 	{
-		m_pShadowShader->ReleaseShaderVariables();
-		m_pShadowShader->ReleaseObjects();
-		m_pShadowShader->Release();
+		if (false==exitGame)
+		{
+			m_pShadowShader->ReleaseShaderVariables();
+			m_pShadowShader->ReleaseObjects();
+			m_pShadowShader->Release();
+		}
 	}
 	if (m_pShadowMapToViewport)
 	{
