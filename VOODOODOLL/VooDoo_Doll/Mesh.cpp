@@ -9,10 +9,10 @@
 CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 }
-CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName,int i)
+CMesh::CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int i)
 {
 	if (pstrFileName)
-		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName,i);
+		LoadMeshFromFile(pd3dDevice, pd3dCommandList, pstrFileName, i);
 }
 
 
@@ -97,7 +97,7 @@ void CMesh::OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pCont
 }
 
 
-void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName,int i)
+void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int i)
 {
 #ifdef _WITH_TEXT_MESH
 	ifstream InFile(pstrFileName);
@@ -176,40 +176,26 @@ void CMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 			m_pxmf2TextureCoords = new XMFLOAT2[m_nVertices];
 			nReads = (UINT)::fread(m_pxmf2TextureCoords, sizeof(float), 2 * m_nVertices, pFile);
 
-			if (0==strcmp(pstrFileName, "Models/Ceiling_concrete_base_mesh.bin"))//Dense_Floor_mesh  Models/  Ceiling_concrete_base_mesh
+			if (0 == strcmp(pstrFileName, "Models/Ceiling_concrete_base_mesh.bin"))//Dense_Floor_mesh  Models/  Ceiling_concrete_base_mesh
 			{
-				
-					for (int u{}; u < m_nVertices; ++u)//0517
+				for (int u{}; u < m_nVertices; ++u)
+				{
+					if (113 <= i && 166 >= i)//A ~ _
 					{
-						
-						if (113 <= i && 166 >= i)//A ~ _
-						{
-							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);
-
-							/*if (113 <= i && 122 >= i)
-								m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.08f * ((i - 113) / 10) - (0.92f - 0.08f * ((i - 113) / 10))) + 0.92f - 0.08f * ((i - 113) / 10);
-							else if(123 <= i && 132 >= i)
-								m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);
-							else
-								m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);*/
-
-							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 113)) - (0.9f - 0.1f * (i - 113))) + 0.9f - 0.1f * (i - 113);
-						}
-						else if (167 <= i && 175 >= i)//0 ~ 8
-						{
-							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 107) / 10) - (0.875f - 0.125f * ((i - 107) / 10))) + 0.875f - 0.125f * ((i - 107) / 10);
-							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 107)) - (0.9f - 0.1f * (i - 107))) + 0.9f - 0.1f * (i - 107);
-						}
-						else if (49 == i)//9
-						{
-							m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * 6 - (0.875f - 0.125f * 6)) + 0.875f - 0.125f * 6;
-							m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * 69) - (0.9f - 0.1f * 69)) + 0.9f - 0.1f * 69;
-						}
-		
+						m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 113) / 10) - (0.875f - 0.125f * ((i - 113) / 10))) + 0.875f - 0.125f * ((i - 113) / 10);
+						m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 113)) - (0.9f - 0.1f * (i - 113))) + 0.9f - 0.1f * (i - 113);
 					}
-				
-				
-				
+					else if (167 <= i && 175 >= i)//0 ~ 8
+					{
+						m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * ((i - 107) / 10) - (0.875f - 0.125f * ((i - 107) / 10))) + 0.875f - 0.125f * ((i - 107) / 10);
+						m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * (i - 107)) - (0.9f - 0.1f * (i - 107))) + 0.9f - 0.1f * (i - 107);
+					}
+					else if (49 == i)//9
+					{
+						m_pxmf2TextureCoords[u].x = m_pxmf2TextureCoords[u].x * (1.0f - 0.125f * 6 - (0.875f - 0.125f * 6)) + 0.875f - 0.125f * 6;
+						m_pxmf2TextureCoords[u].y = m_pxmf2TextureCoords[u].y * ((1.0f - 0.1f * 69) - (0.9f - 0.1f * 69)) + 0.9f - 0.1f * 69;
+					}
+				}
 			}
 		}
 		else if (!strcmp(pstrToken, "<Indices>:"))
@@ -466,7 +452,7 @@ void CStandardMesh::LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCom
 					if (!strcmp(pstrToken, "<SubMesh>:"))
 					{
 						int nIndex = 0;
-						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, pInFile); 
+						nReads = (UINT)::fread(&nIndex, sizeof(int), 1, pInFile);
 						nReads = (UINT)::fread(&(m_pnSubSetIndices[i]), sizeof(int), 1, pInFile);
 						if (m_pnSubSetIndices[i] > 0)
 						{

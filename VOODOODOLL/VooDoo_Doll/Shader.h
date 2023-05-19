@@ -54,18 +54,18 @@ public:
 	vector<CGameObject*>		pDoor;
 
 public:
-	ID3D12PipelineState* m_pd3dPipelineState = NULL;//
+	ID3D12PipelineState* m_pd3dPipelineState = NULL;
 
-	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;//
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;//
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
+	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;//
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorStartHandle;//
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;//
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;//
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dCbvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorStartHandle;
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorStartHandle;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorNextHandle;//
-	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;//
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dSrvCPUDescriptorNextHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;
 
 public:
 	void AddRef() { m_nReferences++; }

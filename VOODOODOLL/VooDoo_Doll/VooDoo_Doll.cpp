@@ -255,9 +255,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		if (false == gGameFramework.login[0] && wParam != VK_RETURN && 10 > gGameFramework.userId.size())
+		if (false == gGameFramework.idSet && wParam != VK_RETURN && 10 > gGameFramework.userId.size())
 			gGameFramework.userId.push_back(wParam);
-		else if (false == gGameFramework.login[1] && wParam != VK_RETURN && 10 > gGameFramework.userPw.size())
+		else if (true == gGameFramework.idSet && 10 > gGameFramework.userPw.size())
 			gGameFramework.userPw.push_back(wParam);
 
 		break;
@@ -600,11 +600,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
 
 		gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
-		gGameFramework.screen = true;
-		gGameFramework.temp->SetPosition(880, -70, 800);
+		gGameFramework.temp->SetPosition(907, -70, 800);
+		//gGameFramework.temp->SetPosition(880, -70, 1000);
+
 		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 500));
+		 
 		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 1000));
 		gGameFramework.m_pCamera->m_lock = true;
+		gGameFramework.gameEnd = true;
 
 		//gGameFramework.monsterSound.Stop();//몬스터
 		gGameFramework.sound[0].Stop();//인게임

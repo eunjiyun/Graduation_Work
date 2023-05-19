@@ -58,9 +58,6 @@ public:
 	SCENEID m_eCurrentScene;
 	SCENEID m_ePrevScene;
 
-
-
-
 private:
 	HINSTANCE					m_hInstance;
 	HWND						m_hWnd;
@@ -106,7 +103,7 @@ public:
 	bool firstFloor = false;
 	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;
-	bool login[2] = { false,false };
+	bool idSet=false;
 	
 
 
@@ -120,7 +117,6 @@ public:
 
 	CGameTimer					m_GameTimer;
 	SoundPlayer sound[4];
-	bool screen = true;
 	SoundPlayer monsterSound;
 	SoundPlayer doorSound;
 	SoundPlayer playerSound;
@@ -129,8 +125,8 @@ public:
 	bool checkDoorSound2 = false;
 	int checkJump = 0;
 	int curStage = -1;
-
-
+	bool gameEnd = false;
+	
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
 	const wchar_t* closing = _T("Sound/closing.wav");

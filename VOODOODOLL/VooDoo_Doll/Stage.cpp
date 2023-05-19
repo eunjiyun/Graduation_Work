@@ -183,8 +183,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//Find_LightPosition();
 	m_ppShaders[0] = pObjectShader;
 
-	//m_ppShaders[1]
-
 	m_pLights = new LIGHT[MAX_LIGHTS];
 	BuildDefaultLightsAndMaterials();//조명
 
@@ -316,17 +314,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);//a gameStart
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
 
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/yowWin3.dds", RESOURCE_TEXTURE2D, 0);//yowWin3
+	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameClear.dds", RESOURCE_TEXTURE2D, 0);
 
 	m_ppShaders[0]->gameScreen[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);//gameOver2
+	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/over.dds", RESOURCE_TEXTURE2D, 0);
 
 	m_ppShaders[0]->gameScreen[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/05192.dds", RESOURCE_TEXTURE2D, 0);//sign4
+	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/login.dds", RESOURCE_TEXTURE2D, 0);
 
 
 

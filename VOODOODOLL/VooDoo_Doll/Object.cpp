@@ -42,7 +42,7 @@ CTexture::~CTexture()
 	if (m_ppd3dTextures)
 	{
 		for (int i = 0; i < m_nTextures; i++) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
-		delete[] m_ppd3dTextures;//0519
+		delete[] m_ppd3dTextures;
 	}
 	if (m_pnResourceTypes) delete[] m_pnResourceTypes;
 	if (m_pdxgiBufferFormats) delete[] m_pdxgiBufferFormats;
