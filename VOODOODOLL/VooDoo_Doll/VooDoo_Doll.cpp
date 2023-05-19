@@ -246,8 +246,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
-		//23.01.03
-	//p를 누르면 종료
 	case WM_CHAR:
 		if (wParam == 'N' || wParam == 'n')
 		{
@@ -258,7 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		
 		
-		if(false== gGameFramework.login[0])
+		if(false== gGameFramework.login[0] && wParam!=VK_RETURN)
 			gGameFramework.userId.push_back(wParam);
 
 		break;
@@ -571,9 +569,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
 		gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
 		gGameFramework.screen = true;
-		//gGameFramework.temp->SetPosition(880, -70, 800);
-		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
-		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+		gGameFramework.temp->SetPosition(880, -70, 800);
+		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
 		gGameFramework.m_pCamera->m_lock = true;
 
 		//gGameFramework.monsterSound.Stop();//몬스터

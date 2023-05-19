@@ -539,10 +539,15 @@ void CGameFramework::BuildObjects()
 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[3];
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
 
-	//temp->SetPosition(108, 82, 140);
+
+	//temp->SetPosition(84, 75, 108);
+	temp->Rotate(270, 0, 0);
+	temp->SetScale(0.9f, 0.7f, 0.7f);
+	temp->SetPosition(108, 82, 140);
 	//temp->Rotate(270, 0, 0);
-	temp->SetScale(0.718f, 0.7f, 2.3f);
-	temp->SetPosition(50, -209, 690);
+	// 
+	//temp->SetScale(0.718f, 0.7f, 2.3f);
+	//temp->SetPosition(50, -209, 690);
 
 	m_pLights = m_pStage->m_pLights;
 
@@ -1107,8 +1112,8 @@ void CGameFramework::FrameAdvance()
 		{
 			temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
 			//temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-			//temp->SetPosition(880, -65, 1000);
-			//m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
+			temp->SetPosition(880, -65, 1000);
+			m_pCamera->SetPosition(XMFLOAT3(800, -150, 900));
 			screen = true;
 			monsterSound.Stop();//몬스터
 			monsterSound.Terminate();
@@ -1182,8 +1187,8 @@ void CGameFramework::FrameAdvance()
 			}
 		}
 	}
-	if(true==screen)
-		temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//if(true==screen)
+		//temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
@@ -1200,8 +1205,8 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights, firstFloor);
 	}
 
-
-	//temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	if (true == screen)
+		temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{

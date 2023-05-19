@@ -316,17 +316,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/a.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);//a gameStart
 
 
 	m_ppShaders[0]->gameScreen[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/yowWin3.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/yowWin3.dds", RESOURCE_TEXTURE2D, 0);//yowWin3
 
 	m_ppShaders[0]->gameScreen[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver2.dds", RESOURCE_TEXTURE2D, 0);
+	m_ppShaders[0]->gameScreen[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameOver.dds", RESOURCE_TEXTURE2D, 0);//gameOver2
 
 	m_ppShaders[0]->gameScreen[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/sign4.dds", RESOURCE_TEXTURE2D, 0);//login
+	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/sign.dds", RESOURCE_TEXTURE2D, 0);//sign4
 
 
 

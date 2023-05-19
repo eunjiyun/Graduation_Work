@@ -127,7 +127,13 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 
 	float4 cIllumination = Lighting(input.positionW, normalW);
-	return(lerp(cColor, cIllumination, 0.5f));
+	
+	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
+	{
+		return float4(0.6f, 0.6f, 0.6f, 0);
+	}
+	else
+		return(lerp(cColor, cIllumination, 0.5f));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
