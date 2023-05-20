@@ -42,7 +42,7 @@ void ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		if (!gGameFramework.m_pPlayer->onAct) {
+		if (!gGameFramework.m_pPlayer->onAct && 1==gGameFramework.gameButton) {
 			if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
@@ -56,12 +56,15 @@ void ProcessInput()
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
 	if (GetCapture() == gGameFramework.Get_HWND())
 	{
-		::SetCursor(NULL);
-		POINT ptCursorPos;
-		::GetCursorPos(&ptCursorPos);
-		cxDelta = (float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f;
-		::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+		if (1 == gGameFramework.gameButton)
+		{
+			::SetCursor(NULL);
+			POINT ptCursorPos;
+			::GetCursorPos(&ptCursorPos);
+			cxDelta = (float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f;
+			cyDelta = (float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f;
+			::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+		}
 	}
 	if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
 
@@ -257,7 +260,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
 		{
-			gGameFramework.userId.push_back(wParam);
+			for (int u{}; u < 26; ++u)
+			{
+				if ('A' == wParam - u || 'a' == wParam - u)
+					gGameFramework.userId.push_back(wParam);
+				else if ('0' == wParam - u)
+				{
+					if(10>u)
+						gGameFramework.userId.push_back(wParam);
+				}
+				else if ('_' == wParam)
+				{
+					if (0 == u)
+						gGameFramework.userId.push_back(wParam);
+				}
+				else if ('*' == wParam)
+				{
+					if (0 == u)
+						gGameFramework.userId.push_back(wParam);
+				}
+			}
 		}
 		else if (true == gGameFramework.idSet && 10 > gGameFramework.userPw.size())
 		{

@@ -637,8 +637,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				boxShader->obj.push_back(m_ppObjects[i]);
 
 			//��� �ֱ�
-			//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
-				//boxShader->obj.push_back(m_ppObjects[i]);
+			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
+				boxShader->obj.push_back(m_ppObjects[i]);
 
 			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Bedroom_wall_b_01_dense_mesh
 			{
@@ -857,11 +857,12 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 		if (false == o->m_bGetItem)
 		{
 			if (-70 < o->GetPosition().y)
+			//if (-250 < o->GetPosition().y)
 			{
 				if (false == firFloor)//2��
 				{
 					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-					light[0].m_xmf3Position = XMFLOAT3(562, 140.0f, 2300);//-100 
+					light[0].m_xmf3Position = XMFLOAT3(562, 140.0f, 2300);
 				}
 			}
 			else
@@ -876,14 +877,15 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			if (0 == strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
 				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 
-			//if (0 == strcmp(o->m_pstrName, "Stair_step_01_mesh"))
-				//o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+			if (0 == strcmp(o->m_pstrName, "Stair_step_01_mesh"))
+				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 		}
 	}
 
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			if (-70 < monster->GetPosition().y)
+			//if (-250 < monster->GetPosition().y)
 			{
 				if (false == firFloor)//2��
 				{
@@ -1246,6 +1248,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			if (-70 < monster->GetPosition().y)
+			//if (-250 < monster->GetPosition().y)
 			{
 				if (false == firFloor)
 				{
@@ -1290,11 +1293,12 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	{
 		o->shadowID = 1;
 		if (strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-			//if (strcmp(o->m_pstrName, "Stair_step_01_mesh"))
+			if (strcmp(o->m_pstrName, "Stair_step_01_mesh"))
 		{
 			if (false == o->m_bGetItem)
 			{
 				if (-70 < o->GetPosition().y)
+				//if (-250 < o->GetPosition().y)
 				{
 					if (false == firFloor)
 					{

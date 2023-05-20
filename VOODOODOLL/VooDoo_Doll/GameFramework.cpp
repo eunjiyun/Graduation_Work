@@ -319,6 +319,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
+
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
@@ -353,7 +354,6 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		{
 			signIn = 1;
 		}
-
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
@@ -577,7 +577,7 @@ void CGameFramework::BuildObjects()
 	temp->Rotate(270, 0, 0);
 	temp->SetScale(0.9f, 0.7f, 0.7f);
 	temp->SetPosition(108, 82, 140);
-	
+
 	m_pLights = m_pStage->m_pLights;
 
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
@@ -1026,7 +1026,7 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	if (true == loginSign[1] && false==gameEnd)
+	if (true == loginSign[1] && false == gameEnd)
 		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 
 
@@ -1160,19 +1160,19 @@ void CGameFramework::FrameAdvance()
 		{
 			m_pStage->hpUi[0]->SetPosition(50, -225, 178);
 			//if(false==gameEnd)
-				m_pStage->hpUi[1]->SetPosition(50, -225, 346);
+			m_pStage->hpUi[1]->SetPosition(50, -225, 346);
 		}
 		else
 		{
-			m_pStage->hpUi[0]->SetPosition(50, -55, 178);
+			m_pStage->hpUi[0]->SetPosition(50, -55, 178);//-30 140
 			//if (false == gameEnd)
-				m_pStage->hpUi[1]->SetPosition(50, -55, 346);
+			m_pStage->hpUi[1]->SetPosition(50, -55, 346);
 		}
 
 
 		//if (true == m_pPlayer->alive)
-			m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-		
+		m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	}
 
@@ -1214,12 +1214,15 @@ void CGameFramework::FrameAdvance()
 					if (0 == u)
 						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
 				}
+
 			}
+
 
 			for (int i{}; i < userId.size(); ++i)
 			{
 				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 			}
+
 		}
 		if (!userPw.empty())
 		{
@@ -1229,11 +1232,13 @@ void CGameFramework::FrameAdvance()
 				m_pStage->userPw[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		}
 	}
-	
+
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
 	if (-70 > m_pPlayer->GetPosition().y)
+		//if (-299 > m_pPlayer->GetPosition().y)
+		//if (-260 > m_pPlayer->GetPosition().y)
 		firstFloor = true;
 	else
 		firstFloor = false;
@@ -1244,7 +1249,7 @@ void CGameFramework::FrameAdvance()
 	}
 
 	//if(false==gameEnd)
-		temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
@@ -1317,7 +1322,7 @@ void CGameFramework::FrameAdvance()
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
-}
+	}
 
 
 

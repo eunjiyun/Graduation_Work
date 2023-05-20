@@ -484,7 +484,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			}
 			if (0 == strcmp("Stair_step_01_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) )
 			{
-				pMaterial->SetTexture(ppTextures[19]);
+				//pMaterial->SetTexture(ppTextures[19]);
+				pMaterial->SetTexture(ppTextures[1]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 			if (0 == strcmp("WoodBox6", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
@@ -1058,11 +1059,11 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-			//if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
+			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
 		{
 			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Dense_Floor_mesh //Candle1
 			{
-				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)//0505
+				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
 				{
 					m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 				}

@@ -131,6 +131,8 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
 	{
 		return float4(0.6f, 0.6f, 0.6f, 0);
+		//return float4(0, 0,0, 0);
+		//discard;
 	}
 	else
 		return(lerp(cColor, cIllumination, 0.5f));
