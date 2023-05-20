@@ -382,7 +382,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 			if (0 == strcmp("Dense_Floor_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName)	)
 			{
-				pMaterial->SetTexture(ppTextures[1]);//1
+				pMaterial->SetTexture(ppTextures[1]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 

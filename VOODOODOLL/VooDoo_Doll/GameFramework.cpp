@@ -383,7 +383,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_RETURN:
 			if (false == idSet)
+			{
 				idSet = true;
+			}
 			break;
 		case VK_F1:
 		case VK_F2:
@@ -1176,6 +1178,14 @@ void CGameFramework::FrameAdvance()
 
 	if (false == loginSign[1])
 	{
+		if (!userId.empty() && false == idSet && true == delUser)
+		{
+			userId.pop_back();
+		}
+		if (!userPw.empty() && true == idSet && true == delUser)
+		{
+			userPw.pop_back();
+		}
 		if (!userId.empty())
 		{
 			for (int u{}; u < 26; ++u)
@@ -1207,7 +1217,9 @@ void CGameFramework::FrameAdvance()
 			}
 
 			for (int i{}; i < userId.size(); ++i)
+			{
 				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			}
 		}
 		if (!userPw.empty())
 		{

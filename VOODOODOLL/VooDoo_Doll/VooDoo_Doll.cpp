@@ -255,10 +255,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				gGameFramework.wakeUp = true;
 		}
-		if (false == gGameFramework.idSet && wParam != VK_RETURN && 10 > gGameFramework.userId.size())
+		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
+		{
 			gGameFramework.userId.push_back(wParam);
+		}
 		else if (true == gGameFramework.idSet && 10 > gGameFramework.userPw.size())
+		{
 			gGameFramework.userPw.push_back(wParam);
+		}
 
 		break;
 	case WM_KEYDOWN:
@@ -310,9 +314,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
 			}
+			else if (VK_BACK == wParam)
+			{
+				gGameFramework.delUser = true;
+			}
 		}
 		break;
 	case WM_KEYUP:
+		if (VK_BACK == wParam)
+		{
+			gGameFramework.delUser = false;
+			break;
+		}
+
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_SIZE:
@@ -336,7 +350,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				p.id = gGameFramework.userId;
 				p.password = gGameFramework.userPw;
-				
+
 				//wcout << p.id << ", " << p.password << endl;
 				for (int i{}; i < p.id.size(); ++i)
 					cout << p.id[i];
@@ -367,7 +381,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				p.id = gGameFramework.userId;
 				p.password = gGameFramework.userPw;
-				
+
 
 				//wcout << p.id << ", " << p.password << endl;
 				for (int i{}; i < p.id.size(); ++i)
@@ -376,7 +390,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				for (int i{}; i < p.password.size(); ++i)
 					cout << p.password[i];
 				cout << endl;
-				
+
 
 				cout << "SIGNIN_PACKET SENT\n";
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
@@ -605,7 +619,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
 		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
 		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 500));
-		 
+
 		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
 		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 1000));
 		gGameFramework.m_pCamera->m_lock = true;

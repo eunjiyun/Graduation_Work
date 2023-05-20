@@ -94,6 +94,7 @@ public:
 
 	vector<char> userId;
 	vector<char> userPw;
+	bool delUser = false;
 
 	int signIn = -1;
 	bool loginSign[2] = { false,false };
