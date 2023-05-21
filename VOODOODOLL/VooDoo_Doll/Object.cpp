@@ -291,9 +291,6 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		{
 			switch (choose)
 			{
-			case 0:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "defaultbody2");//플레이어 body
-				break;
 			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
 				break;
@@ -301,7 +298,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albed");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Albed");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Albed");//부두5 마법사
 				break;
 
 			case 4:
@@ -326,7 +323,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Norma");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두5 마법사
 				break;
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//부두4 펜싱칼든애
@@ -352,7 +349,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metal");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Metal");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Metal");//부두5 마법사
 				break;
 
 			case 4:
@@ -377,17 +374,17 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두2 뼈다귀다리
 				break;
 			case 3:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo5Emiss");//부두5 마법사
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두5 마법사
 				break;
 			case 4:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두4 펜싱칼든애
 				break;
 
 			case 5:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두3 귀신 emission x
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두6 머리에바늘있는비실한애 emission x
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두6 머리에바늘있는비실한애 emission x
 				break;
 			}
 		}
@@ -1362,7 +1359,7 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 	return(nStrLength);
 }
 
-void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose)//0220
+void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CGameObject* pParent, FILE* pInFile, CShader* pShader, int choose)
 {
 	char pstrToken[64] = { '\0' };
 	int nMaterial = 0;
@@ -1531,7 +1528,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, choose);//1
+					CGameObject* pChild = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pGameObject, pInFile, pShader, pnSkinnedMeshes, choose);
 					if (pChild) pGameObject->SetChild(pChild);
 #ifdef _WITH_DEBUG_FRAME_HIERARCHY
 					TCHAR pstrDebug[256] = { 0 };
@@ -1724,33 +1721,7 @@ void CGameObject::SetMaterial(CMaterial* pMaterial)
 	if (m_pMaterial) m_pMaterial->AddRef();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-CAngrybotAnimationController::CAngrybotAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfo* pModel) : CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pModel)
-{
-}
 
-CAngrybotAnimationController::~CAngrybotAnimationController()
-{
-}
-
-void CAngrybotAnimationController::OnRootMotion(CGameObject* pRootGameObject)
-{
-
-}
-
-CAngrybotObject::CAngrybotObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks)
-{
-	CLoadedModelInfo* pAngrybotModel = pModel;
-	if (!pAngrybotModel) pAngrybotModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Player.bin", NULL, 7);
-
-	SetChild(pAngrybotModel->m_pModelRootObject, true);
-	m_pSkinnedAnimationController = new CAngrybotAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, pAngrybotModel);
-}
-
-CAngrybotObject::~CAngrybotObject()
-{
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //

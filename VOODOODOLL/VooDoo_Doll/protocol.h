@@ -2,7 +2,7 @@
 
 constexpr short PORT_NUM = 3500;
 constexpr short BUF_SIZE = 512;
-constexpr short IDPW_SIZE = 10;
+constexpr short IDPW_SIZE = 11;
 constexpr short MAX_USER = 9000;
 constexpr short MAX_ROOM = 3000;
 constexpr short MAX_USER_PER_ROOM = 3;
