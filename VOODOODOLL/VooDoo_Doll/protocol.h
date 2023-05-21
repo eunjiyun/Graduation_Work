@@ -2,8 +2,7 @@
 
 constexpr short PORT_NUM = 3500;
 constexpr short BUF_SIZE = 512;
-constexpr short ID_SIZE = 10;
-constexpr short PASSWORD_SIZE = 10;//10자가 넘어가면 패스워드 창 크기를 넘어가서
+constexpr short IDPW_SIZE = 10;
 constexpr short MAX_USER = 9000;
 constexpr short MAX_ROOM = 3000;
 constexpr short MAX_USER_PER_ROOM = 3;
@@ -50,8 +49,8 @@ struct CS_SIGN_PACKET {
 	char	type;
 	//wchar_t id[ID_SIZE];
 	//wchar_t password[PASSWORD_SIZE];
-	vector<char> id;
-	vector<char> password;
+	wchar_t id[IDPW_SIZE];
+	wchar_t password[IDPW_SIZE];
 };
 constexpr short CS_SIGN_PACKET_SIZE = sizeof(CS_SIGN_PACKET);
 

@@ -361,11 +361,6 @@ public:
 	}
 };
 
-struct Stage_Location_Info
-{
-	int min_z;
-	int max_z;
-};
 template<typename T>
 class threadsafe_vector : public vector<T>
 {

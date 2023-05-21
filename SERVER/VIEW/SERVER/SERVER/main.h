@@ -22,8 +22,8 @@ struct TIMER_EVENT {
 
 struct DB_EVENT {
 	unsigned short session_id;
-	wchar_t user_id[ID_SIZE];
-	wchar_t user_password[PASSWORD_SIZE];
+	wchar_t user_id[IDPW_SIZE];
+	wchar_t user_password[IDPW_SIZE];
 	int _event;
 };
 

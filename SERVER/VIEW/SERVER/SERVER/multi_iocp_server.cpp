@@ -132,7 +132,7 @@ void DB_Thread()
 	SQLHDBC hdbc;
 	SQLHSTMT hstmt = 0;
 	SQLRETURN retcode;
-	SQLWCHAR szUser_ID[ID_SIZE], szUser_PWD[PASSWORD_SIZE];
+	SQLWCHAR szUser_ID[IDPW_SIZE], szUser_PWD[IDPW_SIZE];
 	SQLINTEGER dUser_ClearTime, dUser_CurStage;
 
 	setlocale(LC_ALL, "korean");

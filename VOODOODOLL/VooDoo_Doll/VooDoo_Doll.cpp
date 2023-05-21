@@ -365,28 +365,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_SIGN_PACKET p;
 				p.size = sizeof(CS_SIGN_PACKET);
 				p.type = CS_SIGNUP;
-				//auto PLAYER_NAME = L"id_0517";			// 회원가입 화면에서 입력한 아이디 
-				//auto PLAYER_PASSWORD = L"pw_0517";		// 회원가입 화면에서 입력한 아이디 
-				//wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
-				//wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
 
-				p.id = gGameFramework.userId;
-				p.password = gGameFramework.userPw;
+				wchar_t* wcharArray = new wchar_t[IDPW_SIZE] {L""};
+				copy(gGameFramework.userId.begin(), gGameFramework.userId.end(), wcharArray);
+				wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), wcharArray);
 
-				//wcout << p.id << ", " << p.password << endl;
-				for (int i{}; i < p.id.size(); ++i)
-					cout << p.id[i];
-				cout << ", ";
-				for (int i{}; i < p.password.size(); ++i)
-					cout << p.password[i];
-				cout << endl;
+				memset(wcharArray, 0, IDPW_SIZE * sizeof(wchar_t));
+				copy(gGameFramework.userPw.begin(), gGameFramework.userPw.end(), wcharArray);
+				wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), wcharArray);
+
+				wcout << p.id << ", " << p.password << endl;
+
 
 				cout << "SIGNUP_PACKET SENT\n";
-				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
+				OVER_EXP* signup_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &signup_data->_wsabuf, 1, 0, 0, &signup_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
 				gGameFramework.loginSign[0] = true;
+				delete[] wcharArray;
 			}
 		}
 		else if (1 == gGameFramework.signIn)
@@ -396,30 +393,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_SIGN_PACKET p;
 				p.size = sizeof(CS_SIGN_PACKET);
 				p.type = CS_SIGNIN;
-				//auto PLAYER_NAME = L"id_0517";				// 로그인 화면에서 입력한 아이디 
-				//auto PLAYER_PASSWORD = L"pw_0517";		// 로그인 화면에서 입력한 비밀번호
-				//wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), PLAYER_NAME);
-				//wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), PLAYER_PASSWORD);
 
-				p.id = gGameFramework.userId;
-				p.password = gGameFramework.userPw;
+				wchar_t* wcharArray = new wchar_t[IDPW_SIZE] {L""};
+				copy(gGameFramework.userId.begin(), gGameFramework.userId.end(), wcharArray);
+				wcscpy_s(p.id, sizeof(p.id) / sizeof(p.id[0]), wcharArray);
 
+				memset(wcharArray, 0, IDPW_SIZE * sizeof(wchar_t));
+				copy(gGameFramework.userPw.begin(), gGameFramework.userPw.end(), wcharArray);
+				wcscpy_s(p.password, sizeof(p.password) / sizeof(p.password[0]), wcharArray);
 
-				//wcout << p.id << ", " << p.password << endl;
-				for (int i{}; i < p.id.size(); ++i)
-					cout << p.id[i];
-				cout << ", ";
-				for (int i{}; i < p.password.size(); ++i)
-					cout << p.password[i];
-				cout << endl;
+				wcout << p.id << ", " << p.password << endl;
 
 
 				cout << "SIGNIN_PACKET SENT\n";
-				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
+				OVER_EXP* signin_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+				int ErrorStatus = WSASend(s_socket, &signin_data->_wsabuf, 1, 0, 0, &signin_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
 				gGameFramework.loginSign[1] = true;
+				delete[] wcharArray;
 			}
 		}
 		break;
