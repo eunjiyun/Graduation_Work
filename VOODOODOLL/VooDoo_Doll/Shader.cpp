@@ -632,15 +632,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
 
 
-				//�ٴ� �ֱ�
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-				boxShader->obj.push_back(m_ppObjects[i]);
-
-			//��� �ֱ�
-			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
-				boxShader->obj.push_back(m_ppObjects[i]);
-
-			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Bedroom_wall_b_01_dense_mesh
+			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider")
+				&& strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh"))//Bedroom_wall_b_01_dense_mesh
 			{
 				boxShader->obj.push_back(m_ppObjects[i]);
 			}
@@ -857,11 +850,9 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 		if (false == o->m_bGetItem)
 		{
 			if (-70 < o->GetPosition().y)
-			//if (-250 < o->GetPosition().y)
 			{
 				if (false == firFloor)//2��
 				{
-					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					light[0].m_xmf3Position = XMFLOAT3(562, 140.0f, 2300);
 				}
 			}
@@ -869,12 +860,11 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			{
 				if (true == firFloor)//1��
 				{
-					o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					light[0].m_xmf3Position = XMFLOAT3(562, -30.0f, 2300);
 				}
 			}
 
-			if (0 == strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
+			if (0 == strcmp(o->m_pstrName, "Dense_Floor_mesh"))
 				o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 
 			if (0 == strcmp(o->m_pstrName, "Stair_step_01_mesh"))
@@ -885,7 +875,6 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			if (-70 < monster->GetPosition().y)
-			//if (-250 < monster->GetPosition().y)
 			{
 				if (false == firFloor)//2��
 				{
@@ -1248,7 +1237,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
 			if (-70 < monster->GetPosition().y)
-			//if (-250 < monster->GetPosition().y)
+				//if (-250 < monster->GetPosition().y)
 			{
 				if (false == firFloor)
 				{
@@ -1292,13 +1281,12 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	for (const auto& o : m_pObjectsShader->obj)
 	{
 		o->shadowID = 1;
-		if (strcmp(o->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-			if (strcmp(o->m_pstrName, "Stair_step_01_mesh"))
+		if (strcmp(o->m_pstrName, "Dense_Floor_mesh") &&
+			strcmp(o->m_pstrName, "Stair_step_01_mesh"))
 		{
 			if (false == o->m_bGetItem)
 			{
 				if (-70 < o->GetPosition().y)
-				//if (-250 < o->GetPosition().y)
 				{
 					if (false == firFloor)
 					{
@@ -1309,7 +1297,28 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 				{
 					if (true == firFloor)
 					{
-						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						if (0 == strncmp(o->m_pstrName, "Candle", 6))
+						{
+							if (-200 < o->GetPosition().y)
+							{
+								if (-299 < Players[0]->GetPosition().y)
+									o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+							}
+							else
+								o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						}
+						else if (0 == strcmp(o->m_pstrName, "Stair_side_01_mesh"))
+						{
+							if (-299 > Players[0]->GetPosition().y || 330 > Players[0]->GetPosition().x)
+								o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						}
+						else if (0 == strncmp(o->m_pstrName, "Paper", 5))
+						{
+							if (-299 > Players[0]->GetPosition().y)
+								o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						}
+						else
+							o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					}
 				}
 			}
@@ -1436,7 +1445,7 @@ void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList
 
 	//D3D12_RECT d3dScissorRect = { 55,18, 154.22f - hpBar, FRAME_BUFFER_HEIGHT / 9.5f };
 	D3D12_RECT d3dScissorRect = { 38,27, 230.f - hpBar, FRAME_BUFFER_HEIGHT / 11.f };
-	
+
 	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
 	CShader::Render(pd3dCommandList, pCamera);

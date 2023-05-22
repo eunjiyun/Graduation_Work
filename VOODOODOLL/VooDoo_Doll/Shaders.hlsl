@@ -106,8 +106,13 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
 	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+
 	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	////메탈릭 속성 값을 수정
+	//float metallicFactor = 0.1f; // 낮은 값으로 변경하려면 0.0f ~ 1.0f 사이의 값을 설정
+	//cMetallicColor *= metallicFactor;
+
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 
