@@ -175,7 +175,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pBoxShader = new CBoxShader();
 
 
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_ppShaders = new CShader * [m_nShaders];
 	pObjectShader = new CObjectsShader();
 	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
@@ -183,13 +183,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//Find_LightPosition();
 	m_ppShaders[0] = pObjectShader;
 
+	
+
 	m_pLights = new LIGHT[MAX_LIGHTS];
 	BuildDefaultLightsAndMaterials();//조명
 
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[32];
+	CTexture* ppTextures[33];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -276,16 +278,19 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);//hp bar10
+	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);//slider 
+	ppTextures[29]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/slider.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[30] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_ENGFONT.dds", RESOURCE_TEXTURE2D, 0);//slider 
+	ppTextures[30]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_ENGFONT.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Puppet_add_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);//slider 
+	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Puppet_add_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/bu1.dds", RESOURCE_TEXTURE2D, 0);
 
 
 
@@ -331,7 +336,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	for (int a = 0; a < 32; ++a)
+	for (int a = 0; a < 33; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -572,6 +577,26 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		iMaterialCheck = 0;
 	}
 
+	CMaterial* pMaterial = new CMaterial(1);
+	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	pMaterial->SetTexture(ppTextures[32]);
+
+	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
+	pMultiSpriteObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
+	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList);
+
+	pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials = new CMaterial * [1];
+	pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0] = pMaterial;
+	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes = new CMesh * [1];
+	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0];//바닥
+	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[15]->m_ppMeshes[0];//책
+	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[259]->m_ppMeshes[0];//벽
+	//pMultiSpriteObjectShader->m_ppObjects[0]->Rotate(-90, 0, 0);
+
+	pMultiSpriteObjectShader->m_bActive = false;
+	m_ppShaders[1] = pMultiSpriteObjectShader;
+	
+
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
@@ -608,16 +633,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
 		cout << "Extents: ";
 		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
-
-		//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_d_02_dense_mesh_(41)"))//041666
-		//	for (int j{}; j < m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_nVertices; ++j)
-		//	{
-		//		cout << m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_pxmf3Normals[j].x << endl;
-		//		cout << m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_pxmf3Normals[j].y << endl;
-		//		cout << m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->m_pxmf3Normals[j].z << endl << endl << endl;
-		//	}
 	}
-
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -659,6 +675,15 @@ void CStage::ReleaseObjects()
 		m_pShadowMapToViewport->ReleaseShaderVariables();
 		m_pShadowMapToViewport->ReleaseObjects();
 		m_pShadowMapToViewport->Release();
+	}
+	if (hpUi)
+	{
+		for (int i{}; i < 2; ++i)
+		{
+			hpUi[i]->ReleaseShaderVariables();
+			hpUi[i]->Release();
+		}
+		delete hpUi;
 	}
 
 
@@ -730,7 +755,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[1].Constants.Num32BitValues = 17;
+	pd3dRootParameters[1].Constants.Num32BitValues = 16;
 	pd3dRootParameters[1].Constants.ShaderRegister = 2; //GameObject
 	pd3dRootParameters[1].Constants.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -982,6 +1007,19 @@ bool CStage::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
+		/*switch (wParam)
+		{
+		case 'F':case 'f':
+			if (m_ppShaders[1]->m_bActive)
+				m_ppShaders[1]->m_bActive = false;
+			else
+				m_ppShaders[1]->m_bActive = true;
+
+			cout << "press : " << m_ppShaders[1]->m_bActive << endl;
+			break;
+		default:
+			break;
+		}*/
 		break;
 	default:
 		break;
@@ -998,7 +1036,8 @@ void CStage::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
+	for(int i{};i<m_nShaders;++i)
+		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 
 
 	if (m_pLights)
@@ -1081,9 +1120,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	for (int j{}; j < m_ppShaders[0]->m_nDoor; ++j)
 		m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 
-
-
-	//m_ppShaders[0]->Render(pd3dCommandList, pCamera);//��
+	m_ppShaders[1]->Render(pd3dCommandList, pCamera);
 }
 
 
@@ -1123,7 +1160,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 				continue;
 			}
 
-			//cout << "Name - " << i << " " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+			cout << "Name - " << i << " " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 			//cout << "Center - ";
 			//Vector3::Print(oBox.Center);
 			//cout << "Extents - ";

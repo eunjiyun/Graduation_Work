@@ -251,13 +251,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CHAR:
-		if (wParam == 'N' || wParam == 'n')
+		
+		if ('F' == wParam || 'f' == wParam)
 		{
-			if (true == gGameFramework.wakeUp)
-				gGameFramework.wakeUp = false;
-			else
-				gGameFramework.wakeUp = true;
+			if (1 == gGameFramework.gameButton)
+			{
+				if (gGameFramework.m_pStage->m_ppShaders[1]->m_bActive)
+					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = false;
+				else
+					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
+			}
 		}
+
 		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
 		{
 			for (int u{}; u < 26; ++u)

@@ -26,6 +26,7 @@ struct CB_GAMEOBJECT_INFO
 	XMFLOAT4X4						m_xmf4x4World;
 	UINT							m_nObjectID;
 	UINT							m_nMaterialID;
+	XMFLOAT4X4						m_xmf4x4Texture;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,25 +44,28 @@ public:
 	virtual ~CTexture();
 
 private:
-	int								m_nReferences = 0;//
+	int								m_nReferences = 0;
 
-	UINT							m_nTextureType;//
+	UINT							m_nTextureType;
 
-	int								m_nTextures = 0;//
-	ID3D12Resource** m_ppd3dTextures = NULL;//
-	ID3D12Resource** m_ppd3dTextureUploadBuffers;//
+	int								m_nTextures = 0;
+	ID3D12Resource** m_ppd3dTextures = NULL;
+	ID3D12Resource** m_ppd3dTextureUploadBuffers;
 
-	UINT* m_pnResourceTypes = NULL;//
+	UINT* m_pnResourceTypes = NULL;
 
-	DXGI_FORMAT* m_pdxgiBufferFormats = NULL;//
-	int* m_pnBufferElements = NULL;//
+	DXGI_FORMAT* m_pdxgiBufferFormats = NULL;
+	int* m_pnBufferElements = NULL;
 
-	int								m_nRootParameters = 0;//
-	UINT* m_pnRootParameterIndices = NULL;//
-	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSrvGpuDescriptorHandles = NULL;//
+	int								m_nRootParameters = 0;
+	UINT* m_pnRootParameterIndices = NULL;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSrvGpuDescriptorHandles = NULL;
 
-	int								m_nSamplers = 0;//
-	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles = NULL;//
+	int								m_nSamplers = 0;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles = NULL;
+
+public:
+	XMFLOAT4X4						m_xmf4x4Texture;
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -419,9 +423,6 @@ public:
 	float						m_fMovingSpeed = 0.0f;//
 	float						m_fRotationSpeed = 0.0f;//
 
-	CMaterial* m_pMaterial = NULL;
-
-	int shadowID = 0;
 
 public:
 	void AddRef();
@@ -466,6 +467,7 @@ public:
 	void SetLook(XMFLOAT3 _in);
 	void SetUp(XMFLOAT3 _in);
 	void SetRight(XMFLOAT3 _in);
+	void SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	XMFLOAT3 GetToParentPosition();
 	void Move(XMFLOAT3 xmf3Offset);
@@ -517,8 +519,6 @@ public:
 	void SetRotationSpeed(float fSpeed) { m_fRotationSpeed = fSpeed; }
 	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
 	virtual void Reset() {}
-
-	void SetMaterial(CMaterial* pMaterial);
 
 	void SetFirePosition(XMFLOAT3 xmf3FirePosition)
 	{
@@ -590,6 +590,18 @@ public:
 
 	CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
 	virtual ~CDoor();
+};
+
+class CMultiSpriteObject : public CGameObject
+{
+public:
+	CMultiSpriteObject();
+	virtual ~CMultiSpriteObject();
+
+	float m_fSpeed = 0.1f;
+	float m_fTime = 0.0f;
+
+	virtual void Animate(float fTimeElapsed);
 };
 
 

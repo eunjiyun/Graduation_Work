@@ -90,8 +90,7 @@ private:
 	HANDLE						m_hFenceEvent;
 
 public:
-	bool wakeUp = true;
-
+	
 	vector<char> userId;
 	vector<char> userPw;
 	bool delUser = false;

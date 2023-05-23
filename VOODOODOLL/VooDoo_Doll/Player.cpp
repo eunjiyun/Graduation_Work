@@ -257,7 +257,6 @@ void CPlayer::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSigna
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
 
-	shadowID = 1;
 	if (nCameraMode == THIRD_PERSON_CAMERA || true == shadow)
 		CGameObject::Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }

@@ -34,6 +34,8 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
+
+	m_xmf4x4Texture = Matrix4x4::Identity();
 }
 
 
@@ -1101,10 +1103,17 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 							if (strcmp(m_pstrName, "Dense_Floor_mesh"))
 								m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);*/
 
+
 						m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
 
-
-						pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &shadowID, 16);
+						/*if (m_ppMaterials[i]->m_ppTextures)
+						{
+							m_ppMaterials[i]->m_ppTextures[0]->UpdateShaderVariables(pd3dCommandList);
+							if (m_pcbMappedGameObject) 
+								XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[i]->m_ppTextures[0]->m_xmf4x4Texture)));
+						}*/
+						//if(m_ppMaterials[i]->m_ppTextures)
+							//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &m_ppMaterials[i]->m_ppTextures[0]->m_xmf4x4Texture, 16);
 					}
 
 					m_ppMeshes[0]->Render(pd3dCommandList, i, i);
@@ -1241,6 +1250,23 @@ void CGameObject::SetRight(XMFLOAT3 _in)
 	m_xmf4x4World._11 = _in.x;
 	m_xmf4x4World._12 = _in.y;
 	m_xmf4x4World._13 = _in.z;
+}
+
+void CGameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
+{
+	XMFLOAT3 xmf3Position(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
+	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(xmf3Position, xmf3Target, xmf3Up);
+	m_xmf4x4World._11 = mtxLookAt._11; m_xmf4x4World._12 = mtxLookAt._21; m_xmf4x4World._13 = mtxLookAt._31;
+	m_xmf4x4World._21 = mtxLookAt._12; m_xmf4x4World._22 = mtxLookAt._22; m_xmf4x4World._23 = mtxLookAt._32;
+	m_xmf4x4World._31 = mtxLookAt._13; m_xmf4x4World._32 = mtxLookAt._23; m_xmf4x4World._33 = mtxLookAt._33;
+	/*
+		XMFLOAT3 xmf3Look = Vector3::Normalize(Vector3::Subtract(xmf3Target, xmf3Position));
+		XMFLOAT3 xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
+		xmf3Up = Vector3::CrossProduct(xmf3Look, xmf3Right, true);
+		m_xmf4x4World._11 = xmf3Right.x; m_xmf4x4World._12 = xmf3Right.y; m_xmf4x4World._13 = xmf3Right.z;
+		m_xmf4x4World._21 = xmf3Up.x; m_xmf4x4World._22 = xmf3Up.y; m_xmf4x4World._23 = xmf3Up.z;
+		m_xmf4x4World._31 = xmf3Look.x; m_xmf4x4World._32 = xmf3Look.y; m_xmf4x4World._33 = xmf3Look.z;
+		*/
 }
 
 void CGameObject::MoveStrafe(float fDistance)
@@ -1714,13 +1740,6 @@ void CGameObject::SetRotationAxis(XMFLOAT3& xmf3RotationAxis)
 {
 	m_xmf3RotationAxis = Vector3::Normalize(xmf3RotationAxis);
 }
-void CGameObject::SetMaterial(CMaterial* pMaterial)
-{
-	if (m_pMaterial) m_pMaterial->Release();
-	m_pMaterial = pMaterial;
-	if (m_pMaterial) m_pMaterial->AddRef();
-}
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1882,5 +1901,23 @@ CDoor::CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandLis
 
 CDoor::~CDoor()
 {
+}
+
+CMultiSpriteObject::CMultiSpriteObject()
+{
+}
+
+CMultiSpriteObject::~CMultiSpriteObject()
+{
+}
+
+void CMultiSpriteObject::Animate(float fTimeElapsed)//0523
+{
+	/*if (m_pMaterial && m_pMaterial->m_pTexture)
+	{
+		m_fTime += fTimeElapsed * 0.5f;
+		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
+		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
+	}*/
 }
 

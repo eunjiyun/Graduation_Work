@@ -16,7 +16,7 @@ cbuffer cbCameraInfo : register(b1)
 cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix					gmtxGameObject : packoffset(c0);
-	int 					gShadowID : packoffset(c4);// id값을 담을 변수
+	//matrix					gmtxTexture: packoffset(c4);
 };
 
 cbuffer cbMaterialInfo : register(b3)
@@ -59,6 +59,7 @@ Texture2D gtxtMetallicTexture : register(t9);
 Texture2D gtxtEmissionTexture : register(t10);
 Texture2D gtxtDetailAlbedoTexture : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
+//Texture2D gtxtTexture : register(t0);
 
 SamplerState gssWrap : register(s0);
 
@@ -218,15 +219,9 @@ VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
 {
 	VS_LIGHTING_OUTPUT output;
 
-
 	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject).xyz;
-
-
-
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-
-
 
 	return(output);
 }
@@ -301,7 +296,7 @@ float4 PSShadowMapShadow(VS_SHADOW_MAP_OUTPUT input) : SV_TARGET
 
 	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
 
-	float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs,gShadowID);
+	float4 cIllumination = shadowLighting(input.positionW, normalize(input.normalW), true, input.uvs);
 
 	return(lerp(cColor, cIllumination, 0.5f));
 }
@@ -330,3 +325,50 @@ float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
 {
 	return float4(1.f,0.f,0.f,0.f);
 }
+//=========================================================================================
+//struct VS_TEXTURED_INPUT
+//{
+//	float3 position : POSITION;
+//	float2 uv : TEXCOORD;
+//};
+//
+//struct VS_TEXTURED_OUTPUT
+//{
+//	float4 position : SV_POSITION;
+//	float2 uv : TEXCOORD;
+//};
+//
+//VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
+//{
+//	VS_TEXTURED_OUTPUT output;
+//
+//	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+//	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gmtxTexture)).xy;//gmtxTexture
+//
+//	output.position = float4(0, 0, 0, 0);
+//	output.uv = float2(0, 0);
+//
+//	return(output);
+//}
+//float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
+//{
+//	/*float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+//	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+//	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+//	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+//	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+//	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+//	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+//	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+//	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+//	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+//
+//	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+//
+//	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
+//		discard;*/
+//
+//	cColor = float4(0, 0, 0, 0);
+//
+//	return(cColor);
+//}

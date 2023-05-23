@@ -573,7 +573,11 @@ void CGameFramework::BuildObjects()
 
 	temp = new CGameObject(1);
 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[3];
+
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
+	//CTexturedRectMesh* pSpriteMesh = new CTexturedRectMesh(m_pd3dDevice, m_pd3dCommandList, 500.0f, 500.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	//temp->SetMesh(0, pSpriteMesh);
+	
 	temp->Rotate(270, 0, 0);
 	temp->SetScale(0.9f, 0.7f, 0.7f);
 	temp->SetPosition(108, 82, 140);
@@ -668,6 +672,24 @@ void CGameFramework::ReleaseObjects()
 	monsterSound.~SoundPlayer();
 	doorSound.~SoundPlayer();
 
+	if (m_pStage->userId)
+	{
+		for (int i{}; i < userId.size(); ++i)
+		{
+			m_pStage->userId[i]->ReleaseShaderVariables();
+			m_pStage->userId[i]->Release();
+		}
+		delete m_pStage->userId;
+	}
+	if (m_pStage->userPw)
+	{
+		for (int i{}; i < userPw.size(); ++i)
+		{
+			m_pStage->userPw[i]->ReleaseShaderVariables();
+			m_pStage->userPw[i]->Release();
+		}
+		delete m_pStage->userPw;
+	}
 
 
 	if (m_pStage) m_pStage->ReleaseObjects();
@@ -1059,7 +1081,9 @@ void CGameFramework::FrameAdvance()
 	{
 		if (515 <= m_ptOldCursorPos.x - windowX && 579 >= m_ptOldCursorPos.x - windowX
 			&& 257 <= m_ptOldCursorPos.y - windowY && 290 >= m_ptOldCursorPos.y - windowY)
+		{
 			gameButton = 1;
+		}
 		else if (516 <= m_ptOldCursorPos.x - windowX && 574 >= m_ptOldCursorPos.x - windowX
 			&& 316 <= m_ptOldCursorPos.y - windowY && 346 >= m_ptOldCursorPos.y - windowY)
 		{
@@ -1123,10 +1147,6 @@ void CGameFramework::FrameAdvance()
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-	if (true == wakeUp)
-		m_pStage->bLightwakeUp = false;
-	else
-		m_pStage->bLightwakeUp = true;
 
 
 	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버 
