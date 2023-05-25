@@ -148,7 +148,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	float							m_fElapsedTime = 0.0f;
-
+	float time = 0.f;
 
 	XMFLOAT3					m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 

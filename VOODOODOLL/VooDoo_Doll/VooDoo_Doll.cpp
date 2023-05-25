@@ -252,7 +252,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CHAR:
 		
-		if ('F' == wParam || 'f' == wParam)
+		/*if ('F' == wParam || 'f' == wParam)
 		{
 			if (1 == gGameFramework.gameButton)
 			{
@@ -261,7 +261,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				else
 					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
 			}
-		}
+		}*/
 
 		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
 		{
@@ -316,6 +316,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 				gGameFramework.m_pPlayer->onAct = true;
+
+				if (1 == gGameFramework.gameButton
+					&& 1 == gGameFramework.m_pStage->m_pShadowMapToViewport->curPl)
+				{
+					//if (gGameFramework.m_pStage->m_ppShaders[1]->m_bActive)
+						//gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = false;
+					//else
+						gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
+				}
 			}
 			else if (wParam == 'C' || wParam == 'c')
 			{

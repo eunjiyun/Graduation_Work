@@ -336,16 +336,17 @@ D3D12_INPUT_LAYOUT_DESC CStandardShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 }
 
+
 D3D12_SHADER_BYTECODE CStandardShader::CreateVertexShader()
 {
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
-	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSLighting", "vs_5_1", &m_pd3dVertexShaderBlob));
+	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));//VSSpriteAnimation
 }
 
 D3D12_SHADER_BYTECODE CStandardShader::CreatePixelShader()
 {
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
-	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSLighting", "ps_5_1", &m_pd3dPixelShaderBlob));
+	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", &m_pd3dPixelShaderBlob));//PSTextured
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -566,14 +567,17 @@ D3D12_INPUT_LAYOUT_DESC CObjectsShader::CreateInputLayout()
 	return(d3dInputLayoutDesc);
 }
 
+
 D3D12_SHADER_BYTECODE CObjectsShader::CreateVertexShader()
 {
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
+	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));//VSSpriteAnimation
 }
 
 D3D12_SHADER_BYTECODE CObjectsShader::CreatePixelShader()
 {
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSStandard", "ps_5_1", &m_pd3dPixelShaderBlob));
+	//return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", &m_pd3dPixelShaderBlob));//PSTextured
 }
 
 void CObjectsShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -1506,14 +1510,17 @@ D3D12_BLEND_DESC CMultiSpriteObjectsShader::CreateBlendState()
 	return(d3dBlendDesc);
 }
 
-//D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreateVertexShader()
-//{
-//	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));
-//}
-//D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreatePixelShader()
-//{
-//	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", &m_pd3dPixelShaderBlob));
-//}
+D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSSpriteAnimation", "vs_5_1", &m_pd3dVertexShaderBlob));//VSSpriteAnimation
+}
+
+D3D12_SHADER_BYTECODE CMultiSpriteObjectsShader::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextured", "ps_5_1", &m_pd3dPixelShaderBlob));//PSTextured
+}
+
+
 //D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 //{
 //	UINT nInputElementDescs = 2;
@@ -1607,19 +1614,41 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		CPlayer* pPlayer = pCamera->GetPlayer();
 		XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
+		//XMFLOAT3 xmf3PlayerLook = XMFLOAT3(0, 0, 1);
+
+		/*cout << "xmf3PlayerLook.x : " << xmf3PlayerLook.x << endl;
+		cout << "xmf3PlayerLook.y : " << xmf3PlayerLook.y << endl;
+		cout << "xmf3PlayerLook.z : " << xmf3PlayerLook.z << endl;*/
+
 		xmf3PlayerPosition.y += 5.0f;
+		//xmf3PlayerPosition.x -= 5.0f;
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 		for (int j = 0; j < m_nObjects; j++)
 		{
 			if (m_ppObjects[j])
 			{
+				if (!ro)
+				{
+					//m_ppObjects[j]->Rotate(-90, 0, 0);
+					ro = true;
+				}
+
+
 				m_ppObjects[j]->SetPosition(xmf3Position);
-				m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-				//m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 0.0f, -1.0f));
+				//m_ppObjects[j]->SetPosition(xmf3PlayerPosition);
+				//m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				//m_ppObjects[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(1.0f, 0.0f, 0.0f));
+				//m_ppObjects[j]->SetLook(xmf3CameraPosition);
+
+				//if(xmf3PlayerLook.z>0)
+					//m_ppObjects[j]->Rotate(0, 180, 0);
+				//else
+					//m_ppObjects[j]->Rotate(90, 0, 0);
 			}
 		}
 		
 		//CObjectsShader::Render(pd3dCommandList, pCamera);
+		//CShader::Render(pd3dCommandList, pCamera);
 
 		for (int j = 0; j < m_nObjects; j++)
 		{

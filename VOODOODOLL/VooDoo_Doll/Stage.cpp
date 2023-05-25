@@ -588,10 +588,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials = new CMaterial * [1];
 	pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMaterials[0] = pMaterial;
 	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes = new CMesh * [1];
-	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0];//바닥
+	pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0];//바닥
 	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[15]->m_ppMeshes[0];//책
-	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[259]->m_ppMeshes[0];//벽
-	//pMultiSpriteObjectShader->m_ppObjects[0]->Rotate(-90, 0, 0);
+	//pMultiSpriteObjectShader->m_ppObjects[0]->m_ppMeshes[0] = m_ppShaders[0]->m_ppObjects[266]->m_ppMeshes[0];//벽  259
+	pMultiSpriteObjectShader->m_ppObjects[0]->SetScale(0.2f, 0.2f, 0.2f);
+	pMultiSpriteObjectShader->m_ppObjects[0]->Rotate(90, 180, 0);
 
 	pMultiSpriteObjectShader->m_bActive = false;
 	m_ppShaders[1] = pMultiSpriteObjectShader;
@@ -1036,8 +1037,21 @@ void CStage::AnimateObjects(float fTimeElapsed)
 {
 	m_fElapsedTime = fTimeElapsed;
 
-	for(int i{};i<m_nShaders;++i)
+	time += fTimeElapsed;
+	if (time > 3.0f)
+	{
+		m_ppShaders[1]->m_bActive = false;
+		time = 0.f;
+	}
+	//if(m_pPlayer->GetLook())
+
+	for (int i{}; i < m_nShaders; ++i)
+	{
+		if (1 == i)
+			int a = 0;
+
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	}
 
 
 	if (m_pLights)

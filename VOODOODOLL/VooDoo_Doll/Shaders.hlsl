@@ -131,7 +131,6 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	}
 
 
-
 	float4 cIllumination = Lighting(input.positionW, normalW);
 	float4 temp = lerp(cColor, cIllumination, 0.5f);
 	temp.w = 1;
@@ -141,13 +140,19 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 		cColor.w = 1;*/
 
 	
+	
+	/*if (cColor.x >= 0.95 && cColor.y >= 0.95 && cColor.z >= 0.95 && cColor.x <= 0.995 && cColor.y <= 0.995 && cColor.z <= 0.995)
+	{
+		discard;
+	}*/
+
 	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
 	{
-		return float4(0.6f, 0.6f, 0.6f, 0);
+		//return float4(0.6f, 0.6f, 0.6f, 0);
 		//return float4(0, 0,0, 0);
-		//discard;
+		discard;
 	}
-	else
+	//else
 		return temp;
 }
 
@@ -337,38 +342,104 @@ float4 PSTextureToViewport(VS_TEXTURED_OUTPUT input) : SV_Target
 //	float4 position : SV_POSITION;
 //	float2 uv : TEXCOORD;
 //};
-//
+
 //VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
-//{
-//	VS_TEXTURED_OUTPUT output;
-//
-//	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-//	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gmtxTexture)).xy;//gmtxTexture
-//
-//	output.position = float4(0, 0, 0, 0);
-//	output.uv = float2(0, 0);
-//
-//	return(output);
-//}
+VS_STANDARD_OUTPUT VSSpriteAnimation(VS_STANDARD_INPUT input)
+{
+	//VS_TEXTURED_OUTPUT output;
+	VS_STANDARD_OUTPUT output;
+
+	//output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	//output.uv = input.uv;
+	output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gcbToLightSpaces[0].mtxToTexture)).xy;//gmtxTexture
+	//output.uv = mul(float3(input.uv, 1.0f), (float3x3)(gMaterial.gmtxTexture)).xy;
+
+	return(output);
+
+
+	/*VS_STANDARD_OUTPUT output;
+
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
+	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);*/
+}
 //float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
-//{
-//	/*float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
-//	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
-//	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
-//	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
-//	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-//	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
-//
-//	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
-//
-//	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
-//		discard;*/
-//
-//	cColor = float4(0, 0, 0, 0);
-//
-//	return(cColor);
-//}
+float4 PSTextured(VS_STANDARD_OUTPUT input) : SV_TARGET
+{
+	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+
+	//if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
+		//discard;
+
+	//cColor = float4(0, 0, 0, 0);
+
+	return(cColor);
+
+	//float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	//float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+	//float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+
+	//float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	//////메탈릭 속성 값을 수정
+	////float metallicFactor = 0.1f; // 낮은 값으로 변경하려면 0.0f ~ 1.0f 사이의 값을 설정
+	////cMetallicColor *= metallicFactor;
+
+	//float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	//float3 normalW;
+	//float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	//if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	//{
+	//	float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
+	//	float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] → [-1, 1]
+	//	normalW = normalize(mul(vNormal, TBN));
+	//}
+	//else
+	//{
+	//	normalW = normalize(input.normalW);
+	//}
+
+
+
+	//float4 cIllumination = Lighting(input.positionW, normalW);
+	//float4 temp = lerp(cColor, cIllumination, 0.5f);
+	////temp.w = 1;
+
+
+	///*if (cColor.w == 0)
+	//	cColor.w = 1;*/
+
+
+	//if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
+	//{
+	//	//return float4(0.6f, 0.6f, 0.6f, 0);
+	//	//return float4(0, 0,0, 0);
+	//	discard;
+	//}
+	////else
+	//	return temp;
+}
