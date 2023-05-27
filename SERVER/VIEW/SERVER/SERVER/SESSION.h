@@ -101,12 +101,10 @@ public:
 		cout << "CurrentSize - " << objectQueue.unsafe_size() << endl;
 	}
 };
-
-
-
 //OVERLAPPEDPOOL OverPool(500'000);
 
 enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD, ST_CRASHED };
+enum WEAPON_TYPE {BLADE, GUN, PUNCH};
 class SESSION {
 	OVER_EXP _recv_over;
 public:
@@ -117,12 +115,10 @@ public:
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
 	float HP;
 	atomic<DWORD> direction;
-	//char	_name[NAME_SIZE];
 	unsigned short	_prev_remain;
 	BoundingBox m_xmOOBB;
 	atomic<short> cur_stage;
-	short error_stack;
-	short character_num;
+	WEAPON_TYPE weapon_type;
 	int recent_recvedTime;
 	float clear_percentage;
 public:
@@ -137,12 +133,10 @@ public:
 		m_xmf3Right = { 1.f,0.f,0.f };
 		direction = 0;
 		cur_stage = 0;
-		//_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
 		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 10, 12));
-		error_stack = 0;
-		character_num = 0;
+		weapon_type = BLADE;
 		HP = 0;
 		clear_percentage = 0.f;
 	}
@@ -152,7 +146,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,1480 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -161,10 +155,9 @@ public:
 		m_xmf3Look = { 0,0,1 };
 		//_socket = Socket;
 		cur_stage = 0;
-		error_stack = 0;
-		character_num = 0;
+		weapon_type = BLADE;
 		HP =  55500;
-		clear_percentage = 1.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
+		clear_percentage = 0.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
 	}
 	void do_recv()
 	{
@@ -194,11 +187,10 @@ public:
 	}
 	void send_move_packet(SESSION* Player)
 	{
-		SC_MOVE_PLAYER_PACKET p;
+		SC_UPDATE_PLAYER_PACKET p;
 		p.id = Player->_id;
-		p.size = sizeof(SC_MOVE_PLAYER_PACKET);
-		p.type = SC_MOVE_PLAYER;
-
+		p.size = sizeof(SC_UPDATE_PLAYER_PACKET);
+		p.type = SC_UPDATE_PLAYER;
 		p.Pos = Player->GetPosition();
 		p.direction = Player->direction.load();
 		p.HP = Player->HP;
@@ -221,10 +213,10 @@ public:
 	}
 	void send_attack_packet(SESSION* Player)
 	{
-		CS_ATTACK_PACKET p;
+		SC_ATTACK_PACKET p;
 		p.id = Player->_id;
-		p.size = sizeof(CS_ATTACK_PACKET);
-		p.type = CS_ATTACK;
+		p.size = sizeof(SC_ATTACK_PACKET);
+		p.type = SC_ATTACK;
 		do_send(&p);
 	}
 
@@ -244,7 +236,7 @@ public:
 		p.id = Player->_id;
 		p.size = sizeof(CS_CHANGEWEAPON_PACKET);
 		p.type = CS_CHANGEWEAPON;
-		p.cur_weaponType = Player->character_num;
+		p.cur_weaponType = Player->weapon_type;
 		do_send(&p);
 	}
 
@@ -255,17 +247,48 @@ public:
 
 		add_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
 		add_packet.type = SC_ADD_PLAYER;
-		add_packet.cur_weaponType = Player->character_num;
+		add_packet.cur_weaponType = Player->weapon_type;
 		add_packet.Look = Player->m_xmf3Look;
 		add_packet.Right = Player->m_xmf3Right;
-		add_packet.Up = Player->m_xmf3Up;
 		add_packet.Pos = Player->GetPosition();
 		do_send(&add_packet);
 	}
 
 
-	void send_summon_monster_packet(Monster* M);
-	void send_NPCUpdate_packet(Monster* M);
+	void send_summon_monster_packet(Monster* M)
+	{
+		SC_SUMMON_MONSTER_PACKET summon_packet;
+		summon_packet.id = M->m_id;
+		summon_packet.size = sizeof(summon_packet);
+		summon_packet.type = SC_SUMMON_MONSTER;
+		summon_packet.Pos = M->GetPosition();
+#ifdef _STRESS_TEST
+		summon_packet.room_num = M->room_num;
+#endif
+		summon_packet.monster_type = M->getType();
+		do_send(&summon_packet);
+	}
+
+	void send_monster_update_packet(Monster* M)
+	{
+		SC_MOVE_MONSTER_PACKET p;
+		p.id = M->m_id;
+		p.size = sizeof(SC_MOVE_MONSTER_PACKET);
+		p.type = SC_MOVE_MONSTER;
+		p.target_id = M->target_id;
+		p.Pos = M->GetPosition();
+		p.HP = M->HP;
+		p.is_alive = M->alive;
+		p.animation_track = M->cur_animation_track; // 원래 p.animation_track = (short)M->GetState();가 맞는데 2번 귀신이 애니메이션이 빠져 있어서 이렇게 함
+		p.BulletPos = M->MagicPos;
+
+#ifdef _STRESS_TEST
+		p.room_num = M->room_num;
+#endif
+		do_send(&p);
+	}
+
+
 	void send_open_door_packet(int door_num)
 	{
 		SC_OPEN_DOOR_PACKET packet;
@@ -312,14 +335,6 @@ public:
 		m_xmOOBB.Center.y += 10.f;
 	}
 
-	XMFLOAT3 GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
-	{
-		float Dot = Vector3::DotProduct(MovVec, ObjLook);
-		XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
-		XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
-		return SlidingVec;
-	}
-
 	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
 	void SetVelocity(const XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
 	void SetPosition(const XMFLOAT3& xmf3Position) { Move(XMFLOAT3(xmf3Position.x - m_xmf3Position.x, xmf3Position.y - m_xmf3Position.y, xmf3Position.z - m_xmf3Position.z)); }
@@ -328,7 +343,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void Update();
+	void Update(CS_MOVE_PACKET* packet);
 	void CheckPosition(XMFLOAT3 newPos);
 };
 

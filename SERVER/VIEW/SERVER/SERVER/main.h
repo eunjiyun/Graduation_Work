@@ -24,7 +24,7 @@ struct DB_EVENT {
 	unsigned short session_id;
 	wchar_t user_id[IDPW_SIZE];
 	wchar_t user_password[IDPW_SIZE];
-	int _event;
+	DB_EVENT_TYPE _event;
 };
 
 wstring ConverttoWchar(const char* str)
@@ -97,42 +97,9 @@ void disconnect(int c_id)
 			MonsterPool.ReturnMemory(*iter);
 			Monsters.erase(iter);
 		}
-		Monsters.cur_stage = 1;
 	}
 }
 
-void SESSION::send_summon_monster_packet(Monster* M)
-{
-	SC_SUMMON_MONSTER_PACKET summon_packet;
-	summon_packet.id = M->m_id;
-	summon_packet.size = sizeof(summon_packet);
-	summon_packet.type = SC_SUMMON_MONSTER;
-	summon_packet.Pos = M->GetPosition();
-#ifdef _STRESS_TEST
-	summon_packet.room_num = M->room_num;
-#endif
-	summon_packet.monster_type = M->getType();
-	do_send(&summon_packet);
-}
-
-void SESSION::send_NPCUpdate_packet(Monster* M)
-{
-	SC_MOVE_MONSTER_PACKET p;
-	p.id = M->m_id;
-	p.size = sizeof(SC_MOVE_MONSTER_PACKET);
-	p.type = SC_MOVE_MONSTER;
-	p.target_id = M->target_id;
-	p.Pos = M->GetPosition();
-	p.HP = M->HP;
-	p.is_alive = M->alive;
-	p.animation_track = M->cur_animation_track; // 원래 p.animation_track = (short)M->GetState();가 맞는데 2번 귀신이 애니메이션이 빠져 있어서 이렇게 함
-	p.BulletPos = M->MagicPos;
-
-#ifdef _STRESS_TEST
-	p.room_num = M->room_num;
-#endif
-	do_send(&p);
-}
 
 void Initialize_Monster(int roomNum, int stageNum)
 {
@@ -172,8 +139,8 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		return;
 	}
 
-	XMFLOAT3 newCenter = newPos; // 캐릭터의 위치와 충돌박스의 위치의 차이 때문에 충돌체크는 y축 +10해서 계산해야함
-	newCenter.y += 10.f;
+	XMFLOAT3 newCenter = newPos; 
+	newCenter.y += 10.f;			// 캐릭터의 위치와 충돌박스의 위치의 차이 때문에 충돌체크는 y축 +10해서 계산해야함
 	try {
 		for (const auto& object : Objects.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
 			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newCenter))) {
@@ -223,8 +190,14 @@ int get_new_client_id()
 
 
 
-void SESSION::Update()
+void SESSION::Update(CS_MOVE_PACKET* packet)
 {
+	direction.store(packet->direction);
+	SetVelocity(packet->vel);
+	CheckPosition(packet->pos);
+#ifdef _STRESS_TEST
+	recent_recvedTime = packet->move_time;
+#endif
 }
 
 
@@ -233,7 +206,7 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3H
 	int collide_range_z = static_cast<int>(_pos.z / AREA_SIZE);
 	check_box.Center = _pos;
 
-	if (CloseList.find(_pos) != CloseList.end()) {
+	if (CloseList.count(_pos)) {
 		return false;
 	}
 
@@ -502,7 +475,41 @@ void Monster::Update(float fTimeElapsed)
 
 void SorcererMonster::Update(float fTimeElapsed)
 {
+	if (Vector3::Length(MagicLook) > 0.f) {
+		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 100.f * fTimeElapsed, false)); // HAT_SPEED = 200.f
+		for (auto& player : clients[room_num]) {
+			lock_guard <mutex> ll{ player._s_lock };
+			if (BoundingBox(MagicPos, BULLET_SIZE).Intersects(player.m_xmOOBB))
+			{
+				player.HP -= GetPower();
+				MagicPos.x = 5000;
+				MagicLook.x = MagicLook.y = MagicLook.z = 0.f;
+				if (player.HP <= 0)
+				{
+					player._state.store(ST_DEAD);
+					for (auto& cl : clients[room_num]) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
+							cl.send_move_packet(&player);
+					}
+				}
+			}
+		}
+		try {
+			for (auto& obj : Objects.at(static_cast<int>(MagicPos.z) / AREA_SIZE)) {
+				if (obj->m_xmOOBB.Contains(XMLoadFloat3(&MagicPos))) {
+					MagicPos.x = 5000;
+					MagicLook.x = MagicLook.y = MagicLook.z = 0.f;
+				}
 
+			}
+		}
+		catch (const exception& e) {
+			cout << "Hat Update catched error -" << e.what() << endl;
+			MagicPos = Pos;
+			return;
+		}
+	}
+	Monster::Update(fTimeElapsed);
 }
 
 void InitializeStages()
@@ -514,8 +521,6 @@ void InitializeStages()
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
-		//cout << "1 stage\n";
-
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -535,7 +540,6 @@ void InitializeStages()
 		}
 	}
 	{	// 2stage
-		//cout << "2 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
 		while (ID_constructor < 20) {
@@ -557,7 +561,6 @@ void InitializeStages()
 		}
 	}
 	{	// 3stage
-		//cout << "3 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
 		while (ID_constructor < 30) {
@@ -579,7 +582,6 @@ void InitializeStages()
 		}
 	}
 	{	// 4stage
-		//cout << "4 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
 		while (ID_constructor < 40) {
@@ -601,7 +603,6 @@ void InitializeStages()
 		}
 	}
 	{	// 5stage
-		//cout << "5 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
 		while (ID_constructor < 50) {
@@ -624,7 +625,6 @@ void InitializeStages()
 	}
 
 	{	// 6stage
-		//cout << "6 stage\n";
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(300, 1100));
 		while (ID_constructor < 60) {

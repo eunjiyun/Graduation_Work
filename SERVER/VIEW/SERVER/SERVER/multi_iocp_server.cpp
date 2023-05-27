@@ -36,8 +36,7 @@ int main()
 	for (int i = 0; i < *m_nObjects; i++) {
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
 			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
-			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh") ||
-			0 == strcmp(m_ppObjects[i]->m_pstrName, "stone")) continue;
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 
 		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Key_mesh"))
 		{ 
@@ -88,14 +87,14 @@ int main()
 	int num_threads = std::thread::hardware_concurrency();
 	for (int i = 0; i < 1; ++i)
 		timer_threads.emplace_back(do_Timer);
-	thread* DB_t = new thread{ DB_Thread };
+	thread DB_t{ DB_Thread };
 	for (int i = 0; i < num_threads - 1; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 	for (auto& th : worker_threads)
 		th.join();
 	for (auto& th : timer_threads)
 		th.join();
-	DB_t->join();
+	DB_t.join();
 
 	closesocket(g_s_socket);
 	WSACleanup();
@@ -178,13 +177,13 @@ void DB_Thread()
 						cout << "GET REQUEST\n";
 						SQLWCHAR* param1 = ev.user_id;
 						SQLWCHAR* param2 = ev.user_password;
+						if (param1[0] == L'\0' || param2[0] == L'\0') continue;
 						switch (ev._event) {
 						case EV_SIGNUP:
-							//SQLWCHAR* procedureName = L"sign_up";
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_up(?, ?)}", SQL_NTS);
 							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
-								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 20, 0, (SQLPOINTER)param2, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param2, 0, NULL);
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
@@ -201,11 +200,10 @@ void DB_Thread()
 							}
 							break;
 						case EV_SIGNIN:
-							//SQLWCHAR* procedureName = L"sign_in";
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
 							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
-								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 20, 0, (SQLPOINTER)param2, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param2, 0, NULL);
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
@@ -223,7 +221,7 @@ void DB_Thread()
 							break;
 						}
 					}
-					else this_thread::sleep_for(100ms);
+					else this_thread::sleep_for(10ms);
 				}
 
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
@@ -280,12 +278,7 @@ void process_packet(const int c_id, char* packet)
 	}
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
-		CL.direction.store(p->direction);
-		CL.SetVelocity(p->vel);
-		CL.CheckPosition(p->pos);
-#ifdef _STRESS_TEST
-		CL.recent_recvedTime = p->move_time;
-#endif
+		CL.Update(p);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
 		}
@@ -307,9 +300,9 @@ void process_packet(const int c_id, char* packet)
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
 
-		switch (CL.character_num)
+		switch (CL.weapon_type)
 		{
-		case 0:
+		case BLADE:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
 			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
@@ -322,26 +315,27 @@ void process_packet(const int c_id, char* packet)
 						monster->SetState(NPC_State::Dead);
 				}
 			}
-			break;
 		}
-		case 1:
+		break;
+		case GUN:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
 			vector<Monster*> monstersInRange;
 
-			{
-				shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
-				for (auto& monster : Monsters) {
-					lock_guard<mutex> monster_lock{ monster->m_lock };
-					float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
-					if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
-					{
-						monstersInRange.push_back(monster);
-					}
+			
+			Monsters.v_shared_lock.lock_shared();
+			for (auto& monster : Monsters) {
+				lock_guard<mutex> monster_lock{ monster->m_lock };
+				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
+				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
+				{
+					monstersInRange.push_back(monster);
 				}
 			}
+			Monsters.v_shared_lock.unlock_shared();
+
 			if (!monstersInRange.empty())
 			{
 				float minDistance = FLT_MAX;
@@ -382,7 +376,7 @@ void process_packet(const int c_id, char* packet)
 			}
 			break;
 		}
-		case 2:
+		case PUNCH:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
 			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
@@ -404,16 +398,18 @@ void process_packet(const int c_id, char* packet)
 		CS_INTERACTION_PACKET* p = reinterpret_cast<CS_INTERACTION_PACKET*>(packet);
 		int cur_stage = CL.cur_stage.load();
 		for (int i = 0; i < Key_Items[cur_stage].size(); i++) {
-			if (Key_Items[cur_stage][i].m_xmOOBB.Intersects(CL.m_xmOOBB))
+			if (Key_Items[cur_stage][i].m_xmOOBB.Intersects(CL.m_xmOOBB)) {
 				for (auto& cl : Room) {
 					cl.clear_percentage += Key_Items[cur_stage][i].percent;
 					if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(cur_stage, i);
 				}
+			}
 		}
 
 		if (CL.clear_percentage >= 1.f && getMonsters(CL._id).size() <= 0) {
 			for (auto& cl : Room) {
-				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_open_door_packet(CL.cur_stage);
+				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   
+					cl.send_open_door_packet(CL.cur_stage);
 				cl.clear_percentage = 0.f;
 				if (cl.cur_stage >= 1) cl.clear_percentage = 1.f; // 3번째(코드에선 2번 인덱스) 스테이지부터 퍼즐 미구현이라 임의의 코드로 percent를 100%로 조정함
 			}
@@ -422,10 +418,7 @@ void process_packet(const int c_id, char* packet)
 	}
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
-		CL.character_num = (CL.character_num + 1) % 3;
-		//if (CL.character_num == 2)
-		//	CL.HP = 100;
-		//else CL.HP = 55500;
+		CL.weapon_type = static_cast<WEAPON_TYPE>((CL.weapon_type + 1) % 3);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
@@ -528,7 +521,7 @@ void worker_thread(HANDLE h_iocp)
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
 			break;
-		case OP_NPC_MOVE://클라그림자
+		case OP_NPC_MOVE:
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
 			vector<Monster*>::iterator iter;
@@ -547,7 +540,7 @@ void worker_thread(HANDLE h_iocp)
 						(*iter)->recent_recvedTime = high_resolution_clock::now();
 					}
 					for (auto& cl : clients[roomNum]) {
-						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_NPCUpdate_packet(*iter);
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_monster_update_packet(*iter);
 					}
 					TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
 					timer_queue.push(ev);
@@ -561,10 +554,6 @@ void worker_thread(HANDLE h_iocp)
 						}
 					}
 					MonsterPool.ReturnMemory(*iter);
-//#ifdef _STRESS_TEST
-//					if (PoolMonsters[roomNum].size() <= 0)
-//						Initialize_Monster(roomNum, 1);
-//#endif
 				}
 			}
 

@@ -72,7 +72,6 @@ void ProcessInput()
 	if (cxDelta != 0.0f || cyDelta != 0.0f)
 	{
 		CS_ROTATE_PACKET p;
-		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_ROTATE_PACKET);
 		p.type = CS_ROTATE;
 		if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
@@ -93,7 +92,6 @@ void ProcessInput()
 	if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100) {
 		CS_MOVE_PACKET p;
 		p.direction = dwDirection;
-		p.id = gGameFramework.m_pPlayer->c_id;
 		p.size = sizeof(CS_MOVE_PACKET);
 		p.type = CS_MOVE;
 		p.pos = gGameFramework.m_pPlayer->GetPosition();
@@ -479,7 +477,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	return((INT_PTR)FALSE);
 }
 
-void ProcessAnimation(CPlayer* pl, SC_MOVE_PLAYER_PACKET* p)
+void ProcessAnimation(CPlayer* pl, SC_UPDATE_PLAYER_PACKET* p)
 {
 	pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 
@@ -518,7 +516,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		cout << "client[" << packet->id << "] Accessed\n";
-		gGameFramework.CreateOtherPlayer(packet->id, packet->cur_weaponType, packet->Pos, packet->Look, packet->Up, packet->Right);
+		gGameFramework.CreateOtherPlayer(packet->id, packet->cur_weaponType, packet->Pos, packet->Look, packet->Right);
 		break;
 	}
 	case SC_LOGIN_COMPLETE: {
@@ -534,8 +532,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		cout << "client[" << packet->id << "] Disconnected\n";
 		break;
 	}
-	case SC_MOVE_PLAYER: {
-		SC_MOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_MOVE_PLAYER_PACKET*>(ptr);
+	case SC_UPDATE_PLAYER: {
+		SC_UPDATE_PLAYER_PACKET* packet = reinterpret_cast<SC_UPDATE_PLAYER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
 		if (iter == gGameFramework.Players.end()) break;
 		(*iter)->HP = packet->HP;
@@ -566,9 +564,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetUpVector(Vector3::CrossProduct((*iter)->GetLookVector(), (*iter)->GetRightVector(), true));
 		break;
 	}
-	case CS_ATTACK: {
-		CS_ATTACK_PACKET* packet = reinterpret_cast<CS_ATTACK_PACKET*>(ptr);
+	case SC_ATTACK: {
+		SC_ATTACK_PACKET* packet = reinterpret_cast<SC_ATTACK_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
+		if (iter == gGameFramework.Players.end()) break;
 		(*iter)->onAct = true;
 		(*iter)->SetVelocity(XMFLOAT3(0, 0, 0));
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);

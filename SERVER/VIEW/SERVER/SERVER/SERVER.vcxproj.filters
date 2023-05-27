@@ -13,28 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="소스 파일\Client_File">
-      <UniqueIdentifier>{fabb8838-b8b3-4a42-844e-6bacfce54f17}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="multi_iocp_server.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>소스 파일\Client_File</Filter>
     </ClCompile>
     <ClCompile Include="SESSION.cpp">
       <Filter>소스 파일</Filter>
@@ -55,21 +37,6 @@
     </ClInclude>
     <ClInclude Include="MemoryPool.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>소스 파일\Client_File</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>소스 파일\Client_File</Filter>
     </ClInclude>
     <ClInclude Include="SESSION.h">
       <Filter>헤더 파일</Filter>

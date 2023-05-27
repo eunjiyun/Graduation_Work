@@ -23,14 +23,15 @@ constexpr char CS_CHANGEWEAPON = 7;
 constexpr char SC_LOGIN_INFO = 8;
 constexpr char SC_ADD_PLAYER = 9;
 constexpr char SC_REMOVE_PLAYER = 10;
-constexpr char SC_MOVE_PLAYER = 11;
+constexpr char SC_UPDATE_PLAYER = 11;
 constexpr char SC_ROTATE_PLAYER = 12;
-constexpr char SC_SUMMON_MONSTER = 13;
-constexpr char SC_MOVE_MONSTER = 14;
-constexpr char SC_OPEN_DOOR = 15;
-constexpr char SC_LOGIN_COMPLETE = 16;
-constexpr char SC_GAME_CLEAR = 17;
-constexpr char SC_INTERACTION = 18;
+constexpr char SC_ATTACK = 13;
+constexpr char SC_SUMMON_MONSTER = 14;
+constexpr char SC_MOVE_MONSTER = 15;
+constexpr char SC_OPEN_DOOR = 16;
+constexpr char SC_LOGIN_COMPLETE = 17;
+constexpr char SC_GAME_CLEAR = 18;
+constexpr char SC_INTERACTION = 19;
 
 #include "stdafx.h"
 
@@ -40,33 +41,21 @@ constexpr char SC_INTERACTION = 18;
 struct CS_LOGIN_PACKET {
 	unsigned char size;
 	char	type;
-	//char	name[NAME_SIZE];
 };
 constexpr short CS_LOGIN_PACKET_SIZE = sizeof(CS_LOGIN_PACKET);
 
 struct CS_SIGN_PACKET {
 	unsigned char size;
 	char	type;
-	//wchar_t id[ID_SIZE];
-	//wchar_t password[PASSWORD_SIZE];
 	wchar_t id[IDPW_SIZE];
 	wchar_t password[IDPW_SIZE];
 };
 constexpr short CS_SIGN_PACKET_SIZE = sizeof(CS_SIGN_PACKET);
 
-//struct CS_SIGNIN_PACKET {
-//	unsigned char size;
-//	char	type;
-//	char id[NAME_SIZE];
-//	char password[NAME_SIZE];
-//};
-//constexpr short CS_SIGNIN_PACKET_SIZE = sizeof(CS_SIGNIN_PACKET);
-
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
 	DWORD	direction = 0;
-	short	id;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
 
@@ -79,7 +68,6 @@ constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
 struct CS_ROTATE_PACKET {
 	unsigned char size;
 	char	type;
-	short	id;
 	float cxDelta = 0.f;
 	float cyDelta = 0.f;
 	float czDelta = 0.f;
@@ -123,7 +111,7 @@ struct SC_ADD_PLAYER_PACKET {
 	char	type;
 	short	id;
 	short cur_weaponType;
-	XMFLOAT3 Pos, Look, Right, Up;
+	XMFLOAT3 Pos, Look, Right;
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);
 
@@ -134,7 +122,7 @@ struct SC_REMOVE_PLAYER_PACKET {
 };
 constexpr short SC_REMOVE_PLAYER_PACKET_SIZE = sizeof(SC_REMOVE_PLAYER_PACKET);
 
-struct SC_MOVE_PLAYER_PACKET {
+struct SC_UPDATE_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
@@ -146,7 +134,7 @@ struct SC_MOVE_PLAYER_PACKET {
 	unsigned	move_time;
 #endif
 };
-constexpr short SC_MOVE_PLAYER_PACKET_SIZE = sizeof(SC_MOVE_PLAYER_PACKET);
+constexpr short SC_UPDATE_PLAYER_PACKET_SIZE = sizeof(SC_UPDATE_PLAYER_PACKET);
 
 struct SC_ROTATE_PLAYER_PACKET {
 	unsigned char size;
@@ -155,6 +143,13 @@ struct SC_ROTATE_PLAYER_PACKET {
 	XMFLOAT3 Look, Right;
 };
 constexpr short SC_ROTATE_PLAYER_PACKET_SIZE = sizeof(SC_ROTATE_PLAYER_PACKET);
+
+struct SC_ATTACK_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+};
+constexpr short SC_ATTACK_PACKET_SIZE = sizeof(SC_ATTACK_PACKET);
 
 struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
@@ -202,7 +197,6 @@ constexpr short SC_LOGIN_COMPLETE_PACKET_SIZE = sizeof(SC_LOGIN_COMPLETE_PACKET)
 struct SC_GAME_CLEAR_PACKET {
 	unsigned char size;
 	char	type;
-	short	id;
 };
 constexpr short SC_GAME_CLEAR_PACKET_SIZE = sizeof(SC_GAME_CLEAR_PACKET);
 

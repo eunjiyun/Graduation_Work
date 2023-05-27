@@ -16,7 +16,6 @@ private:
     short view_range, type;
     array<float, 3> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
-    //AStar_Pool _Pool;
 public:
 
     float g_distance = 0;
@@ -52,6 +51,7 @@ public:
     int get_targetID();
     XMFLOAT3 Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
     void Update(float fTimeElapsed);
+    virtual void UpdateMagic(float fTimeElapsed) {}
     XMFLOAT3 GetPosition() { return Pos; }
     float GetSpeed() { return speed; }
     short GetPower() { return power; }
@@ -71,6 +71,8 @@ public:
     XMFLOAT3 MagicLook;
     void Update(float fTimeElapsed);
 };
+
+
 class MonsterInfo
 {
 public:
