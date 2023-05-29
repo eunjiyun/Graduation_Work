@@ -65,7 +65,8 @@ private:
 	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles = NULL;
 
 public:
-	XMFLOAT4X4						m_xmf4x4Texture;
+	int 							m_nRow = 0;
+	int 							m_nCol = 0;
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -96,6 +97,8 @@ public:
 	D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(int nIndex);
 
 	void ReleaseUploadBuffers();
+
+	void AnimateRowColumn(XMFLOAT3&,float fTime = 0.0f);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -415,14 +418,18 @@ public:
 
 	bool isChild = false;
 
-public:
-	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);//
-	XMFLOAT3					m_xmf3FirePosition = XMFLOAT3(0.0f, 0.0f, 1.0f);//
-	XMFLOAT3					m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);//
-	CGameObject* m_pLockedObject = NULL;//
-	float						m_fMovingSpeed = 0.0f;//
-	float						m_fRotationSpeed = 0.0f;//
+	XMFLOAT3 texMat = { 0.0f,0.0f,0.0f };
 
+public:
+	XMFLOAT3					m_xmf3MovingDirection = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3					m_xmf3FirePosition = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3					m_xmf3RotationAxis = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	CGameObject* m_pLockedObject = NULL;
+	float						m_fMovingSpeed = 0.0f;
+	float						m_fRotationSpeed = 0.0f;
+
+	ID3D12Resource* m_pd3dcbToLightSpaces = NULL;
+	XMFLOAT4X4* textureMat = NULL;
 
 public:
 	void AddRef();
@@ -445,12 +452,13 @@ public:
 	virtual void Animate(float fTimeElapsed,bool onPlayer);
 
 	virtual void OnPrepareRender() { }
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,CCamera* pCamera = NULL);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
+		CCamera* pCamera = NULL);
 	
 	void onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState);
 	virtual void OnLateUpdate() { }
 
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList){}
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
@@ -519,12 +527,6 @@ public:
 	void SetRotationSpeed(float fSpeed) { m_fRotationSpeed = fSpeed; }
 	void SetMovingSpeed(float fSpeed) { m_fMovingSpeed = fSpeed; }
 	virtual void Reset() {}
-
-	void SetFirePosition(XMFLOAT3 xmf3FirePosition)
-	{
-		m_xmf3FirePosition = xmf3FirePosition;
-		SetPosition(xmf3FirePosition);
-	}
 };
 
 
@@ -544,7 +546,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 
-//23.02.21
+
 class CBulletObject : public CGameObject
 {
 public:
@@ -601,7 +603,7 @@ public:
 	float m_fSpeed = 0.1f;
 	float m_fTime = 0.0f;
 
-	virtual void Animate(float fTimeElapsed);
+	virtual void Animate(float fTimeElapsed,bool);
 };
 
 

@@ -318,10 +318,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (1 == gGameFramework.gameButton
 					&& 1 == gGameFramework.m_pStage->m_pShadowMapToViewport->curPl)
 				{
-					//if (gGameFramework.m_pStage->m_ppShaders[1]->m_bActive)
-						//gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = false;
-					//else
-						gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
+					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
 				}
 			}
 			else if (wParam == 'C' || wParam == 'c')
@@ -642,13 +639,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
 		gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
 		gGameFramework.temp->SetPosition(907, -70, 800);
-		//gGameFramework.temp->SetPosition(880, -70, 1000);
-
 		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
-		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 500));
-
 		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
-		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 1000));
 		gGameFramework.m_pCamera->m_lock = true;
 		gGameFramework.gameEnd = true;
 

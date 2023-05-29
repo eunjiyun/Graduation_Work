@@ -148,7 +148,6 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorNextHandle() { return(m_d3dSrvGPUDescriptorNextHandle); }
 
 	float							m_fElapsedTime = 0.0f;
-	float time = 0.f;
 
 	XMFLOAT3					m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
@@ -170,6 +169,7 @@ public:
 
 	ID3D12Resource*		m_pd3dcbLights = NULL;
 	LIGHTS*						m_pcbMappedLights = NULL;
+	
 
 public:
 	vector<XMFLOAT3> mpObjVec;
@@ -183,6 +183,7 @@ public:
 	CGameObject** hpUi = nullptr;
 	CGameObject** userId = nullptr;
 	CGameObject** userPw = nullptr;
+
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;

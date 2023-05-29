@@ -34,8 +34,6 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 
 	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
-
-	m_xmf4x4Texture = Matrix4x4::Identity();
 }
 
 
@@ -182,6 +180,18 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 	return(d3dShaderResourceViewDesc);
 }
 
+void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
+{
+	texMat.x= float(m_nRow) / texMat.z;
+	texMat.y= float(m_nCol) / texMat.z;
+
+	if (fTime == 0.0f)
+	{
+		if (++m_nCol == texMat.z) { m_nRow++; m_nCol = 0; }
+		if (m_nRow == texMat.z) m_nRow = 0;
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CMaterial::CMaterial(int nTextures)
@@ -211,6 +221,7 @@ CMaterial::~CMaterial()
 	}
 }
 
+
 void CMaterial::SetShader(CShader* pShader)
 {
 	if (m_pShader) m_pShader->Release();
@@ -236,7 +247,6 @@ void CMaterial::ReleaseUploadBuffers()
 CShader* CMaterial::m_pSkinnedAnimationShader = NULL;
 CShader* CMaterial::m_pStandardShader = NULL;
 CShader* CMaterial::depthShader = NULL;
-
 
 void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature
 	, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
@@ -592,7 +602,6 @@ void CAnimationTrack::HandleCallback()
 {
 	if (m_pAnimationCallbackHandler)
 	{
-
 		for (int i = 0; i < m_nCallbackKeys; i++)
 		{
 			if (::IsEqual(m_pCallbackKeys[i].m_fTime, m_fPosition, ANIMATION_CALLBACK_EPSILON))
@@ -604,7 +613,7 @@ void CAnimationTrack::HandleCallback()
 	}
 }
 
-float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)//0228
+float CAnimationTrack::UpdatePosition(float fTrackPosition, float fElapsedTime, float fAnimationLength)
 {
 	float fTrackElapsedTime = fElapsedTime * m_fSpeed;
 
@@ -1076,7 +1085,8 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState, CCamera* pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
+	CCamera* pCamera)
 {
 	if (m_pSkinnedAnimationController)
 		m_pSkinnedAnimationController->UpdateShaderVariables(pd3dCommandList);
@@ -1097,44 +1107,27 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 						{
 							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 							//m_ppMaterials[i]->depthShader->Render(pd3dCommandList, pCamera);
-
 						}
 						/*else if(m_ppMaterials[i]->m_pStandardShader)
 							if (strcmp(m_pstrName, "Dense_Floor_mesh"))
 								m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);*/
 
-
 						m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
-
-						/*if (m_ppMaterials[i]->m_ppTextures)
-						{
-							m_ppMaterials[i]->m_ppTextures[0]->UpdateShaderVariables(pd3dCommandList);
-							if (m_pcbMappedGameObject) 
-								XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4Texture, XMMatrixTranspose(XMLoadFloat4x4(&m_ppMaterials[i]->m_ppTextures[0]->m_xmf4x4Texture)));
-						}*/
-						//if(m_ppMaterials[i]->m_ppTextures)
-							//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &m_ppMaterials[i]->m_ppTextures[0]->m_xmf4x4Texture, 16);
+						pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &texMat, 16);
 					}
 
 					m_ppMeshes[0]->Render(pd3dCommandList, i, i);
 				}
 			}
 		}
-
-
 	}
 
 	if (m_pSibling)
-		m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+		m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState,  pCamera);
 	if (m_pChild)
 		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
 
-
-
-void CGameObject::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-{
-}
 
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
@@ -1161,6 +1154,12 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandLis
 
 void CGameObject::ReleaseShaderVariables()
 {
+
+	/*if (m_pd3dcbToLightSpaces)
+	{
+		m_pd3dcbToLightSpaces->Unmap(0, NULL);
+		m_pd3dcbToLightSpaces->Release();
+	}*/
 }
 
 void CGameObject::ReleaseUploadBuffers()
@@ -1419,7 +1418,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 					}
 					else
 					{
-						pMaterial->SetStandardShader();//
+						pMaterial->SetStandardShader();
 					}
 				}
 			}
@@ -1457,7 +1456,7 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			nReads = (UINT)::fread(&(pMaterial->m_fGlossyReflection), sizeof(float), 1, pInFile);
 		}
-		else if (!strcmp(pstrToken, "<AlbedoMap>:"))//1  0313
+		else if (!strcmp(pstrToken, "<AlbedoMap>:"))
 		{
 			pMaterial->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_ALBEDO_MAP, 3, pMaterial->m_ppstrTextureNames[0], &(pMaterial->m_ppTextures[0]), pParent, pInFile, pShader, choose, 1);
 		}
@@ -1465,23 +1464,23 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_SPECULAR_MAP, 4, pMaterial->m_ppstrTextureNames[1], &(pMaterial->m_ppTextures[1]), pParent, pInFile, pShader, choose, 0);
 		}
-		else if (!strcmp(pstrToken, "<NormalMap>:"))//1
+		else if (!strcmp(pstrToken, "<NormalMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_NORMAL_MAP, 5, pMaterial->m_ppstrTextureNames[2], &(pMaterial->m_ppTextures[2]), pParent, pInFile, pShader, choose, 2);
 		}
-		else if (!strcmp(pstrToken, "<MetallicMap>:"))//1
+		else if (!strcmp(pstrToken, "<MetallicMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_METALLIC_MAP, 6, pMaterial->m_ppstrTextureNames[3], &(pMaterial->m_ppTextures[3]), pParent, pInFile, pShader, choose, 3);
 		}
-		else if (!strcmp(pstrToken, "<EmissionMap>:"))//1
+		else if (!strcmp(pstrToken, "<EmissionMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_EMISSION_MAP, 7, pMaterial->m_ppstrTextureNames[4], &(pMaterial->m_ppTextures[4]), pParent, pInFile, pShader, choose, 4);
 		}
-		else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))//2
+		else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[5], &(pMaterial->m_ppTextures[5]), pParent, pInFile, pShader, choose, 1);
 		}
-		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))//2
+		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 9, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, pInFile, pShader, choose, 2);
 		}
@@ -1537,7 +1536,7 @@ CGameObject* CGameObject::LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, I
 
 			CSkinnedMesh* pSkinnedMesh = new CSkinnedMesh(pd3dDevice, pd3dCommandList);
 			pSkinnedMesh->LoadSkinInfoFromFile(pd3dDevice, pd3dCommandList, pInFile);
-			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);//1
+			pSkinnedMesh->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
 			::ReadStringFromFile(pInFile, pstrToken); //<Mesh>:
 			if (!strcmp(pstrToken, "<Mesh>:")) pSkinnedMesh->LoadMeshFromFile(pd3dDevice, pd3dCommandList, pInFile);
@@ -1911,13 +1910,13 @@ CMultiSpriteObject::~CMultiSpriteObject()
 {
 }
 
-void CMultiSpriteObject::Animate(float fTimeElapsed)//0523
+void CMultiSpriteObject::Animate(float fTimeElapsed,bool onPl)
 {
-	/*if (m_pMaterial && m_pMaterial->m_pTexture)
+	if (m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
 	{
-		m_fTime += fTimeElapsed * 0.5f;
+		m_fTime += fTimeElapsed * 18.5f;
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
-		m_pMaterial->m_pTexture->AnimateRowColumn(m_fTime);
-	}*/
+		m_ppMaterials[0]->m_ppTextures[0]->AnimateRowColumn(texMat,m_fTime);
+	}
 }
 

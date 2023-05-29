@@ -124,6 +124,7 @@ void CPlayer::Rotate(float x, float y, float z)
 			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 		}
 		m_pCamera->Rotate(x, y, z);
+
 		if (y != 0.0f)
 		{
 			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
@@ -202,6 +203,7 @@ void CPlayer::Deceleration(float fTimeElapsed)
 CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)
 {
 	CCamera* pNewCamera = NULL;
+
 	switch (nNewCameraMode)
 	{
 	case FIRST_PERSON_CAMERA:
@@ -286,7 +288,7 @@ void CPlayer::boundingAnimate(float fElapsedTime)
 // 
 #define _WITH_DEBUG_CALLBACK_DATA
 
-void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosition)//0501
+void CSoundCallbackHandler::HandleCallback(void* pCallbackData, float fTrackPosition)
 {
 
 	_TCHAR* pWavName = (_TCHAR*)pCallbackData;

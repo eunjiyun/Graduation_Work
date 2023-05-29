@@ -319,6 +319,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
+		m_pStage->m_ppShaders[1]->m_bActive = false;
 
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
@@ -573,11 +574,7 @@ void CGameFramework::BuildObjects()
 
 	temp = new CGameObject(1);
 	temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[3];
-
 	temp->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[94]->m_ppMeshes[0]);
-	//CTexturedRectMesh* pSpriteMesh = new CTexturedRectMesh(m_pd3dDevice, m_pd3dCommandList, 500.0f, 500.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	//temp->SetMesh(0, pSpriteMesh);
-	
 	temp->Rotate(270, 0, 0);
 	temp->SetScale(0.9f, 0.7f, 0.7f);
 	temp->SetPosition(108, 82, 140);
@@ -640,6 +637,17 @@ void CGameFramework::BuildObjects()
 
 	WaitForGpuComplete();
 
+	if (m_pStage->userId)
+	{
+		for (int i{}; i < userId.size(); ++i)
+			m_pStage->userId[i]->ReleaseUploadBuffers();
+	}
+	if (m_pStage->userPw)
+	{
+		for (int i{}; i < userPw.size(); ++i)
+			m_pStage->userPw[i]->ReleaseUploadBuffers();
+	}
+
 	if (m_pStage) m_pStage->ReleaseUploadBuffers();
 	if (m_pPlayer) m_pPlayer->ReleaseUploadBuffers();
 
@@ -679,7 +687,7 @@ void CGameFramework::ReleaseObjects()
 			m_pStage->userId[i]->ReleaseShaderVariables();
 			m_pStage->userId[i]->Release();
 		}
-		delete m_pStage->userId;
+		delete[] m_pStage->userId;
 	}
 	if (m_pStage->userPw)
 	{
@@ -688,7 +696,7 @@ void CGameFramework::ReleaseObjects()
 			m_pStage->userPw[i]->ReleaseShaderVariables();
 			m_pStage->userPw[i]->Release();
 		}
-		delete m_pStage->userPw;
+		delete[] m_pStage->userPw;
 	}
 
 
@@ -872,7 +880,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 						++checkJump;
 					}
 				}
-
 			}
 			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
@@ -941,6 +948,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 						{
 							doorSound.Stop();
 							doorSound.Terminate();
+
 							checkDoorSound = true;
 						}
 					}
@@ -1162,37 +1170,24 @@ void CGameFramework::FrameAdvance()
 			monsterSound.Terminate();
 			sound[0].Stop();//인게임
 			sound[2].Play();//클로징
-
-			//gameEnd = true;
-			//m_pStage->hpUi[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			//m_pStage->hpUi[1]->SetScale(0.05f, 0.3f, 0.7f);
-			//m_pStage->hpUi[1]->SetScale(0.06f, 0.3f, 0.7f);
-			//m_pStage->hpUi[1]->SetPosition(50, -75, 346);
-			//m_pStage->hpUi[1]->SetPosition(50, -225, 346);
 		}
 	}
 
-	//if (1 == gameButton )
 	if (1 == gameButton && true == m_pPlayer->alive)
 	{
 
 		if (-64 > m_pPlayer->GetPosition().y)
 		{
 			m_pStage->hpUi[0]->SetPosition(50, -225, 178);
-			//if(false==gameEnd)
 			m_pStage->hpUi[1]->SetPosition(50, -225, 346);
 		}
 		else
 		{
-			m_pStage->hpUi[0]->SetPosition(50, -55, 178);//-30 140
-			//if (false == gameEnd)
+			m_pStage->hpUi[0]->SetPosition(50, -55, 178);
 			m_pStage->hpUi[1]->SetPosition(50, -55, 346);
 		}
 
-
-		//if (true == m_pPlayer->alive)
 		m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	}
 
@@ -1257,8 +1252,6 @@ void CGameFramework::FrameAdvance()
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
 
 	if (-70 > m_pPlayer->GetPosition().y)
-		//if (-299 > m_pPlayer->GetPosition().y)
-		//if (-260 > m_pPlayer->GetPosition().y)
 		firstFloor = true;
 	else
 		firstFloor = false;
@@ -1268,7 +1261,6 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights, firstFloor);
 	}
 
-	//if(false==gameEnd)
 	temp->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)

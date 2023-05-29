@@ -34,22 +34,24 @@ private:
 	int									m_nReferences = 0;
 protected:
 	ID3DBlob* m_pd3dVertexShaderBlob = NULL;
-	ID3DBlob* m_pd3dPixelShaderBlob = NULL;//
+	ID3DBlob* m_pd3dPixelShaderBlob = NULL;
 
 	
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;//
-	float								m_fElapsedTime = 0.0f;//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
+	float								m_fElapsedTime = 0.0f;
 
 public:
-	CGameObject**	m_ppObjects = 0;//
-	int							m_nObjects = 0;//
+	CGameObject**	m_ppObjects = 0;
+	int							m_nObjects = 0;
 	CGameObject**	door = NULL;
 	int							m_nDoor = 0;
 	CTexture*				gameScreen[4];
 	CMaterial*				gameMat[4];
 	int m_nBoxObj = 0;
 	bool							m_bActive = true;
+
+	CMultiSpriteObject** obj = nullptr;
 
 public:
 	vector<CGameObject*>		pDoor;
@@ -231,8 +233,8 @@ public:
 class CBoxShader : public CIlluminatedShader
 {
 public:
-	CBoxShader();
-	virtual ~CBoxShader();
+	CBoxShader(){}
+	virtual ~CBoxShader(){}
 
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
@@ -365,24 +367,28 @@ public:
 	float maxHp = -1;
 };
 
-class CMultiSpriteObjectsShader : public CObjectsShader
+class CMultiSpriteObjectsShader : public CShader
 {
 public:
 	
 	CMultiSpriteObjectsShader();
 	virtual ~CMultiSpriteObjectsShader();
-	bool ro = false;
+
 	virtual D3D12_RASTERIZER_DESC CreateRasterizerState();
 	virtual D3D12_BLEND_DESC CreateBlendState();
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-	//virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseObjects();
 
+	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext=NULL);
 
 	virtual void ReleaseUploadBuffers();
+
+public:
+	CMultiSpriteObject* pSpriteObject = nullptr;
 };

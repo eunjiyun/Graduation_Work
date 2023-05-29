@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------------
 #define MAX_LIGHTS				37
-#define MAX_MATERIALS		16 //10
+#define MAX_MATERIALS			16 
 
 #define POINT_LIGHT			1
 #define SPOT_LIGHT			2
@@ -227,19 +227,15 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 
 			float4 shadowColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-
-				if (fShadowFactor != 0.f)
+				if (fShadowFactor != 0.f)//그림자 영역
 				{
 					cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 					cColor += DirectionalLight(i, vNormal, vToCamera) * shadowColor * fShadowFactor;
 				}
-				else
-				{
+				else//그림자x
 					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-				}
 			}
 			else if (gLights[i].m_nType == POINT_LIGHT)
 			{
@@ -249,9 +245,7 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 					cColor += PointLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
 				}
 				else
-				{
 					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-				}
 			}
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
@@ -261,18 +255,13 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 					cColor += SpotLight(i, vPosition, vNormal, vToCamera) * shadowColor * fShadowFactor;
 				}
 				else
-				{
 					cColor = float4(0.6f, 0.6f, 0.6f, 1.0f);
-				}
 			}
-
 			cColor += gLights[i].m_cAmbient * gMaterial.m_cAmbient;
 		}
 	}
 
-
 	cColor += (gcGlobalAmbientLight * gMaterial.m_cAmbient);
-
 	cColor.a = gMaterial.m_cDiffuse.a;
 
 	return(cColor);
