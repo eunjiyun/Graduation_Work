@@ -105,8 +105,6 @@ public:
 	vector<CGameObject*> findItem;
 	bool idSet=false;
 	
-
-
 	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	queue<CLoadedModelInfo*> MagiciansHat;
 	array<char*, 6> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo5.bin", "Model/Voodoo4.bin",
@@ -147,6 +145,7 @@ public:
 	vector<CPlayer*> Players;
 	vector<CMonster*> Monsters;
 	CCamera* m_pCamera = NULL;
+	float beforeHp = 55500;
 
 	float time = 0.f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };

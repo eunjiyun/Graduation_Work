@@ -67,6 +67,7 @@ private:
 public:
 	int 							m_nRow = 0;
 	int 							m_nCol = 0;
+	bool m_bActive = false;
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -572,7 +573,7 @@ public:
 	void SetFirePosition(XMFLOAT3 xmf3FirePosition);
 	virtual void Reset();
 };
-//
+
 
 class CSoundCallbackHandler : public CAnimationCallbackHandler
 {

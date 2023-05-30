@@ -319,7 +319,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		m_pStage->m_ppShaders[1]->m_bActive = false;
+		m_pStage->m_ppShaders[1]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
@@ -1056,6 +1057,12 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
+	if (0!= Players[0]->HP &&beforeHp != Players[0]->HP)
+	{
+		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		beforeHp = Players[0]->HP;
+	}
+	
 	if (true == loginSign[1] && false == gameEnd)
 		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 
@@ -1121,8 +1128,6 @@ void CGameFramework::FrameAdvance()
 	case 3://settings
 		break;
 	}
-
-
 
 	for (auto& monster : Monsters) {
 		monster->Update(fTimeElapsed);

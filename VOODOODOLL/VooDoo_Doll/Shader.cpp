@@ -872,17 +872,17 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
-			if (-70 < monster->GetPosition().y)
+			if (-70 < monster->GetPosition().y)//몬스터 2층
 			{
-				if (false == firFloor)//2��
+				if (false == firFloor)//플레이어 2층
 				{
 					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 				}
 			}
-			else
+			else//몬스터 1층
 			{
-				if (true == firFloor)//1��
+				if (true == firFloor)//플레이어 1층
 				{
 					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
@@ -1228,22 +1228,28 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 
-
-
-
 	for (const auto& monster : Monsters) {
 		if (monster->c_id > -1) {
-			if (-70 < monster->GetPosition().y)
+			if (-70 < monster->GetPosition().y)//몬스터 2층
 			{
-				if (false == firFloor)
+				if (-70 < Players[0]->GetPosition().y)//플레이어 2층
 				{
 					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 				}
 			}
-			else
+			else //몬스터 1층
 			{
-				if (true == firFloor)
+				if (-299 < Players[0]->GetPosition().y
+					&& -70 >= Players[0]->GetPosition().y)
+				{
+					if (330 > Players[0]->GetPosition().x)
+					{
+						monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					}
+				}
+				else if (-299 >= Players[0]->GetPosition().y)//플레이어 1층
 				{
 					monster->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					monster->m_ppHat->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
@@ -1255,23 +1261,36 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 
-			//if (-70 < player->GetPosition().y)
+			if (-70 < Players[0]->GetPosition().y)//플레이어1 2층
 			{
-				//if (false == firFloor)
+				if (-70 < player->GetPosition().y)//다른 플레이어 2층
 				{
 					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 				}
 			}
-			/*else
+			else if (-299 < Players[0]->GetPosition().y
+				&& -70 >= Players[0]->GetPosition().y)//플레이어1 계단
 			{
-				if (true == firFloor)
+				if (330 > Players[0]->GetPosition().x
+					|| -272 > player->GetPosition().y)
 				{
 					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 				}
-			}*/
+			}
+			else//플레이어1 1층
+			{
+				if (-299 >= player->GetPosition().y)//다른 플레이어 1층
+				{
+					player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				}
+			}
 		}
+
+		Players[0]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+		Players[0]->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 	}
 
 	for (const auto& o : m_pObjectsShader->obj)
@@ -1513,13 +1532,16 @@ D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 }
 
 
-void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,bool explosion)
 {
-	CTexturedRectMesh* pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	 CTexturedRectMesh* pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	m_nObjects = 2;
-	
-	obj= new CMultiSpriteObject * [m_nObjects];
+	if (explosion)
+		m_nObjects = 2;
+	else
+		m_nObjects = 1;
+
+	obj = new CMultiSpriteObject * [m_nObjects];
 
 	XMFLOAT3 xmf3Position = XMFLOAT3(1030.0f, 180.0f, 1410.0f);
 
@@ -1528,9 +1550,12 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		pSpriteObject = new CMultiSpriteObject();
 		pSpriteObject->SetMesh(0, pSpriteMesh);
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
-		obj[j]= pSpriteObject;
+		obj[j] = pSpriteObject;
+
+		if(explosion)
 		//pSpriteObject->m_fSpeed = 3.0f / (obj[j]->texMat.z * obj[j]->texMat.z);
-		pSpriteObject->m_fSpeed = 3.0f / float(8)* 8;
+			pSpriteObject->m_fSpeed = 3.0f / float(8) * 8;
+
 		obj[j]->m_nMaterials = 1;
 	}
 }
@@ -1546,27 +1571,40 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 }
 void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed)
 {
-	for (int j = 0; j < m_nObjects; j++)
+	if (1!= obj[0]->texMat.z && obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
 	{
-		if (j == 1)
-			obj[j]->texMat.z = 6;
-		else
-			obj[j]->texMat.z = 8;
+		for (int j = 0; j < m_nObjects; j++)
+		{
+			if (j == 1)
+				obj[j]->texMat.z = 6;
+			else
+				obj[j]->texMat.z = 8;
 
-		obj[j]->Animate(fTimeElapsed, false);
+			obj[j]->Animate(fTimeElapsed, false);
+		}
 	}
 }
 
 void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
 {
-	if (m_bActive)
+	if (obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
 	{
 		XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 		CPlayer* pPlayer = pCamera->GetPlayer();
 		XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
-	
-		xmf3PlayerPosition.y += 50.0f;
+
+		if(1!= obj[0]->texMat.z)
+			xmf3PlayerPosition.y += 40.0f;
+		else
+		{
+			xmf3PlayerPosition.y -= 30.0f;
+			
+			xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 2 * xmf3CameraPosition.x) / 3;
+			xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
+			xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
+		}
+
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 		for (int j = 0; j < m_nObjects; j++)
 		{
@@ -1576,7 +1614,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				obj[j]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 			}
 		}
-		
+
 		CShader::Render(pd3dCommandList, pCamera);
 
 		for (int j = 0; j < m_nObjects; j++)

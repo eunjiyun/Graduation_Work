@@ -49,7 +49,6 @@ public:
 	CTexture*				gameScreen[4];
 	CMaterial*				gameMat[4];
 	int m_nBoxObj = 0;
-	bool							m_bActive = true;
 
 	CMultiSpriteObject** obj = nullptr;
 
@@ -381,7 +380,7 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
 
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,bool);
 	virtual void ReleaseObjects();
 
 	virtual void AnimateObjects(float fTimeElapsed);

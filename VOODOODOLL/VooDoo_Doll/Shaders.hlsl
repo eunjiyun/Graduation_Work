@@ -319,8 +319,13 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 	
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 	
-	output.uv.x = (input.uv.x)  / texMat.z + texMat.x;
-	output.uv.y = input.uv.y / texMat.z +texMat.y;
+	if (texMat.z != 1)
+	{
+		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
+		output.uv.y = input.uv.y / texMat.z + texMat.y;
+	}
+	else 
+		output.uv = input.uv;
 
 	return(output);
 }
@@ -340,12 +345,17 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 
 	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
 
-	if (cColor.x <= 0.05f&& cColor.y <= 0.05f && cColor.z <= 0.05f)
-		discard;
-	if (cColor.x > 0.25f && cColor.x <= 0.26f && 
-		cColor.y > 0.25f && cColor.y <= 0.26f && 
-		cColor.z > 0.25f && cColor.z <= 0.26f)
-		discard;
+	if (texMat.z != 1)
+	{
+		if (cColor.x <= 0.05f&& cColor.y <= 0.05f && cColor.z <= 0.05f)
+			discard;
+		if (cColor.x > 0.25f && cColor.x <= 0.26f &&
+			cColor.y > 0.25f && cColor.y <= 0.26f &&
+			cColor.z > 0.25f && cColor.z <= 0.26f)
+			discard;
+	}
+	else if (cColor.x < 0.4f)
+			discard;
 
 	return(cColor);
 }

@@ -318,7 +318,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (1 == gGameFramework.gameButton
 					&& 1 == gGameFramework.m_pStage->m_pShadowMapToViewport->curPl)
 				{
-					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
+					gGameFramework.m_pStage->m_ppShaders[1]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 			}
 			else if (wParam == 'C' || wParam == 'c')
