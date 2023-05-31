@@ -1532,11 +1532,16 @@ D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 }
 
 
-void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,bool explosion)
+void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,int choose)
 {
-	 CTexturedRectMesh* pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	if (explosion)
+	if(1!=choose)
+		pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	else
+		pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+
+	if (2==choose)
 		m_nObjects = 2;
 	else
 		m_nObjects = 1;
@@ -1552,7 +1557,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
 		obj[j] = pSpriteObject;
 
-		if(explosion)
+		//if(explosion)
 		//pSpriteObject->m_fSpeed = 3.0f / (obj[j]->texMat.z * obj[j]->texMat.z);
 			pSpriteObject->m_fSpeed = 3.0f / float(8) * 8;
 
@@ -1575,10 +1580,16 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed)
 	{
 		for (int j = 0; j < m_nObjects; j++)
 		{
-			if (j == 1)
+			if (2 == m_nObjects)
+			{
+				if (j == 1)
+					obj[j]->texMat.z = 6;
+				else
+					obj[j]->texMat.z = 8;
+			}
+			else if (1 != obj[j]->texMat.z)
+				//obj[j]->texMat.z = 4;
 				obj[j]->texMat.z = 6;
-			else
-				obj[j]->texMat.z = 8;
 
 			obj[j]->Animate(fTimeElapsed, false);
 		}
@@ -1594,15 +1605,49 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
 		XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 
-		if(1!= obj[0]->texMat.z)
+		//if (8== obj[0]->texMat.z || 6 == obj[0]->texMat.z)
+		if (8 == obj[0]->texMat.z )
+		{
 			xmf3PlayerPosition.y += 40.0f;
-		else
+		}
+		else if(1== obj[0]->texMat.z)
 		{
 			xmf3PlayerPosition.y -= 30.0f;
 			
 			xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 2 * xmf3CameraPosition.x) / 3;
 			xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
 			xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
+		}
+		//else
+		else if(6 == obj[0]->texMat.z)
+		{
+			xmf3PlayerPosition.x += 25*pPlayer->GetRight().x ;
+			xmf3PlayerPosition.y += 25 * pPlayer->GetRight().y ;
+			xmf3PlayerPosition.z += 25 * pPlayer->GetRight().z ;
+		
+			xmf3PlayerPosition.y += 8.0f;
+
+			/*xmf3PlayerPosition.x = pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[20]->GetPosition().x;
+			xmf3PlayerPosition.x = pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[20]->GetPosition().y;
+			xmf3PlayerPosition.x = pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[20]->GetPosition().z;
+
+			xmf3PlayerPosition.y += 40.0f;
+
+			xmf3PlayerLook = pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[20]->GetLook();*/
+
+			//cout << "x : " << pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetPosition().x << endl;
+			//cout << "y : " << pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetPosition().y << endl;
+			//cout << "z : " << pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetPosition().z << endl;
+
+			
+
+			/*cout << "x : " << xmf3PlayerPosition.x << endl;
+			cout << "y : " << xmf3PlayerPosition.y << endl;
+			cout << "z : " << xmf3PlayerPosition.z << endl;*/
+
+			/*cout << "x : " << pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetLook().x << endl;
+			cout << "y : " << pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetLook().y << endl;
+			cout << "z : " << pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetLook().z << endl;*/
 		}
 
 		XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
@@ -1617,7 +1662,8 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 		CShader::Render(pd3dCommandList, pCamera);
 
-		for (int j = 0; j < m_nObjects; j++)
+		//for (int j = 0; j < m_nObjects; j++)
+		for (int j = 0; j < 1; j++)
 		{
 			if (obj[j])
 			{

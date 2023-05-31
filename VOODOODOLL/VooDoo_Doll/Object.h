@@ -217,12 +217,12 @@ public:
 	char							m_pstrAnimationSetName[64];
 
 	float							m_fLength = 0.0f;
-	int								m_nFramesPerSecond = 0; //m_fTicksPerSecond //
+	int								m_nFramesPerSecond = 0; //m_fTicksPerSecond 
 
-	int								m_nKeyFrames = 0; //
+	int								m_nKeyFrames = 0; 
 	int m_nAnimatedBones = 0;
-	float* m_pfKeyFrameTimes = NULL; //
-	XMFLOAT4X4** m_ppxmf4x4KeyFrameTransforms = NULL; //
+	float* m_pfKeyFrameTimes = NULL; 
+	XMFLOAT4X4** m_ppxmf4x4KeyFrameTransforms = NULL; 
 
 #ifdef _WITH_ANIMATION_SRT
 	int								m_nKeyFrameScales = 0;
@@ -247,14 +247,14 @@ public:
 	~CAnimationSets();
 
 private:
-	int								m_nReferences = 0;//
+	int								m_nReferences = 0;
 
 public:
-	int								m_nAnimationSets = 0;//
-	CAnimationSet** m_pAnimationSets = NULL;//
+	int								m_nAnimationSets = 0;
+	CAnimationSet** m_pAnimationSets = NULL;
 
-	int								m_nAnimatedBoneFrames = 0;//
-	CGameObject** m_ppAnimatedBoneFrameCaches = NULL; //[m_nAnimatedBoneFrames] //0308 m_ppAnimatedBoneFrameCaches[j]°¡ null
+	int								m_nAnimatedBoneFrames = 0;
+	CGameObject** m_ppAnimatedBoneFrameCaches = NULL;
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -268,19 +268,19 @@ public:
 	~CAnimationTrack();
 	
 public:
-	BOOL 							m_bEnable = true;//
-	float 							m_fSpeed = 1.0f;//
-	float 							m_fPosition = -ANIMATION_CALLBACK_EPSILON;//
-	float 							m_fWeight = 1.0f;//
+	BOOL 							m_bEnable = true;
+	float 							m_fSpeed = 1.0f;
+	float 							m_fPosition = -ANIMATION_CALLBACK_EPSILON;
+	float 							m_fWeight = 1.0f;
 
-	int 							m_nAnimationSet = 0;//
+	int 							m_nAnimationSet = 0;
 
-	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong //
+	int 							m_nType = ANIMATION_TYPE_LOOP; //Once, Loop, PingPong 
 
-	int 							m_nCallbackKeys = 0;//
+	int 							m_nCallbackKeys = 0;
 	CALLBACKKEY* m_pCallbackKeys = NULL;
 
-	CAnimationCallbackHandler* m_pAnimationCallbackHandler = NULL;//
+	CAnimationCallbackHandler* m_pAnimationCallbackHandler = NULL;
 
 public:
 	void SetAnimationSet(int nAnimationSet) { m_nAnimationSet = nAnimationSet; }
@@ -321,26 +321,26 @@ public:
 	CAnimationController(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int nAnimationTracks, CLoadedModelInfo* pModel);
 	~CAnimationController();
 public:
-	float 							m_fTime = 0.0f;//
+	float 							m_fTime = 0.0f;
 
-	short Cur_Animation_Track = 0;//
+	short Cur_Animation_Track = 0;
 
-	int 							m_nAnimationTracks = 0;//
-	CAnimationTrack* m_pAnimationTracks = nullptr;//
+	int 							m_nAnimationTracks = 0;
+	CAnimationTrack* m_pAnimationTracks = nullptr;
 
-	CAnimationSets* m_pAnimationSets = NULL;//
+	CAnimationSets* m_pAnimationSets = NULL;
 
-	int 							m_nSkinnedMeshes = 0;//
-	CSkinnedMesh** m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache //
+	int 							m_nSkinnedMeshes = 0;
+	CSkinnedMesh** m_ppSkinnedMeshes = NULL; //[SkinnedMeshes], Skinned Mesh Cache 
 
-	ID3D12Resource** m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes] //
-	XMFLOAT4X4** m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL; //[SkinnedMeshes] //
+	ID3D12Resource** m_ppd3dcbSkinningBoneTransforms = NULL; //[SkinnedMeshes] 
+	XMFLOAT4X4** m_ppcbxmf4x4MappedSkinningBoneTransforms = NULL; //[SkinnedMeshes] 
 public:
-	bool							m_bRootMotion = false;//
-	CGameObject* m_pModelRootObject = NULL;//
+	bool							m_bRootMotion = false;
+	CGameObject* m_pModelRootObject = NULL;
 
-	CGameObject* m_pRootMotionObject = NULL;//
-	XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);//
+	CGameObject* m_pRootMotionObject = NULL;
+	XMFLOAT3						m_xmf3FirstRootMotionPosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 public:
 	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);

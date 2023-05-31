@@ -175,7 +175,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pBoxShader = new CBoxShader();
 
 
-	m_nShaders = 3;
+	m_nShaders = 4;
 	m_ppShaders = new CShader * [m_nShaders];
 	pObjectShader = new CObjectsShader();
 	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[35];
+	CTexture* ppTextures[36];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -290,7 +290,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Puppet_add_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Explode_8x8.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Effect_07_8x8.dds", RESOURCE_TEXTURE2D, 0);//Explode_8x8 Effect_07_8x8
 
 	ppTextures[33] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);
@@ -298,6 +298,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[34] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
 
+	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);//Effect_04_8x4
 
 
 	// 버튼 퍼즐 오브젝트
@@ -338,7 +340,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/login.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 35; ++a)
+	for (int a = 0; a < 36; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -574,7 +576,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList,true);
+	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList,2);
 
 	for (int i{}; i < 2; ++i)
 	{
@@ -588,20 +590,24 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	m_ppShaders[1] = pMultiSpriteObjectShader;
 
+	for (int i{}; i < 2; ++i)
+	{
+		CMultiSpriteObjectsShader* pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
+		pMultiSpriteObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
+		pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, i);
 
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
-	pMultiSpriteObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList,false);
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+		pMaterial->SetTexture(ppTextures[34+i]);
 
-	CMaterial* pMaterial = new CMaterial(1);
-	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	pMaterial->SetTexture(ppTextures[34]);
+		pMultiSpriteObjectShader2->obj[0]->m_ppMaterials = new CMaterial * [1];
+		pMultiSpriteObjectShader2->obj[0]->m_ppMaterials[0] = pMaterial;
 
-	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials = new CMaterial * [1];
-	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials[0] = pMaterial;
-	pMultiSpriteObjectShader2->obj[0]->texMat.z = 1;
+		if(0==i)
+			pMultiSpriteObjectShader2->obj[0]->texMat.z = 1;
 
-	m_ppShaders[2] = pMultiSpriteObjectShader2;
+		m_ppShaders[2+i] = pMultiSpriteObjectShader2;
+	}
 
 	
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
@@ -1143,6 +1149,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 
 	m_ppShaders[1]->Render(pd3dCommandList, pCamera);
 	m_ppShaders[2]->Render(pd3dCommandList, pCamera);
+	m_ppShaders[3]->Render(pd3dCommandList, pCamera);
 }
 
 

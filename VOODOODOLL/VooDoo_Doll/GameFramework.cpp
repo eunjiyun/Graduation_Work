@@ -321,6 +321,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_RBUTTONDOWN:
 		m_pStage->m_ppShaders[1]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		m_pStage->m_ppShaders[3]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
@@ -1255,6 +1256,12 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pCamera);
+
+	/*cout<<"x : "<<m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetPosition().x << endl;
+	cout << "y : " << m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetPosition().y << endl;
+	cout << "z : " << m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->GetPosition().z << endl;*/
+
+	//cout << "x : " << m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_ppAnimatedBoneFrameCaches[28]->m_pstrFrameName<< endl;
 
 	if (-70 > m_pPlayer->GetPosition().y)
 		firstFloor = true;

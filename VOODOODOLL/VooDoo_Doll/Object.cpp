@@ -182,8 +182,11 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 
 void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 {
-	texMat.x= float(m_nRow) / texMat.z;//세로
-	texMat.y= float(m_nCol) / texMat.z;//가로
+	if(4!=texMat.z)
+		texMat.x= float(m_nRow) / texMat.z;//가로
+	else
+		texMat.x = float(m_nRow) / (texMat.z*2);//가로
+	texMat.y= float(m_nCol) / texMat.z;//세로
 
 	if (fTime == 0.0f)
 	{
@@ -193,10 +196,16 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 			m_nCol = 0; 
 		}
 
-		if (m_nRow == texMat.z)
+		if (4 != texMat.z)
 		{
-			m_nRow = 0;
+			if (m_nRow == texMat.z)
+			{
+				m_nRow = 0;
+			}
 		}
+		else if (m_nRow == texMat.z*2)
+			m_nRow = 0;
+
 	}
 }
 
@@ -1609,6 +1618,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
 			pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches = new CGameObject * [pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames];
+
+			
 
 			for (int j = 0; j < pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
