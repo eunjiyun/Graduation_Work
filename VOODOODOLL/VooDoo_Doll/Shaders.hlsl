@@ -324,11 +324,6 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
 		output.uv.y = input.uv.y / texMat.z + texMat.y;
 	}
-	else if (texMat.z == 4)
-	{
-		output.uv.x = (input.uv.x) / (texMat.z*2) + texMat.x;
-		output.uv.y = input.uv.y / texMat.z + texMat.y;
-	}
 	else 
 		output.uv = input.uv;
 
@@ -350,7 +345,7 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 
 	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
 
-	if (texMat.z == 8 || texMat.z == 6 || texMat.z==4)
+	if (texMat.z == 8 || texMat.z == 6)
 	{
 		if (cColor.x <= 0.05f&& cColor.y <= 0.05f && cColor.z <= 0.05f)
 			discard;

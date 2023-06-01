@@ -321,13 +321,13 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_RBUTTONDOWN:
 		m_pStage->m_ppShaders[1]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-		m_pStage->m_ppShaders[3]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		m_pStage->m_ppShaders[1]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
-		//cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
-		//cout << "y : " << m_ptOldCursorPos.y - windowY << endl;
+		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
+		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
 
 		if (false == onFullScreen)
 		{
@@ -1067,6 +1067,13 @@ void CGameFramework::FrameAdvance()
 	if (true == loginSign[1] && false == gameEnd)
 		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 
+	if (lobby[0] && false == lobby[1] && false == lobby[2])
+		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
+	else if (lobby[0] && lobby[1] && false == lobby[2])
+		temp->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[5];
+	else if (lobby[0] && lobby[1] && lobby[2])
+		gameButton = 1;
+
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
 	RECT rcWindow;
@@ -1081,7 +1088,8 @@ void CGameFramework::FrameAdvance()
 		if (521 <= m_ptOldCursorPos.x - windowX && 584 >= m_ptOldCursorPos.x - windowX
 			&& 294 <= m_ptOldCursorPos.y - windowY && 321 >= m_ptOldCursorPos.y - windowY)
 		{
-			gameButton = 1;
+			lobby[0] = true;
+			//gameButton = 1;
 		}
 		else if (524 <= m_ptOldCursorPos.x - windowX && 583 >= m_ptOldCursorPos.x - windowX
 			&& 349 <= m_ptOldCursorPos.y - windowY && 381 >= m_ptOldCursorPos.y - windowY)
@@ -1098,7 +1106,8 @@ void CGameFramework::FrameAdvance()
 		if (515 <= m_ptOldCursorPos.x - windowX && 579 >= m_ptOldCursorPos.x - windowX
 			&& 257 <= m_ptOldCursorPos.y - windowY && 290 >= m_ptOldCursorPos.y - windowY)
 		{
-			gameButton = 1;
+			lobby[0] = true;
+			//gameButton = 1;
 		}
 		else if (516 <= m_ptOldCursorPos.x - windowX && 574 >= m_ptOldCursorPos.x - windowX
 			&& 316 <= m_ptOldCursorPos.y - windowY && 346 >= m_ptOldCursorPos.y - windowY)

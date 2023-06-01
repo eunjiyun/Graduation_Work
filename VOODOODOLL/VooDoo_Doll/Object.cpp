@@ -182,10 +182,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 
 void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 {
-	if(4!=texMat.z)
-		texMat.x= float(m_nRow) / texMat.z;//가로
-	else
-		texMat.x = float(m_nRow) / (texMat.z*2);//가로
+	texMat.x= float(m_nRow) / texMat.z;//가로
 	texMat.y= float(m_nCol) / texMat.z;//세로
 
 	if (fTime == 0.0f)
@@ -196,16 +193,10 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 			m_nCol = 0; 
 		}
 
-		if (4 != texMat.z)
+		if (m_nRow == texMat.z)
 		{
-			if (m_nRow == texMat.z)
-			{
-				m_nRow = 0;
-			}
-		}
-		else if (m_nRow == texMat.z*2)
 			m_nRow = 0;
-
+		}
 	}
 }
 
@@ -279,7 +270,6 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	depthShader = new CShadowMapShader();
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
 	depthShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, RtvFormats, DXGI_FORMAT_D32_FLOAT);
-	//depthShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -290,8 +280,6 @@ void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
 	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 4, &m_xmf4EmissiveColor, 12);
 
 	pd3dCommandList->SetGraphicsRoot32BitConstants(14, 1, &m_nType, 16);
-
-	//pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &id, 16);
 
 	for (int i = 0; i < m_nTextures; i++)
 	{
@@ -320,7 +308,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		{
 			switch (choose)
 			{
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+			case 1:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두1 칼든애
 				break;
 			case 2:
@@ -345,7 +333,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		{
 			switch (choose)
 			{
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+			case 1:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//부두1 칼든애
 				break;
 			case 2:
@@ -367,11 +355,11 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 			}
 		}
-		else if (3 == whatTexture)//metallic 투명도 손상
+		else if (3 == whatTexture)//metallic 
 		{
 			switch (choose)
 			{
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+			case 1:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//부두1 칼든애
 				break;
 			case 2:
@@ -396,7 +384,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 		{
 			switch (choose)
 			{
-			case 1://Voodoo1Emission 15 //Voodoo1Metallic 15 //Voodoo1Normalll 15
+			case 1:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//부두1 칼든애
 				break;
 			case 2:
@@ -1933,7 +1921,7 @@ void CMultiSpriteObject::Animate(float fTimeElapsed,bool onPl)
 {
 	if (m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
 	{
-		m_fTime += fTimeElapsed * 18.5f;
+		m_fTime += fTimeElapsed * 0.5f;
 		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
 		m_ppMaterials[0]->m_ppTextures[0]->AnimateRowColumn(texMat,m_fTime);
 	}

@@ -291,7 +291,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		break;
 	case WM_KEYDOWN:
-		if (wParam == VK_CONTROL)//full screen
+		if (VK_CONTROL == wParam)//full screen
 		{
 			if (gGameFramework.onFullScreen)
 				gGameFramework.onFullScreen = false;
@@ -299,6 +299,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				gGameFramework.onFullScreen = true;
 
 			gGameFramework.ChangeSwapChainState();
+		}
+		else if (VK_RETURN == wParam)
+		{
+			if (!gGameFramework.lobby[0])
+				gGameFramework.lobby[0] = true;
+			else
+			{
+				if(!gGameFramework.lobby[1])
+					gGameFramework.lobby[1] = true;
+				else
+					gGameFramework.lobby[2] = true;
+			}
 		}
 		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
 		{
@@ -319,7 +331,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					&& 1 == gGameFramework.m_pStage->m_pShadowMapToViewport->curPl)
 				{
 					gGameFramework.m_pStage->m_ppShaders[1]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-					gGameFramework.m_pStage->m_ppShaders[3]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					gGameFramework.m_pStage->m_ppShaders[1]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 			}
 			else if (wParam == 'C' || wParam == 'c')

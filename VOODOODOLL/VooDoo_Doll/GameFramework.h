@@ -99,6 +99,7 @@ public:
 	bool loginSign[2] = { false,false };
 	
 	int gameButton = -1;
+	bool lobby[3] = { false,false,false};
 	
 	bool firstFloor = false;
 	CGameObject* temp = nullptr;

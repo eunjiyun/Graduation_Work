@@ -46,8 +46,8 @@ public:
 	int							m_nObjects = 0;
 	CGameObject**	door = NULL;
 	int							m_nDoor = 0;
-	CTexture*				gameScreen[4];
-	CMaterial*				gameMat[4];
+	CTexture*				gameScreen[6];
+	CMaterial*				gameMat[6];
 	int m_nBoxObj = 0;
 
 	CMultiSpriteObject** obj = nullptr;
