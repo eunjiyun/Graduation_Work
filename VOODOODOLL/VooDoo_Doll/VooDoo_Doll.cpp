@@ -302,14 +302,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		else if (VK_RETURN == wParam)
 		{
-			if (!gGameFramework.lobby[0])
-				gGameFramework.lobby[0] = true;
-			else
+			if (gGameFramework.loginSign[1])
 			{
-				if(!gGameFramework.lobby[1])
-					gGameFramework.lobby[1] = true;
+				if (!gGameFramework.lobby[0])
+					gGameFramework.lobby[0] = true;
 				else
-					gGameFramework.lobby[2] = true;
+				{
+					if (!gGameFramework.lobby[1])
+						gGameFramework.lobby[1] = true;
+					else
+						gGameFramework.lobby[2] = true;
+				}
 			}
 		}
 		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
