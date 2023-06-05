@@ -304,13 +304,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (gGameFramework.loginSign[1])
 			{
-				if (!gGameFramework.lobby[0])
-					gGameFramework.lobby[0] = true;
-				else
+				if (gGameFramework.lobby[0])
 				{
-					if (!gGameFramework.lobby[1])
-						gGameFramework.lobby[1] = true;
-					else
+					if (gGameFramework.lobby[1])
 						gGameFramework.lobby[2] = true;
 				}
 			}

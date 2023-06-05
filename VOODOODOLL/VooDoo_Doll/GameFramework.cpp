@@ -1078,47 +1078,92 @@ void CGameFramework::FrameAdvance()
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
-	if (false == onFullScreen)
+	if (!lobby[0])
 	{
-		if (521 <= m_ptOldCursorPos.x - windowX && 584 >= m_ptOldCursorPos.x - windowX
-			&& 294 <= m_ptOldCursorPos.y - windowY && 321 >= m_ptOldCursorPos.y - windowY)
+		if (false == onFullScreen)
 		{
-			lobby[0] = true;
-		
-			for (int i{}; i < 10; ++i)
-				m_pStage->userId[i]->SetPosition(50, -52, 554 + 12 * i);
+			if (521 <= m_ptOldCursorPos.x - windowX && 584 >= m_ptOldCursorPos.x - windowX
+				&& 294 <= m_ptOldCursorPos.y - windowY && 321 >= m_ptOldCursorPos.y - windowY)
+			{
+				lobby[0] = true;
+
+				for (int i{}; i < 10; ++i)
+					m_pStage->userId[i]->SetPosition(50, -52, 554 + 12 * i);
+			}
+			else if (524 <= m_ptOldCursorPos.x - windowX && 583 >= m_ptOldCursorPos.x - windowX
+				&& 349 <= m_ptOldCursorPos.y - windowY && 381 >= m_ptOldCursorPos.y - windowY)
+			{
+				gameButton = 2;
+				m_pStage->exitGame = true;
+			}
+			else if (495 <= m_ptOldCursorPos.x - windowX && 615 >= m_ptOldCursorPos.x - windowX
+				&& 407 <= m_ptOldCursorPos.y - windowY && 440 >= m_ptOldCursorPos.y - windowY)
+				gameButton = 3;
 		}
-		else if (524 <= m_ptOldCursorPos.x - windowX && 583 >= m_ptOldCursorPos.x - windowX
-			&& 349 <= m_ptOldCursorPos.y - windowY && 381 >= m_ptOldCursorPos.y - windowY)
+		else
 		{
-			gameButton = 2;
-			m_pStage->exitGame = true;
+			if (515 <= m_ptOldCursorPos.x - windowX && 579 >= m_ptOldCursorPos.x - windowX
+				&& 257 <= m_ptOldCursorPos.y - windowY && 290 >= m_ptOldCursorPos.y - windowY)
+			{
+				lobby[0] = true;
+
+				for (int i{}; i < 10; ++i)
+					m_pStage->userId[i]->SetPosition(50, -52, 554 + 12 * i);
+
+			}
+			else if (516 <= m_ptOldCursorPos.x - windowX && 574 >= m_ptOldCursorPos.x - windowX
+				&& 316 <= m_ptOldCursorPos.y - windowY && 346 >= m_ptOldCursorPos.y - windowY)
+			{
+				gameButton = 2;
+				m_pStage->exitGame = true;
+				ChangeSwapChainState();
+			}
+			else if (488 <= m_ptOldCursorPos.x - windowX && 603 >= m_ptOldCursorPos.x - windowX
+				&& 375 <= m_ptOldCursorPos.y - windowY && 409 >= m_ptOldCursorPos.y - windowY)
+				gameButton = 3;
 		}
-		else if (495 <= m_ptOldCursorPos.x - windowX && 615 >= m_ptOldCursorPos.x - windowX
-			&& 407 <= m_ptOldCursorPos.y - windowY && 440 >= m_ptOldCursorPos.y - windowY)
-			gameButton = 3;
 	}
 	else
 	{
-		if (515 <= m_ptOldCursorPos.x - windowX && 579 >= m_ptOldCursorPos.x - windowX
-			&& 257 <= m_ptOldCursorPos.y - windowY && 290 >= m_ptOldCursorPos.y - windowY)
+		if (false == onFullScreen)
 		{
-			lobby[0] = true;
-			
-			for (int i{}; i < 10; ++i)
-				m_pStage->userId[i]->SetPosition(50, -52, 554 + 12 * i);
-
+			if (38 <= m_ptOldCursorPos.x - windowX && 152 >= m_ptOldCursorPos.x - windowX
+				&& 108 <= m_ptOldCursorPos.y - windowY && 165 >= m_ptOldCursorPos.y - windowY)//match
+			{
+				if(!lobby[1])
+					lobby[1] = true;
+				else
+				{
+					//end search
+				}
+			}
+			else if (38 <= m_ptOldCursorPos.x - windowX && 152 >= m_ptOldCursorPos.x - windowX
+				&& 179 <= m_ptOldCursorPos.y - windowY && 225 >= m_ptOldCursorPos.y - windowY)//quit
+			{
+				gameButton = 2;
+				m_pStage->exitGame = true;
+			}
 		}
-		else if (516 <= m_ptOldCursorPos.x - windowX && 574 >= m_ptOldCursorPos.x - windowX
-			&& 316 <= m_ptOldCursorPos.y - windowY && 346 >= m_ptOldCursorPos.y - windowY)
+		else//full
 		{
-			gameButton = 2;
-			m_pStage->exitGame = true;
-			ChangeSwapChainState();
+			if (31 <= m_ptOldCursorPos.x - windowX && 144 >= m_ptOldCursorPos.x - windowX
+				&& 74 <= m_ptOldCursorPos.y - windowY && 135 >= m_ptOldCursorPos.y - windowY)//match
+			{
+				if (!lobby[1])
+					lobby[1] = true;
+				else
+				{
+					//end search
+				}
+			}
+			else if (31 <= m_ptOldCursorPos.x - windowX && 144 >= m_ptOldCursorPos.x - windowX
+				&& 148 <= m_ptOldCursorPos.y - windowY && 196 >= m_ptOldCursorPos.y - windowY)//quit
+			{
+				gameButton = 2;
+				m_pStage->exitGame = true;
+				ChangeSwapChainState();
+			}
 		}
-		else if (488 <= m_ptOldCursorPos.x - windowX && 603 >= m_ptOldCursorPos.x - windowX
-			&& 375 <= m_ptOldCursorPos.y - windowY && 409 >= m_ptOldCursorPos.y - windowY)
-			gameButton = 3;
 	}
 
 	switch (gameButton)
