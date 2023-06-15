@@ -560,6 +560,12 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			(*iter)->SetPosition(targetPos);
 			/*(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));*/
 		}
+
+		if (0 != packet->HP && gGameFramework.beforeHp != packet->HP)
+		{
+			gGameFramework.m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+			gGameFramework.beforeHp = packet->HP;
+		}
 		break;
 	}
 	case SC_ROTATE_PLAYER: {

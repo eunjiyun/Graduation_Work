@@ -319,10 +319,6 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	{
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-		m_pStage->m_ppShaders[1]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-		m_pStage->m_ppShaders[1]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
@@ -992,6 +988,13 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			}
 		}
 	}
+
+	time += fTimeElapsed;
+	if (time > 0.5f)
+	{
+		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		time = 0.f;
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1043,20 +1046,11 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	if (0 != Players[0]->HP && beforeHp != Players[0]->HP)
-	{
-		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-		beforeHp = Players[0]->HP;
-	}
-
 	if (loginSign[1] && !gameEnd && !lobby[0])
 	{
 		m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 		m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 	}
-
-
-
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
 	RECT rcWindow;
@@ -1135,7 +1129,7 @@ void CGameFramework::FrameAdvance()
 				if (!lobby[1])
 				{
 					lobby[1] = true;
-					
+
 					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[5];
 					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 					m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
@@ -1372,7 +1366,7 @@ void CGameFramework::FrameAdvance()
 		}
 
 		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP);
-	};
+		};
 
 
 #ifdef _WITH_PLAYER_TOP
@@ -1414,7 +1408,7 @@ void CGameFramework::FrameAdvance()
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
-}
+	}
 
 
 

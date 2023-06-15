@@ -195,11 +195,14 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 		{ 
 			m_nRow++;//세로 증가
 			m_nCol = 0; //가로 0
+
+			if(4 != texMat.z)
+				m_bActive = false;
 		}
 
 		if (4 != texMat.z)
 		{
-			if (m_nRow == texMat.z )
+			if (m_nRow == texMat.z)
 				m_nRow = 0;//세로 0
 		}
 		else

@@ -1582,7 +1582,7 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed)
 {
 	for (int j{}; j < m_nObjects; ++j)
-		if (1 != obj[j]->texMat.z && obj[j]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
+		if (1 != obj[j]->texMat.z && 2 != obj[j]->texMat.z && obj[j]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
 			obj[j]->Animate(fTimeElapsed, false);
 }
 
