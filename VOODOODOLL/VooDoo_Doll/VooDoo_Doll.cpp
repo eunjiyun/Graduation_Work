@@ -245,22 +245,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 
+	// hWnd는 게임 창의 윈도우 핸들입니다.
+	RECT rcWindow;
+	GetWindowRect(gGameFramework.Get_HWND(), &rcWindow);
+
+	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
 
 	switch (message)
 	{
 	case WM_CHAR:
-
-		/*if ('F' == wParam || 'f' == wParam)
-		{
-			if (1 == gGameFramework.gameButton)
-			{
-				if (gGameFramework.m_pStage->m_ppShaders[1]->m_bActive)
-					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = false;
-				else
-					gGameFramework.m_pStage->m_ppShaders[1]->m_bActive = true;
-			}
-		}*/
-
 		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
 		{
 			for (int u{}; u < 26; ++u)
@@ -372,6 +367,61 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONUP:
 	case WM_SIZE:
 	case WM_RBUTTONDOWN:
+		if (gGameFramework.lobby[0])
+		{
+			if (false == gGameFramework.onFullScreen)
+			{
+				if (31 <= gGameFramework.m_ptOldCursorPos.x - windowX && 146 >= gGameFramework.m_ptOldCursorPos.x - windowX
+					&& 103 <= gGameFramework.m_ptOldCursorPos.y - windowY && 162 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
+				{
+					if (!gGameFramework.lobby[1])
+					{
+						gGameFramework.lobby[1] = true;
+
+						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[5];
+						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+						gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+
+					}
+					else
+					{
+						//end search
+					}
+				}
+				else if (30 <= gGameFramework.m_ptOldCursorPos.x - windowX && 145 >= gGameFramework.m_ptOldCursorPos.x - windowX
+					&& 166 <= gGameFramework.m_ptOldCursorPos.y - windowY && 225 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
+				{
+					gGameFramework.gameButton = 2;
+					gGameFramework.m_pStage->exitGame = true;
+				}
+			}
+			else//full
+			{
+				if (22 <= gGameFramework.m_ptOldCursorPos.x - windowX && 139 >= gGameFramework.m_ptOldCursorPos.x - windowX
+					&& 72 <= gGameFramework.m_ptOldCursorPos.y - windowY && 133 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
+				{
+					if (!gGameFramework.lobby[1])
+					{
+						gGameFramework.lobby[1] = true;
+
+						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[5];
+						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+						gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					}
+					else
+					{
+						//end search
+					}
+				}
+				else if (22 <= gGameFramework.m_ptOldCursorPos.x - windowX && 139 >= gGameFramework.m_ptOldCursorPos.x - windowX
+					&& 136 <= gGameFramework.m_ptOldCursorPos.y - windowY && 194 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
+				{
+					gGameFramework.gameButton = 2;
+					gGameFramework.m_pStage->exitGame = true;
+					gGameFramework.ChangeSwapChainState();
+				}
+			}
+		}
 	case WM_RBUTTONUP:
 	case WM_MOUSEMOVE:
 		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);

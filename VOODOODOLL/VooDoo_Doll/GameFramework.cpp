@@ -1119,61 +1119,6 @@ void CGameFramework::FrameAdvance()
 				gameButton = 3;
 		}
 	}
-	else
-	{
-		if (false == onFullScreen)
-		{
-			if (31 <= m_ptOldCursorPos.x - windowX && 146 >= m_ptOldCursorPos.x - windowX
-				&& 103 <= m_ptOldCursorPos.y - windowY && 162 >= m_ptOldCursorPos.y - windowY)//match
-			{
-				if (!lobby[1])
-				{
-					lobby[1] = true;
-
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[5];
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-					m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-
-				}
-				else
-				{
-					//end search
-				}
-			}
-			else if (30 <= m_ptOldCursorPos.x - windowX && 145 >= m_ptOldCursorPos.x - windowX
-				&& 166 <= m_ptOldCursorPos.y - windowY && 225 >= m_ptOldCursorPos.y - windowY)//quit
-			{
-				gameButton = 2;
-				m_pStage->exitGame = true;
-			}
-		}
-		else//full
-		{
-			if (22 <= m_ptOldCursorPos.x - windowX && 139 >= m_ptOldCursorPos.x - windowX
-				&& 72 <= m_ptOldCursorPos.y - windowY && 133 >= m_ptOldCursorPos.y - windowY)//match
-			{
-				if (!lobby[1])
-				{
-					lobby[1] = true;
-
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[5];
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-					m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-				}
-				else
-				{
-					//end search
-				}
-			}
-			else if (22 <= m_ptOldCursorPos.x - windowX && 139 >= m_ptOldCursorPos.x - windowX
-				&& 136 <= m_ptOldCursorPos.y - windowY && 194 >= m_ptOldCursorPos.y - windowY)//quit
-			{
-				gameButton = 2;
-				m_pStage->exitGame = true;
-				ChangeSwapChainState();
-			}
-		}
-	}
 
 	m_pStage->CheckCameraCollisions(fTimeElapsed, m_pPlayer, m_pCamera);
 
