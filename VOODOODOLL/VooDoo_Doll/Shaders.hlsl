@@ -128,8 +128,9 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 	float4 cIllumination = Lighting(input.positionW, normalW);
 	
 	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
-		return float4(0.6f, 0.6f, 0.6f, 0);
-	else
+		//return float4(0.6f, 0.6f, 0.6f, 0);
+		discard;
+	//else
 		return lerp(cColor, cIllumination, 0.5f);
 }
 
@@ -324,7 +325,12 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
 		output.uv.y = input.uv.y / texMat.z + texMat.y;
 	}
-	else 
+	else if (texMat.z == 4)
+	{
+		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
+		output.uv.y = input.uv.y / (texMat.z*1.5f) + texMat.y;
+	}
+	else
 		output.uv = input.uv;
 
 	return(output);
@@ -354,7 +360,7 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 			cColor.z > 0.25f && cColor.z <= 0.26f)
 			discard;
 	}
-	else if(texMat.z == 1)
+	else if(texMat.z != 2)
 		if (cColor.x < 0.4f)
 			discard;
 

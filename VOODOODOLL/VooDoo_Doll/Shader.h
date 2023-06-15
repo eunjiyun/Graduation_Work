@@ -267,9 +267,9 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 
-	void PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, vector<CMonster*> Monsters, vector<CPlayer*> Players,bool);
+	void PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, vector<CMonster*> Monsters, vector<CPlayer*> Players);
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,  vector<CMonster*> Monsters, vector<CPlayer*> Players,bool);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,  vector<CMonster*> Monsters, vector<CPlayer*> Players);
 
 protected:
 	CTexture* m_pDepthTexture = NULL;
@@ -327,7 +327,7 @@ public:
 
 	virtual void ReleaseUploadBuffers();
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players, LIGHT*,bool);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players, LIGHT*);
 
 public:
 	CBoxShader* m_pObjectsShader = NULL;

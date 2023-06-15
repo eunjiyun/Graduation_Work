@@ -183,19 +183,29 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 {
 	texMat.x= float(m_nRow) / texMat.z;//가로
-	texMat.y= float(m_nCol) / texMat.z;//세로
+
+	if(4!=texMat.z)
+		texMat.y= float(m_nCol) / texMat.z;//세로
+	else
+		texMat.y = float(m_nCol) / (texMat.z*1.5f);//세로
 
 	if (fTime == 0.0f)
 	{
 		if (++m_nCol == texMat.z) 
 		{ 
-			m_nRow++; 
-			m_nCol = 0; 
+			m_nRow++;//세로 증가
+			m_nCol = 0; //가로 0
 		}
 
-		if (m_nRow == texMat.z)
+		if (4 != texMat.z)
 		{
-			m_nRow = 0;
+			if (m_nRow == texMat.z )
+				m_nRow = 0;//세로 0
+		}
+		else
+		{
+			if (m_nRow == texMat.z * 1.5f)
+				m_nRow = 0;//세로 0
 		}
 	}
 }

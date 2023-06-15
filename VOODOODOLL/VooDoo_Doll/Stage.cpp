@@ -183,7 +183,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	//Find_LightPosition();
 	m_ppShaders[0] = pObjectShader;
 
-	
+
 
 	m_pLights = new LIGHT[MAX_LIGHTS];
 	BuildDefaultLightsAndMaterials();//조명
@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[35];
+	CTexture* ppTextures[36];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -227,7 +227,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[10]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/cart_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[11] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[11]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Poster_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);//UI_ENGFONT Poster_mat_BaseMap
+	ppTextures[11]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Poster_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[12] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[12]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/dressing_table_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -296,7 +296,12 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[34] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_LOADING.dds", RESOURCE_TEXTURE2D, 0);
+
+	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
+
+
 
 	// 버튼 퍼즐 오브젝트
 	pButtonTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -342,7 +347,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/lobby2.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 35; ++a)
+	for (int a = 0; a < 36; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -355,17 +360,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
 	}
 
-
-	for (int h{}; h < 6; ++h)
-	{
-		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
-
-		CMaterial* pMaterial = new CMaterial(1);
-		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-
-		pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);
-		m_ppShaders[0]->gameMat[h] = pMaterial;
-	}
 	for (int u{}; u < 2; ++u)
 	{
 		CMaterial* pMaterial = new CMaterial(1);
@@ -574,46 +568,66 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		iMaterialCheck = 0;
 	}
 
-	
+
 
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, 0);
 
-	for (int i{}; i < 2; ++i)
+	for (int i{}; i < 3; ++i)//폭죽 연기 로딩
 	{
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-		pMaterial->SetTexture(ppTextures[32+i]);
+		pMaterial->SetTexture(ppTextures[32 + i]);
 
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials = new CMaterial * [1];
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0] = pMaterial;
 
-		if(0==i)
+		if (0 == i)//폭죽
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
-		else
+		else if (1 == i)//연기
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
+		else//로딩
+			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
 
-		pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z)
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+		else
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
 	}
 
 	m_ppShaders[1] = pMultiSpriteObjectShader;
 
+
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, 2);
-
+	pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, 1);
 	CMaterial* pMaterial = new CMaterial(1);
 	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	pMaterial->SetTexture(ppTextures[34]);
-
+	pMaterial->SetTexture(ppTextures[35]);
 	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials = new CMaterial * [1];
+	pMultiSpriteObjectShader2->obj[1]->m_ppMaterials = new CMaterial * [1];
+
+	for (int h{}; h < 6; ++h)
+	{
+		CreateShaderResourceViews(pd3dDevice, m_ppShaders[0]->gameScreen[h], 0, 3);
+
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+
+		pMaterial->SetTexture(m_ppShaders[0]->gameScreen[h]);
+		m_ppShaders[0]->gameMat[h] = pMaterial;
+	}
+
 	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials[0] = pMaterial;
+	pMultiSpriteObjectShader2->obj[1]->m_ppMaterials[0] = m_ppShaders[0]->gameMat[3];
+
 	pMultiSpriteObjectShader2->obj[0]->texMat.z = 1;
+	pMultiSpriteObjectShader2->obj[1]->texMat.z = 2;
 
 	m_ppShaders[2] = pMultiSpriteObjectShader2;
+	m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 
-	
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
@@ -918,8 +932,8 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	ID3DBlob* pd3dSignatureBlob = NULL;
 	ID3DBlob* pd3dErrorBlob = NULL;
 	D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
-	HRESULT h=pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
-	
+	HRESULT h = pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
+
 	if (pd3dSignatureBlob)
 		pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob)
@@ -944,7 +958,7 @@ void CStage::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	::memcpy(&m_pcbMappedLights->m_xmf4GlobalAmbient, &m_xmf4GlobalAmbient, sizeof(XMFLOAT4));
 	::memcpy(&m_pcbMappedLights->m_nLights, &m_nLights, sizeof(int));
 
-	
+
 }
 
 void CStage::ReleaseShaderVariables()
@@ -964,7 +978,7 @@ void CStage::ReleaseUploadBuffers()
 	if (m_pShadowShader)
 		m_pShadowShader->ReleaseUploadBuffers();
 
-	if(pBoxShader)
+	if (pBoxShader)
 		pBoxShader->ReleaseUploadBuffers();
 
 	if (hpUi)
@@ -1087,12 +1101,12 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 }
 
-void CStage::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT* light, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players, bool firFloor)
+void CStage::OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT* light, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players)
 {
 	if (m_pDepthRenderShader)
 	{
 		m_pDepthRenderShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
-		m_pDepthRenderShader->PrepareShadowMap(pd3dCommandList, light, Monsters, Players, firFloor);
+		m_pDepthRenderShader->PrepareShadowMap(pd3dCommandList, light, Monsters, Players);
 	}
 }
 void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -1114,7 +1128,7 @@ void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 
-void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool login, CCamera* pCamera)
 {
 
 	if (m_pd3dGraphicsRootSignature)
@@ -1134,22 +1148,25 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
-	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
+	if (login)
 	{
-		if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh")
-			&& strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh")
-			&& strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
+		for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 		{
-
-			if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
+			if (strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh")
+				&& strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh")
+				&& strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "ForDoorcollider"))
 			{
-				m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+
+				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
+				{
+					m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+				}
 			}
 		}
-	}
 
-	for (int j{}; j < m_ppShaders[0]->m_nDoor; ++j)
-		m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+		for (int j{}; j < m_ppShaders[0]->m_nDoor; ++j)
+			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+	}
 
 	m_ppShaders[1]->Render(pd3dCommandList, pCamera);
 	m_ppShaders[2]->Render(pd3dCommandList, pCamera);
@@ -1314,61 +1331,46 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
 
+	XMFLOAT3 xmf3Right = pl->GetRightVector();
+	XMFLOAT3 xmf3Up = pl->GetUpVector();
+	XMFLOAT3 xmf3Look = pl->GetLookVector();
+	xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
+	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
+	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
-	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버
-	{
-		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
-			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
+	if (cm->GetMode() == THIRD_PERSON_CAMERA) {
+		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
+		XMFLOAT3 xmf3Position = Vector3::Add(pl->obBox.Center, xmf3Offset);
+		XMFLOAT3 ray_castPos = pl->obBox.Center;
+		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->obBox.Center));
+
+		bool collide = false;
+		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
 		{
-			cm->SetLookAt(XMFLOAT3(800, -150, 1000));
-		}
-	}
-
-	//else if (-200 > pl->GetPosition().y && 400 > pl->GetPosition().z)
-	//	cm->SetLookAt(XMFLOAT3(800, -150, 800));
-	else
-	{
-		XMFLOAT3 xmf3Right = pl->GetRightVector();
-		XMFLOAT3 xmf3Up = pl->GetUpVector();
-		XMFLOAT3 xmf3Look = pl->GetLookVector();
-		xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
-		xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
-		xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
-
-		if (cm->GetMode() == THIRD_PERSON_CAMERA) {
-			XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
-			XMFLOAT3 xmf3Position = Vector3::Add(pl->obBox.Center, xmf3Offset);
-			XMFLOAT3 ray_castPos = pl->obBox.Center;
-			XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->obBox.Center));
-
-			bool collide = false;
-			while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
+			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 			{
-				for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+
+
+				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+				if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
 				{
-					if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
-
-
-					BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
-					if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
-					{
-						collide = true;
-						break;
-					}
-				}
-				if (collide) {
-					xmf3Position = ray_castPos;
+					collide = true;
 					break;
 				}
-				ray_castPos = Vector3::Add(ray_castPos, dir);
 			}
-
-			cm->Update(xmf3Position, pl->obBox.Center, fTimeElapsed);
+			if (collide) {
+				xmf3Position = ray_castPos;
+				break;
+			}
+			ray_castPos = Vector3::Add(ray_castPos, dir);
 		}
 
-		cm->SetLookAt(pl->obBox.Center);
-
+		cm->Update(xmf3Position, pl->obBox.Center, fTimeElapsed);
 	}
+
+	cm->SetLookAt(pl->obBox.Center);
+
 	cm->RegenerateViewMatrix();
 }
 

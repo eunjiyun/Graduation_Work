@@ -99,10 +99,8 @@ public:
 	bool loginSign[2] = { false,false };
 	
 	int gameButton = -1;
-	bool lobby[3] = { false,false,false};
+	bool lobby[3] = { false,false,false };
 	
-	bool firstFloor = false;
-	CGameObject* temp = nullptr;
 	vector<CGameObject*> findItem;
 	bool idSet=false;
 	
@@ -159,5 +157,6 @@ public:
 	CGameObject** m_ppBullets = NULL;
 	CGameObject** m_ppCap = NULL;
 	bool onFullScreen = false;
+	
 };
 

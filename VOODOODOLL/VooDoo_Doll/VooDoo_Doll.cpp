@@ -42,7 +42,7 @@ void ProcessInput()
 	DWORD dwDirection = 0;
 	if (::GetKeyboardState(pKeysBuffer))
 	{
-		if (!gGameFramework.m_pPlayer->onAct && 1==gGameFramework.gameButton) {
+		if (!gGameFramework.m_pPlayer->onAct && 1 == gGameFramework.gameButton) {
 			if (pKeysBuffer[0x57] & 0xF0) dwDirection |= DIR_FORWARD;//w
 			if (pKeysBuffer[0x53] & 0xF0) dwDirection |= DIR_BACKWARD;//s
 			if (pKeysBuffer[0x41] & 0xF0) dwDirection |= DIR_LEFT;//a
@@ -249,7 +249,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CHAR:
-		
+
 		/*if ('F' == wParam || 'f' == wParam)
 		{
 			if (1 == gGameFramework.gameButton)
@@ -269,7 +269,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					gGameFramework.userId.push_back(wParam);
 				else if ('0' == wParam - u)
 				{
-					if(10>u)
+					if (10 > u)
 						gGameFramework.userId.push_back(wParam);
 				}
 				else if ('_' == wParam)
@@ -302,13 +302,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		else if (VK_RETURN == wParam)
 		{
-			if (gGameFramework.loginSign[1])
+			if (gGameFramework.loginSign[1] && gGameFramework.lobby[0] && gGameFramework.lobby[1])
 			{
-				if (gGameFramework.lobby[0])
-				{
-					if (gGameFramework.lobby[1])
-						gGameFramework.lobby[2] = true;
-				}
+				gGameFramework.lobby[2] = true;
+				gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+				gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 			}
 		}
 		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
@@ -647,13 +645,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_GAME_CLEAR: {
 		gGameFramework.m_pPlayer->onAct = true;
 		gGameFramework.m_pPlayer->alive = false;
-		gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
+		//gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
+		//gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
+		//gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
+		//gGameFramework.m_pCamera->m_lock = true;
 
-		gGameFramework.temp->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
-		gGameFramework.temp->SetPosition(907, -70, 800);
-		gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
-		gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
-		gGameFramework.m_pCamera->m_lock = true;
+		gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[1];
+		gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		gGameFramework.lobby[2] = false;
 		gGameFramework.gameEnd = true;
 
 		//gGameFramework.monsterSound.Stop();//몬스터
