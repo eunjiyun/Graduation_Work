@@ -1629,7 +1629,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 			else if (2 == obj[i]->texMat.z)
 			{
-				xmf3PlayerPosition.y -= 75.0f;
+				xmf3PlayerPosition.y -= 85.0f;
 
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3 * xmf3CameraPosition.x) / 4;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3 * xmf3CameraPosition.y) / 4;

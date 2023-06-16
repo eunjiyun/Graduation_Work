@@ -1203,10 +1203,10 @@ void CGameFramework::FrameAdvance()
 
 	if (false == loginSign[1])
 	{
-		if (!userId.empty() && false == idSet && true == delUser)
+		if (!userId.empty() && !idSet && delUser)
 			userId.pop_back();
-
-		if (!userPw.empty() && true == idSet && true == delUser)
+			
+		if (!userPw.empty() && idSet && delUser)
 			userPw.pop_back();
 
 		if (!userId.empty())
@@ -1282,7 +1282,7 @@ void CGameFramework::FrameAdvance()
 	{
 		if (-1 == m_pStage->m_pShadowMapToViewport->curPl)
 		{
-			m_pStage->m_pShadowMapToViewport->maxHp = 55500;
+			m_pStage->m_pShadowMapToViewport->maxHp = 5000;
 			m_pStage->m_pShadowMapToViewport->curPl = 0;
 		}
 
@@ -1290,7 +1290,7 @@ void CGameFramework::FrameAdvance()
 		{
 			if (1 != m_pStage->m_pShadowMapToViewport->curPl)
 			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 55500;
+				m_pStage->m_pShadowMapToViewport->maxHp = 5000;
 
 				if (2 != m_pStage->m_pShadowMapToViewport->curPl)
 					++m_pStage->m_pShadowMapToViewport->curPl;
@@ -1299,7 +1299,7 @@ void CGameFramework::FrameAdvance()
 			}
 			else
 			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 55500;
+				m_pStage->m_pShadowMapToViewport->maxHp = 5000;
 				m_pStage->m_pShadowMapToViewport->curPl = 2;
 			}
 			m_pStage->m_pShadowMapToViewport->init = true;

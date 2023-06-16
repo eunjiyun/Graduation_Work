@@ -144,7 +144,7 @@ public:
 	vector<CPlayer*> Players;
 	vector<CMonster*> Monsters;
 	CCamera* m_pCamera = NULL;
-	float beforeHp = 55500;
+	float beforeHp = 5000;
 
 	float time = 0.f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };

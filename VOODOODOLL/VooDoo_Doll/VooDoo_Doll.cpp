@@ -249,32 +249,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CHAR:
 		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
 		{
-			for (int u{}; u < 26; ++u)
+			// 사용할 수 있는 키 입력 범위를 지정합니다.
+			if (('A' <= wParam && wParam <= 'Z') || ('a' <= wParam && wParam <= 'z') ||
+				('0' <= wParam && wParam <= '9') || wParam == '_' || wParam == '*')
 			{
-				if ('A' == wParam - u || 'a' == wParam - u)
-					gGameFramework.userId.push_back(wParam);
-				else if ('0' == wParam - u)
-				{
-					if (10 > u)
-						gGameFramework.userId.push_back(wParam);
-				}
-				else if ('_' == wParam)
-				{
-					if (0 == u)
-						gGameFramework.userId.push_back(wParam);
-				}
-				else if ('*' == wParam)
-				{
-					if (0 == u)
-						gGameFramework.userId.push_back(wParam);
-				}
+				gGameFramework.userId.push_back(wParam);
 			}
 		}
 		else if (true == gGameFramework.idSet && 10 > gGameFramework.userPw.size())
 		{
-			gGameFramework.userPw.push_back(wParam);
+			// 사용할 수 있는 키 입력 범위를 지정합니다.
+			if (('A' <= wParam && wParam <= 'Z') || ('a' <= wParam && wParam <= 'z') ||
+				('0' <= wParam && wParam <= '9') || wParam == '_' || wParam == '*')
+			{
+				gGameFramework.userPw.push_back(wParam);
+			}
 		}
-
 		break;
 	case WM_KEYDOWN:
 		if (VK_CONTROL == wParam)//full screen
@@ -286,6 +276,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			gGameFramework.ChangeSwapChainState();
 		}
+		else if (VK_BACK == wParam)
+			gGameFramework.delUser = true;
+			
 		//else if (VK_RETURN == wParam)			// 서버의 SC_LOGIN_INFO 패킷을 받았을 때 처리하는 것으로 변경
 		//{
 		//	if (gGameFramework.loginSign[1] && gGameFramework.lobby[0] && gGameFramework.lobby[1])
@@ -338,10 +331,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
 				gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
-			}
-			else if (VK_BACK == wParam)
-			{
-				gGameFramework.delUser = true;
 			}
 		}
 		break;
