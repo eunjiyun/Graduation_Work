@@ -37,7 +37,7 @@ constexpr char SC_OPEN_DOOR = 16;
 constexpr char SC_LOGIN_COMPLETE = 17;
 constexpr char SC_GAME_CLEAR = 18;
 constexpr char SC_INTERACTION = 19;
-
+constexpr char SC_START_GAME = 20;
 #include "stdafx.h"
 
 #define _STRESS_TEST
@@ -90,8 +90,6 @@ constexpr short CS_ATTACK_PACKET_SIZE = sizeof(CS_ATTACK_PACKET);
 struct CS_INTERACTION_PACKET {
 	unsigned char size;
 	char	type;
-	short	id;
-	XMFLOAT3 pos;
 };
 constexpr short CS_INTERACTION_PACKET_SIZE = sizeof(CS_INTERACTION_PACKET);
 
@@ -115,8 +113,7 @@ struct SC_ADD_PLAYER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-	short cur_weaponType;
-	XMFLOAT3 Pos, Look, Right;
+	XMFLOAT3 Pos;
 };
 constexpr short SC_ADD_PLAYER_PACKET_SIZE = sizeof(SC_ADD_PLAYER_PACKET);
 
@@ -213,6 +210,14 @@ struct SC_INTERACTION_PACKET {
 	short	obj_id;
 };
 constexpr short SC_INTERACTION_PACKET_SIZE = sizeof(SC_INTERACTION_PACKET);
+
+struct SC_START_GAME_PACKET {
+	unsigned char size;
+	char	type;
+	short	your_id;
+	XMFLOAT3 start_pos;
+};
+constexpr short SC_START_GAME_PACKET_SIZE = sizeof(SC_START_GAME_PACKET);
 #pragma pack (pop)
 
 // 소켓 함수 오류 출력 후 종료

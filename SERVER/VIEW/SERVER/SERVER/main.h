@@ -126,7 +126,6 @@ void Initialize_Monster(int roomNum, int stageNum)
 	}
 	if (PoolMonsters[roomNum].size() > 10) cout << roomNum << "에서 더블소환이 되어버림\n";
 }
-	
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {

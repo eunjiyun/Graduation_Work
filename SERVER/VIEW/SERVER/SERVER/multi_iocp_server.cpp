@@ -246,14 +246,24 @@ void process_packet(const int c_id, char* packet)
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		CL._state.store(ST_INGAME);
+		CL.Initialize();
+
+		//for (auto& pl : Room)
+		//	if (pl._state.load() != ST_INGAME) return;
+		//for (auto& pl : Room) {
+		//	pl.send_login_info_packet();
+		//	for (auto& session : Room) {
+		//		if (pl._id == session._id) continue;
+		//		pl.send_add_player_packet(&session);
+		//	}
+		//}
+
 		CL.send_login_info_packet();
 		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
-		for (auto& monster : getMonsters(c_id))
-			CL.send_summon_monster_packet(monster);
 		break;
 	}
 	case CS_SIGNUP: {
@@ -464,7 +474,6 @@ void worker_thread(HANDLE h_iocp)
 				CL._state.store(ST_ALLOC);
 				CL._socket = g_c_socket;
 				CL._id = client_id;
-				CL.Initialize();	// CL.Initialize를 로그인 이후에 호출하도록 변경해야함
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
 				CL.do_recv();

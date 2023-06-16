@@ -36,7 +36,7 @@ public:
 	void ReleaseObjects();
 
 	// SERVER
-	void CreateOtherPlayer(int p_id, short type, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Right);
+	void CreateOtherPlayer(int p_id, XMFLOAT3 Pos);
 	void SummonMonster(int npc_id, int type, XMFLOAT3 Pos);
 
 	HWND	Get_HWND() { return m_hWnd; }

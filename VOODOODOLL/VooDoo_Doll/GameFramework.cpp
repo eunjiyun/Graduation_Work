@@ -690,16 +690,12 @@ void CGameFramework::ReleaseObjects()
 	if (m_pLogin) delete m_pLogin;
 }
 
-void CGameFramework::CreateOtherPlayer(int p_id, short type, XMFLOAT3 Pos, XMFLOAT3 Look, XMFLOAT3 Right)
+void CGameFramework::CreateOtherPlayer(int p_id,XMFLOAT3 Pos)
 {
 	for (auto& player : Players)
 		if (player->c_id < 0) {
 			player->c_id = p_id;
 			player->SetPosition(Pos);
-			player->cur_weapon = type;
-			player->SetLookVector(Look);
-			player->SetUpVector(Vector3::CrossProduct(Look, Right, true));
-			player->SetRightVector(Right);
 			cout << player->c_id << endl;
 			break;
 		}

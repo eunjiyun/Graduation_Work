@@ -149,15 +149,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
 
 
-
-	// 서버에게 자신의 정보를 패킷으로 전달
-	CS_LOGIN_PACKET p;
-	p.size = sizeof(CS_LOGIN_PACKET);
-	p.type = CS_LOGIN;
-	OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-	ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
-	if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-
 	do_recv();
 #pragma endregion 
 
@@ -295,15 +286,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			gGameFramework.ChangeSwapChainState();
 		}
-		else if (VK_RETURN == wParam)
-		{
-			if (gGameFramework.loginSign[1] && gGameFramework.lobby[0] && gGameFramework.lobby[1])
-			{
-				gGameFramework.lobby[2] = true;
-				gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-				gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-			}
-		}
+		//else if (VK_RETURN == wParam)			// 서버의 SC_LOGIN_INFO 패킷을 받았을 때 처리하는 것으로 변경
+		//{
+		//	if (gGameFramework.loginSign[1] && gGameFramework.lobby[0] && gGameFramework.lobby[1])
+		//	{
+		//		gGameFramework.lobby[2] = true;
+		//		gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		//		gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		//	}
+		//}
 		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
 		{
 			if (wParam == 'Z' || wParam == 'z')
@@ -331,8 +322,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_INTERACTION_PACKET p;
 				p.size = sizeof(CS_INTERACTION_PACKET);
 				p.type = CS_INTERACTION;
-				p.id = gGameFramework.m_pPlayer->c_id;
-				p.pos = gGameFramework.m_pPlayer->GetPosition();
 				OVER_EXP* collect_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &collect_data->_wsabuf, 1, 0, 0, &collect_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
@@ -382,6 +371,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 						gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 
+						// 서버에게 자신의 정보를 패킷으로 전달
+						CS_LOGIN_PACKET p;
+						p.size = sizeof(CS_LOGIN_PACKET);
+						p.type = CS_LOGIN;
+						OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+						int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+						if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 					}
 					else
 					{
@@ -407,6 +403,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[5];
 						gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 						gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+
+						// 서버에게 자신의 정보를 패킷으로 전달
+						CS_LOGIN_PACKET p;
+						p.size = sizeof(CS_LOGIN_PACKET);
+						p.type = CS_LOGIN;
+						OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+						int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+						if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 					}
 					else
 					{
@@ -564,6 +568,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 {
 	switch (ptr[1]) {
 	case SC_LOGIN_INFO: {
+		gGameFramework.lobby[2] = true;
+		gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 		SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
 		gGameFramework.m_pPlayer->c_id = packet->id;
 		gGameFramework.m_pPlayer->SetPosition(packet->pos);
@@ -573,7 +580,12 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_ADD_PLAYER: {
 		SC_ADD_PLAYER_PACKET* packet = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(ptr);
 		cout << "client[" << packet->id << "] Accessed\n";
-		gGameFramework.CreateOtherPlayer(packet->id, packet->cur_weaponType, packet->Pos, packet->Look, packet->Right);
+		gGameFramework.CreateOtherPlayer(packet->id,packet->Pos);
+		break;
+	}
+	case SC_START_GAME: {
+		SC_START_GAME_PACKET* packet = reinterpret_cast<SC_START_GAME_PACKET*>(ptr);
+
 		break;
 	}
 	case SC_LOGIN_COMPLETE: {

@@ -156,7 +156,7 @@ public:
 		//_socket = Socket;
 		cur_stage = 0;
 		weapon_type = BLADE;
-		HP =  55500;
+		HP =  5000;
 		clear_percentage = 0.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
 	}
 	void do_recv()
@@ -183,6 +183,15 @@ public:
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
 		p.pos = m_xmf3Position;
+		do_send(&p);
+	}
+	void send_start_game_packet()
+	{
+		SC_START_GAME_PACKET p;
+		p.your_id = _id;
+		p.size = sizeof(SC_START_GAME_PACKET);
+		p.type = SC_START_GAME;
+		p.start_pos = GetPosition();
 		do_send(&p);
 	}
 	void send_move_packet(SESSION* Player)
@@ -247,9 +256,6 @@ public:
 
 		add_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
 		add_packet.type = SC_ADD_PLAYER;
-		add_packet.cur_weaponType = Player->weapon_type;
-		add_packet.Look = Player->m_xmf3Look;
-		add_packet.Right = Player->m_xmf3Right;
 		add_packet.Pos = Player->GetPosition();
 		do_send(&add_packet);
 	}
