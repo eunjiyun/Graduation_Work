@@ -1629,11 +1629,14 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 			else if (2 == obj[i]->texMat.z)
 			{
-				xmf3PlayerPosition.y -= 85.0f;
+				if (pPlayer->alive)
+					xmf3PlayerPosition.y -= 85.0f;
+				else
+					xmf3PlayerPosition.y -= 79.0f;
 
-				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3 * xmf3CameraPosition.x) / 4;
-				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3 * xmf3CameraPosition.y) / 4;
-				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3 * xmf3CameraPosition.z) / 4;
+				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
+				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
+				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
 			}
 
 

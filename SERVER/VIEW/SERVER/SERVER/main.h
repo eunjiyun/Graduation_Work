@@ -138,7 +138,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		return;
 	}
 
-	XMFLOAT3 newCenter = newPos; 
+	XMFLOAT3 newCenter = newPos;
 	newCenter.y += 10.f;			// 캐릭터의 위치와 충돌박스의 위치의 차이 때문에 충돌체크는 y축 +10해서 계산해야함
 	try {
 		for (const auto& object : Objects.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
@@ -264,7 +264,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 	shared_ptr<A_star_Node> S_Node;
 
 	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos, 0.f, nullptr));
-	
+
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
 	{
@@ -369,7 +369,7 @@ void Monster::Update(float fTimeElapsed)
 			return;
 		}
 	}
-		break;
+						break;
 	case NPC_State::Chase: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
@@ -409,7 +409,7 @@ void Monster::Update(float fTimeElapsed)
 			BB.Center = Pos;
 		}
 	}
-		break;
+						 break;
 	case NPC_State::Attack: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
@@ -438,7 +438,7 @@ void Monster::Update(float fTimeElapsed)
 					//player.direction.store(DIR_DIE);
 					targetPlayer->_state.store(ST_DEAD);
 					for (auto& cl : clients[room_num]) {
-						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) 
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
 							cl.send_move_packet(targetPlayer);
 					}
 				}
@@ -446,7 +446,7 @@ void Monster::Update(float fTimeElapsed)
 			attacked = true;
 			break;
 		}
-		if (GetAttackTimer() <= 0) {//0326
+		if (GetAttackTimer() <= 0) {
 			if (attack_range <= g_distance)
 			{
 				SetState(NPC_State::Chase);
@@ -457,16 +457,16 @@ void Monster::Update(float fTimeElapsed)
 			attacked = false;
 		}
 	}
-		break;
+						  break;
 	case NPC_State::Dead: {
 		if (type != 4)
 			cur_animation_track = 3;
 		dead_timer -= fTimeElapsed;
-		if (dead_timer <= 0) {			
+		if (dead_timer <= 0) {
 			alive = false;
 		}
 	}
-		break;
+						break;
 	default:
 		break;
 	}
@@ -626,7 +626,8 @@ void InitializeStages()
 	{	// 6stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(300, 1100));
-		while (ID_constructor < 60) {
+		//while (ID_constructor < 60) {
+		while (ID_constructor < 51) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -637,7 +638,9 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), 3, ID_constructor);
 			StagesInfo[5].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);

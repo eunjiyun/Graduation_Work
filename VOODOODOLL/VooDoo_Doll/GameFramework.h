@@ -108,6 +108,9 @@ public:
 	queue<CLoadedModelInfo*> MagiciansHat;
 	array<char*, 6> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo5.bin", "Model/Voodoo4.bin",
 	 "Model/Voodoo3.bin","Model/Voodoo6.bin" };
+	CGameObject* boss = nullptr;
+	CLoadedModelInfo* bossModel = nullptr;
+
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
 #endif

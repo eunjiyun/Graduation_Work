@@ -332,13 +332,13 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
 				break;
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//ºÎµÎ3 ±Í½Å
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albed");//ºÎµÎ6 ¸Ó¸®¿¡¹Ù´ÃÀÖ´Âºñ½ÇÇÑ¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//ºÎµÎ6 ¸Ó¸®¿¡¹Ù´ÃÀÖ´Âºñ½ÇÇÑ¾Ö
 				break;
 			}
 		}
@@ -356,7 +356,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//ºÎµÎ5 ¸¶¹ý»ç
 				break;
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
 				break;
 
 
@@ -364,7 +364,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//ºÎµÎ3 ±Í½Å
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Norma");//ºÎµÎ6 ¸Ó¸®¿¡¹Ù´ÃÀÖ´Âºñ½ÇÇÑ¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//ºÎµÎ6 ¸Ó¸®¿¡¹Ù´ÃÀÖ´Âºñ½ÇÇÑ¾Ö
 				break;
 			}
 		}
@@ -383,13 +383,13 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
 				break;
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//ºÎµÎ3 ±Í½Å
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metal");//ºÎµÎ6 ¸Ó¸®¿¡¹Ù´ÃÀÖ´Âºñ½ÇÇÑ¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//ºÎµÎ6 ¸Ó¸®¿¡¹Ù´ÃÀÖ´Âºñ½ÇÇÑ¾Ö
 				break;
 			}
 		}
@@ -407,7 +407,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//ºÎµÎ5 ¸¶¹ý»ç
 				break;
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Emiss");//ºÎµÎ4 Ææ½ÌÄ®µç¾Ö
 				break;
 
 			case 5:
@@ -1785,22 +1785,23 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	CLoadedModelInfo* arrowModel = pModel;
 
-	if (1 == chooseObj)
+	//if (1 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/lancer_weapon.bin", NULL, 7);//Warlock_weapon
-	}
-
-	else if (2 == chooseObj)
-	{
-		if (!arrowModel)
+			//arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/lancer_weapon.bin", NULL, 7);//Warlock_weapon
 			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
 	}
-	else if (3 == chooseObj)
-	{
-		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//ÃÑ¾Ë
-	}
+	//else if (2 == chooseObj)
+	//{
+	//	if (!arrowModel)
+	//		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+	//}
+	//else if (3 == chooseObj)
+	//{
+	//	if (!arrowModel)
+	//		//arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//ÃÑ¾Ë
+	//		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+	//}
 
 	SetChild(arrowModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, arrowModel);

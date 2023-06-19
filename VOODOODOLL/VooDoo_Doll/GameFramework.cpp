@@ -581,6 +581,29 @@ void CGameFramework::BuildObjects()
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}
 
+	bossModel = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/boss.bin", nullptr,1);
+	/*boss = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), bossModel, 7);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
+	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(6, 6);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(0, false);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(4, false);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(5, false);
+	boss->m_pSkinnedAnimationController->SetTrackEnable(6, false);
+
+	boss->SetPosition(350.0f, -62, 600.0f);
+	boss->Rotate(0.0f, 180.0f, 0.0f);
+	boss->SetScale(2.0f, 2.0f, 2.0f);
+
+	if (bossModel) delete bossModel;*/
+
 
 #ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
@@ -652,6 +675,9 @@ void CGameFramework::ReleaseObjects()
 
 	for (auto& monster : Monsters)
 		delete monster;
+
+	/*if (boss)
+		boss->Release();*/
 
 	if (sound)
 	{
@@ -768,19 +794,38 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//손에 바늘
+		//Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//손에 바늘->보스
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
+
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
+		//Mon->speed = 15.f;
+		//Mon->SetScale(1.0f, 1.0f, 1.0f);
+
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), bossModel, 7);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(6, 6);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);//아이들
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);//뛰기
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//공격
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);//사망
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//점프
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//피격
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//걷기
 
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		Mon->speed = 15.f;
+		Mon->speed = 7.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
@@ -991,6 +1036,8 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
 		time = 0.f;
 	}
+
+	//boss->Animate(fTimeElapsed, false);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1277,6 +1324,7 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage->m_pShadowShader && lobby[2])
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights);
 
+	//boss->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
