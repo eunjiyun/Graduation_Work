@@ -13,7 +13,7 @@ enum class NPC_State
 class Monster
 {
 private:
-    short view_range, type;
+    short type;
     array<float, 3> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
 public:
@@ -24,7 +24,7 @@ public:
     high_resolution_clock::time_point recent_recvedTime;
     atomic_bool alive = false;
 
-    short HP, power;
+    short HP, power, view_range;
     float speed;
     BoundingBox BB;
     XMFLOAT3 Pos;
@@ -70,8 +70,6 @@ public:
 class SorcererMonster : public Monster
 {
 public:
-    XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
-    XMFLOAT3 MagicLook;
     void Update(float fTimeElapsed) override;
 };
 

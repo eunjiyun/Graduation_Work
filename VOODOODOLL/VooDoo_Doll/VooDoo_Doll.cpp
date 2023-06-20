@@ -654,8 +654,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_SUMMON_MONSTER: {
 		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-		cout << packet->id << ", " << packet->monster_type << ", ";
-		Vector3::Print(packet->Pos);
 		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}

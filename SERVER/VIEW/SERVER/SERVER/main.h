@@ -94,6 +94,9 @@ void disconnect(int c_id)
 		}
 
 		for (auto& mon : getMonsters(c_id)) {
+			bool old_state = true;
+			if (false == atomic_compare_exchange_strong(&mon->alive, &old_state, false))
+				continue;
 			mon->Initialize(c_id / MAX_USER_PER_ROOM, StagesInfo[mon->m_id].id, StagesInfo[mon->m_id].type, StagesInfo[mon->m_id].Pos);
 		}
 	}
@@ -346,20 +349,19 @@ void Monster::Update(float fTimeElapsed)
 		if (target_id != -1) {
 			SetState(NPC_State::Chase);
 			cur_animation_track = 1;
-			Update(fTimeElapsed);
+			//Update(fTimeElapsed);
 			return;
 		}
 	}
 		break;
 	case NPC_State::Chase: {
-		cout << m_id << "IS CHASING " << target_id << endl;
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+
 		g_distance = Vector3::Length(distanceVector);
 
-		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME)
+		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME || g_distance >= view_range)
 		{
-			cout << m_id << "CHANGED TO Idle\n";
 			SetState(NPC_State::Idle);
 			cur_animation_track = 0;
 			target_id = -1;
@@ -367,7 +369,6 @@ void Monster::Update(float fTimeElapsed)
 		}
 		if (attack_range >= g_distance)
 		{
-			cout << m_id << "CHANGED TO Attack\n";
 			SetState(NPC_State::Attack);
 			cur_animation_track = (type != 4) ? 2 : cur_animation_track;
 			return;
@@ -443,8 +444,6 @@ void Monster::Update(float fTimeElapsed)
 	}
 		break;
 	case NPC_State::Dead: {
-		if (type != 4)
-			cur_animation_track = 3;
 		dead_timer -= fTimeElapsed;
 		if (dead_timer <= 0) {			
 			alive.store(false);
@@ -464,6 +463,7 @@ void SorcererMonster::Update(float fTimeElapsed)
 			lock_guard <mutex> ll{ player._s_lock };
 			if (BoundingBox(MagicPos, BULLET_SIZE).Intersects(player.m_xmOOBB))
 			{
+				Vector3::Print(MagicPos);
 				player.HP -= GetPower();
 				MagicPos.x = 5000;
 				MagicLook.x = MagicLook.y = MagicLook.z = 0.f;

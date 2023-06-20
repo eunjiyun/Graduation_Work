@@ -57,7 +57,6 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
 {
     Pos = _pos;
     room_num = _roomNum;
-    alive = false;
     m_id = _id;
     BB = BoundingBox(_pos, XMFLOAT3(15, 20, 12));
     curState = NPC_State::Idle;

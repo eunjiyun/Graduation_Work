@@ -328,8 +328,10 @@ void process_packet(const int c_id, char* packet)
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 100;
-					if (monster->HP <= 0)
+					if (monster->HP <= 0) {
+						monster->cur_animation_track = 3;
 						monster->SetState(NPC_State::Dead);
+					}
 				}
 			}
 		}
@@ -386,8 +388,10 @@ void process_packet(const int c_id, char* packet)
 					closestMonster->HP -= 200;
 					if (closestMonster->target_id < 0)
 						closestMonster->target_id = CL._id;
-					if (closestMonster->HP <= 0)
+					if (closestMonster->HP <= 0) {
+						closestMonster->cur_animation_track = 3;
 						closestMonster->SetState(NPC_State::Dead);
+					}
 					return;
 				}
 			}
@@ -402,8 +406,10 @@ void process_packet(const int c_id, char* packet)
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
 				{
 					monster->HP -= 50;
-					if (monster->HP <= 0)
+					if (monster->HP <= 0) {
+						monster->cur_animation_track = 3;
 						monster->SetState(NPC_State::Dead);
+					}
 				}
 			}
 			break;
