@@ -53,13 +53,14 @@ int main()
 		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
 
 		for (int j = collide_range_min; j <= collide_range_max; j++) {
-			Objects[j].emplace_back(m_ppObjects[i]);
+			Obstacles[j].emplace_back(m_ppObjects[i]);
 		}
 	}
 	delete m_nObjects;
 	delete[] m_ppObjects;
 
 	InitializeStages();
+	InitializeMonsters();
 
 	WSADATA WSAData;
 	int ErrorStatus = WSAStartup(MAKEWORD(2, 2), &WSAData);
@@ -80,6 +81,7 @@ int main()
 	g_a_over._comp_type = OP_ACCEPT;
 	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 
+
 	cout << "SERVER READY\n";
 
 	vector <thread> worker_threads;
@@ -96,6 +98,11 @@ int main()
 		th.join();
 	DB_t.join();
 
+	for (int i = 0; i < monsters.size(); ++i)
+	{
+		for (int j = 0; j < monsters[i].size(); ++i)
+			delete monsters[i][j];
+	}
 	closesocket(g_s_socket);
 	WSACleanup();
 }
@@ -303,7 +310,7 @@ void process_packet(const int c_id, char* packet)
 		break;
 	}
 	case CS_ATTACK: {
-		threadsafe_vector<Monster*>& Monsters = getMonsters(CL._id);
+		auto& Monsters = getMonsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		XMFLOAT3 _Look = CL.GetLookVector();
 		for (auto& cl : Room) {
@@ -315,7 +322,7 @@ void process_packet(const int c_id, char* packet)
 		case BLADE:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
-			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
@@ -335,7 +342,7 @@ void process_packet(const int c_id, char* packet)
 			vector<Monster*> monstersInRange;
 
 			
-			Monsters.v_shared_lock.lock_shared();
+			//Monsters.v_shared_lock.lock_shared();
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> monster_lock{ monster->m_lock };
 				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
@@ -344,7 +351,7 @@ void process_packet(const int c_id, char* packet)
 					monstersInRange.push_back(monster);
 				}
 			}
-			Monsters.v_shared_lock.unlock_shared();
+			//Monsters.v_shared_lock.unlock_shared();
 
 			if (!monstersInRange.empty())
 			{
@@ -367,7 +374,7 @@ void process_packet(const int c_id, char* packet)
 					int _max = static_cast<int>(max(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
 					for (int i = _min; i <= _max; i++)
 					{
-						for (auto& obj : Objects[i])
+						for (auto& obj : Obstacles[i])
 						{
 							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, p->pos));
 							if (obj->m_xmOOBB.Intersects(Bullet_Origin, Bullet_Direction, bullet_obstacle_distance) &&
@@ -389,7 +396,7 @@ void process_packet(const int c_id, char* packet)
 		case PUNCH:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
-			shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
+			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
@@ -503,7 +510,6 @@ void worker_thread(HANDLE h_iocp)
 			//	pl.send_add_player_packet(&CL);
 			//	CL.send_add_player_packet(&pl);
 			//}
-			//CL.send_open_door_packet(0);
 			break;
 		}
 		case OP_RECV: {
@@ -530,40 +536,22 @@ void worker_thread(HANDLE h_iocp)
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
 			break;
-		case OP_NPC_MOVE:
+		case OP_NPC_UPDATE:
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
-			vector<Monster*>::iterator iter;
-			bool found;
-			{
-				shared_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
-				iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; });
-				found = (iter != PoolMonsters[roomNum].end());
-			}
-
-			if (found) {
-				if ((*iter)->alive) {
-					{
-						lock_guard<mutex> mm{ (*iter)->m_lock };
-						(*iter)->Update(duration_cast<milliseconds>(high_resolution_clock::now() - (*iter)->recent_recvedTime).count() / 1000.f);
-						(*iter)->recent_recvedTime = high_resolution_clock::now();
-					}
-					for (auto& cl : clients[roomNum]) {
-						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_monster_update_packet(*iter);
-					}
-					TIMER_EVENT ev{ roomNum, mon_id, (*iter)->recent_recvedTime + 100ms, EV_MOVE };
-					timer_queue.push(ev);
+			auto& monster = monsters[roomNum][mon_id];
+		
+			if (monster->alive.load() == true) {
+				{
+					lock_guard<mutex> mm{ monster->m_lock };
+					monster->Update(duration_cast<milliseconds>(high_resolution_clock::now() - monster->recent_recvedTime).count() / 1000.f);
+					monster->recent_recvedTime = high_resolution_clock::now();
 				}
-				else {
-					{
-						unique_lock<shared_mutex> vec_lock{ PoolMonsters[roomNum].v_shared_lock };
-						iter = find_if(PoolMonsters[roomNum].begin(), PoolMonsters[roomNum].end(), [mon_id](Monster* M) {return M->m_id == mon_id; }); // re-find iter after locking
-						if (iter != PoolMonsters[roomNum].end()) {
-							PoolMonsters[roomNum].erase(iter);
-						}
-					}
-					MonsterPool.ReturnMemory(*iter);
+				for (auto& cl : clients[roomNum]) {
+					if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_monster_update_packet(monster);
 				}
+				TIMER_EVENT ev{ roomNum, mon_id, monster->recent_recvedTime + 100ms, EV_MONSTER_UPDATE };
+				timer_queue.push(ev);
 			}
 
 			delete ex_over;
@@ -586,10 +574,10 @@ void do_Timer()
 				this_thread::sleep_for(duration_cast<milliseconds>(ev.wakeup_time - current_time));
 			}
 			switch (ev.event_id) {
-			case EV_MOVE:
+			case EV_MONSTER_UPDATE:
 				OVER_EXP* ov = new OVER_EXP();
 				//OVER_EXP* ov = OverPool.GetMemory();
-				ov->_comp_type = OP_NPC_MOVE;
+				ov->_comp_type = OP_NPC_UPDATE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
 				break;
 			}

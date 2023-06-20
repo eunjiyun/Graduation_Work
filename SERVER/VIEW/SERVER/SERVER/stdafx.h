@@ -66,6 +66,7 @@ constexpr short MAP_X_SIZE = 700;
 constexpr short MAP_Y_SIZE = 480;
 constexpr short MAP_Z_SIZE = 4600;
 constexpr short STAGE_NUMBERS = 6;
+constexpr short MONSTER_PER_STAGE = 10;
 
 #define BULLET_SIZE XMFLOAT3{10,10,10}
 

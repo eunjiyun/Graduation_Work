@@ -7,7 +7,7 @@ Monster::Monster(const Monster& other)
     lock_guard<mutex> ll{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    alive = other.alive;
+    alive = other.alive.load();
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -32,7 +32,7 @@ Monster& Monster::operator=(const Monster& other)
     lock_guard<mutex> l2{ other.m_lock };
     Pos = other.Pos;
     room_num = other.room_num;
-    alive = other.alive;
+    alive = other.alive.load();
     BB = other.BB;
     m_id = other.m_id;
     type = other.type;
@@ -57,7 +57,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
 {
     Pos = _pos;
     room_num = _roomNum;
-    alive = true;
+    alive = false;
     m_id = _id;
     BB = BoundingBox(_pos, XMFLOAT3(15, 20, 12));
     curState = NPC_State::Idle;

@@ -22,7 +22,7 @@ public:
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook = { 0, 0, 0 };
     high_resolution_clock::time_point recent_recvedTime;
-    bool alive = false;
+    atomic_bool alive = false;
 
     short HP, power;
     float speed;
@@ -47,11 +47,14 @@ public:
     {
         return type;
     }
+    void setType(int _type)
+    {
+        type = _type;
+    }
 
     int get_targetID();
     XMFLOAT3 Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos);
-    void Update(float fTimeElapsed);
-    virtual void UpdateMagic(float fTimeElapsed) {}
+    virtual void Update(float fTimeElapsed);
     XMFLOAT3 GetPosition() { return Pos; }
     float GetSpeed() { return speed; }
     short GetPower() { return power; }
@@ -69,7 +72,7 @@ class SorcererMonster : public Monster
 public:
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook;
-    void Update(float fTimeElapsed);
+    void Update(float fTimeElapsed) override;
 };
 
 
