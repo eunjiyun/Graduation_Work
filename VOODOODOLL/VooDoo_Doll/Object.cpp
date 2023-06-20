@@ -189,14 +189,14 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 	else
 		texMat.y = float(m_nCol) / (texMat.z*1.5f);//技肺
 
-	if (fTime == 0.0f)
+	if (0.0f == fTime)
 	{
 		if (++m_nCol == texMat.z) 
 		{ 
 			m_nRow++;//技肺 刘啊
 			m_nCol = 0; //啊肺 0
 
-			if(4 != texMat.z)
+			if(4 != texMat.z &&3!=texMat.z)
 				m_bActive = false;
 		}
 
@@ -332,7 +332,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 
 			case 4:
-				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//何滴4 奇教漠电局
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//何滴4 奇教漠电局
 				break;
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//何滴3 蓖脚
@@ -356,7 +356,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//何滴5 付过荤
 				break;
 			case 4:
-				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//何滴4 奇教漠电局
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//何滴4 奇教漠电局
 				break;
 
 
@@ -383,7 +383,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 
 			case 4:
-				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//何滴4 奇教漠电局
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//何滴4 奇教漠电局
 				break;
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//何滴3 蓖脚
@@ -407,7 +407,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//何滴5 付过荤
 				break;
 			case 4:
-				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Emiss");//何滴4 奇教漠电局
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//何滴4 奇教漠电局
 				break;
 
 			case 5:

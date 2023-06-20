@@ -520,7 +520,8 @@ void InitializeStages()
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
-		while (ID_constructor < 10) {
+		//while (ID_constructor < 10) {
+		while (ID_constructor < 1) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
@@ -531,7 +532,8 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), 3, ID_constructor);
 			StagesInfo[0].push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -541,7 +543,8 @@ void InitializeStages()
 	{	// 2stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		while (ID_constructor < 20) {
+		//while (ID_constructor < 20) {
+		while (ID_constructor < 11) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
@@ -562,7 +565,8 @@ void InitializeStages()
 	{	// 3stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
-		while (ID_constructor < 30) {
+		//while (ID_constructor < 30) {
+		while (ID_constructor < 21) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -583,7 +587,8 @@ void InitializeStages()
 	{	// 4stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		while (ID_constructor < 40) {
+		//while (ID_constructor < 40) {
+		while (ID_constructor < 31) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -604,7 +609,8 @@ void InitializeStages()
 	{	// 5stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
-		while (ID_constructor < 50) {
+		//while (ID_constructor < 50) {
+		while (ID_constructor < 41) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));

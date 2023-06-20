@@ -581,7 +581,7 @@ void CGameFramework::BuildObjects()
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}
 
-	bossModel = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/boss.bin", nullptr,1);
+	//bossModel = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/boss.bin", nullptr,1);
 	/*boss = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), bossModel, 7);
 	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -809,7 +809,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		//Mon->speed = 15.f;
 		//Mon->SetScale(1.0f, 1.0f, 1.0f);
 
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), bossModel, 7);
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 7);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);

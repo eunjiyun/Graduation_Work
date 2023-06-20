@@ -1534,8 +1534,8 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 
 	if (0 != choose)//피, 화면
 		m_nObjects = 2;
-	else//폭죽, 연기, 로딩
-		m_nObjects = 3;
+	else//폭죽, 연기, 로딩, 파티클
+		m_nObjects = 4;
 
 
 	obj = new CMultiSpriteObject * [m_nObjects];
@@ -1552,8 +1552,12 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
 			else if (1 == j)
 				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);//연기
-			else
+			else if(2==j)
 				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
+			else
+			{
+				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
+			}
 		}
 		else
 		{
@@ -1606,11 +1610,6 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
 			}
-
-			else if (8 == obj[i]->texMat.z)
-			{
-				xmf3PlayerPosition.y += 40.0f;
-			}
 			else if (6 == obj[i]->texMat.z)
 			{
 				xmf3PlayerPosition.x += 25 * pPlayer->GetRight().x;
@@ -1637,6 +1636,14 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
+			}
+			else if (8 == obj[i]->texMat.z)
+			{
+				xmf3PlayerPosition.y += 40.0f;
+			}
+			else if (3 == obj[i]->texMat.z)
+			{
+				xmf3PlayerPosition.y += 40.0f;
 			}
 
 

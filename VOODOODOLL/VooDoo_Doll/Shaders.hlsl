@@ -360,7 +360,7 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 			cColor.z > 0.25f && cColor.z <= 0.26f)
 			discard;
 	}
-	else if(texMat.z != 2)
+	else if(texMat.z != 2 )
 		if (cColor.x < 0.4f)
 			discard;
 
