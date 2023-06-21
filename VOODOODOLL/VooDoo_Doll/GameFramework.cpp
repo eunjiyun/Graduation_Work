@@ -1320,9 +1320,36 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, lobby[2], m_pCamera);
 
+	
+
+	if (Monsters.empty())
+	{
+		
+
+		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, nullptr);
+		//m_pStage->m_ppShaders[2]->Render(m_pd3dCommandList, m_pCamera);
+		m_pStage->pMultiSpriteObjectShader2->Render(m_pd3dCommandList, m_pCamera, nullptr);
+
+		//cout << "null" << endl;
+	}
+	else
+	{
+		if (2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
+			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		else
+			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+
+		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters[0]);
+		m_pStage->pMultiSpriteObjectShader2->Render(m_pd3dCommandList, m_pCamera, Monsters[0]);
+
+		//cout << "in" << endl;
+	}
+
 
 	if (m_pStage->m_pShadowShader && lobby[2])
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights);
+
+	
 
 	//boss->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 

@@ -573,7 +573,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
+	pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, 0);
 
@@ -602,10 +602,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	}
 
 	m_ppShaders[1] = pMultiSpriteObjectShader;
-	m_ppShaders[1]->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+	//m_ppShaders[1]->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 
 
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
+	pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
 	pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, 1);
 	CMaterial* pMaterial = new CMaterial(1);
@@ -1175,8 +1175,8 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool login, CCam
 			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 
-	m_ppShaders[1]->Render(pd3dCommandList, pCamera);
-	m_ppShaders[2]->Render(pd3dCommandList, pCamera);
+	//m_ppShaders[1]->Render(pd3dCommandList, pCamera);
+	
 }
 
 

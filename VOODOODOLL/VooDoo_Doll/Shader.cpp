@@ -1590,7 +1590,7 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed)
 			obj[j]->Animate(fTimeElapsed, false);
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CMonster* mon, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1600,6 +1600,12 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			CPlayer* pPlayer = pCamera->GetPlayer();
 			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
 			XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
+
+			XMFLOAT3 xmf3MonPos;
+			XMFLOAT3 xmf3MonLook;
+			XMFLOAT3 xmf3Pos;
+
+			//cout << "mon : " << mon << endl;
 
 			if (4 == obj[i]->texMat.z)
 			{
@@ -1641,9 +1647,17 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			{
 				xmf3PlayerPosition.y += 40.0f;
 			}
-			else if (3 == obj[i]->texMat.z)
+			else if (3 == obj[i]->texMat.z && mon)
 			{
-				xmf3PlayerPosition.y += 40.0f;
+				xmf3MonPos =mon->GetPosition();
+				xmf3MonLook = mon->GetLook();
+				xmf3MonPos.y += 40.0f;
+				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook,50.0f, false));
+
+				/*cout << "in" << endl;
+				cout << "mon x : " << xmf3MonPos.x << endl;
+				cout << "mon y : " << xmf3MonPos.y << endl;
+				cout << "mon z : " << xmf3MonPos.z << endl;*/
 			}
 
 
@@ -1651,13 +1665,25 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 			if (obj[i])
 			{
-				if (4 != obj[i]->texMat.z)
+				if (4 != obj[i]->texMat.z && 3 != obj[i]->texMat.z)
+				{
 					obj[i]->SetPosition(xmf3Position);
-				else
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+				else if (4 == obj[i]->texMat.z)
+				{
 					obj[i]->SetPosition(xmf3PlayerPosition);
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+				else if (3 == obj[i]->texMat.z)
+				{
+					obj[i]->SetPosition(xmf3Pos);
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					//obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
 					
 
-				obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 				CShader::Render(pd3dCommandList, pCamera);
 

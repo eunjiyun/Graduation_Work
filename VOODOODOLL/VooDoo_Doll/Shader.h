@@ -384,7 +384,7 @@ public:
 	virtual void ReleaseObjects();
 
 	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext=NULL);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CMonster*, void* pContext=NULL);
 
 	virtual void ReleaseUploadBuffers();
 
