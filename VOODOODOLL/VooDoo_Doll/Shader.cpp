@@ -1298,7 +1298,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 			{
 				if (-70 < o->GetPosition().y)
 				{
-					if (-70<=Players[0]->GetPosition().y)
+					if (-70 <= Players[0]->GetPosition().y)
 					{
 						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					}
@@ -1528,15 +1528,11 @@ D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 }
 
 
-void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int choose)
+void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	if (0 != choose)//피, 화면
-		m_nObjects = 2;
-	else//폭죽, 연기, 로딩, 파티클
-		m_nObjects = 4;
-
+	m_nObjects = 6;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1546,26 +1542,21 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	{
 		pSpriteObject = new CMultiSpriteObject();
 
-		if (0 == choose)
+		if (0 == j)
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
+		else if (1 == j)
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);//연기
+		else if (2 == j)
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
+		else if (3 == j)
 		{
-			if (0 == j)
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
-			else if (1 == j)
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);//연기
-			else if(2==j)
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
-			else
-			{
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
-			}
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
 		}
-		else
-		{
-			if (0 == j)//피
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-			else//화면
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
-		}
+		else if (4 == j)//피
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		else//화면
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
+
 		pSpriteObject->SetMesh(0, pSpriteMesh);
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
 
@@ -1590,7 +1581,7 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed)
 			obj[j]->Animate(fTimeElapsed, false);
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CMonster* mon, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, CMonster* mon, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1604,8 +1595,6 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3MonPos;
 			XMFLOAT3 xmf3MonLook;
 			XMFLOAT3 xmf3Pos;
-
-			//cout << "mon : " << mon << endl;
 
 			if (4 == obj[i]->texMat.z)
 			{
@@ -1649,10 +1638,10 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 			else if (3 == obj[i]->texMat.z && mon)
 			{
-				xmf3MonPos =mon->GetPosition();
+				xmf3MonPos = mon->GetPosition();
 				xmf3MonLook = mon->GetLook();
 				xmf3MonPos.y += 40.0f;
-				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook,50.0f, false));
+				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
 
 				/*cout << "in" << endl;
 				cout << "mon x : " << xmf3MonPos.x << endl;
@@ -1681,7 +1670,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 					//obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
-					
+
 
 				//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 

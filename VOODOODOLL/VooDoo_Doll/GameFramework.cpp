@@ -581,29 +581,6 @@ void CGameFramework::BuildObjects()
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}
 
-	//bossModel = CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/boss.bin", nullptr,1);
-	/*boss = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), bossModel, 7);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
-	boss->m_pSkinnedAnimationController->SetTrackAnimationSet(6, 6);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(4, false);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(5, false);
-	boss->m_pSkinnedAnimationController->SetTrackEnable(6, false);
-
-	boss->SetPosition(350.0f, -62, 600.0f);
-	boss->Rotate(0.0f, 180.0f, 0.0f);
-	boss->SetScale(2.0f, 2.0f, 2.0f);
-
-	if (bossModel) delete bossModel;*/
-
 
 #ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
@@ -675,9 +652,6 @@ void CGameFramework::ReleaseObjects()
 
 	for (auto& monster : Monsters)
 		delete monster;
-
-	/*if (boss)
-		boss->Release();*/
 
 	if (sound)
 	{
@@ -1033,11 +1007,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	time += fTimeElapsed;
 	if (time > 0.5f)
 	{
-		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
 		time = 0.f;
 	}
 
-	//boss->Animate(fTimeElapsed, false);
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1091,8 +1064,8 @@ void CGameFramework::FrameAdvance()
 
 	if (loginSign[1] && !gameEnd && !lobby[0])
 	{
-		m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
-		m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
+		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 	}
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
@@ -1112,8 +1085,8 @@ void CGameFramework::FrameAdvance()
 			{
 				if (!lobby[0])
 				{
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 
 				lobby[0] = true;
@@ -1140,8 +1113,8 @@ void CGameFramework::FrameAdvance()
 			{
 				if (!lobby[0])
 				{
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 
 				lobby[0] = true;
@@ -1218,8 +1191,8 @@ void CGameFramework::FrameAdvance()
 		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
 		{
-			m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+			m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
+			m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 			lobby[2] = false;
 			gameEnd = true;
 
@@ -1324,34 +1297,21 @@ void CGameFramework::FrameAdvance()
 
 	if (Monsters.empty())
 	{
-		
-
 		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, nullptr);
-		//m_pStage->m_ppShaders[2]->Render(m_pd3dCommandList, m_pCamera);
-		m_pStage->pMultiSpriteObjectShader2->Render(m_pd3dCommandList, m_pCamera, nullptr);
-
-		//cout << "null" << endl;
 	}
 	else
 	{
-		if (2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
+		if (0==Monsters[0]->c_id && 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 		else
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 
 		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters[0]);
-		m_pStage->pMultiSpriteObjectShader2->Render(m_pd3dCommandList, m_pCamera, Monsters[0]);
-
-		//cout << "in" << endl;
 	}
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights);
-
-	
-
-	//boss->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{

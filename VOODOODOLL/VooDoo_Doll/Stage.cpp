@@ -175,7 +175,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pBoxShader = new CBoxShader();
 
 
-	m_nShaders = 3;
+	m_nShaders = 1;
 	m_ppShaders = new CShader * [m_nShaders];
 	pObjectShader = new CObjectsShader();
 	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
@@ -575,9 +575,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, 0);
+	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList);
 
-	for (int i{}; i < 4; ++i)//폭죽 연기 로딩 파티클
+	for (int i{}; i < 5; ++i)//폭죽 연기 로딩 파티클 피
 	{
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
@@ -592,27 +592,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
 		else if (2 == i)//로딩
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
-		else//파티클
+		else if(3==i)//파티클
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 3;
+		else //피
+			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;
 
-		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z)
+		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z && 1 != pMultiSpriteObjectShader->obj[i]->texMat.z)
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
-		else
+		else if(4 == pMultiSpriteObjectShader->obj[i]->texMat.z)
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
 	}
 
-	m_ppShaders[1] = pMultiSpriteObjectShader;
-	//m_ppShaders[1]->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-
-
-	pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
-	pMultiSpriteObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, 1);
-	CMaterial* pMaterial = new CMaterial(1);
-	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	pMaterial->SetTexture(ppTextures[36]);
-	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials = new CMaterial * [1];
-	pMultiSpriteObjectShader2->obj[1]->m_ppMaterials = new CMaterial * [1];
+	pMultiSpriteObjectShader->obj[5]->m_ppMaterials = new CMaterial * [1];
 
 	for (int h{}; h < 6; ++h)
 	{
@@ -625,14 +616,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppShaders[0]->gameMat[h] = pMaterial;
 	}
 
-	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials[0] = pMaterial;
-	pMultiSpriteObjectShader2->obj[1]->m_ppMaterials[0] = m_ppShaders[0]->gameMat[3];
-
-	pMultiSpriteObjectShader2->obj[0]->texMat.z = 1;
-	pMultiSpriteObjectShader2->obj[1]->texMat.z = 2;
-
-	m_ppShaders[2] = pMultiSpriteObjectShader2;
-	m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+	pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_ppShaders[0]->gameMat[3];
+	pMultiSpriteObjectShader->obj[5]->texMat.z = 2;
+	pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 	
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
@@ -690,6 +676,12 @@ void CStage::ReleaseObjects()
 			m_ppShaders[i]->Release();
 		}
 		delete[] m_ppShaders;
+	}
+	if (pMultiSpriteObjectShader)
+	{
+		pMultiSpriteObjectShader->ReleaseShaderVariables();
+		pMultiSpriteObjectShader->ReleaseObjects();
+		pMultiSpriteObjectShader->Release();
 	}
 	if (m_pDepthRenderShader)
 	{
@@ -982,6 +974,8 @@ void CStage::ReleaseUploadBuffers()
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->ReleaseUploadBuffers();
 
+	pMultiSpriteObjectShader->ReleaseUploadBuffers();
+	
 	if (m_pShadowShader)
 		m_pShadowShader->ReleaseUploadBuffers();
 
@@ -1093,6 +1087,8 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 	}
 
+	pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed);
+	
 	if (m_pLights)
 	{
 		m_pLights[4].m_xmf3Position = m_pPlayer->obBox.Center;
