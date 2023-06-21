@@ -94,10 +94,10 @@ void disconnect(int c_id)
 		}
 
 		for (auto& mon : getMonsters(c_id)) {
-			bool old_state = true;
-			if (false == atomic_compare_exchange_strong(&mon->alive, &old_state, false))
-				continue;
-			mon->Initialize(c_id / MAX_USER_PER_ROOM, StagesInfo[mon->m_id].id, StagesInfo[mon->m_id].type, StagesInfo[mon->m_id].Pos);
+			//bool old_state = true;
+			//if (false == atomic_compare_exchange_strong(&mon->alive, &old_state, false))
+			//	continue;
+			mon->Re_Initialize(StagesInfo[mon->m_id].type, StagesInfo[mon->m_id].Pos);
 		}
 	}
 }
@@ -347,10 +347,18 @@ void Monster::Update(float fTimeElapsed)
 	case NPC_State::Idle: {
 		target_id = get_targetID();
 		if (target_id != -1) {
-			SetState(NPC_State::Chase);
-			cur_animation_track = 1;
-			//Update(fTimeElapsed);
-			return;
+			const auto& targetPlayer = &clients[room_num][target_id];
+			XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+			g_distance = Vector3::Length(distanceVector);
+			if (attack_range >= g_distance)
+			{
+				SetState(NPC_State::Attack);
+				cur_animation_track = 2;
+			}
+			else {
+				SetState(NPC_State::Chase);
+				cur_animation_track = 1;
+			}
 		}
 	}
 		break;
@@ -365,13 +373,13 @@ void Monster::Update(float fTimeElapsed)
 			SetState(NPC_State::Idle);
 			cur_animation_track = 0;
 			target_id = -1;
-			return;
+			break;
 		}
 		if (attack_range >= g_distance)
 		{
 			SetState(NPC_State::Attack);
-			cur_animation_track = (type != 4) ? 2 : cur_animation_track;
-			return;
+			cur_animation_track = 2;
+			break;
 		}
 		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
 		XMFLOAT3 vel = Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos));
@@ -406,7 +414,6 @@ void Monster::Update(float fTimeElapsed)
 			cur_animation_track = 0;
 			target_id = -1;
 			SetAttackTimer(attack_cycle);
-
 			break;
 		}
 		if (attacked == false && GetAttackTimer() <= attack_cycle / 2.f) {
@@ -455,7 +462,7 @@ void Monster::Update(float fTimeElapsed)
 	}
 }
 
-void SorcererMonster::Update(float fTimeElapsed) 
+void SorcererMonster::Update(float fTimeElapsed)
 {
 	if (Vector3::Length(MagicLook) > 0.f) {
 		MagicPos = Vector3::Add(MagicPos, Vector3::ScalarProduct(MagicLook, 100.f * fTimeElapsed, false)); // HAT_SPEED = 200.f
@@ -492,7 +499,109 @@ void SorcererMonster::Update(float fTimeElapsed)
 			return;
 		}
 	}
-	Monster::Update(fTimeElapsed);
+	switch (GetState())
+	{
+	case NPC_State::Idle: {
+		target_id = get_targetID();
+		if (target_id != -1) {
+			const auto& targetPlayer = &clients[room_num][target_id];
+			XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+			g_distance = Vector3::Length(distanceVector);
+			if (attack_range >= g_distance)
+			{
+				SetState(NPC_State::Attack);
+				cur_animation_track = 2;
+			}
+			else {
+				SetState(NPC_State::Chase);
+				cur_animation_track = 1;
+			}
+		}
+	}
+						break;
+	case NPC_State::Chase: {
+		const auto& targetPlayer = &clients[room_num][target_id];
+		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+
+		g_distance = Vector3::Length(distanceVector);
+
+		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME || g_distance >= view_range)
+		{
+			SetState(NPC_State::Idle);
+			cur_animation_track = 0;
+			target_id = -1;
+			break;
+		}
+		if (attack_range >= g_distance)
+		{
+			SetState(NPC_State::Attack);
+			cur_animation_track = 2;
+			break;
+		}
+		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
+		XMFLOAT3 vel = Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos));
+		vel.y = 0.f;
+		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
+
+		bool collide = false;
+		for (const auto& obj : Obstacles[collide_range]) {
+			if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
+				collide = true;
+				break;
+			}
+		}
+		if (collide) {
+			Pos = Find_Direction(fTimeElapsed, Pos, targetPlayer->GetPosition());
+			BB.Center = Pos;
+		}
+		else {
+			Pos = newPos;
+			BB.Center = Pos;
+		}
+	}
+						 break;
+	case NPC_State::Attack: {
+		const auto& targetPlayer = &clients[room_num][target_id];
+		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+		g_distance = Vector3::Length(distanceVector);
+
+		attack_timer -= fTimeElapsed;
+		if (targetPlayer->_state != ST_INGAME) {
+			SetState(NPC_State::Idle);
+			cur_animation_track = 0;
+			target_id = -1;
+			SetAttackTimer(attack_cycle);
+
+			break;
+		}
+		if (attacked == false && GetAttackTimer() <= attack_cycle / 2.f) {
+			MagicPos = Vector3::Add(GetPosition(), XMFLOAT3(0, 10, 0));
+			MagicLook = Vector3::Normalize(distanceVector);
+			attacked = true;
+			break;
+		}
+		if (GetAttackTimer() <= 0) {//0326
+			if (attack_range <= g_distance)
+			{
+				SetState(NPC_State::Chase);
+				cur_animation_track = 1;
+				SetAttackTimer(attack_cycle);
+			}
+			SetAttackTimer(attack_cycle);
+			attacked = false;
+		}
+	}
+						  break;
+	case NPC_State::Dead: {
+		dead_timer -= fTimeElapsed;
+		if (dead_timer <= 0) {
+			alive.store(false);
+		}
+	}
+						break;
+	default:
+		break;
+	}
 }
 
 void InitializeMonsters()

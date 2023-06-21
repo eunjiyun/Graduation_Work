@@ -53,8 +53,54 @@ Monster::~Monster()
 {
 
 }
+
+void Monster::Re_Initialize(short _type, XMFLOAT3 _pos)
+{
+    alive = false;
+    Pos = _pos;
+    curState = NPC_State::Idle;
+    recent_recvedTime = high_resolution_clock::now();
+    distances = { 10000.f };
+    cur_animation_track = 0;
+    target_id = -1;
+    attacked = false;
+    switch (_type)
+    {
+    case 0: // ¼Õ¿¡ Ä®
+        HP = 250;
+        dead_timer = 3.3f;
+        attack_timer = attack_cycle;
+        break;
+    case 1: // »À´Ù±Í ´Ù¸®
+        HP = 150;
+        dead_timer = 3.3f;
+        attack_timer = attack_cycle;
+        break;
+    case 2: // ¸¶¼ú»ç
+        HP = 50;
+        dead_timer = 3.3f;
+        attack_timer = attack_cycle;
+        break;
+    case 3:
+        HP = 50;
+        dead_timer = 3.3f;
+        attack_timer = attack_cycle;
+        break;
+    case 4: // ±Í½Å
+        HP = 50;
+        dead_timer = 3.3f;
+        attack_timer = attack_cycle;
+        break;
+    case 5:
+        HP = 500;
+        dead_timer = 3.3f;
+        attack_timer = attack_cycle;
+        break;
+    }
+}
 void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos) 
 {
+    alive = false;
     Pos = _pos;
     room_num = _roomNum;
     m_id = _id;

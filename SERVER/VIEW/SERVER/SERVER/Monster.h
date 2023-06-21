@@ -43,6 +43,7 @@ public:
     ~Monster();
     Monster& operator=(const Monster& other);
     void Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos);
+    void Re_Initialize(short _type, XMFLOAT3 _pos);
     short getType()
     {
         return type;
