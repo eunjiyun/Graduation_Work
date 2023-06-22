@@ -299,7 +299,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_LOADING.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/7467.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/bossPat.dds", RESOURCE_TEXTURE2D, 0);//7467
 
 	ppTextures[36] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[36]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
@@ -586,14 +586,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials = new CMaterial * [1];
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0] = pMaterial;
 
-		if (0 == i)//폭죽
+		if (0 == i || 3==i)//폭죽 파티클
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
 		else if (1 == i)//연기
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
 		else if (2 == i)//로딩
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
-		else if(3==i)//파티클
-			pMultiSpriteObjectShader->obj[i]->texMat.z = 3;
+		//else if(3==i)//파티클
+			//pMultiSpriteObjectShader->obj[i]->texMat.z = 3;
 		else //피
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;
 
@@ -1087,7 +1087,7 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 	}
 
-	pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed);
+	
 	
 	if (m_pLights)
 	{

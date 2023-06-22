@@ -383,7 +383,7 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseObjects();
 
-	virtual void AnimateObjects(float fTimeElapsed);
+	void AnimateObjects(float fTimeElapsed, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,CMonster*, void* pContext=NULL);
 
 	virtual void ReleaseUploadBuffers();

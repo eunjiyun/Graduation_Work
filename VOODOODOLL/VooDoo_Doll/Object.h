@@ -604,7 +604,7 @@ public:
 	float m_fSpeed = 0.1f;
 	float m_fTime = 0.0f;
 
-	virtual void Animate(float fTimeElapsed,bool);
+	void Animate(float fTimeElapsed,bool,  ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 };
 
 

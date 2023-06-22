@@ -917,6 +917,8 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
+	m_pStage->pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed, m_pd3dDevice, m_pd3dCommandList);
+
 	if (0 == Monsters.size())
 	{
 		if (monsterSound.sourceVoice_)
