@@ -146,7 +146,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,1480 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -183,15 +183,6 @@ public:
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
 		p.pos = m_xmf3Position;
-		do_send(&p);
-	}
-	void send_start_game_packet()
-	{
-		SC_START_GAME_PACKET p;
-		p.your_id = _id;
-		p.size = sizeof(SC_START_GAME_PACKET);
-		p.type = SC_START_GAME;
-		p.start_pos = GetPosition();
 		do_send(&p);
 	}
 	void send_move_packet(SESSION* Player)

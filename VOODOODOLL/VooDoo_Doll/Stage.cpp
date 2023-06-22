@@ -1383,7 +1383,7 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 
 	pl->onFloor = false;
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 6; i++)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->door[i]->obBox;
 		if (pl->obBox.Intersects(oBox))
