@@ -95,10 +95,10 @@ void disconnect(int c_id)
 	SESSION& CL = getClient(c_id);
 	closesocket(CL._socket);
 
-	if (game_in_progress) // ¾ÆÁ÷ ¹æ ¾È¿¡ »ç¶÷ÀÌ ÀÖ´Ù¸é 
+	if (game_in_progress) // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½È¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ù¸ï¿½ 
 		CL._state.store(ST_CRASHED);
 
-	else {// ¹æÀÌ ºñ¾ú´Ù¸é ¸ó½ºÅÍ¿Í ÇÃ·¹ÀÌ¾î ÄÁÅ×ÀÌ³Ê ¸ðµÎ Á¤¸®
+	else {// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ì³ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		for (auto& pl : getRoom_Clients(c_id)) {
 			pl._state.store(ST_FREE);
 		}
@@ -145,9 +145,9 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		return;
 	}
 
-	XMFLOAT3 newCenter = Vector3::Add(newPos, XMFLOAT3(0,10.f,0));			// Ä³¸¯ÅÍÀÇ À§Ä¡¿Í Ãæµ¹¹Ú½ºÀÇ À§Ä¡ÀÇ Â÷ÀÌ ¶§¹®¿¡ Ãæµ¹Ã¼Å©´Â yÃà +10ÇØ¼­ °è»êÇØ¾ßÇÔ
+	XMFLOAT3 newCenter = Vector3::Add(newPos, XMFLOAT3(0,10.f,0));			// Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½æµ¹ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹Ã¼Å©ï¿½ï¿½ yï¿½ï¿½ +10ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½Ø¾ï¿½ï¿½ï¿½
 	try {
-		for (const auto& object : Obstacles.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// arrayÀÇ ¸â¹öÇÔ¼ö atÀº Àß¸øµÈ ÀÎµ¦½º·Î Á¢±ÙÇÏ¸é exceptionÀ» È£Ãâ
+		for (const auto& object : Obstacles.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// arrayï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ atï¿½ï¿½ ï¿½ß¸ï¿½ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ exceptionï¿½ï¿½ È£ï¿½ï¿½
 			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newCenter))) {
 				SetVelocity(XMFLOAT3{ 0,0,0 });
 				return;
@@ -165,7 +165,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 	short stage = 0;
-	if (GetPosition().y >= -100.f)	// 1Ãþ 2Ãþ ±¸ºÐ
+	if (GetPosition().y >= -100.f)	// 1ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		stage = static_cast<short>((GetPosition().z - 300.f) / STAGE_SIZE);
 	else
 		stage = 3 + static_cast<short>((MAP_Z_SIZE - GetPosition().z) / STAGE_SIZE);
@@ -271,7 +271,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 	shared_ptr<A_star_Node> S_Node;
 
 	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos, 0.f, nullptr));
-	
+
 	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
 	while (!openlist.empty())
 	{
@@ -347,7 +347,7 @@ void Monster::Update(float fTimeElapsed)
 			}
 		}
 	}
-		break;
+						break;
 	case NPC_State::Chase: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
@@ -386,7 +386,7 @@ void Monster::Update(float fTimeElapsed)
 			BB.Center = Pos;
 		}
 	}
-		break;
+						 break;
 	case NPC_State::Attack: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
@@ -412,7 +412,7 @@ void Monster::Update(float fTimeElapsed)
 					//player.direction.store(DIR_DIE);
 					targetPlayer->_state.store(ST_DEAD);
 					for (auto& cl : clients[room_num]) {
-						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD) 
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
 							cl.send_move_packet(targetPlayer);
 					}
 				}
@@ -420,7 +420,7 @@ void Monster::Update(float fTimeElapsed)
 			attacked = true;
 			break;
 		}
-		if (GetAttackTimer() <= 0) {//0326
+		if (GetAttackTimer() <= 0) {
 			if (attack_range <= g_distance)
 			{
 				SetState(NPC_State::Chase);
@@ -430,14 +430,14 @@ void Monster::Update(float fTimeElapsed)
 			attacked = false;
 		}
 	}
-		break;
+						  break;
 	case NPC_State::Dead: {
 		dead_timer -= fTimeElapsed;
 		if (dead_timer <= 0) {			
 			alive.store(false);
 		}
 	}
-		break;
+						break;
 	default:
 		break;
 	}
@@ -602,7 +602,8 @@ void InitializeStages()
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
-		while (ID_constructor < 10) {
+		//while (ID_constructor < 10) {
+		while (ID_constructor < 1) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
@@ -623,7 +624,8 @@ void InitializeStages()
 	{	// 2stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		while (ID_constructor < 20) {
+		//while (ID_constructor < 20) {
+		while (ID_constructor < 11) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
@@ -644,7 +646,8 @@ void InitializeStages()
 	{	// 3stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
-		while (ID_constructor < 30) {
+		//while (ID_constructor < 30) {
+		while (ID_constructor < 21) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -665,7 +668,8 @@ void InitializeStages()
 	{	// 4stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		while (ID_constructor < 40) {
+		//while (ID_constructor < 40) {
+		while (ID_constructor < 31) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -686,7 +690,8 @@ void InitializeStages()
 	{	// 5stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
-		while (ID_constructor < 50) {
+		//while (ID_constructor < 50) {
+		while (ID_constructor < 41) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -708,7 +713,8 @@ void InitializeStages()
 	{	// 6stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(300, 1100));
-		while (ID_constructor < 60) {
+		//while (ID_constructor < 60) {
+		while (ID_constructor < 51) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));

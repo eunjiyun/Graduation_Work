@@ -175,7 +175,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pBoxShader = new CBoxShader();
 
 
-	m_nShaders = 3;
+	m_nShaders = 1;
 	m_ppShaders = new CShader * [m_nShaders];
 	pObjectShader = new CObjectsShader();
 	pObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[36];
+	CTexture* ppTextures[37];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -299,7 +299,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_LOADING.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/bossPat.dds", RESOURCE_TEXTURE2D, 0);//7467
+
+	ppTextures[36] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[36]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
 
 
 
@@ -347,15 +350,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/lobby2.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a = 0; a < 36; ++a)
+	for (int a{}; a < 37; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
-	for (int a = 0; a < 6; ++a)
+	for (int a{}; a < 6; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
 	}
-	for (int a = 0; a < 2; ++a)
+	for (int a{}; a < 2; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
 	}
@@ -570,11 +573,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
+	pMultiSpriteObjectShader = new CMultiSpriteObjectsShader();
 	pMultiSpriteObjectShader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, 0);
+	pMultiSpriteObjectShader->BuildObjects(pd3dDevice, pd3dCommandList);
 
-	for (int i{}; i < 3; ++i)//폭죽 연기 로딩
+	for (int i{}; i < 5; ++i)//폭죽 연기 로딩 파티클 피
 	{
 		CMaterial* pMaterial = new CMaterial(1);
 		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
@@ -583,30 +586,24 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials = new CMaterial * [1];
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0] = pMaterial;
 
-		if (0 == i)//폭죽
+		if (0 == i || 3==i)//폭죽 파티클
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
 		else if (1 == i)//연기
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
-		else//로딩
+		else if (2 == i)//로딩
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
+		//else if(3==i)//파티클
+			//pMultiSpriteObjectShader->obj[i]->texMat.z = 3;
+		else //피
+			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;
 
-		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z)
+		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z && 1 != pMultiSpriteObjectShader->obj[i]->texMat.z)
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
-		else
+		else if(4 == pMultiSpriteObjectShader->obj[i]->texMat.z)
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
 	}
 
-	m_ppShaders[1] = pMultiSpriteObjectShader;
-
-
-	CMultiSpriteObjectsShader* pMultiSpriteObjectShader2 = new CMultiSpriteObjectsShader();
-	pMultiSpriteObjectShader2->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, pdxgiRtvFormats, DXGI_FORMAT_D32_FLOAT);
-	pMultiSpriteObjectShader2->BuildObjects(pd3dDevice, pd3dCommandList, 1);
-	CMaterial* pMaterial = new CMaterial(1);
-	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	pMaterial->SetTexture(ppTextures[35]);
-	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials = new CMaterial * [1];
-	pMultiSpriteObjectShader2->obj[1]->m_ppMaterials = new CMaterial * [1];
+	pMultiSpriteObjectShader->obj[5]->m_ppMaterials = new CMaterial * [1];
 
 	for (int h{}; h < 6; ++h)
 	{
@@ -619,14 +616,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppShaders[0]->gameMat[h] = pMaterial;
 	}
 
-	pMultiSpriteObjectShader2->obj[0]->m_ppMaterials[0] = pMaterial;
-	pMultiSpriteObjectShader2->obj[1]->m_ppMaterials[0] = m_ppShaders[0]->gameMat[3];
-
-	pMultiSpriteObjectShader2->obj[0]->texMat.z = 1;
-	pMultiSpriteObjectShader2->obj[1]->texMat.z = 2;
-
-	m_ppShaders[2] = pMultiSpriteObjectShader2;
-	m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+	pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_ppShaders[0]->gameMat[3];
+	pMultiSpriteObjectShader->obj[5]->texMat.z = 2;
+	pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+	
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
@@ -683,6 +676,12 @@ void CStage::ReleaseObjects()
 			m_ppShaders[i]->Release();
 		}
 		delete[] m_ppShaders;
+	}
+	if (pMultiSpriteObjectShader)
+	{
+		pMultiSpriteObjectShader->ReleaseShaderVariables();
+		pMultiSpriteObjectShader->ReleaseObjects();
+		pMultiSpriteObjectShader->Release();
 	}
 	if (m_pDepthRenderShader)
 	{
@@ -975,6 +974,8 @@ void CStage::ReleaseUploadBuffers()
 	for (int i = 0; i < m_nShaders; i++)
 		m_ppShaders[i]->ReleaseUploadBuffers();
 
+	pMultiSpriteObjectShader->ReleaseUploadBuffers();
+	
 	if (m_pShadowShader)
 		m_pShadowShader->ReleaseUploadBuffers();
 
@@ -1086,6 +1087,8 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 	}
 
+	
+	
 	if (m_pLights)
 	{
 		m_pLights[4].m_xmf3Position = m_pPlayer->obBox.Center;
@@ -1168,8 +1171,8 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool login, CCam
 			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 
-	m_ppShaders[1]->Render(pd3dCommandList, pCamera);
-	m_ppShaders[2]->Render(pd3dCommandList, pCamera);
+	//m_ppShaders[1]->Render(pd3dCommandList, pCamera);
+	
 }
 
 

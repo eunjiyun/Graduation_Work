@@ -189,14 +189,14 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 	else
 		texMat.y = float(m_nCol) / (texMat.z*1.5f);//세로
 
-	if (fTime == 0.0f)
+	if (0.0f == fTime)
 	{
 		if (++m_nCol == texMat.z) 
 		{ 
 			m_nRow++;//세로 증가
 			m_nCol = 0; //가로 0
 
-			if(4 != texMat.z)
+			if(4 != texMat.z &&3!=texMat.z)
 				m_bActive = false;
 		}
 
@@ -332,13 +332,13 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Albed");//부두4 펜싱칼든애
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Albed");//부두4 펜싱칼든애
 				break;
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두3 귀신
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Albed");//부두6 머리에바늘있는비실한애
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Albed");//부두6 머리에바늘있는비실한애
 				break;
 			}
 		}
@@ -356,7 +356,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Norma");//부두5 마법사
 				break;
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Norma");//부두4 펜싱칼든애
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Norma");//부두4 펜싱칼든애
 				break;
 
 
@@ -364,7 +364,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두3 귀신
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Norma");//부두6 머리에바늘있는비실한애
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Norma");//부두6 머리에바늘있는비실한애
 				break;
 			}
 		}
@@ -383,13 +383,13 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				break;
 
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Metal");//부두4 펜싱칼든애
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Metal");//부두4 펜싱칼든애
 				break;
 			case 5:
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두3 귀신
 				break;
 			case 6:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo6Metal");//부두6 머리에바늘있는비실한애
+				//strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo3Metal");//부두6 머리에바늘있는비실한애
 				break;
 			}
 		}
@@ -407,7 +407,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo2Emiss");//부두5 마법사
 				break;
 			case 4:
-				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo4Emiss");//부두4 펜싱칼든애
+				strcpy_s(pstrTextureName, sizeof(pstrTextureName), "Voodoo1Emiss");//부두4 펜싱칼든애
 				break;
 
 			case 5:
@@ -1785,22 +1785,23 @@ CBulletObject::CBulletObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 {
 	CLoadedModelInfo* arrowModel = pModel;
 
-	if (1 == chooseObj)
+	//if (1 == chooseObj)
 	{
 		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/lancer_weapon.bin", NULL, 7);//Warlock_weapon
-	}
-
-	else if (2 == chooseObj)
-	{
-		if (!arrowModel)
+			//arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/lancer_weapon.bin", NULL, 7);//Warlock_weapon
 			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
 	}
-	else if (3 == chooseObj)
-	{
-		if (!arrowModel)
-			arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//총알
-	}
+	//else if (2 == chooseObj)
+	//{
+	//	if (!arrowModel)
+	//		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+	//}
+	//else if (3 == chooseObj)
+	//{
+	//	if (!arrowModel)
+	//		//arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Priest_cap.bin", NULL, 3);//총알
+	//		arrowModel = CGameObject::LoadGeometryAndAnimationFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Warlock_cap.bin", NULL, 7);
+	//}
 
 	SetChild(arrowModel->m_pModelRootObject, true);
 	m_pSkinnedAnimationController = new CAnimationController(pd3dDevice, pd3dCommandList, nAnimationTracks, arrowModel);
@@ -1930,13 +1931,39 @@ CMultiSpriteObject::~CMultiSpriteObject()
 {
 }
 
-void CMultiSpriteObject::Animate(float fTimeElapsed,bool onPl)
+void CMultiSpriteObject::Animate(float fTimeElapsed,bool onPl, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
 	{
 		m_fTime += fTimeElapsed * 0.5f;
-		if (m_fTime >= m_fSpeed) m_fTime = 0.0f;
-		m_ppMaterials[0]->m_ppTextures[0]->AnimateRowColumn(texMat,m_fTime);
+		if (m_fTime >= m_fSpeed)
+			m_fTime = 0.0f;
+
+		//if (3 != texMat.z)
+		{
+			m_ppMaterials[0]->m_ppTextures[0]->AnimateRowColumn(texMat, m_fTime);
+		}
+		//else
+		//{
+		//	//// 정점 배열에 대한 반복문
+		//	//for (int i = 0; i < m_ppMeshes[0]->m_nVertices; ++i)
+		//	//{
+		//	//	// 정점 좌표에 스케일 팩터를 곱해줍니다.
+		//	//	m_ppMeshes[0]->pVertices[i].m_xmf3Position.x *= 2;
+		//	//	m_ppMeshes[0]->pVertices[i].m_xmf3Position.y *= 2;
+		//	//	m_ppMeshes[0]->pVertices[i].m_xmf3Position.z *= 2;
+		//	//}
+
+		//	//m_ppMeshes[0]->m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppMeshes[0]->pVertices, m_ppMeshes[0]->m_nStride * m_ppMeshes[0]->m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_ppMeshes[0]->m_pd3dVertexUploadBuffer);
+
+		//	////m_ppMeshes[0]->m_nVertexBufferViews = 1;
+		//	////m_ppMeshes[0]->m_pd3dVertexBufferViews = new D3D12_VERTEX_BUFFER_VIEW[m_ppMeshes[0]->m_nVertexBufferViews];
+		//	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].BufferLocation = m_ppMeshes[0]->m_pd3dVertexBuffer->GetGPUVirtualAddress();
+		//	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].StrideInBytes = m_ppMeshes[0]->m_nStride;
+		//	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].SizeInBytes = m_ppMeshes[0]->m_nStride * m_ppMeshes[0]->m_nVertices;
+
+		//	SetScale(2, 2, 2);
+		//}
 	}
 }
 

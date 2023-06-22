@@ -768,19 +768,38 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//손에 바늘
+		//Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//손에 바늘->보스
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
+		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
+
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+		//Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
+		//Mon->speed = 15.f;
+		//Mon->SetScale(1.0f, 1.0f, 1.0f);
+
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 7);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
+		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(6, 6);
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);//아이들
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);//뛰기
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//공격
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);//사망
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//점프
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//피격
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//걷기
 
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		Mon->speed = 15.f;
+		Mon->speed = 7.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
@@ -898,6 +917,8 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
+	m_pStage->pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed, m_pd3dDevice, m_pd3dCommandList);
+
 	if (0 == Monsters.size())
 	{
 		if (monsterSound.sourceVoice_)
@@ -988,9 +1009,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	time += fTimeElapsed;
 	if (time > 0.5f)
 	{
-		m_pStage->m_ppShaders[2]->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
 		time = 0.f;
 	}
+
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1044,8 +1066,8 @@ void CGameFramework::FrameAdvance()
 
 	if (loginSign[1] && !gameEnd && !lobby[0])
 	{
-		m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
-		m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
+		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 	}
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
@@ -1065,8 +1087,8 @@ void CGameFramework::FrameAdvance()
 			{
 				if (!lobby[0])
 				{
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 
 				lobby[0] = true;
@@ -1093,8 +1115,8 @@ void CGameFramework::FrameAdvance()
 			{
 				if (!lobby[0])
 				{
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
-					m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
+					m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 
 				lobby[0] = true;
@@ -1171,8 +1193,8 @@ void CGameFramework::FrameAdvance()
 		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
 		{
-			m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+			m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
+			m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 			lobby[2] = false;
 			gameEnd = true;
 
@@ -1273,10 +1295,25 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, lobby[2], m_pCamera);
 
+	
+
+	if (Monsters.empty())
+	{
+		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, nullptr);
+	}
+	else
+	{
+		if (0==Monsters[0]->c_id && 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
+			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		else
+			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+
+		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters[0]);
+	}
+
 
 	if (m_pStage->m_pShadowShader && lobby[2])
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights);
-
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{

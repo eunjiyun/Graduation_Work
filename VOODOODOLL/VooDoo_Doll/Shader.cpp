@@ -1298,7 +1298,7 @@ void CDepthRenderShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCam
 			{
 				if (-70 < o->GetPosition().y)
 				{
-					if (-70<=Players[0]->GetPosition().y)
+					if (-70 <= Players[0]->GetPosition().y)
 					{
 						o->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					}
@@ -1528,15 +1528,11 @@ D3D12_INPUT_LAYOUT_DESC CMultiSpriteObjectsShader::CreateInputLayout()
 }
 
 
-void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, int choose)
+void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	if (0 != choose)//피, 화면
-		m_nObjects = 2;
-	else//폭죽, 연기, 로딩
-		m_nObjects = 3;
-
+	m_nObjects = 6;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1546,23 +1542,23 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	{
 		pSpriteObject = new CMultiSpriteObject();
 
-		if (0 == choose)
+		if (0 == j)
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
+		else if (1 == j)
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);//연기
+		else if (2 == j)
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
+		else if (3 == j)
 		{
-			if (0 == j)
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
-			else if (1 == j)
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);//연기
-			else
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
 		}
-		else
-		{
-			if (0 == j)//피
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-			else//화면
-				pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
-		}
-		pSpriteObject->SetMesh(0, pSpriteMesh);
+		else if (4 == j)//피
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		else//화면
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
+
+		//if (3 != j)
+			pSpriteObject->SetMesh(0, pSpriteMesh);
 		pSpriteObject->SetPosition(XMFLOAT3(xmf3Position.x, xmf3Position.y, xmf3Position.z));
 
 		obj[j] = pSpriteObject;
@@ -1579,14 +1575,14 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 {
 	CShader::ReleaseObjects();
 }
-void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed)
+void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	for (int j{}; j < m_nObjects; ++j)
 		if (1 != obj[j]->texMat.z && 2 != obj[j]->texMat.z && obj[j]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
-			obj[j]->Animate(fTimeElapsed, false);
+			obj[j]->Animate(fTimeElapsed, false, pd3dDevice, pd3dCommandList);
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, CMonster* mon, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1597,6 +1593,10 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
 			XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 
+			XMFLOAT3 xmf3MonPos;
+			XMFLOAT3 xmf3MonLook;
+			XMFLOAT3 xmf3Pos;
+
 			if (4 == obj[i]->texMat.z)
 			{
 				xmf3PlayerPosition.y += 43.0f;
@@ -1605,11 +1605,6 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 2 * xmf3CameraPosition.x) / 3;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
-			}
-
-			else if (8 == obj[i]->texMat.z)
-			{
-				xmf3PlayerPosition.y += 40.0f;
 			}
 			else if (6 == obj[i]->texMat.z)
 			{
@@ -1629,11 +1624,30 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 			else if (2 == obj[i]->texMat.z)
 			{
-				xmf3PlayerPosition.y -= 85.0f;
+				if (pPlayer->alive)
+					xmf3PlayerPosition.y -= 85.0f;
+				else
+					xmf3PlayerPosition.y -= 79.0f;
 
-				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3 * xmf3CameraPosition.x) / 4;
-				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3 * xmf3CameraPosition.y) / 4;
-				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3 * xmf3CameraPosition.z) / 4;
+				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
+				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
+				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
+			}
+			else if (8 == obj[i]->texMat.z && 3!=i)
+			{
+				xmf3PlayerPosition.y += 40.0f;
+			}
+			else if (3 == i && mon)
+			{
+				xmf3MonPos = mon->GetPosition();
+				xmf3MonLook = mon->GetLook();
+				xmf3MonPos.y += 40.0f;
+				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
+
+				/*cout << "in" << endl;
+				cout << "mon x : " << xmf3MonPos.x << endl;
+				cout << "mon y : " << xmf3MonPos.y << endl;
+				cout << "mon z : " << xmf3MonPos.z << endl;*/
 			}
 
 
@@ -1641,13 +1655,26 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 			if (obj[i])
 			{
-				if (4 != obj[i]->texMat.z)
+				if (4 != obj[i]->texMat.z && 3 != i)
+				{
 					obj[i]->SetPosition(xmf3Position);
-				else
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+				else if (4 == obj[i]->texMat.z)
+				{
 					obj[i]->SetPosition(xmf3PlayerPosition);
-					
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+				//else if (3 == obj[i]->texMat.z)
+				else if (3 == i)
+				{
+					obj[i]->SetPosition(xmf3Pos);
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					//obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
 
-				obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+
+				//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 				CShader::Render(pd3dCommandList, pCamera);
 
