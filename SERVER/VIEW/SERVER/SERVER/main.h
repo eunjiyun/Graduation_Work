@@ -55,27 +55,37 @@ SESSION& getClient(int c_id)
 	return clients[c_id / MAX_USER_PER_ROOM][c_id % MAX_USER_PER_ROOM];
 }
 
-array<SESSION, MAX_USER_PER_ROOM>& getRoom(int c_id)
+array<SESSION, MAX_USER_PER_ROOM>& getRoom_Clients(int c_id)
 {
 	return clients[c_id / MAX_USER_PER_ROOM];
 }
 
-array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>& getMonsters(int c_id)
+array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>& getRoom_Monsters(int c_id)
 {
 	return monsters[c_id / MAX_USER_PER_ROOM];
 }
 
-vector<MapObject*>& getPartialObjects(XMFLOAT3 Pos)
+vector<MapObject*>& getRoom_Obstacles(XMFLOAT3 Pos)
 {
 	return Obstacles[static_cast<int>(Pos.z) / STAGE_SIZE];
+}
+
+short get_remain_Monsters(int c_id)
+{
+	short cnt = 0;
+	auto& room_Monsters = getRoom_Monsters(c_id);
+	for (auto& monster : room_Monsters) {
+		if (monster->alive) cnt++;
+	}
+	return cnt;
 }
 
 
 void disconnect(int c_id)
 {
 	bool game_in_progress = false;
-	auto& Monsters = getMonsters(c_id);
-	for (auto& pl : getRoom(c_id)) {
+	auto& Monsters = getRoom_Monsters(c_id);
+	for (auto& pl : getRoom_Clients(c_id)) {
 
 		if ((ST_INGAME != pl._state.load() && ST_DEAD != pl._state.load()) || pl._id == c_id) continue;
 
@@ -89,11 +99,11 @@ void disconnect(int c_id)
 		CL._state.store(ST_CRASHED);
 
 	else {// 방이 비었다면 몬스터와 플레이어 컨테이너 모두 정리
-		for (auto& pl : getRoom(c_id)) {
+		for (auto& pl : getRoom_Clients(c_id)) {
 			pl._state.store(ST_FREE);
 		}
 
-		for (auto& mon : getMonsters(c_id)) {
+		for (auto& mon : getRoom_Monsters(c_id)) {
 			//bool old_state = true;
 			//if (false == atomic_compare_exchange_strong(&mon->alive, &old_state, false))
 			//	continue;
@@ -121,47 +131,25 @@ void Summon_Monster(int roomNum, int stageNum)
 		TIMER_EVENT ev{ roomNum, monsters[roomNum][i]->m_id, high_resolution_clock::now(), EV_MONSTER_UPDATE };
 		timer_queue.push(ev);
 	}
-
-
-
-	//for (auto& info : StagesInfo[stageNum - 1]) {
-	//	Monster* M = MonsterPool.GetMemory();
-
-	//	M->Initialize(roomNum, info.id, info.type, info.Pos);
-	//	PoolMonsters[roomNum].emplace_back(M);
-	//	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-	//		if (clients[roomNum][i]._state.load() == ST_INGAME || clients[roomNum][i]._state.load() == ST_DEAD) {
-	//			clients[roomNum][i].cur_stage.store(stageNum);
-	//			clients[roomNum][i].send_summon_monster_packet(M);
-	//		}
-	//	}
-	//	TIMER_EVENT ev{ roomNum, M->m_id, high_resolution_clock::now(), EV_MONSTER_UPDATE };
-	//	//TIMER_EVENT* ev = EventPool.GetMemory();
-	//	//ev->room_id = roomNum;
-	//	//ev->obj_id = M->m_id;
-	//	//ev->wakeup_time = high_resolution_clock::now();
-	//	//ev->event_id = EV_MOVE;
-	//	timer_queue.push(ev);
-	//}
 }
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 	// check velocity
 	static const float max_distance_squared = 10000.f;
-	XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
-	float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
-	if (distance_squared > max_distance_squared) {
-		m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
+	//XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
+	//float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
+	
+	if (Vector3::Length(m_xmf3Velocity) > max_distance_squared) {
+		SetVelocity(XMFLOAT3{ 0,0,0 });
 		return;
 	}
 
-	XMFLOAT3 newCenter = newPos; 
-	newCenter.y += 10.f;			// 캐릭터의 위치와 충돌박스의 위치의 차이 때문에 충돌체크는 y축 +10해서 계산해야함
+	XMFLOAT3 newCenter = Vector3::Add(newPos, XMFLOAT3(0,10.f,0));			// 캐릭터의 위치와 충돌박스의 위치의 차이 때문에 충돌체크는 y축 +10해서 계산해야함
 	try {
 		for (const auto& object : Obstacles.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// array의 멤버함수 at은 잘못된 인덱스로 접근하면 exception을 호출
 			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newCenter))) {
-				m_xmf3Velocity = XMFLOAT3{ 0,0,0 };
+				SetVelocity(XMFLOAT3{ 0,0,0 });
 				return;
 			}
 		}
@@ -177,15 +165,16 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 	short stage = 0;
-	if (GetPosition().y >= -100.f)
+	if (GetPosition().y >= -100.f)	// 1층 2층 구분
 		stage = static_cast<short>((GetPosition().z - 300.f) / STAGE_SIZE);
 	else
 		stage = 3 + static_cast<short>((MAP_Z_SIZE - GetPosition().z) / STAGE_SIZE);
 
-	if (stage == 6 && GetPosition().z < 400.f && getMonsters(_id).size() <= 0) {
-		cout << "CLEAR\n";
-		for (auto& cl : getRoom(_id))
+	if (stage == 6 && GetPosition().z < 400.f && get_remain_Monsters(_id) == 0) {
+		for (auto& cl : getRoom_Clients(_id)) {
+			if (cl._state.load() != ST_INGAME) continue;
 			cl.send_clear_packet();
+		}
 		return;
 	}
 
@@ -213,7 +202,7 @@ void SESSION::Update(CS_MOVE_PACKET* packet)
 	SetVelocity(packet->vel);
 	CheckPosition(packet->pos);
 #ifdef _STRESS_TEST
-	recent_recvedTime = packet->move_time;
+	recent_updateTime = packet->move_time;
 #endif
 }
 
@@ -313,7 +302,6 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT
 	}
 	//cout << "Trace Failed\n";
 	SetState(NPC_State::Idle);
-	cur_animation_track = 0;
 	target_id = -1;
 	return Pos;
 }
@@ -353,11 +341,9 @@ void Monster::Update(float fTimeElapsed)
 			if (attack_range >= g_distance)
 			{
 				SetState(NPC_State::Attack);
-				cur_animation_track = 2;
 			}
 			else {
 				SetState(NPC_State::Chase);
-				cur_animation_track = 1;
 			}
 		}
 	}
@@ -371,14 +357,12 @@ void Monster::Update(float fTimeElapsed)
 		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME || g_distance >= view_range)
 		{
 			SetState(NPC_State::Idle);
-			cur_animation_track = 0;
 			target_id = -1;
 			break;
 		}
 		if (attack_range >= g_distance)
 		{
 			SetState(NPC_State::Attack);
-			cur_animation_track = 2;
 			break;
 		}
 		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
@@ -411,7 +395,6 @@ void Monster::Update(float fTimeElapsed)
 		attack_timer -= fTimeElapsed;
 		if (targetPlayer->_state != ST_INGAME) {
 			SetState(NPC_State::Idle);
-			cur_animation_track = 0;
 			target_id = -1;
 			SetAttackTimer(attack_cycle);
 			break;
@@ -424,7 +407,6 @@ void Monster::Update(float fTimeElapsed)
 			else if (attack_range > g_distance) {
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
-				//cout << "plHP : " << targetPlayer->HP << endl;
 				if (targetPlayer->HP <= 0) {
 
 					//player.direction.store(DIR_DIE);
@@ -442,7 +424,6 @@ void Monster::Update(float fTimeElapsed)
 			if (attack_range <= g_distance)
 			{
 				SetState(NPC_State::Chase);
-				cur_animation_track = 1;
 				SetAttackTimer(attack_cycle);
 			}
 			SetAttackTimer(attack_cycle);
@@ -510,11 +491,9 @@ void SorcererMonster::Update(float fTimeElapsed)
 			if (attack_range >= g_distance)
 			{
 				SetState(NPC_State::Attack);
-				cur_animation_track = 2;
 			}
 			else {
 				SetState(NPC_State::Chase);
-				cur_animation_track = 1;
 			}
 		}
 	}
@@ -528,14 +507,12 @@ void SorcererMonster::Update(float fTimeElapsed)
 		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME || g_distance >= view_range)
 		{
 			SetState(NPC_State::Idle);
-			cur_animation_track = 0;
 			target_id = -1;
 			break;
 		}
 		if (attack_range >= g_distance)
 		{
 			SetState(NPC_State::Attack);
-			cur_animation_track = 2;
 			break;
 		}
 		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
@@ -568,7 +545,6 @@ void SorcererMonster::Update(float fTimeElapsed)
 		attack_timer -= fTimeElapsed;
 		if (targetPlayer->_state != ST_INGAME) {
 			SetState(NPC_State::Idle);
-			cur_animation_track = 0;
 			target_id = -1;
 			SetAttackTimer(attack_cycle);
 
@@ -584,7 +560,6 @@ void SorcererMonster::Update(float fTimeElapsed)
 			if (attack_range <= g_distance)
 			{
 				SetState(NPC_State::Chase);
-				cur_animation_track = 1;
 				SetAttackTimer(attack_cycle);
 			}
 			SetAttackTimer(attack_cycle);

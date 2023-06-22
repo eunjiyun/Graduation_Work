@@ -16,9 +16,8 @@ Monster::Monster(const Monster& other)
     view_range = other.view_range;
     speed = other.speed;
     curState = other.curState;
-    recent_recvedTime = other.recent_recvedTime;
+    recent_updateTime = other.recent_updateTime;
     distances = other.distances;
-    cur_animation_track = other.cur_animation_track;
     target_id = other.target_id;
     attacked = other.attacked;
 }
@@ -41,9 +40,8 @@ Monster& Monster::operator=(const Monster& other)
     view_range = other.view_range;
     speed = other.speed;
     curState = other.curState;
-    recent_recvedTime = other.recent_recvedTime;
+    recent_updateTime = other.recent_updateTime;
     distances = other.distances;
-    cur_animation_track = other.cur_animation_track;
     target_id = other.target_id;
     attacked = other.attacked;
     return *this;
@@ -59,9 +57,8 @@ void Monster::Re_Initialize(short _type, XMFLOAT3 _pos)
     alive = false;
     Pos = _pos;
     curState = NPC_State::Idle;
-    recent_recvedTime = high_resolution_clock::now();
+    recent_updateTime = high_resolution_clock::now();
     distances = { 10000.f };
-    cur_animation_track = 0;
     target_id = -1;
     attacked = false;
     switch (_type)
@@ -106,9 +103,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     m_id = _id;
     BB = BoundingBox(_pos, XMFLOAT3(15, 20, 12));
     curState = NPC_State::Idle;
-    recent_recvedTime = high_resolution_clock::now();
+    recent_updateTime = high_resolution_clock::now();
     distances = { 10000.f };
-    cur_animation_track = 0;
     target_id = -1;
     attacked = false;
     attack_range = 5.f;

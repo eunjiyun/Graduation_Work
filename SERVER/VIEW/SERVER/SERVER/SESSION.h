@@ -119,7 +119,7 @@ public:
 	BoundingBox m_xmOOBB;
 	atomic<short> cur_stage;
 	WEAPON_TYPE weapon_type;
-	int recent_recvedTime;
+	int recent_updateTime;
 	float clear_percentage;
 public:
 	SESSION()
@@ -146,7 +146,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,1480 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -205,7 +205,7 @@ public:
 		p.HP = Player->HP;
 		p.vel = Player->GetVelocity();
 #ifdef _STRESS_TEST
-		p.move_time = Player->recent_recvedTime;
+		p.move_time = Player->recent_updateTime;
 #endif
 		do_send(&p);
 	}

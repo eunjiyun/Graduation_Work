@@ -85,17 +85,16 @@ int main()
 	cout << "SERVER READY\n";
 
 	vector <thread> worker_threads;
-	vector <thread> timer_threads;
+
 	int num_threads = std::thread::hardware_concurrency();
-	for (int i = 0; i < 1; ++i)
-		timer_threads.emplace_back(do_Timer);
+	thread Timer_T{ do_Timer };
 	thread DB_t{ DB_Thread };
 	for (int i = 0; i < num_threads - 1; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
+
 	for (auto& th : worker_threads)
 		th.join();
-	for (auto& th : timer_threads)
-		th.join();
+	Timer_T.join();
 	DB_t.join();
 
 	for (int i = 0; i < monsters.size(); ++i)
@@ -245,7 +244,7 @@ void DB_Thread()
 void process_packet(const int c_id, char* packet)
 {
 	SESSION& CL = getClient(c_id);
-	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom(c_id);
+	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom_Clients(c_id);
 	if (CL._state.load() == ST_DEAD) {
 		return;
 	}
@@ -255,6 +254,7 @@ void process_packet(const int c_id, char* packet)
 		CL._state.store(ST_INGAME);
 		CL.Initialize();
 
+		// 3인 매칭 후 시작해야 하는 경우
 		//for (auto& pl : Room)
 		//	if (pl._state.load() != ST_INGAME) return;
 		//for (auto& pl : Room) {
@@ -265,6 +265,7 @@ void process_packet(const int c_id, char* packet)
 		//	}
 		//}
 
+		// 1인 게임 - 테스트용
 		CL.send_login_info_packet();
 		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
@@ -310,7 +311,7 @@ void process_packet(const int c_id, char* packet)
 		break;
 	}
 	case CS_ATTACK: {
-		auto& Monsters = getMonsters(CL._id);
+		auto& Monsters = getRoom_Monsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		XMFLOAT3 _Look = CL.GetLookVector();
 		for (auto& cl : Room) {
@@ -322,14 +323,13 @@ void process_packet(const int c_id, char* packet)
 		case BLADE:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
-			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
+				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 100;
 					if (monster->HP <= 0) {
-						monster->cur_animation_track = 3;
 						monster->SetState(NPC_State::Dead);
 					}
 				}
@@ -343,9 +343,8 @@ void process_packet(const int c_id, char* packet)
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
 			vector<Monster*> monstersInRange;
 
-			
-			//Monsters.v_shared_lock.lock_shared();
 			for (auto& monster : Monsters) {
+				if (monster->alive == false) continue;
 				lock_guard<mutex> monster_lock{ monster->m_lock };
 				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
 				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
@@ -353,7 +352,6 @@ void process_packet(const int c_id, char* packet)
 					monstersInRange.push_back(monster);
 				}
 			}
-			//Monsters.v_shared_lock.unlock_shared();
 
 			if (!monstersInRange.empty())
 			{
@@ -389,7 +387,7 @@ void process_packet(const int c_id, char* packet)
 					if (closestMonster->target_id < 0)
 						closestMonster->target_id = CL._id;
 					if (closestMonster->HP <= 0) {
-						closestMonster->cur_animation_track = 3;
+	
 						closestMonster->SetState(NPC_State::Dead);
 					}
 					return;
@@ -400,14 +398,13 @@ void process_packet(const int c_id, char* packet)
 		case PUNCH:
 		{
 			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
-			//shared_lock<shared_mutex> vec_lock{ Monsters.v_shared_lock };
 			for (auto& monster : Monsters) {
+				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
 				{
 					monster->HP -= 50;
 					if (monster->HP <= 0) {
-						monster->cur_animation_track = 3;
 						monster->SetState(NPC_State::Dead);
 					}
 				}
@@ -429,7 +426,7 @@ void process_packet(const int c_id, char* packet)
 			}
 		}
 
-		if (CL.clear_percentage >= 1.f && getMonsters(CL._id).size() <= 0) {
+		if (CL.clear_percentage >= 1.f && get_remain_Monsters(CL._id) == 0) {
 			for (auto& cl : Room) {
 				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   
 					cl.send_open_door_packet(CL.cur_stage);
@@ -550,13 +547,13 @@ void worker_thread(HANDLE h_iocp)
 			if (monster->alive.load() == true) {
 				{
 					lock_guard<mutex> mm{ monster->m_lock };
-					monster->Update(duration_cast<milliseconds>(high_resolution_clock::now() - monster->recent_recvedTime).count() / 1000.f);
-					monster->recent_recvedTime = high_resolution_clock::now();
+					monster->Update(duration_cast<milliseconds>(high_resolution_clock::now() - monster->recent_updateTime).count() / 1000.f);
+					monster->recent_updateTime = high_resolution_clock::now();
 				}
 				for (auto& cl : clients[roomNum]) {
 					if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_monster_update_packet(monster);
 				}
-				TIMER_EVENT ev{ roomNum, mon_id, monster->recent_recvedTime + 100ms, EV_MONSTER_UPDATE };
+				TIMER_EVENT ev{ roomNum, mon_id, monster->recent_updateTime + 100ms, EV_MONSTER_UPDATE };
 				timer_queue.push(ev);
 			}
 

@@ -21,14 +21,13 @@ public:
     float g_distance = 0;
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook = { 0, 0, 0 };
-    high_resolution_clock::time_point recent_recvedTime;
+    high_resolution_clock::time_point recent_updateTime;
     atomic_bool alive = false;
 
     short HP, power, view_range;
     float speed;
     BoundingBox BB;
     XMFLOAT3 Pos;
-    short cur_animation_track = 0;
     float attack_cycle = 0.f;
     float attack_range = 0.f;
     short room_num; // 이 몬스터 객체가 존재하는 게임 룸 넘버
@@ -63,8 +62,6 @@ public:
     NPC_State GetState() const { return curState; }
     void SetAttackTimer(float time) { attack_timer = time; }
     float GetAttackTimer() const { return attack_timer; }
-    //bool is_alive() { return alive.load(); }
-    //void SetAlive(bool in) { alive.store(in); }
     bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box);
 };
 
