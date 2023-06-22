@@ -37,8 +37,7 @@ constexpr char SC_OPEN_DOOR = 16;
 constexpr char SC_LOGIN_COMPLETE = 17;
 constexpr char SC_GAME_CLEAR = 18;
 constexpr char SC_INTERACTION = 19;
-constexpr char SC_START_GAME = 20;
-constexpr char SC_MONSTER_DAMAGED = 21;
+constexpr char SC_MONSTER_DAMAGED = 20;
 #include "stdafx.h"
 
 #define _STRESS_TEST
@@ -212,17 +211,10 @@ struct SC_INTERACTION_PACKET {
 };
 constexpr short SC_INTERACTION_PACKET_SIZE = sizeof(SC_INTERACTION_PACKET);
 
-struct SC_START_GAME_PACKET {
-	unsigned char size;
-	char	type;
-	short	your_id;
-	XMFLOAT3 start_pos;
-};
-constexpr short SC_START_GAME_PACKET_SIZE = sizeof(SC_START_GAME_PACKET);
-
 struct SC_MONSTER_DAMAGED_PACKET {
 	unsigned char size;
 	char	type;
+	short	player_id;
 	short	monster_id;
 };
 #pragma pack (pop)

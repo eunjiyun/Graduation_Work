@@ -572,11 +572,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.CreateOtherPlayer(packet->id,packet->Pos);
 		break;
 	}
-	case SC_START_GAME: {
-		SC_START_GAME_PACKET* packet = reinterpret_cast<SC_START_GAME_PACKET*>(ptr);
-
-		break;
-	}
 	case SC_LOGIN_COMPLETE: {
 		SC_LOGIN_COMPLETE_PACKET* packet = reinterpret_cast<SC_LOGIN_COMPLETE_PACKET*>(ptr);
 		if (packet->success)
@@ -697,7 +692,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		SC_OPEN_DOOR_PACKET* packet = reinterpret_cast<SC_OPEN_DOOR_PACKET*>(ptr);
 		int cur_stage = packet->door_num;
 		gGameFramework.openDoor[cur_stage] = true;
-
+		gGameFramework.m_pStage->m_ppShaders[0]->door[cur_stage]->obBox.Extents = XMFLOAT3(0, 0, 0);
 		break;
 	}
 	case SC_GAME_CLEAR: {
