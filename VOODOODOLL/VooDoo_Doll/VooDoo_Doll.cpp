@@ -612,11 +612,11 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			/*(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));*/
 		}
 
-		if (0 != packet->HP && gGameFramework.beforeHp != packet->HP)
+		/*if (0 != packet->HP && gGameFramework.beforeHp != packet->HP)
 		{
 			gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 			gGameFramework.beforeHp = packet->HP;
-		}
+		}*/
 		break;
 	}
 	case SC_ROTATE_PLAYER: {
@@ -667,6 +667,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			if ((*iter)->npc_type == 2)
 				gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
 			gGameFramework.Monsters.erase(iter);
+			//gGameFramework.damagedMon = -1;
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
@@ -725,7 +726,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_MONSTER_DAMAGED: {
 		SC_MONSTER_DAMAGED_PACKET* packet = reinterpret_cast<SC_MONSTER_DAMAGED_PACKET*>(ptr);
-		cout << packet->monster_id << " 몬스터가 데미지를 받음!\n";
+		//cout << packet->monster_id << " 몬스터가 데미지를 받음!\n";
+		gGameFramework.damagedMon = packet->monster_id;
 		break;
 	}
 	}

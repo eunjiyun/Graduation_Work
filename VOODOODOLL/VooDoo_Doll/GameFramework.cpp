@@ -1007,9 +1007,10 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	}
 
 	time += fTimeElapsed;
-	if (time > 0.5f)
+	if (time > 0.3f)
 	{
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		damagedMon = -1;
 		time = 0.f;
 	}
 
@@ -1297,19 +1298,26 @@ void CGameFramework::FrameAdvance()
 
 	
 
-	if (Monsters.empty())
+	/*if (Monsters.empty())
 	{
-		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, nullptr);
+		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters,damagedMon);
 	}
-	else
+	else*/
+	if (!Monsters.empty())
 	{
-		if (0==Monsters[0]->c_id && 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
-			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-		else
-			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+		/*if ( 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track
+			&& -1!=damagedMon)*/
+		if (-1 != damagedMon)
+		{
+			m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		}
+		//else
+			//m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 
-		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters[0]);
+		//m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters,damagedMon);
 	}
+
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon);
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])

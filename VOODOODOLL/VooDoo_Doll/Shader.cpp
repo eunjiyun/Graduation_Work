@@ -1582,7 +1582,7 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed, ID3D12Device*
 			obj[j]->Animate(fTimeElapsed, false, pd3dDevice, pd3dCommandList);
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, CMonster* mon, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon,short daMo, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1596,6 +1596,16 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3MonPos;
 			XMFLOAT3 xmf3MonLook;
 			XMFLOAT3 xmf3Pos;
+			CMonster* m = nullptr;
+
+			for (const auto& t : mon)
+			{
+				if (daMo == t->c_id)
+				{
+					m = t;
+					break;
+				}
+			}
 
 			if (4 == obj[i]->texMat.z)
 			{
@@ -1614,14 +1624,14 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 				xmf3PlayerPosition.y += 8.0f;
 			}
-			else if (1 == obj[i]->texMat.z)
+			/*else if (1 == obj[i]->texMat.z)
 			{
 				xmf3PlayerPosition.y -= 30.0f;
 
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 2 * xmf3CameraPosition.x) / 3;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
-			}
+			}*/
 			else if (2 == obj[i]->texMat.z)
 			{
 				if (pPlayer->alive)
@@ -1637,12 +1647,43 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			{
 				xmf3PlayerPosition.y += 40.0f;
 			}
-			else if (3 == i && mon)
+			else if (1 == obj[i]->texMat.z  && m)
 			{
-				xmf3MonPos = mon->GetPosition();
-				xmf3MonLook = mon->GetLook();
-				xmf3MonPos.y += 40.0f;
-				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
+				xmf3MonPos = m->GetPosition();
+				xmf3MonLook = m->GetLook();
+				xmf3MonPos.y += 20.0f;
+
+				xmf3MonPos.x = (xmf3MonPos.x + 1.f * xmf3PlayerPosition.x) / 2;
+				xmf3MonPos.y = (xmf3MonPos.y + 1.f * xmf3PlayerPosition.y) / 2;
+				xmf3MonPos.z = (xmf3MonPos.z + 1.f * xmf3PlayerPosition.z) / 2;
+
+				//float fDistance = 20.0f; // 이동 거리
+
+				//// xmf3PlayerPosition 좌표에서 xmf3MonPos 좌표 쪽으로 향하는 벡터를 계산합니다.
+				//XMFLOAT3 xmf3Direction(
+				//	xmf3MonPos.x - xmf3PlayerPosition.x,
+				//	xmf3MonPos.y - xmf3PlayerPosition.y,
+				//	xmf3MonPos.z - xmf3PlayerPosition.z
+				//);
+
+				//// 방향 벡터의 길이를 계산합니다.
+				//float fLength = sqrt(xmf3Direction.x * xmf3Direction.x + xmf3Direction.y * xmf3Direction.y + xmf3Direction.z * xmf3Direction.z);
+
+				//// 방향 벡터를 정규화하여 길이를 1로 만듭니다.
+				//if (fLength > 0.0f)
+				//{
+				//	xmf3Direction.x /= fLength;
+				//	xmf3Direction.y /= fLength;
+				//	xmf3Direction.z /= fLength;
+				//}
+
+				//// xmf3MonPos 좌표에서 xmf3PlayerPosition 좌표 쪽으로 이동한 지점을 계산합니다.
+				//xmf3MonPos.x = xmf3MonPos.x + fDistance * xmf3Direction.x;
+				//xmf3MonPos.y = xmf3MonPos.y + fDistance * xmf3Direction.y;
+				//xmf3MonPos.z = xmf3MonPos.z + fDistance * xmf3Direction.z;
+
+				//xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
+				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
 				/*cout << "in" << endl;
 				cout << "mon x : " << xmf3MonPos.x << endl;
@@ -1655,7 +1696,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 			if (obj[i])
 			{
-				if (4 != obj[i]->texMat.z && 3 != i)
+				if (4 != obj[i]->texMat.z && 1 != obj[i]->texMat.z)
 				{
 					obj[i]->SetPosition(xmf3Position);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
@@ -1666,11 +1707,11 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 				//else if (3 == obj[i]->texMat.z)
-				else if (3 == i)
+				else if (1 == obj[i]->texMat.z)
 				{
 					obj[i]->SetPosition(xmf3Pos);
-					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-					//obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 
 
