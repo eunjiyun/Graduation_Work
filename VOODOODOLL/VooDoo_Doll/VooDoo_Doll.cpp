@@ -636,6 +636,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->SetVelocity(XMFLOAT3(0, 0, 0));
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
+		
+		//  packet->damaged_monster_id를 갖는 monster를 find로 찾아서 해당 위치에 파티클을 발생시켜야 함.
 		break;
 	}
 	case CS_CHANGEWEAPON: {

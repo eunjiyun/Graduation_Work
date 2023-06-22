@@ -314,10 +314,7 @@ void process_packet(const int c_id, char* packet)
 		auto& Monsters = getRoom_Monsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		XMFLOAT3 _Look = CL.GetLookVector();
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
-		}
-
+		short damaged_monster_id = -1;	// 공격에 맞은 몬스터의 ID
 		switch (CL.weapon_type)
 		{
 		case BLADE:
@@ -328,10 +325,12 @@ void process_packet(const int c_id, char* packet)
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
+					damaged_monster_id = monster->m_id;
 					monster->HP -= 100;
 					if (monster->HP <= 0) {
 						monster->SetState(NPC_State::Dead);
 					}
+					break;
 				}
 			}
 		}
@@ -383,11 +382,12 @@ void process_packet(const int c_id, char* packet)
 							}
 						}
 					}
+					damaged_monster_id = closestMonster->m_id;
 					closestMonster->HP -= 200;
 					if (closestMonster->target_id < 0)
 						closestMonster->target_id = CL._id;
 					if (closestMonster->HP <= 0) {
-	
+
 						closestMonster->SetState(NPC_State::Dead);
 					}
 					return;
@@ -403,14 +403,20 @@ void process_packet(const int c_id, char* packet)
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
 				{
+					damaged_monster_id = monster->m_id;
 					monster->HP -= 50;
 					if (monster->HP <= 0) {
 						monster->SetState(NPC_State::Dead);
 					}
+					break;
 				}
 			}
 			break;
 		}
+		}
+
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL, damaged_monster_id);
 		}
 		break;
 	}

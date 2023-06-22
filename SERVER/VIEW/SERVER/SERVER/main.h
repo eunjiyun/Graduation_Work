@@ -587,6 +587,8 @@ void InitializeMonsters()
 		{
 			if (StagesInfo[j].type == 2)
 				monsters[i][j] = new SorcererMonster();
+			else if (StagesInfo[j].type == 3)
+				monsters[i][j] = new BossMonster();
 			else
 				monsters[i][j] = new Monster();			
 			monsters[i][j]->Initialize(i, StagesInfo[j].id, StagesInfo[j].type, StagesInfo[j].Pos);
@@ -602,8 +604,7 @@ void InitializeStages()
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
-		//while (ID_constructor < 10) {
-		while (ID_constructor < 1) {
+		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
@@ -624,8 +625,7 @@ void InitializeStages()
 	{	// 2stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		//while (ID_constructor < 20) {
-		while (ID_constructor < 11) {
+		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
@@ -646,8 +646,7 @@ void InitializeStages()
 	{	// 3stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
-		//while (ID_constructor < 30) {
-		while (ID_constructor < 21) {
+		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -668,8 +667,7 @@ void InitializeStages()
 	{	// 4stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		//while (ID_constructor < 40) {
-		while (ID_constructor < 31) {
+		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -690,8 +688,7 @@ void InitializeStages()
 	{	// 5stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
-		//while (ID_constructor < 50) {
-		while (ID_constructor < 41) {
+		while (ID_constructor < 50) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
 			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
@@ -713,11 +710,10 @@ void InitializeStages()
 	{	// 6stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(300, 1100));
-		//while (ID_constructor < 60) {
 		while (ID_constructor < 51) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(30, 40, 24));
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -725,7 +721,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), 3, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);

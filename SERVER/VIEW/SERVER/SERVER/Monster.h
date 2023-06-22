@@ -71,6 +71,14 @@ public:
     void Update(float fTimeElapsed) override;
 };
 
+class BossMonster : public Monster
+{
+public:
+    void Update(float fTimeElapsed) override
+    {
+        Monster::Update(fTimeElapsed);
+    }
+};
 
 class MonsterInfo
 {

@@ -146,7 +146,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,1480 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -220,12 +220,13 @@ public:
 		p.Right = Player->GetRightVector();
 		do_send(&p);
 	}
-	void send_attack_packet(SESSION* Player)
+	void send_attack_packet(SESSION* Player, short damaged_monster_id)
 	{
 		SC_ATTACK_PACKET p;
 		p.id = Player->_id;
 		p.size = sizeof(SC_ATTACK_PACKET);
 		p.type = SC_ATTACK;
+		p.damaged_monster_id = damaged_monster_id;
 		do_send(&p);
 	}
 

@@ -145,6 +145,7 @@ struct SC_ATTACK_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
+	short	damaged_monster_id;
 };
 constexpr short SC_ATTACK_PACKET_SIZE = sizeof(SC_ATTACK_PACKET);
 
