@@ -314,7 +314,10 @@ void process_packet(const int c_id, char* packet)
 		auto& Monsters = getRoom_Monsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		XMFLOAT3 _Look = CL.GetLookVector();
-		short damaged_monster_id = -1;	// 공격에 맞은 몬스터의 ID
+
+		for (auto& cl : Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
+		}
 		switch (CL.weapon_type)
 		{
 		case BLADE:
@@ -325,8 +328,10 @@ void process_packet(const int c_id, char* packet)
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
-					damaged_monster_id = monster->m_id;
 					monster->HP -= 100;
+					for (auto& cl : Room) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(monster->m_id);
+					}
 					if (monster->HP <= 0) {
 						monster->SetState(NPC_State::Dead);
 					}
@@ -382,8 +387,10 @@ void process_packet(const int c_id, char* packet)
 							}
 						}
 					}
-					damaged_monster_id = closestMonster->m_id;
 					closestMonster->HP -= 200;
+					for (auto& cl : Room) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(closestMonster->m_id);
+					}
 					if (closestMonster->target_id < 0)
 						closestMonster->target_id = CL._id;
 					if (closestMonster->HP <= 0) {
@@ -403,8 +410,10 @@ void process_packet(const int c_id, char* packet)
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
 				{
-					damaged_monster_id = monster->m_id;
 					monster->HP -= 50;
+					for (auto& cl : Room) {
+						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(monster->m_id);
+					}
 					if (monster->HP <= 0) {
 						monster->SetState(NPC_State::Dead);
 					}
@@ -415,9 +424,6 @@ void process_packet(const int c_id, char* packet)
 		}
 		}
 
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL, damaged_monster_id);
-		}
 		break;
 	}
 	case CS_INTERACTION: {

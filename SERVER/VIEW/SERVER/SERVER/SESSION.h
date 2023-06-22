@@ -220,13 +220,22 @@ public:
 		p.Right = Player->GetRightVector();
 		do_send(&p);
 	}
-	void send_attack_packet(SESSION* Player, short damaged_monster_id)
+	void send_attack_packet(SESSION* Player)
 	{
 		SC_ATTACK_PACKET p;
 		p.id = Player->_id;
 		p.size = sizeof(SC_ATTACK_PACKET);
 		p.type = SC_ATTACK;
-		p.damaged_monster_id = damaged_monster_id;
+		//p.damaged_monster_id = damaged_monster_id;
+		do_send(&p);
+	}
+
+	void send_monster_damaged_packet(int monster_id)
+	{
+		SC_MONSTER_DAMAGED_PACKET p;
+		p.size = sizeof(SC_MONSTER_DAMAGED_PACKET);
+		p.type = SC_MONSTER_DAMAGED;
+		p.monster_id = monster_id;
 		do_send(&p);
 	}
 
