@@ -604,6 +604,7 @@ void InitializeStages()
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
 	{	// 1stage
+		//while (ID_constructor < 1) {
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -615,6 +616,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), 3, ID_constructor);
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
@@ -625,6 +627,7 @@ void InitializeStages()
 	{	// 2stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
+		//while (ID_constructor < 11) {
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -646,6 +649,7 @@ void InitializeStages()
 	{	// 3stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
+		//while (ID_constructor < 21) {
 		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -667,6 +671,7 @@ void InitializeStages()
 	{	// 4stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
+		//while (ID_constructor < 31) {
 		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -688,6 +693,7 @@ void InitializeStages()
 	{	// 5stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
+		//while (ID_constructor < 41) {
 		while (ID_constructor < 50) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -721,6 +727,7 @@ void InitializeStages()
 					break;
 				}
 			if (col) continue;
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), 3, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;

@@ -1536,7 +1536,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	m_nObjects = 6;
+	m_nObjects = 5;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1546,17 +1546,17 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 	{
 		pSpriteObject = new CMultiSpriteObject();
 
+		//if (0 == j)
+		//	pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
 		if (0 == j)
-			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//폭죽
-		else if (1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);//연기
-		else if (2 == j)
+		else if (1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
-		else if (3 == j)
+		else if (2 == j)
 		{
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
 		}
-		else if (4 == j)//피
+		else if (3 == j)//피
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else//화면
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
@@ -1601,6 +1601,10 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3MonLook;
 			XMFLOAT3 xmf3Pos;
 			CMonster* m = nullptr;
+
+			XMFLOAT3 xmf3MonPos3;
+			XMFLOAT3 xmf3MonLook3;
+			XMFLOAT3 xmf3Pos3;
 
 			for (const auto& t : mon)
 			{
@@ -1647,7 +1651,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
 			}
-			else if (8 == obj[i]->texMat.z && 3!=i)
+			else if (8 == obj[i]->texMat.z && 2!=i)
 			{
 				xmf3PlayerPosition.y += 40.0f;
 			}
@@ -1694,13 +1698,25 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				cout << "mon y : " << xmf3MonPos.y << endl;
 				cout << "mon z : " << xmf3MonPos.z << endl;*/
 			}
+			else if (2 == i && mon[0])
+			{
+				xmf3MonPos3 = mon[0]->GetPosition();
+				xmf3MonLook3 = mon[0]->GetLook();
+				xmf3MonPos3.y += 40.0f;
+				xmf3Pos3 = Vector3::Add(xmf3MonPos3, Vector3::ScalarProduct(xmf3MonLook3, 50.0f, false));
+
+				/*cout << "in" << endl;
+				cout << "mon x : " << xmf3MonPos.x << endl;
+				cout << "mon y : " << xmf3MonPos.y << endl;
+				cout << "mon z : " << xmf3MonPos.z << endl;*/
+			}
 
 
 			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
 			if (obj[i])
 			{
-				if (4 != obj[i]->texMat.z && 1 != obj[i]->texMat.z)
+				if (4 != obj[i]->texMat.z && 1 != obj[i]->texMat.z &&2!=i)
 				{
 					obj[i]->SetPosition(xmf3Position);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
@@ -1716,6 +1732,12 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					obj[i]->SetPosition(xmf3Pos);
 					//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+				else if (2 == i)
+				{
+					obj[i]->SetPosition(xmf3Pos3);
+					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					//obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 
 
