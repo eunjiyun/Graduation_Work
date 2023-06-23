@@ -149,6 +149,7 @@ public:
 	float beforeHp = 5000;
 
 	float time = 0.f;
+	float plTime = 0.f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };
 
 

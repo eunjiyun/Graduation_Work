@@ -325,6 +325,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
 		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
 
+		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+
 		if (false == onFullScreen)
 		{
 			sign[0].x = 253; sign[1].x = 365;
@@ -690,7 +692,7 @@ void CGameFramework::ReleaseObjects()
 	if (m_pLogin) delete m_pLogin;
 }
 
-void CGameFramework::CreateOtherPlayer(int p_id,XMFLOAT3 Pos)
+void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos)
 {
 	for (auto& player : Players)
 		if (player->c_id < 0) {
@@ -1013,6 +1015,12 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		damagedMon = -1;
 		time = 0.f;
 	}
+	plTime += fTimeElapsed;
+	if (plTime > 0.5f)
+	{
+		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		plTime = 0.f;
+	}
 
 }
 
@@ -1057,7 +1065,7 @@ void CGameFramework::FrameAdvance()
 			player->Update(fTimeElapsed);
 			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
 			// 문과의 충돌처리
-			m_pStage->CheckDoorCollisions( fTimeElapsed, player);
+			m_pStage->CheckDoorCollisions(fTimeElapsed, player);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
 			m_pStage->Lighthing(player);
 			m_pStage->Pushing_Button(player);
@@ -1228,7 +1236,7 @@ void CGameFramework::FrameAdvance()
 	{
 		if (!userId.empty() && !idSet && delUser)
 			userId.pop_back();
-			
+
 		if (!userPw.empty() && idSet && delUser)
 			userPw.pop_back();
 
@@ -1296,14 +1304,14 @@ void CGameFramework::FrameAdvance()
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, lobby[2], m_pCamera);
 
-	
 
-	
+
+
 	if (!Monsters.empty())
 	{
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-		
+
 		if (0 == Monsters[0]->c_id && 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
 			m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 		else
@@ -1345,7 +1353,7 @@ void CGameFramework::FrameAdvance()
 		}
 
 		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP);
-		};
+	};
 
 
 #ifdef _WITH_PLAYER_TOP
@@ -1384,20 +1392,20 @@ void CGameFramework::FrameAdvance()
 
 	unsigned long frame = m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 
-	int nKeyFrame = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_nKeyFrames;//몬스터3번 애니메이션번호
-	float clipMoStartTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[0];//키프레임0번
-	float clipMoEndTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[nKeyFrame-1];//마지막 키프레임
+	//int nKeyFrame = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_nKeyFrames;//몬스터3번 애니메이션번호
+	//float clipMoStartTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[0];//키프레임0번
+	//float clipMoEndTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[nKeyFrame-1];//마지막 키프레임
 
-	float cycleTime = (clipMoEndTime - clipMoStartTime) / frame * 60;// frame : frameSpeed, 60 : nFramePerSecond
-	
-	cout << "name : " << pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pstrAnimationSetName << endl;
-	cout << "cycleTime : " << cycleTime << endl;
+	//float cycleTime = (clipMoEndTime - clipMoStartTime) / frame * 60;// frame : frameSpeed, 60 : nFramePerSecond
+	//
+	//cout << "name : " << pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pstrAnimationSetName << endl;
+	//cout << "cycleTime : " << cycleTime << endl;
 
 	size_t nLength = _tcslen(m_pszFrameRate);
 	XMFLOAT3 xmf3Position = m_pPlayer->GetPosition();
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
-	}
+}
 
 
 

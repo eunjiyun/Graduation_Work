@@ -1939,31 +1939,7 @@ void CMultiSpriteObject::Animate(float fTimeElapsed,bool onPl, ID3D12Device* pd3
 		if (m_fTime >= m_fSpeed)
 			m_fTime = 0.0f;
 
-		//if (3 != texMat.z)
-		{
-			m_ppMaterials[0]->m_ppTextures[0]->AnimateRowColumn(texMat, m_fTime);
-		}
-		//else
-		//{
-		//	//// 정점 배열에 대한 반복문
-		//	//for (int i = 0; i < m_ppMeshes[0]->m_nVertices; ++i)
-		//	//{
-		//	//	// 정점 좌표에 스케일 팩터를 곱해줍니다.
-		//	//	m_ppMeshes[0]->pVertices[i].m_xmf3Position.x *= 2;
-		//	//	m_ppMeshes[0]->pVertices[i].m_xmf3Position.y *= 2;
-		//	//	m_ppMeshes[0]->pVertices[i].m_xmf3Position.z *= 2;
-		//	//}
-
-		//	//m_ppMeshes[0]->m_pd3dVertexBuffer = CreateBufferResource(pd3dDevice, pd3dCommandList, m_ppMeshes[0]->pVertices, m_ppMeshes[0]->m_nStride * m_ppMeshes[0]->m_nVertices, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_ppMeshes[0]->m_pd3dVertexUploadBuffer);
-
-		//	////m_ppMeshes[0]->m_nVertexBufferViews = 1;
-		//	////m_ppMeshes[0]->m_pd3dVertexBufferViews = new D3D12_VERTEX_BUFFER_VIEW[m_ppMeshes[0]->m_nVertexBufferViews];
-		//	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].BufferLocation = m_ppMeshes[0]->m_pd3dVertexBuffer->GetGPUVirtualAddress();
-		//	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].StrideInBytes = m_ppMeshes[0]->m_nStride;
-		//	//m_ppMeshes[0]->m_pd3dVertexBufferViews[0].SizeInBytes = m_ppMeshes[0]->m_nStride * m_ppMeshes[0]->m_nVertices;
-
-		//	SetScale(2, 2, 2);
-		//}
+		m_ppMaterials[0]->m_ppTextures[0]->AnimateRowColumn(texMat, m_fTime);
 	}
 }
 

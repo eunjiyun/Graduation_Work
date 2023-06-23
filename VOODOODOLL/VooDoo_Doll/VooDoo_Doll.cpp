@@ -247,7 +247,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CHAR:
-		if (false == gGameFramework.idSet && 10 > gGameFramework.userId.size())
+		if (!gGameFramework.lobby[0] && !gGameFramework.idSet && 10 > gGameFramework.userId.size())
 		{
 			// 사용할 수 있는 키 입력 범위를 지정합니다.
 			if (('A' <= wParam && wParam <= 'Z') || ('a' <= wParam && wParam <= 'z') ||
@@ -256,7 +256,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				gGameFramework.userId.push_back(wParam);
 			}
 		}
-		else if (true == gGameFramework.idSet && 10 > gGameFramework.userPw.size())
+		else if (!gGameFramework.lobby[0] && gGameFramework.idSet && 10 > gGameFramework.userPw.size())
 		{
 			// 사용할 수 있는 키 입력 범위를 지정합니다.
 			if (('A' <= wParam && wParam <= 'Z') || ('a' <= wParam && wParam <= 'z') ||
@@ -276,7 +276,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			gGameFramework.ChangeSwapChainState();
 		}
-		else if (VK_BACK == wParam)
+		else if (!gGameFramework.lobby[0] && VK_BACK == wParam)
 			gGameFramework.delUser = true;
 			
 		//else if (VK_RETURN == wParam)			// 서버의 SC_LOGIN_INFO 패킷을 받았을 때 처리하는 것으로 변경
@@ -307,7 +307,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					&& 1 == gGameFramework.m_pStage->m_pShadowMapToViewport->curPl)
 				{
 					gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
-					//gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 				}
 			}
 			else if (wParam == 'C' || wParam == 'c')
@@ -607,11 +606,11 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			/*(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));*/
 		}
 
-		/*if (0 != packet->HP && gGameFramework.beforeHp != packet->HP)
+		if (0 != packet->HP && gGameFramework.beforeHp != packet->HP)
 		{
-			gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+			gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 			gGameFramework.beforeHp = packet->HP;
-		}*/
+		}
 		break;
 	}
 	case SC_ROTATE_PLAYER: {
@@ -662,7 +661,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			if ((*iter)->npc_type == 2)
 				gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
 			gGameFramework.Monsters.erase(iter);
-			//gGameFramework.damagedMon = -1;
 			break;
 		}
 		if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
