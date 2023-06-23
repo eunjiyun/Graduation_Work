@@ -596,7 +596,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;
 
 		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z && 1 != pMultiSpriteObjectShader->obj[i]->texMat.z)
-			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
 		else if(4 == pMultiSpriteObjectShader->obj[i]->texMat.z)
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
 	}

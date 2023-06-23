@@ -325,7 +325,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
 		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
 
-		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		//m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
 
 		if (false == onFullScreen)
 		{

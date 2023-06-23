@@ -1273,9 +1273,18 @@ void CGameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 {
 	XMFLOAT3 xmf3Position(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
 	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(xmf3Position, xmf3Target, xmf3Up);
+
+	//if (3 == texMat.z && m_ppMaterials[0]->m_ppTextures[0]->m_bActive
+	//	&& m_xmf4x4World._11!= mtxLookAt._11 && m_xmf4x4World._21 != mtxLookAt._12 && m_xmf4x4World._31 != mtxLookAt._13)
+	//{
+	//	m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//ÇÇ
+	//}
+
 	m_xmf4x4World._11 = mtxLookAt._11; m_xmf4x4World._12 = mtxLookAt._21; m_xmf4x4World._13 = mtxLookAt._31;
 	m_xmf4x4World._21 = mtxLookAt._12; m_xmf4x4World._22 = mtxLookAt._22; m_xmf4x4World._23 = mtxLookAt._32;
 	m_xmf4x4World._31 = mtxLookAt._13; m_xmf4x4World._32 = mtxLookAt._23; m_xmf4x4World._33 = mtxLookAt._33;
+
+	
 	/*
 		XMFLOAT3 xmf3Look = Vector3::Normalize(Vector3::Subtract(xmf3Target, xmf3Position));
 		XMFLOAT3 xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);

@@ -279,15 +279,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		else if (!gGameFramework.lobby[0] && VK_BACK == wParam)
 			gGameFramework.delUser = true;
 			
-		//else if (VK_RETURN == wParam)			// 서버의 SC_LOGIN_INFO 패킷을 받았을 때 처리하는 것으로 변경
-		//{
-		//	if (gGameFramework.loginSign[1] && gGameFramework.lobby[0] && gGameFramework.lobby[1])
-		//	{
-		//		gGameFramework.lobby[2] = true;
-		//		gGameFramework.m_pStage->m_ppShaders[2]->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-		//		gGameFramework.m_pStage->m_ppShaders[1]->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
-		//	}
-		//}
+
+
 		if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
 		{
 			if (wParam == 'Z' || wParam == 'z')

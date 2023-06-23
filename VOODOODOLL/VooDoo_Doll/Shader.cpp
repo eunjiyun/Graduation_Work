@@ -1599,9 +1599,9 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3Pos;
 			CMonster* m = nullptr;
 
-			XMFLOAT3 xmf3MonPos3;
-			XMFLOAT3 xmf3MonLook3;
-			XMFLOAT3 xmf3Pos3;
+			XMFLOAT3 xmf3BossPos;
+			XMFLOAT3 xmf3BossLook;
+			XMFLOAT3 xmf3BossMonPos;
 
 			for (const auto& t : mon)
 			{
@@ -1648,44 +1648,13 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			{
 				xmf3MonPos = m->GetPosition();
 				xmf3MonLook = m->GetLook();
-				xmf3MonPos.y += 20.0f;
+				xmf3MonPos.y += 45.0f;
 
 				xmf3MonPos.x = (xmf3MonPos.x + 1.f * xmf3PlayerPosition.x) / 2;
 				xmf3MonPos.y = (xmf3MonPos.y + 1.f * xmf3PlayerPosition.y) / 2;
 				xmf3MonPos.z = (xmf3MonPos.z + 1.f * xmf3PlayerPosition.z) / 2;
 
-				//float fDistance = 20.0f; // 이동 거리
-
-				//// xmf3PlayerPosition 좌표에서 xmf3MonPos 좌표 쪽으로 향하는 벡터를 계산합니다.
-				//XMFLOAT3 xmf3Direction(
-				//	xmf3MonPos.x - xmf3PlayerPosition.x,
-				//	xmf3MonPos.y - xmf3PlayerPosition.y,
-				//	xmf3MonPos.z - xmf3PlayerPosition.z
-				//);
-
-				//// 방향 벡터의 길이를 계산합니다.
-				//float fLength = sqrt(xmf3Direction.x * xmf3Direction.x + xmf3Direction.y * xmf3Direction.y + xmf3Direction.z * xmf3Direction.z);
-
-				//// 방향 벡터를 정규화하여 길이를 1로 만듭니다.
-				//if (fLength > 0.0f)
-				//{
-				//	xmf3Direction.x /= fLength;
-				//	xmf3Direction.y /= fLength;
-				//	xmf3Direction.z /= fLength;
-				//}
-
-				//// xmf3MonPos 좌표에서 xmf3PlayerPosition 좌표 쪽으로 이동한 지점을 계산합니다.
-				//xmf3MonPos.x = xmf3MonPos.x + fDistance * xmf3Direction.x;
-				//xmf3MonPos.y = xmf3MonPos.y + fDistance * xmf3Direction.y;
-				//xmf3MonPos.z = xmf3MonPos.z + fDistance * xmf3Direction.z;
-
-				//xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
 				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-
-				/*cout << "in" << endl;
-				cout << "mon x : " << xmf3MonPos.x << endl;
-				cout << "mon y : " << xmf3MonPos.y << endl;
-				cout << "mon z : " << xmf3MonPos.z << endl;*/
 			}
 			else if (5 == i)
 			{
@@ -1700,17 +1669,11 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			{
 				//xmf3MonPos3 = mon[0]->GetPosition();
 				//xmf3MonLook3 = mon[0]->GetLook();
-				xmf3MonPos3 = mon[50]->GetPosition();
-				xmf3MonLook3 = mon[50]->GetLook();
-				xmf3MonPos3.y += 40.0f;
-				xmf3Pos3 = Vector3::Add(xmf3MonPos3, Vector3::ScalarProduct(xmf3MonLook3, 50.0f, false));
-
-				/*cout << "in" << endl;
-				cout << "mon x : " << xmf3MonPos.x << endl;
-				cout << "mon y : " << xmf3MonPos.y << endl;
-				cout << "mon z : " << xmf3MonPos.z << endl;*/
+				xmf3BossPos = mon[50]->GetPosition();
+				xmf3BossLook = mon[50]->GetLook();
+				xmf3BossPos.y += 40.0f;
+				xmf3BossMonPos = Vector3::Add(xmf3BossPos, Vector3::ScalarProduct(xmf3BossLook, 50.0f, false));
 			}
-
 
 			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
@@ -1730,17 +1693,13 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				{
 
 					obj[i]->SetPosition(xmf3Pos);
-					//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 				else if (2 == i)
 				{
-					obj[i]->SetPosition(xmf3Pos3);
+					obj[i]->SetPosition(xmf3BossMonPos);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-					//obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
-
-				//obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 				CShader::Render(pd3dCommandList, pCamera);
 
