@@ -586,19 +586,24 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials = new CMaterial * [1];
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0] = pMaterial;
 
-		if (2==i)//파티클
+		if (2 == i)//파티클
+		{
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 6.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+			pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 8;
+		}
 		else if (0 == i)//연기
+		{
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+		}
 		else if (1 == i)//로딩
+		{
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
+		}
 		else //피
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;
-
-		if (4 != pMultiSpriteObjectShader->obj[i]->texMat.z && 1 != pMultiSpriteObjectShader->obj[i]->texMat.z)
-			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
-		else if(4 == pMultiSpriteObjectShader->obj[i]->texMat.z)
-			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
 	}
 
 	pMultiSpriteObjectShader->obj[4]->m_ppMaterials = new CMaterial * [1];

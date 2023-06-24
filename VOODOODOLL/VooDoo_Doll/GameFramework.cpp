@@ -572,19 +572,32 @@ void CGameFramework::BuildObjects()
 
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
 
-	int size = 0;
-	for (int i = 0; i < 6; i++) {
-
-		if (5 == i)
-			size = 1;
-		else
-			size = 10;
-
-		for (int j = 0; j <size; j++) {
+	/*for (int i = 1; i <= 2; ++i) {
+		for (int j{}; j < 3; ++j) {
 			pMonsterModel[i].push(
 				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
 		}
 	}
+
+	for (int j{}; j < 4; ++j)
+		pMonsterModel[0].push(
+			CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[0], NULL, 1));
+	
+	pMonsterModel[3].push(
+		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
+	
+	for (int i = 0; i < 3; i++) {
+		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
+	}*/
+
+	for (int i = 0; i <= 2; ++i) {
+		for (int j{}; j < 10; ++j) {
+			pMonsterModel[i].push(
+				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
+		}
+	}
+	pMonsterModel[3].push(
+		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
 
 	for (int i = 0; i < 10; i++) {
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
@@ -715,6 +728,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	// 이 함수에서 몬스터를 동적 할당하여 소환함
 	if (pMonsterModel[type].empty()) {
 		cout << "생성실패\n";
+		cout << "type : " << type << endl;
+		cout << "id : " << npc_id << endl;
 		return;
 	}
 	CMonster* Mon = nullptr;
@@ -777,21 +792,6 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
-		//Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 5);//손에 바늘->보스
-		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
-		//Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
-
-		//Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		//Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		//Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		//Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		//Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);
-		//Mon->speed = 15.f;
-		//Mon->SetScale(1.0f, 1.0f, 1.0f);
-
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 7);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -1288,16 +1288,8 @@ void CGameFramework::FrameAdvance()
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 
-		//if (51 == Monsters.size())
-		{
-			cout << "size : " << Monsters.size() << endl;
-			//cout << "id : " << Monsters[50]->c_id << endl;
-			//cout << "track : " << Monsters[50]->m_pSkinnedAnimationController->Cur_Animation_Track << endl;
-		}
-		
-
-		if ( 50 == Monsters[0]->c_id &&  2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
-			m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		if (50 == Monsters[0]->c_id && 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
+			m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;//0624
 		else
 			m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
 	}

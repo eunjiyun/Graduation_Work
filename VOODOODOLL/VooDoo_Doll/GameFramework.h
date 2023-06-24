@@ -104,10 +104,9 @@ public:
 	vector<CGameObject*> findItem;
 	bool idSet=false;
 	
-	queue<CLoadedModelInfo*> pMonsterModel[6];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
+	queue<CLoadedModelInfo*> pMonsterModel[4];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	queue<CLoadedModelInfo*> MagiciansHat;
-	array<char*, 6> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo5.bin", "Model/boss.bin",
-	 "Model/Voodoo3.bin","Model/Voodoo6.bin" };
+	array<char*, 4> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo5.bin", "Model/boss.bin" };
 	
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;

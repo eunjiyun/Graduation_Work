@@ -641,6 +641,26 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_SUMMON_MONSTER: {
 		SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
+		/*if (50 > packet->id)
+		{
+			if (4 > packet->id % 10)
+				packet->monster_type = 0;
+			else if (7 > packet->id % 10)
+				packet->monster_type = 1;
+			else if (10 > packet->id % 10)
+				packet->monster_type = 2;
+		}
+		else
+		{
+			if(50== packet->id)
+				packet->monster_type = 3;
+			else if (54 > packet->id)
+				packet->monster_type = 0;
+			else if (57 > packet->id)
+				packet->monster_type = 1;
+			else if (60 > packet->id)
+				packet->monster_type = 2;
+		}*/
 		gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
 		break;
 	}
@@ -651,8 +671,11 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		if (packet->is_alive == false) {
 			short type = (*iter)->npc_type;
 			gGameFramework.pMonsterModel[type].push((*iter)->_Model);	// 받아온 모델타입 다시 큐로 반환
+		
 			if ((*iter)->npc_type == 2)
+			{
 				gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
+			}
 			gGameFramework.Monsters.erase(iter);
 			break;
 		}
@@ -682,7 +705,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	case SC_OPEN_DOOR: {
 		SC_OPEN_DOOR_PACKET* packet = reinterpret_cast<SC_OPEN_DOOR_PACKET*>(ptr);
 		int cur_stage = packet->door_num;
-		cout << cur_stage << endl;
 		gGameFramework.openDoor[cur_stage] = true;
 		gGameFramework.m_pStage->m_ppShaders[0]->door[cur_stage]->obBox.Center.y -= 10000.f;
 		break;

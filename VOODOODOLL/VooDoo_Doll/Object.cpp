@@ -191,24 +191,42 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 
 	if (0.0f == fTime)
 	{
-		if (++m_nCol == texMat.z) 
-		{ 
-			m_nRow++;//세로 증가
-			m_nCol = 0; //가로 0
-
-			if(4 != texMat.z &&3!=texMat.z)
-				m_bActive = false;
-		}
-
-		if (4 != texMat.z)
+		if (8 == m_nRow)
 		{
-			if (m_nRow == texMat.z)
-				m_nRow = 0;//세로 0
+			if (--m_nCol == 0)
+			{
+				--m_nRow;//가로 감소
+				m_nCol = 8; //세로 8
+				m_nRow = 8;
+
+				//m_bActive = false;
+			}
+			
+			if (0 == m_nRow )
+				m_nRow = 8;//가로 8
 		}
 		else
 		{
-			if (m_nRow == texMat.z * 1.5f)
-				m_nRow = 0;//세로 0
+			if (++m_nCol == texMat.z)
+			{
+
+				++m_nRow;//가로 증가
+				m_nCol = 0; //세로 0
+
+				if (4 != texMat.z )
+					m_bActive = false;
+			}
+
+			if (4 != texMat.z)
+			{
+				if (m_nRow == texMat.z)
+					m_nRow = 0;//가로 0
+			}
+			else
+			{
+				if (m_nRow == texMat.z * 1.5f)
+					m_nRow = 0;//가로 0
+			}
 		}
 	}
 }
