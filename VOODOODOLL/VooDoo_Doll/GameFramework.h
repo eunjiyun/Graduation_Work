@@ -120,7 +120,7 @@ public:
 	SoundPlayer playerSound;
 	bool checkDoor[6] = { false,false,false,false,false,false };
 	bool checkDoorSound = false;
-	bool checkDoorSound2 = false;
+
 	int checkJump = 0;
 	int curStage = -1;
 	bool gameEnd = false;
@@ -151,7 +151,6 @@ public:
 	float time = 0.f;
 	float plTime = 0.f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };
-
 
 	POINT						m_ptOldCursorPos;
 

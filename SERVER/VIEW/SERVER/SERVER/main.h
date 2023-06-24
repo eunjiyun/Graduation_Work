@@ -556,7 +556,7 @@ void SorcererMonster::Update(float fTimeElapsed)
 			attacked = true;
 			break;
 		}
-		if (GetAttackTimer() <= 0) {//0326
+		if (GetAttackTimer() <= 0) {
 			if (attack_range <= g_distance)
 			{
 				SetState(NPC_State::Chase);

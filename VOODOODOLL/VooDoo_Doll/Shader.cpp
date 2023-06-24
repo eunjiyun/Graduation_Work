@@ -681,7 +681,8 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			break;
 		case 2:	// 2번 인덱스 문제 때문에 배치한 허수값. 실제론 없는 문
 			door[h]->SetPosition(222.f, -28200.f, 3601.2004f);
-			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(222.f, -300.f, 3601.2004f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			//door[h]->obBox = BoundingOrientedBox(XMFLOAT3(222.f, -300.f, 3601.2004f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.2004f), XMFLOAT3(90.f, 50.f, 2.0046f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
 			break;
 		case 3:
 			door[h]->SetPosition(222.f, -282.f, 3601.2004f);

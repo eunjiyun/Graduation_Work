@@ -934,79 +934,48 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	{
 		if (openDoor[i])
 		{
-			if (2 >= i)
+			if (3 != i)
 			{
 				if (curStage == i - 1)
 					curStage = i;
-
-				if (2 != i)
-				{
-					if (m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_fPosition
-						== m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationSets->
-						m_pAnimationSets[m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nAnimationSet]->m_fLength
-						&& i == curStage)
-					{
-						if (false == checkDoorSound)
-						{
-							doorSound.Stop();
-							doorSound.Terminate();
-
-							checkDoorSound = true;
-						}
-					}
-					else
-					{
-						if (false == checkDoor[i])
-						{
-							doorSound.Initialize();
-							doorSound.LoadWave(door);
-							doorSound.Play();
-
-							checkDoor[i] = true;
-							checkDoorSound = false;
-						}
-					}
-
-					m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
-				}
 			}
 			else
 			{
-
 				if (curStage == i - 2)
-					curStage = i - 1;
+					curStage = i;
+			}
 
-				if (m_pStage->m_ppShaders[0]->door[i - 1]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_fPosition
-					== m_pStage->m_ppShaders[0]->door[i - 1]->m_pSkinnedAnimationController->m_pAnimationSets->
-					m_pAnimationSets[m_pStage->m_ppShaders[0]->door[i - 1]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nAnimationSet]->m_fLength
-					&& i == curStage + 1)
+			if (2 != i)
+			{
+				if (m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_fPosition
+					== m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationSets->
+					m_pAnimationSets[m_pStage->m_ppShaders[0]->door[i]->m_pSkinnedAnimationController->m_pAnimationTracks[0].m_nAnimationSet]->m_fLength
+					&& i == curStage)
 				{
-
-					if (false == checkDoorSound2)
+					if (false == checkDoorSound)
 					{
 						doorSound.Stop();
 						doorSound.Terminate();
-						checkDoorSound2 = true;
+						checkDoorSound = true;
 					}
 				}
 				else
 				{
-					if (false == checkDoor[i - 1])
+					if (false == checkDoor[i])
 					{
-
 						doorSound.Initialize();
 						doorSound.LoadWave(door);
 						doorSound.Play();
-
-						checkDoor[i - 1] = true;
-						checkDoorSound2 = false;
+						checkDoor[i] = true;
+						checkDoorSound = false;
 					}
 				}
 
-				m_pStage->m_ppShaders[0]->door[i - 1]->Animate(fTimeElapsed, false);
+				m_pStage->m_ppShaders[0]->door[i]->Animate(fTimeElapsed, false);
 			}
 		}
 	}
+
 
 	time += fTimeElapsed;
 	if (time > 0.3f)
