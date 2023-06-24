@@ -1665,13 +1665,13 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
 			}
-			//else if (2 == i && mon[0])
-			else if (2 == i && mon[50] && 51 == mon.size())
+			else if (2 == i && mon[0])
+			//else if (2 == i && mon[50] && 51 == mon.size())
 			{
-				//xmf3MonPos3 = mon[0]->GetPosition();
-				//xmf3MonLook3 = mon[0]->GetLook();
-				xmf3BossPos = mon[50]->GetPosition();
-				xmf3BossLook = mon[50]->GetLook();
+				xmf3BossPos = mon[0]->GetPosition();
+				xmf3BossLook = mon[0]->GetLook();
+				//xmf3BossPos = mon[50]->GetPosition();
+				//xmf3BossLook = mon[50]->GetLook();
 				xmf3BossPos.y += 40.0f;
 				xmf3BossMonPos = Vector3::Add(xmf3BossPos, Vector3::ScalarProduct(xmf3BossLook, 50.0f, false));
 			}

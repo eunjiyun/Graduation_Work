@@ -572,8 +572,15 @@ void CGameFramework::BuildObjects()
 
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
 
+	int size = 0;
 	for (int i = 0; i < 6; i++) {
-		for (int j = 0; j < 10; j++) {
+
+		if (5 == i)
+			size = 1;
+		else
+			size = 10;
+
+		for (int j = 0; j <size; j++) {
 			pMonsterModel[i].push(
 				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
 		}
@@ -1281,7 +1288,15 @@ void CGameFramework::FrameAdvance()
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 
-		if (0 == Monsters[0]->c_id && 2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
+		//if (51 == Monsters.size())
+		{
+			cout << "size : " << Monsters.size() << endl;
+			//cout << "id : " << Monsters[50]->c_id << endl;
+			//cout << "track : " << Monsters[50]->m_pSkinnedAnimationController->Cur_Animation_Track << endl;
+		}
+		
+
+		if ( 50 == Monsters[0]->c_id &&  2 == Monsters[0]->m_pSkinnedAnimationController->Cur_Animation_Track)
 			m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
 		else
 			m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
