@@ -136,41 +136,21 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 70;
         view_range = 500;
-        speed = 30.f;
+        speed = 50.f;
         attack_range = 150.f;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
         break;
-    case 3:
+    case 3: // 보스 몬스터
         type = 3;
-        HP = 50;
-        power = 70;
-        view_range = 300;
-        speed = 50.f;
-        attack_cycle = (56.f / 30.f); // 2.366667초
+        HP = 1000;
+        power = 100;
+        view_range = 700;
+        speed = 40.f;
+        attack_cycle = (10.f / 3.f); // 3.333333초
         attack_timer = attack_cycle;
-        dead_timer = 3.3f;
-        break;
-    case 4: // 귀신
-        type = 4;
-        HP = 50;
-        power = 50;
-        view_range = 300;
-        speed = 50.f;
-        attack_cycle = (56.f / 30.f); // 2.366667초
-        attack_timer = attack_cycle;
-        dead_timer = 3.3f;
-        break;
-    case 5:
-        type = 5;
-        HP = 500;
-        power = 70;
-        view_range = 300;
-        speed = 50.f;
-        attack_cycle = (56.f / 30.f); // 2.366667초
-        attack_timer = attack_cycle;
-        dead_timer = 3.3f;
+        dead_timer = 1.f;
         break;
     }
 }

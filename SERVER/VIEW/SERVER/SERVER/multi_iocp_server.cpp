@@ -164,7 +164,7 @@ void DB_Thread()
 				//retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VooDooDoll_DB", SQL_NTS, (SQLWCHAR*)L"dbAdmin", SQL_NTS, (SQLWCHAR*)L"2018180005", SQL_NTS);
 
 
-				SQLWCHAR* connectionString = (SQLWCHAR*)L"DRIVER=SQL Server;SERVER=14.36.243.161;DATABASE=VooDooDoll_DB; UID=dbAdmin; PWD=2018180005;";
+				SQLWCHAR* connectionString = (SQLWCHAR*)L"DRIVER=SQL Server;SERVER=14.51.115.124;DATABASE=VooDooDoll_DB; UID=dbAdmin; PWD=2018180005;";
 
 				retcode = SQLDriverConnect(hdbc, NULL, connectionString, SQL_NTS, NULL, 1024, NULL, SQL_DRIVER_NOPROMPT);
 
@@ -408,7 +408,7 @@ void process_packet(const int c_id, char* packet)
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 20)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 50;
 					for (auto& cl : Room) {
