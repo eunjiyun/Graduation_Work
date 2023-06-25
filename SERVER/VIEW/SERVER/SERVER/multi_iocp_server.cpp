@@ -272,6 +272,10 @@ void process_packet(const int c_id, char* packet)
 			pl.send_add_player_packet(&CL);
 			CL.send_add_player_packet(&pl);
 		}
+		for (auto& monster : getRoom_Monsters(c_id)) {
+			if (monster->alive.load() == false) continue;
+			CL.send_summon_monster_packet(monster);
+		}
 		break;
 	}
 	case CS_SIGNUP: {
@@ -329,6 +333,7 @@ void process_packet(const int c_id, char* packet)
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 100;
+					monster->target_id = CL._id;
 					for (auto& cl : Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(monster->m_id);
 					}
@@ -388,11 +393,10 @@ void process_packet(const int c_id, char* packet)
 						}
 					}
 					closestMonster->HP -= 200;
+					closestMonster->target_id = CL._id;
 					for (auto& cl : Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(closestMonster->m_id);
 					}
-					if (closestMonster->target_id < 0)
-						closestMonster->target_id = CL._id;
 					if (closestMonster->HP <= 0) {
 
 						closestMonster->SetState(NPC_State::Dead);
@@ -411,6 +415,7 @@ void process_packet(const int c_id, char* packet)
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 50;
+					monster->target_id = CL._id;
 					for (auto& cl : Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(monster->m_id);
 					}
@@ -551,11 +556,11 @@ void worker_thread(HANDLE h_iocp)
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
 			break;
-		case OP_NPC_UPDATE:
+		case OP_NPC_UPDATE: {
 			int roomNum = static_cast<int>(key) / 100;
 			short mon_id = static_cast<int>(key) % 100;
 			auto& monster = monsters[roomNum][mon_id];
-		
+
 			if (monster->alive.load() == true) {
 				{
 					lock_guard<mutex> mm{ monster->m_lock };
@@ -573,6 +578,7 @@ void worker_thread(HANDLE h_iocp)
 			//OverPool.ReturnMemory(ex_over);
 			break;
 		}
+		}
 	}
 }
 
@@ -589,12 +595,13 @@ void do_Timer()
 				this_thread::sleep_for(duration_cast<milliseconds>(ev.wakeup_time - current_time));
 			}
 			switch (ev.event_id) {
-			case EV_MONSTER_UPDATE:
+			case EV_MONSTER_UPDATE: {
 				OVER_EXP* ov = new OVER_EXP();
 				//OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_UPDATE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
 				break;
+			}
 			}
 			//EventPool.ReturnMemory(ev);
 		}

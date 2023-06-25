@@ -74,10 +74,7 @@ public:
 class BossMonster : public Monster
 {
 public:
-    void Update(float fTimeElapsed) override
-    {
-        Monster::Update(fTimeElapsed);
-    }
+    void Update(float fTimeElapsed) override;
 };
 
 class MonsterInfo
