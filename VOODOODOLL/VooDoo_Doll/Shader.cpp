@@ -1584,7 +1584,7 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed, ID3D12Device*
 			obj[j]->Animate(fTimeElapsed, false, pd3dDevice, pd3dCommandList);
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo,int boss, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1599,19 +1599,6 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3MonLook;
 			XMFLOAT3 xmf3Pos;
 			CMonster* m = nullptr;
-
-			XMFLOAT3 xmf3BossPos;
-			XMFLOAT3 xmf3BossLook;
-			XMFLOAT3 xmf3BossMonPos;
-
-			for (const auto& t : mon)
-			{
-				if (daMo == t->c_id)
-				{
-					m = t;
-					break;
-				}
-			}
 
 			if (4 == obj[i]->texMat.z)
 			{
@@ -1645,11 +1632,20 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			{
 				xmf3PlayerPosition.y += 40.0f;
 			}
-			else if (3 == i && m)
+			else if (3 == i )//몬스터 피격
 			{
+				for (auto& t : mon)
+				{
+					if (daMo == t->c_id)
+					{
+						m = t;
+						break;
+					}
+				}
+
 				xmf3MonPos = m->GetPosition();
 				xmf3MonLook = m->GetLook();
-				xmf3MonPos.y += 45.0f;
+				xmf3MonPos.y += 50.0f;
 
 				xmf3MonPos.x = (xmf3MonPos.x + 1.f * xmf3PlayerPosition.x) / 2;
 				xmf3MonPos.y = (xmf3MonPos.y + 1.f * xmf3PlayerPosition.y) / 2;
@@ -1665,12 +1661,12 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
 			}
-			else if (2 == i && !mon.empty())
+			else if (2 == i )//파티클
 			{
-				xmf3BossPos = mon[0]->GetPosition();
-				xmf3BossLook = mon[0]->GetLook();
-				xmf3BossPos.y += 40.0f;
-				xmf3BossMonPos = Vector3::Add(xmf3BossPos, Vector3::ScalarProduct(xmf3BossLook, 50.0f, false));
+				xmf3MonPos = mon[boss]->GetPosition();
+				xmf3MonLook = mon[boss]->GetLook();
+				xmf3MonPos.y += 40.0f;
+				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
 			}
 
 			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
@@ -1695,7 +1691,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				}
 				else if (2 == i)
 				{
-					obj[i]->SetPosition(xmf3BossMonPos);
+					obj[i]->SetPosition(xmf3MonPos);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 

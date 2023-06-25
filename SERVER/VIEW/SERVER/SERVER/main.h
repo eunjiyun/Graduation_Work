@@ -504,7 +504,7 @@ void SorcererMonster::Update(float fTimeElapsed)
 
 		g_distance = Vector3::Length(distanceVector);
 
-		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME || g_distance >= view_range)
+		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME)
 		{
 			SetState(NPC_State::Idle);
 			target_id = -1;
@@ -734,10 +734,10 @@ void InitializeStages()
 	{   // 6stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(300, 1100));
-		while (ID_constructor < 60) {
+		while (ID_constructor < 59) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(30, 40, 24));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
@@ -746,13 +746,27 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			if (50 == ID_constructor)
-				t = 3;
-			else
-				t = type_dis(gen);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			StagesInfo.push_back(MI);
+			//cout << ID_constructor << " - " << MI.type << endl;
+			//Vector3::Print(MI.Pos);
+			ID_constructor++;
+		}
+	}
 
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), 3, ID_constructor);
+	{	// 6stage
+		gen.seed(rd());
+		while (ID_constructor < 60) {
+			float _x = static_cast<float>(x_dis(gen));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, 300), XMFLOAT3(30, 40, 24));
+			bool col = false;
+			for (auto& obj : Obstacles[static_cast<int>(300) / AREA_SIZE])
+				if (obj->m_xmOOBB.Intersects(test)) {
+					col = true;
+					break;
+				}
+			if (col) continue;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, 300), 3, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
