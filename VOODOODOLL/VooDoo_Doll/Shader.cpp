@@ -1537,7 +1537,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	m_nObjects = 6;
+	m_nObjects = 8;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1552,9 +1552,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		else if (1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
 		else if (2 == j)
-		{
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
-		}
 		else if (3 == j)//||5==j)//피
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else//화면
@@ -1588,10 +1586,15 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
-		if (obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
+		CPlayer* pPlayer = pCamera->GetPlayer();
+
+		if (5>i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] 
+			|| 5 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && 0 == pPlayer->c_id
+			||6==i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] &&1==pPlayer->c_id
+			|| 7== i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] && 2 == pPlayer->c_id)
 		{
 			XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
-			CPlayer* pPlayer = pCamera->GetPlayer();
+			
 			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
 			XMFLOAT3 xmf3PlayerLook = pPlayer->GetLookVector();
 
@@ -1600,7 +1603,15 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			XMFLOAT3 xmf3Pos;
 			CMonster* m = nullptr;
 
-			if (4 == obj[i]->texMat.z)
+			if (0 == i)//연기
+			{
+				xmf3PlayerPosition.x += 25 * pPlayer->GetRight().x;
+				xmf3PlayerPosition.y += 25 * pPlayer->GetRight().y;
+				xmf3PlayerPosition.z += 25 * pPlayer->GetRight().z;
+
+				xmf3PlayerPosition.y += 8.0f;
+			}
+			else if (1==i)//로딩
 			{
 				xmf3PlayerPosition.y += 43.0f;
 				xmf3PlayerPosition.x -= 30.0f;
@@ -1609,30 +1620,14 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
 			}
-			else if (6 == obj[i]->texMat.z)
+			else if (2 == i &&!mon.empty())//파티클
 			{
-				xmf3PlayerPosition.x += 25 * pPlayer->GetRight().x;
-				xmf3PlayerPosition.y += 25 * pPlayer->GetRight().y;
-				xmf3PlayerPosition.z += 25 * pPlayer->GetRight().z;
-
-				xmf3PlayerPosition.y += 8.0f;
+				xmf3MonPos = mon[boss]->GetPosition();
+				xmf3MonLook = mon[boss]->GetLook();
+				xmf3MonPos.y += 40.0f;
+				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
 			}
-			else if (2 == obj[i]->texMat.z)
-			{
-				if (pPlayer->alive)
-					xmf3PlayerPosition.y -= 85.0f;
-				else
-					xmf3PlayerPosition.y -= 79.0f;
-
-				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
-				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
-				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
-			}
-			else if (8 == obj[i]->texMat.z && 2 != i)
-			{
-				xmf3PlayerPosition.y += 40.0f;
-			}
-			else if (3 == i )//몬스터 피격
+			else if (3 == i)//몬스터 피격
 			{
 				for (auto& t : mon)
 				{
@@ -1642,6 +1637,9 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 						break;
 					}
 				}
+
+				if (!m)
+					break;
 
 				xmf3MonPos = m->GetPosition();
 				xmf3MonLook = m->GetLook();
@@ -1653,7 +1651,18 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 
 				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 			}
-			else if (5 == i)
+			else if (4==i)//화면
+			{
+				if (pPlayer->alive)
+					xmf3PlayerPosition.y -= 85.0f;
+				else
+					xmf3PlayerPosition.y -= 79.0f;
+
+				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
+				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
+				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
+			}
+			else//플레이어 피격
 			{
 				xmf3PlayerPosition.y -= 79.0f;
 
@@ -1661,38 +1670,32 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
 			}
-			else if (2 == i )//파티클
-			{
-				xmf3MonPos = mon[boss]->GetPosition();
-				xmf3MonLook = mon[boss]->GetLook();
-				xmf3MonPos.y += 40.0f;
-				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
-			}
+			
 
 			XMFLOAT3 xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
 
 			if (obj[i])
 			{
-				if (4 != obj[i]->texMat.z && 1 != obj[i]->texMat.z && 2 != i)
+				if (1!=i  && 2 != i && 1 != obj[i]->texMat.z)
 				{
 					obj[i]->SetPosition(xmf3Position);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
-				else if (4 == obj[i]->texMat.z)
+				else if (1== i)//로딩
 				{
 					obj[i]->SetPosition(xmf3PlayerPosition);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
-				else if (1 == obj[i]->texMat.z)
-				{
-
-					obj[i]->SetPosition(xmf3Pos);
-					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
-				}
-				else if (2 == i)
+				
+				else if (2 == i)//파티클
 				{
 					obj[i]->SetPosition(xmf3MonPos);
 					obj[i]->SetLookAt(xmf3CameraPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
+				else if (1 == obj[i]->texMat.z)//몬스터 피격 3
+				{
+					obj[i]->SetPosition(xmf3Pos);
+					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 
 				CShader::Render(pd3dCommandList, pCamera);

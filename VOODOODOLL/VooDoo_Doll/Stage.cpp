@@ -199,14 +199,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_ground_whole_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
-	ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	/*ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	ppTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_03_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
-	ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/ceiling_wood_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	/*ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/ceiling_wood_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	ppTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Box_Wood_4_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
@@ -214,8 +214,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[6] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[6]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Box_Wood_3_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
 
-	ppTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Boxes_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
+	/*ppTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Boxes_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	ppTextures[8] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[8]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wooden_Chair_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -277,6 +277,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
+
+
+
+
+
+	
+
+
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -310,18 +318,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pButtonTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pButtonTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_8_Albedo.dds", RESOURCE_TEXTURE2D, 0);
 
-	pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);
+	/*pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	// 캔들 오브젝트
-	pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	/*pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
 
 	pCandleTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);
 
 	pCandleTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);
+	pCandleTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	pCandleTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_Off.dds", RESOURCE_TEXTURE2D, 0);
@@ -352,16 +360,19 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int a{}; a < 37; ++a)
 	{
-		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
+		if(2!=a && 4!=a && 7!=a)
+			CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 	for (int a{}; a < 6; ++a)
 	{
-		CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
+		if (2<a )
+			CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
 	}
-	for (int a{}; a < 2; ++a)
+	/*for (int a{}; a < 2; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
-	}
+	}*/
+	CreateShaderResourceViews(pd3dDevice, pButtonTextures[0], 0, 3);
 
 	for (int u{}; u < 2; ++u)
 	{
@@ -586,13 +597,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials = new CMaterial * [1];
 		pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0] = pMaterial;
 
-		if (2 == i)//파티클
-		{
-			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
-			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 6.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
-			pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 8;
-		}
-		else if (0 == i)//연기
+		if (0 == i)//연기
 		{
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
@@ -602,12 +607,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 3.0f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z * 1.5f);
 		}
+		else if (2 == i)//파티클
+		{
+			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 6.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+			pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 8;
+		}
 		else //피
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;
 	}
-
-	pMultiSpriteObjectShader->obj[4]->m_ppMaterials = new CMaterial * [1];
-	pMultiSpriteObjectShader->obj[5]->m_ppMaterials = new CMaterial * [1];
 
 	for (int h{}; h < 6; ++h)
 	{
@@ -620,15 +628,20 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppShaders[0]->gameMat[h] = pMaterial;
 	}
 
+	pMultiSpriteObjectShader->obj[4]->m_ppMaterials = new CMaterial * [1];
 	pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_ppShaders[0]->gameMat[3];
 	pMultiSpriteObjectShader->obj[4]->texMat.z = 2;
-	pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+	pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-	CMaterial* pMaterial = new CMaterial(1);
-	pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	pMaterial->SetTexture(ppTextures[36]);
-	pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0] = pMaterial;
-	pMultiSpriteObjectShader->obj[5]->texMat.z = 3;
+	for (int i{}; i < 3; ++i)
+	{
+		pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials = new CMaterial * [1];
+		CMaterial* pMaterial = new CMaterial(1);
+		pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
+		pMaterial->SetTexture(ppTextures[36]);
+		pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0] = pMaterial;
+		pMultiSpriteObjectShader->obj[5 + i]->texMat.z = 3;
+	}
 	
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)

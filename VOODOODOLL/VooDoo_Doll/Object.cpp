@@ -214,7 +214,7 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 				m_nCol = 0; //¼¼·Î 0
 
 				if (4 != texMat.z )
-					m_bActive = false;
+					m_bActive[0] = false;
 			}
 
 			if (4 != texMat.z)

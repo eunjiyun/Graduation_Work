@@ -145,10 +145,10 @@ public:
 	vector<CMonster*> Monsters;
 	short damagedMon = -1;
 	CCamera* m_pCamera = NULL;
-	float beforeHp = 5000;
+	float beforeHp[3] = { 5000,5000,5000 };
 
-	float time = 0.f;
-	float plTime = 0.f;
+	float bloodTime=0.0f;
+	float plTime[3] = { 0.0f,0.0f,0.0f };
 	bool openDoor[7] = { false,false,false,false,false,false,false };
 
 	POINT						m_ptOldCursorPos;

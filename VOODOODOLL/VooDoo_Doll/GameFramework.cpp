@@ -582,10 +582,10 @@ void CGameFramework::BuildObjects()
 	for (int j{}; j < 4; ++j)
 		pMonsterModel[0].push(
 			CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[0], NULL, 1));
-	
+
 	pMonsterModel[3].push(
 		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
-	
+
 	for (int i = 0; i < 3; i++) {
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}*/
@@ -984,18 +984,25 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	}
 
 
-	time += fTimeElapsed;
-	if (time > 0.3f)
+	bloodTime += fTimeElapsed;
+	if (bloodTime > 0.3f)
 	{
-		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
+		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
 		damagedMon = -1;
-		time = 0.f;
+		bloodTime = 0.f;
 	}
-	plTime += fTimeElapsed;
-	if (plTime > 0.5f)
+
+	for (int i{}; i < 3; ++i)
 	{
-		m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
-		plTime = 0.f;
+		if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
+		{
+			plTime[i] += fTimeElapsed;
+			if (plTime[i] > 0.5f)
+			{
+				m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//피
+				plTime[i] = 0.f;
+			}
+		}
 	}
 
 }
@@ -1052,7 +1059,7 @@ void CGameFramework::FrameAdvance()
 	if (loginSign[1] && !gameEnd && !lobby[0])
 	{
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
-		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 	}
 
 	// hWnd는 게임 창의 윈도우 핸들입니다.
@@ -1073,7 +1080,7 @@ void CGameFramework::FrameAdvance()
 				if (!lobby[0])
 				{
 					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
-					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 				}
 
 				lobby[0] = true;
@@ -1101,7 +1108,7 @@ void CGameFramework::FrameAdvance()
 				if (!lobby[0])
 				{
 					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
-					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 				}
 
 				lobby[0] = true;
@@ -1179,7 +1186,7 @@ void CGameFramework::FrameAdvance()
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
 		{
 			m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+			m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 			lobby[2] = false;
 			gameEnd = true;
 
@@ -1286,7 +1293,7 @@ void CGameFramework::FrameAdvance()
 	if (!Monsters.empty())
 	{
 		if (-1 != damagedMon)
-			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;
+			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
 		if (5 == Monsters[0]->c_id / 10)
 		{
@@ -1295,9 +1302,9 @@ void CGameFramework::FrameAdvance()
 				if (59 == Monsters[m]->c_id)
 				{
 					if (2 == Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
-						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = true;//0624
+						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;//0624
 					else
-						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;
+						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 
 					break;
 				}
@@ -1305,7 +1312,7 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon,m);
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon, m);
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])

@@ -67,7 +67,7 @@ private:
 public:
 	int 							m_nRow = 0;
 	int 							m_nCol = 0;
-	bool m_bActive = false;
+	bool m_bActive[3] = { false,false,false };
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -121,42 +121,42 @@ public:
 	virtual ~CMaterial();
 
 private:
-	int								m_nReferences = 0;//
+	int								m_nReferences = 0;
 
 public:
-	CShader* m_pShader = NULL;//
+	CShader* m_pShader = NULL;
 	
-	static CShader* m_pStandardShader;//
-	static CShader* m_pSkinnedAnimationShader;//
+	static CShader* m_pStandardShader;
+	static CShader* m_pSkinnedAnimationShader;
 	static CShader* depthShader;
 	
-	CTexture** m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal //
+	CTexture** m_ppTextures = NULL; //0:Albedo, 1:Specular, 2:Metallic, 3:Normal, 4:Emission, 5:DetailAlbedo, 6:DetailNormal 
 
 
-	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);//
-	XMFLOAT4						m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);//
-	XMFLOAT4						m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);//
-	XMFLOAT4						m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);//
-
-public:
-	UINT							m_nType = 0x00;//
-
-
-	float							m_fGlossiness = 0.0f;//
-	float							m_fSmoothness = 0.0f;//
-	float							m_fSpecularHighlight = 0.0f;//
-	float							m_fMetallic = 0.0f;//
-	float							m_fGlossyReflection = 0.0f;//
+	XMFLOAT4						m_xmf4AlbedoColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	XMFLOAT4						m_xmf4EmissiveColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4						m_xmf4SpecularColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	XMFLOAT4						m_xmf4AmbientColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 public:
-	int 							m_nTextures = 0;//
+	UINT							m_nType = 0x00;
+
+
+	float							m_fGlossiness = 0.0f;
+	float							m_fSmoothness = 0.0f;
+	float							m_fSpecularHighlight = 0.0f;
+	float							m_fMetallic = 0.0f;
+	float							m_fGlossyReflection = 0.0f;
+
+public:
+	int 							m_nTextures = 0;
 	_TCHAR(*m_ppstrTextureNames)[64] = NULL;
-	int								m_nMaterial = 1; //Material Index, CScene::m_pReflections[] //
+	int								m_nMaterial = 1; //Material Index, CScene::m_pReflections[] 
 
 public:
 
 
-	XMFLOAT4						m_xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);//
+	XMFLOAT4						m_xmf4EmissionColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
 public:
 	void AddRef() { m_nReferences++; }
