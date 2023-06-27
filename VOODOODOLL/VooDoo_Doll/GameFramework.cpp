@@ -1312,7 +1312,7 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon, m);
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon,Players, m);
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])

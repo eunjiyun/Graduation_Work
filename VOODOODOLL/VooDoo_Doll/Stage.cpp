@@ -601,6 +601,16 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		{
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 6;
 			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
+
+			pMultiSpriteObjectShader->obj[8]->m_ppMaterials = new CMaterial * [1];
+			pMultiSpriteObjectShader->obj[8]->m_ppMaterials[0] = pMaterial;
+			pMultiSpriteObjectShader->obj[8]->texMat.z = 6;
+			pMultiSpriteObjectShader->obj[8]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[8]->texMat.z * pMultiSpriteObjectShader->obj[8]->texMat.z);
+
+			pMultiSpriteObjectShader->obj[9]->m_ppMaterials = new CMaterial * [1];
+			pMultiSpriteObjectShader->obj[9]->m_ppMaterials[0] = pMaterial;
+			pMultiSpriteObjectShader->obj[9]->texMat.z = 6;
+			pMultiSpriteObjectShader->obj[9]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[9]->texMat.z * pMultiSpriteObjectShader->obj[9]->texMat.z);
 		}
 		else if (1 == i)//로딩
 		{
@@ -642,6 +652,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0] = pMaterial;
 		pMultiSpriteObjectShader->obj[5 + i]->texMat.z = 3;
 	}
+
+	
 	
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
