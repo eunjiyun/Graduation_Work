@@ -242,10 +242,10 @@ public:
 
 	void send_changeweapon_packet(SESSION* Player)
 	{
-		CS_CHANGEWEAPON_PACKET p;
+		SC_CHANGEWEAPON_PACKET p;
 		p.id = Player->_id;
-		p.size = sizeof(CS_CHANGEWEAPON_PACKET);
-		p.type = CS_CHANGEWEAPON;
+		p.size = sizeof(SC_CHANGEWEAPON_PACKET);
+		p.type = SC_CHANGEWEAPON;
 		p.cur_weaponType = Player->weapon_type;
 		do_send(&p);
 	}

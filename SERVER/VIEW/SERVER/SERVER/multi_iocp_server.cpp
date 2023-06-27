@@ -318,7 +318,7 @@ void process_packet(const int c_id, char* packet)
 		auto& Monsters = getRoom_Monsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
 		XMFLOAT3 _Look = CL.GetLookVector();
-
+		XMFLOAT3 _Pos = CL.GetPosition();
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
@@ -326,11 +326,11 @@ void process_packet(const int c_id, char* packet)
 		{
 		case BLADE:
 		{
-			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 10, false));
+			_Pos = Vector3::Add(_Pos, Vector3::ScalarProduct(_Look, 10, false));
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(_Pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 100;
 					monster->target_id = CL._id;
@@ -347,15 +347,15 @@ void process_packet(const int c_id, char* packet)
 		break;
 		case GUN:
 		{
-			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
-			XMVECTOR Bullet_Origin = XMLoadFloat3(&p->pos);
+			_Pos = Vector3::Add(_Pos, Vector3::ScalarProduct(_Look, 5, false));
+			XMVECTOR Bullet_Origin = XMLoadFloat3(&_Pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
 			vector<Monster*> monstersInRange;
 
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> monster_lock{ monster->m_lock };
-				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
+				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, _Pos));
 				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 				{
 					monstersInRange.push_back(monster);
@@ -369,7 +369,7 @@ void process_packet(const int c_id, char* packet)
 				for (auto& monster : monstersInRange)
 				{
 					lock_guard<mutex> monster_lock{ monster->m_lock };
-					float distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, p->pos));
+					float distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, _Pos));
 					if (distance < minDistance)
 					{
 						minDistance = distance;
@@ -379,13 +379,13 @@ void process_packet(const int c_id, char* packet)
 				if (closestMonster)
 				{
 					lock_guard<mutex> monster_lock{ closestMonster->m_lock };
-					int _min = static_cast<int>(min(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
-					int _max = static_cast<int>(max(p->pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
+					int _min = static_cast<int>(min(_Pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
+					int _max = static_cast<int>(max(_Pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
 					for (int i = _min; i <= _max; i++)
 					{
 						for (auto& obj : Obstacles[i])
 						{
-							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, p->pos));
+							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, _Pos));
 							if (obj->m_xmOOBB.Intersects(Bullet_Origin, Bullet_Direction, bullet_obstacle_distance) &&
 								bullet_obstacle_distance < minDistance) {
 								return;
@@ -408,11 +408,11 @@ void process_packet(const int c_id, char* packet)
 		}
 		case PUNCH:
 		{
-			p->pos = Vector3::Add(p->pos, Vector3::ScalarProduct(_Look, 5, false));
+			_Pos = Vector3::Add(_Pos, Vector3::ScalarProduct(_Look, 5, false));
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(p->pos, monster->GetPosition())) < 40)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(_Pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 50;
 					monster->target_id = CL._id;

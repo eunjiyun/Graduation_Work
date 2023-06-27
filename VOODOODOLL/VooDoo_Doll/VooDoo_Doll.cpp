@@ -289,8 +289,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_ATTACK_PACKET p;
 				p.size = sizeof(CS_ATTACK_PACKET);
 				p.type = CS_ATTACK;
-				p.id = gGameFramework.m_pPlayer->c_id;
-				p.pos = gGameFramework.m_pPlayer->GetPosition();
 				OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
@@ -316,8 +314,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				CS_CHANGEWEAPON_PACKET p;
 				p.size = sizeof(CS_CHANGEWEAPON_PACKET);
 				p.type = CS_CHANGEWEAPON;
-				p.id = gGameFramework.m_pPlayer->c_id;
-				p.cur_weaponType = gGameFramework.m_pPlayer->cur_weapon;
 				OVER_EXP* weapon_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
@@ -599,7 +595,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 			/*(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));*/
 		}
 
-		if (0 == packet->id)
+		if (0 == packet->id % 3)
 		{
 			if (0 != packet->HP && gGameFramework.beforeHp[0] != packet->HP)
 			{
@@ -607,7 +603,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				gGameFramework.beforeHp[0] = packet->HP;
 			}
 		}
-		else if (1 == packet->id)
+		else if (1 == packet->id % 3)
 		{
 			if (0 != packet->HP && gGameFramework.beforeHp[1] != packet->HP)
 			{
@@ -615,7 +611,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
 				gGameFramework.beforeHp[1] = packet->HP;
 			}
 		}
-		else if (2 == packet->id)
+		else if (2 == packet->id % 3)
 		{
 			if (0 != packet->HP && gGameFramework.beforeHp[2] != packet->HP)
 			{
@@ -645,8 +641,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		(*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
 		break;
 	}
-	case CS_CHANGEWEAPON: {
-		CS_CHANGEWEAPON_PACKET* packet = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(ptr);
+	case SC_CHANGEWEAPON: {
+		SC_CHANGEWEAPON_PACKET* packet = reinterpret_cast<SC_CHANGEWEAPON_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
 		int cur_track = (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track;
 		(*iter)->m_pChild = (*iter)->pAngrybotModels[packet->cur_weaponType]->m_pModelRootObject;
@@ -755,7 +751,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 	}
 	case SC_MONSTER_DAMAGED: {
 		SC_MONSTER_DAMAGED_PACKET* packet = reinterpret_cast<SC_MONSTER_DAMAGED_PACKET*>(ptr);
-		//cout << packet->monster_id << " 몬스터가 데미지를 받음!\n";
 		gGameFramework.damagedMon = packet->monster_id;
 		break;
 	}
@@ -766,7 +761,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 void CALLBACK send_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DWORD flags)
 {
 	OVER_EXP* ex_over = reinterpret_cast<OVER_EXP*>(over);
-
 	delete ex_over;
 }
 

@@ -26,13 +26,14 @@ constexpr char SC_REMOVE_PLAYER = 10;
 constexpr char SC_UPDATE_PLAYER = 11;
 constexpr char SC_ROTATE_PLAYER = 12;
 constexpr char SC_ATTACK = 13;
-constexpr char SC_SUMMON_MONSTER = 14;
-constexpr char SC_MOVE_MONSTER = 15;
-constexpr char SC_OPEN_DOOR = 16;
-constexpr char SC_LOGIN_COMPLETE = 17;
-constexpr char SC_GAME_CLEAR = 18;
-constexpr char SC_INTERACTION = 19;
-constexpr char SC_MONSTER_DAMAGED = 20;
+constexpr char SC_CHANGEWEAPON = 14;
+constexpr char SC_SUMMON_MONSTER = 15;
+constexpr char SC_MOVE_MONSTER = 16;
+constexpr char SC_OPEN_DOOR = 17;
+constexpr char SC_LOGIN_COMPLETE = 18;
+constexpr char SC_GAME_CLEAR = 19;
+constexpr char SC_INTERACTION = 20;
+constexpr char SC_MONSTER_DAMAGED = 21;
 #include "stdafx.h"
 
 #define _STRESS_TEST
@@ -55,10 +56,9 @@ constexpr short CS_SIGN_PACKET_SIZE = sizeof(CS_SIGN_PACKET);
 struct CS_MOVE_PACKET {
 	unsigned char size;
 	char	type;
-	DWORD	direction = 0;
+	short	direction = 0;
 	XMFLOAT3 pos;
 	XMFLOAT3 vel;
-
 #ifdef _STRESS_TEST
 	unsigned	move_time;
 #endif
@@ -77,8 +77,6 @@ constexpr short CS_ROTATE_PACKET_SIZE = sizeof(CS_ROTATE_PACKET);
 struct CS_ATTACK_PACKET {
 	unsigned char size;
 	char	type;
-	short	id;
-	XMFLOAT3 pos;
 };
 constexpr short CS_ATTACK_PACKET_SIZE = sizeof(CS_ATTACK_PACKET);
 
@@ -91,8 +89,6 @@ constexpr short CS_INTERACTION_PACKET_SIZE = sizeof(CS_INTERACTION_PACKET);
 struct CS_CHANGEWEAPON_PACKET {
 	unsigned char size;
 	char	type;
-	short	id;
-	short cur_weaponType;
 };
 constexpr short CS_CHANGEWEAPON_PACKET_SIZE = sizeof(CS_CHANGEWEAPON_PACKET);
 
@@ -147,6 +143,14 @@ struct SC_ATTACK_PACKET {
 	short	id;
 };
 constexpr short SC_ATTACK_PACKET_SIZE = sizeof(SC_ATTACK_PACKET);
+
+struct SC_CHANGEWEAPON_PACKET {
+	unsigned char size;
+	char	type;
+	short	id;
+	short	cur_weaponType;
+};
+constexpr short SC_CHANGEWEAPON_PACKET_SIZE = sizeof(SC_CHANGEWEAPON_PACKET);
 
 struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
@@ -212,7 +216,7 @@ struct SC_START_GAME_PACKET {
 	XMFLOAT3 start_pos;
 };
 constexpr short SC_START_GAME_PACKET_SIZE = sizeof(SC_START_GAME_PACKET);
-#pragma pack (pop)
+
 
 struct SC_MONSTER_DAMAGED_PACKET {
 	unsigned char size;
@@ -220,3 +224,5 @@ struct SC_MONSTER_DAMAGED_PACKET {
 	short	player_id;
 	short	monster_id;
 };
+
+#pragma pack (pop)
