@@ -459,15 +459,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 if (ErrorStatus == SOCKET_ERROR)
                 {
-                    err_display("WSASend()");
-                    gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
+                    err_display("WSASend()");   
                 }
-                else
-                {
-                    gGameFramework.loginSign[1] = true;
-                    gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
-                }
-                gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
                 delete[] wcharArray;
                 gGameFramework.signIn = -1;
@@ -570,10 +563,15 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_LOGIN_COMPLETE: {
         SC_LOGIN_COMPLETE_PACKET* packet = reinterpret_cast<SC_LOGIN_COMPLETE_PACKET*>(ptr);
-        if (packet->success) {
+        if (packet->success == true) {
             gGameFramework.loginSign[1] = true;
-            cout << "LOGIN 성공\n";
+            gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
+            wcout << "LOGIN 성공\n";
         }
+        else {
+            gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
+        }
+        gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
         break;
     }
     case SC_REMOVE_PLAYER: {

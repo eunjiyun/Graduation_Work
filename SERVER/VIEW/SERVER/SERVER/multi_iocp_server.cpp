@@ -214,17 +214,29 @@ void DB_Thread()
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									OVER_EXP* ov = new OVER_EXP;
-									ov->_comp_type = OP_LOGGEDIN;
-									PostQueuedCompletionStatus(h_iocp, 1, session._id, &ov->_over);
+									SC_LOGIN_COMPLETE_PACKET p;
+									p.success = true;
+									p.type = SC_LOGIN_COMPLETE;
+									p.size = sizeof(p);
+									session.do_send(&p);
 									printf("LOGIN OK \n");
 								}
 								else {
+									SC_LOGIN_COMPLETE_PACKET p;
+									p.success = false;	
+									p.type = SC_LOGIN_COMPLETE;
+									p.size = sizeof(p);
+									session.do_send(&p);
 									printf("LOGIN FAILED \n");
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
 							}
 							else {
+								SC_LOGIN_COMPLETE_PACKET p;
+								p.success = false;
+								p.type = SC_LOGIN_COMPLETE;
+								p.size = sizeof(p);
+								session.do_send(&p);
 								printf("SQLPrepare failed \n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
