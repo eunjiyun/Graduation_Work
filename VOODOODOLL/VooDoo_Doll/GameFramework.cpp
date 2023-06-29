@@ -997,7 +997,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
 		{
 			plTime[i] += fTimeElapsed;
-			if (plTime[i] > 0.5f)
+			if (plTime[i] > 0.2f)
 			{
 				m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//피
 				plTime[i] = 0.f;
@@ -1005,6 +1005,12 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
+	popUpTime += fTimeElapsed;
+	if (popUpTime > 3.f)
+	{
+		m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//팝업
+		popUpTime = 0.f;
+	}
 }
 
 void CGameFramework::WaitForGpuComplete()
@@ -1081,6 +1087,7 @@ void CGameFramework::FrameAdvance()
 				{
 					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
 					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+					m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 				}
 
 				lobby[0] = true;
@@ -1109,6 +1116,7 @@ void CGameFramework::FrameAdvance()
 				{
 					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[4];
 					m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+					m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 				}
 
 				lobby[0] = true;

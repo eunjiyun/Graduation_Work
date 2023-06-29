@@ -1537,7 +1537,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	m_nObjects = 10;
+	m_nObjects = 11;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1552,9 +1552,11 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		else if (1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
 		else if (2 == j)
-			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 80.0f, 80.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
 		else if (3 == j)//||5==j)//피
-			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 30.0f, 30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		else if (10 == j )//팝업
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 60.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else//화면
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
 
@@ -1594,20 +1596,15 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		for (int i{}; i < pl.size(); ++i)
 		{
 			if (0 == pl[i]->c_id && obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0])
-			{
 				p1 = pl[i];
-			}
 			else if (1 == pl[i]->c_id && obj[8]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1])
-			{
 				p2 = pl[i];
-			}
 			else if (2 == pl[i]->c_id && obj[9]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2])
-			{
 				p3 = pl[i];
-			}
 		}
 
 		if (0 < i && 5 > i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
+			||10==i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
 			|| 5 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && 0 == pPlayer->c_id
 			|| 6 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] && 1 == pPlayer->c_id
 			|| 7 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] && 2 == pPlayer->c_id
@@ -1707,6 +1704,14 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					xmf3PlayerPosition.y -= 85.0f;
 				else
 					xmf3PlayerPosition.y -= 79.0f;
+
+				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
+				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
+				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
+			}
+			else if (10 == i)//팝업
+			{
+				xmf3PlayerPosition.y -= 30.0f;
 
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;

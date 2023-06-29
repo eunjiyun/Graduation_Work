@@ -149,6 +149,7 @@ public:
 
 	float bloodTime=0.0f;
 	float plTime[3] = { 0.0f,0.0f,0.0f };
+	float popUpTime = 0.0f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };
 
 	POINT						m_ptOldCursorPos;

@@ -202,11 +202,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	/*ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
+	ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup1.dds", RESOURCE_TEXTURE2D, 0);
+
 	ppTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_03_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
 	/*ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/ceiling_wood_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
+
+	ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup2.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Box_Wood_4_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
@@ -360,7 +366,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int a{}; a < 37; ++a)
 	{
-		if(2!=a && 4!=a && 7!=a)
+		if(7!=a)
 			CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 	for (int a{}; a < 6; ++a)
@@ -653,8 +659,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[5 + i]->texMat.z = 3;
 	}
 
-	
-	
+	for (int i{}; i < 2; ++i)
+	{
+		m_ppShaders[0]->popUpMat[i] = new CMaterial(1);
+		m_ppShaders[0]->popUpMat[i]->SetMaterialType(MATERIAL_ALBEDO_MAP);
+		m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[2*i+2]);
+	}
+	pMultiSpriteObjectShader->obj[10]->m_ppMaterials = new CMaterial * [1];
+	pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = m_ppShaders[0]->popUpMat[1];
+	pMultiSpriteObjectShader->obj[10]->texMat.z = 2;
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{

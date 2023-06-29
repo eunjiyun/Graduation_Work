@@ -48,6 +48,7 @@ public:
 	int							m_nDoor = 0;
 	CTexture*				gameScreen[6];
 	CMaterial*				gameMat[6];
+	CMaterial* popUpMat[2];
 	int m_nBoxObj = 0;
 
 	CMultiSpriteObject** obj = nullptr;

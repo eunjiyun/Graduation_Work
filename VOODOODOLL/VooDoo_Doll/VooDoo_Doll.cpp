@@ -401,10 +401,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_MOUSEMOVE:
         gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
 
+       /*gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+        gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[6]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] = false;
+        gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[7]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] = false;*/
 
         if (0 == gGameFramework.signIn)
         {
-            //if (false == gGameFramework.loginSign[0])
+            //if (!gGameFramework.loginSign[0])
             //{
                 CS_SIGN_PACKET p;
                 p.size = sizeof(CS_SIGN_PACKET);
@@ -433,8 +436,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         else if (1 == gGameFramework.signIn)
         {
-            //if (false == gGameFramework.loginSign[1])
-            //{
+            //if (!gGameFramework.loginSign[1])
+           // {
                 CS_SIGN_PACKET p;
                 p.size = sizeof(CS_SIGN_PACKET);
                 p.type = CS_SIGNIN;
@@ -453,7 +456,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 cout << "SIGNIN_PACKET SENT\n";
                 OVER_EXP* signin_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
                 int ErrorStatus = WSASend(s_socket, &signin_data->_wsabuf, 1, 0, 0, &signin_data->_over, &send_callback);
-                if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+
+                if (ErrorStatus == SOCKET_ERROR)
+                {
+                    err_display("WSASend()");
+                    gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
+                }
+                else
+                {
+                    gGameFramework.loginSign[1] = true;
+                    gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
+                }
+                gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
                 delete[] wcharArray;
                 gGameFramework.signIn = -1;
@@ -643,6 +657,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[8]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] = true;
         else if (2 == (*iter)->c_id)
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[9]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] = true;
+
         break;
     }
     case SC_CHANGEWEAPON: {
