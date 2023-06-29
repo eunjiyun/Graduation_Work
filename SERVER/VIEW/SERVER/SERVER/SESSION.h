@@ -176,12 +176,12 @@ public:
 		int ret = WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 		//if (ret != 0 && WSAGetLastError() != WSA_IO_PENDING) err_display("WSASend()");
 	}
-	void send_login_info_packet()
+	void send_game_start_packet()
 	{
-		SC_LOGIN_INFO_PACKET p;
+		SC_GAME_START_PACKET p;
 		p.id = _id;
-		p.size = sizeof(SC_LOGIN_INFO_PACKET);
-		p.type = SC_LOGIN_INFO;
+		p.size = sizeof(SC_GAME_START_PACKET);
+		p.type = SC_GAME_START;
 		p.pos = m_xmf3Position;
 		do_send(&p);
 	}

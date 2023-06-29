@@ -25,7 +25,7 @@ constexpr char CS_ATTACK = 5;
 constexpr char CS_INTERACTION = 6;
 constexpr char CS_CHANGEWEAPON = 7;
 
-constexpr char SC_LOGIN_INFO = 8;
+constexpr char SC_GAME_START = 8;
 constexpr char SC_ADD_PLAYER = 9;
 constexpr char SC_REMOVE_PLAYER = 10;
 constexpr char SC_UPDATE_PLAYER = 11;
@@ -35,10 +35,11 @@ constexpr char SC_CHANGEWEAPON = 14;
 constexpr char SC_SUMMON_MONSTER = 15;
 constexpr char SC_MOVE_MONSTER = 16;
 constexpr char SC_OPEN_DOOR = 17;
-constexpr char SC_LOGIN_COMPLETE = 18;
-constexpr char SC_GAME_CLEAR = 19;
-constexpr char SC_INTERACTION = 20;
-constexpr char SC_MONSTER_DAMAGED = 21;
+constexpr char SC_SIGNUP = 18;
+constexpr char SC_SIGNIN = 19;
+constexpr char SC_GAME_CLEAR = 20;
+constexpr char SC_INTERACTION = 21;
+constexpr char SC_MONSTER_DAMAGED = 22;
 
 #include "stdafx.h"
 
@@ -98,13 +99,13 @@ struct CS_CHANGEWEAPON_PACKET {
 };
 constexpr short CS_CHANGEWEAPON_PACKET_SIZE = sizeof(CS_CHANGEWEAPON_PACKET);
 
-struct SC_LOGIN_INFO_PACKET {
+struct SC_GAME_START_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
 	XMFLOAT3 pos;
 };
-constexpr short SC_LOGIN_INFO_PACKET_SIZE = sizeof(SC_LOGIN_INFO_PACKET);
+constexpr short SC_GAME_START_PACKET_SIZE = sizeof(SC_GAME_START_PACKET);
 
 struct SC_ADD_PLAYER_PACKET {
 	unsigned char size;
@@ -195,12 +196,12 @@ struct SC_OPEN_DOOR_PACKET {
 };
 constexpr short SC_OPEN_DOOR_PACKET_SIZE = sizeof(SC_OPEN_DOOR_PACKET);
 
-struct SC_LOGIN_COMPLETE_PACKET {
+struct SC_SIGN_PACKET {
 	unsigned char size;
 	char	type;
 	bool	success;
 };
-constexpr short SC_LOGIN_COMPLETE_PACKET_SIZE = sizeof(SC_LOGIN_COMPLETE_PACKET);
+constexpr short SC_SIGN_PACKET_SIZE = sizeof(SC_SIGN_PACKET);
 
 struct SC_GAME_CLEAR_PACKET {
 	unsigned char size;

@@ -545,11 +545,11 @@ void ProcessAnimation(CPlayer* pl, SC_UPDATE_PLAYER_PACKET* p)
 void ProcessPacket(char* ptr)//몬스터 생성
 {
     switch (ptr[1]) {
-    case SC_LOGIN_INFO: {
+    case SC_GAME_START: {
         gGameFramework.lobby[2] = true;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
-        SC_LOGIN_INFO_PACKET* packet = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(ptr);
+        SC_GAME_START_PACKET* packet = reinterpret_cast<SC_GAME_START_PACKET*>(ptr);
         gGameFramework.m_pPlayer->c_id = packet->id;
         gGameFramework.m_pPlayer->SetPosition(packet->pos);
         cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
@@ -561,19 +561,35 @@ void ProcessPacket(char* ptr)//몬스터 생성
         gGameFramework.CreateOtherPlayer(packet->id, packet->Pos);
         break;
     }
-    case SC_LOGIN_COMPLETE: {
-        SC_LOGIN_COMPLETE_PACKET* packet = reinterpret_cast<SC_LOGIN_COMPLETE_PACKET*>(ptr);
+    case SC_SIGNIN: {
+        SC_SIGN_PACKET* packet = reinterpret_cast<SC_SIGN_PACKET*>(ptr);
         if (packet->success == true) {
             gGameFramework.loginSign[1] = true;
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
-            wcout << "LOGIN 성공\n";
+            wcout << "SIGNIN SUCCEED\n";
         }
         else {
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
+            wcout << "SIGNIN FAILED\n";
         }
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
         break;
     }
+    case SC_SIGNUP: {
+        SC_SIGN_PACKET* packet = reinterpret_cast<SC_SIGN_PACKET*>(ptr);
+        if (packet->success == true) {
+            //gGameFramework.loginSign[1] = true;
+            //gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
+            wcout << "SIGNUP SUCCEED\n";
+        }
+        else {
+            wcout << "SIGNUP FAILED\n";
+            //gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
+        }
+        //gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+        break;
+    }
+
     case SC_REMOVE_PLAYER: {
         SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
         auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });

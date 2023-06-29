@@ -194,17 +194,33 @@ void DB_Thread()
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									printf("SIGNUP OK \n");
+									SC_SIGN_PACKET p;
+									p.success = true;
+									p.type = SC_SIGNUP;
+									p.size = sizeof(p);
+									session.do_send(&p);
+									wcout << "SIGNUP SUCCEED \n";
 								}
 								else {
-									printf("SIGNUP FAILED \n");
+									SC_SIGN_PACKET p;
+									p.success = false;
+									p.type = SC_SIGNUP;
+									p.size = sizeof(p);
+									session.do_send(&p);
+									wcout << "SIGNUP FAILED \n";
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
 							}
 							else {
+								SC_SIGN_PACKET p;
+								p.success = false;
+								p.type = SC_SIGNUP;
+								p.size = sizeof(p);
+								session.do_send(&p);
 								printf("SQLPrepare failed \n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
+							SQLFreeStmt(hstmt, SQL_CLOSE);
 							break;
 						case EV_SIGNIN:
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
@@ -214,32 +230,33 @@ void DB_Thread()
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									SC_LOGIN_COMPLETE_PACKET p;
+									SC_SIGN_PACKET p;
 									p.success = true;
-									p.type = SC_LOGIN_COMPLETE;
+									p.type = SC_SIGNIN;
 									p.size = sizeof(p);
 									session.do_send(&p);
-									printf("LOGIN OK \n");
+									wcout << "SIGNIN SUCCEED\n";
 								}
 								else {
-									SC_LOGIN_COMPLETE_PACKET p;
-									p.success = false;	
-									p.type = SC_LOGIN_COMPLETE;
+									SC_SIGN_PACKET p;
+									p.success = false;
+									p.type = SC_SIGNIN;
 									p.size = sizeof(p);
 									session.do_send(&p);
-									printf("LOGIN FAILED \n");
+									printf("SIGNIN FAILED \n");
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
 							}
 							else {
-								SC_LOGIN_COMPLETE_PACKET p;
+								SC_SIGN_PACKET p;
 								p.success = false;
-								p.type = SC_LOGIN_COMPLETE;
+								p.type = SC_SIGNIN;
 								p.size = sizeof(p);
 								session.do_send(&p);
 								printf("SQLPrepare failed \n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
+							SQLFreeStmt(hstmt, SQL_CLOSE);
 							break;
 						}
 					}
@@ -282,7 +299,7 @@ void process_packet(const int c_id, char* packet)
 		//}
 
 		// 1인 게임 - 테스트용
-		CL.send_login_info_packet();
+		CL.send_game_start_packet();
 		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
 			pl.send_add_player_packet(&CL);
@@ -533,9 +550,9 @@ void worker_thread(HANDLE h_iocp)
 		}
 		case OP_LOGGEDIN: {
 			SESSION& CL = getClient(static_cast<int>(key));
-			SC_LOGIN_COMPLETE_PACKET p;
+			SC_SIGN_PACKET p;
 			p.success = true;
-			p.type = SC_LOGIN_COMPLETE;
+			p.type = SC_SIGNIN;
 			p.size = sizeof(p);
 			CL.do_send(&p);
 			//CL.Initialize();
