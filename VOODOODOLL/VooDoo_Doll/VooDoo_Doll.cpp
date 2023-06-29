@@ -579,14 +579,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
         SC_SIGN_PACKET* packet = reinterpret_cast<SC_SIGN_PACKET*>(ptr);
         if (packet->success == true) {
             //gGameFramework.loginSign[1] = true;
-            //gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
+            gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[2];
             wcout << "SIGNUP SUCCEED\n";
         }
         else {
             wcout << "SIGNUP FAILED\n";
-            //gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
+            gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[3];
         }
-        //gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+        gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
         break;
     }
 

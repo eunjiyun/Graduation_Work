@@ -223,6 +223,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	/*ppTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Boxes_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
+	ppTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup3.dds", RESOURCE_TEXTURE2D, 0);
+
 	ppTextures[8] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[8]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wooden_Chair_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -327,6 +330,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	/*pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);*/
 
+	pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup4.dds", RESOURCE_TEXTURE2D, 0);
+
 	// 캔들 오브젝트
 	/*pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
@@ -366,20 +372,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int a{}; a < 37; ++a)
 	{
-		if(7!=a)
-			CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
+		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 	for (int a{}; a < 6; ++a)
 	{
 		if (2<a )
 			CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
 	}
-	/*for (int a{}; a < 2; ++a)
+	for (int a{}; a < 2; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
-	}*/
-	CreateShaderResourceViews(pd3dDevice, pButtonTextures[0], 0, 3);
-
+	}
+	
 	for (int u{}; u < 2; ++u)
 	{
 		CMaterial* pMaterial = new CMaterial(1);
@@ -659,11 +663,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMultiSpriteObjectShader->obj[5 + i]->texMat.z = 3;
 	}
 
-	for (int i{}; i < 2; ++i)
+	for (int i{}; i < 4; ++i)
 	{
 		m_ppShaders[0]->popUpMat[i] = new CMaterial(1);
 		m_ppShaders[0]->popUpMat[i]->SetMaterialType(MATERIAL_ALBEDO_MAP);
-		m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[2*i+2]);
+
+		if(2>i)
+			m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[2*i+2]);
+		else if(2==i)
+			m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[7]);
+		else if(3==i)
+			m_ppShaders[0]->popUpMat[i]->SetTexture(pButtonTextures[1]);
 	}
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials = new CMaterial * [1];
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = m_ppShaders[0]->popUpMat[1];
