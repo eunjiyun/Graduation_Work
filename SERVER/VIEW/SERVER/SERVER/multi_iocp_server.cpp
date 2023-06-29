@@ -183,6 +183,7 @@ void DB_Thread()
 						cout << "GET REQUEST\n";
 						SQLWCHAR* param1 = ev.user_id;
 						SQLWCHAR* param2 = ev.user_password;
+						auto& session = getClient(ev.session_id);
 						if (param1[0] == L'\0' || param2[0] == L'\0') continue;
 						switch (ev._event) {
 						case EV_SIGNUP:
@@ -213,6 +214,9 @@ void DB_Thread()
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									OVER_EXP* ov = new OVER_EXP;
+									ov->_comp_type = OP_LOGGEDIN;
+									PostQueuedCompletionStatus(h_iocp, 1, session._id, &ov->_over);
 									printf("LOGIN OK \n");
 								}
 								else {

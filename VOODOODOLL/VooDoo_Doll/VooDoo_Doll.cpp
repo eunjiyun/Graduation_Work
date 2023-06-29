@@ -404,8 +404,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         if (0 == gGameFramework.signIn)
         {
-            if (false == gGameFramework.loginSign[0])
-            {
+            //if (false == gGameFramework.loginSign[0])
+            //{
                 CS_SIGN_PACKET p;
                 p.size = sizeof(CS_SIGN_PACKET);
                 p.type = CS_SIGNUP;
@@ -428,12 +428,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 gGameFramework.loginSign[0] = true;
                 delete[] wcharArray;
-            }
+                gGameFramework.signIn = -1;
+            //}
         }
         else if (1 == gGameFramework.signIn)
         {
-            if (false == gGameFramework.loginSign[1])
-            {
+            //if (false == gGameFramework.loginSign[1])
+            //{
                 CS_SIGN_PACKET p;
                 p.size = sizeof(CS_SIGN_PACKET);
                 p.type = CS_SIGNIN;
@@ -454,9 +455,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 int ErrorStatus = WSASend(s_socket, &signin_data->_wsabuf, 1, 0, 0, &signin_data->_over, &send_callback);
                 if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
-                gGameFramework.loginSign[1] = true;
                 delete[] wcharArray;
-            }
+                gGameFramework.signIn = -1;
+            //}
         }
         break;
     case WM_COMMAND:
@@ -555,8 +556,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_LOGIN_COMPLETE: {
         SC_LOGIN_COMPLETE_PACKET* packet = reinterpret_cast<SC_LOGIN_COMPLETE_PACKET*>(ptr);
-        if (packet->success)
+        if (packet->success) {
+            gGameFramework.loginSign[1] = true;
             cout << "LOGIN 성공\n";
+        }
         break;
     }
     case SC_REMOVE_PLAYER: {
