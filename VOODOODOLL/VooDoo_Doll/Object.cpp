@@ -180,60 +180,40 @@ D3D12_SHADER_RESOURCE_VIEW_DESC CTexture::GetShaderResourceViewDesc(int nIndex)
 	return(d3dShaderResourceViewDesc);
 }
 
-void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
+void CTexture::AnimateRowColumn(XMFLOAT3& texMat, float fTime)
 {
-	texMat.x= float(m_nRow) / texMat.z;//가로
+	texMat.x = float(m_nRow) / texMat.z;//가로
 
-	if(4!=texMat.z)
-		texMat.y= float(m_nCol) / texMat.z;//세로
+	if (4 != texMat.z)
+		texMat.y = float(m_nCol) / texMat.z;//세로
 	else
-		texMat.y = float(m_nCol) / (texMat.z*1.5f);//세로
+		texMat.y = float(m_nCol) / (texMat.z * 1.5f);//세로
 
 	if (0.0f == fTime)
 	{
-		if (8 == m_nRow)
+		if (++m_nCol == texMat.z)
 		{
-			if (--m_nCol == 0)
-			{
-				--m_nRow;//가로 감소
-				m_nCol = 8; //세로 8
-				m_nRow = 8;
 
+			++m_nRow;//가로 증가
+			m_nCol = 0; //세로 0
+
+			if (4 != texMat.z )
+			{
 				m_bActive[0] = false;
 				m_bActive[1] = false;
 				m_bActive[2] = false;
-				//cout << "particle false" << endl;
 			}
-			
-			if (0 == m_nRow )
-				m_nRow = 8;//가로 8
+		}
+
+		if (4 != texMat.z)
+		{
+			if (m_nRow == texMat.z)
+				m_nRow = 0;//가로 0
 		}
 		else
 		{
-			if (++m_nCol == texMat.z)
-			{
-
-				++m_nRow;//가로 증가
-				m_nCol = 0; //세로 0
-
-				if (4 != texMat.z)
-				{
-					m_bActive[0] = false;
-					m_bActive[1] = false;
-					m_bActive[2] = false;
-				}
-			}
-
-			if (4 != texMat.z)
-			{
-				if (m_nRow == texMat.z)
-					m_nRow = 0;//가로 0
-			}
-			else
-			{
-				if (m_nRow == texMat.z * 1.5f)
-					m_nRow = 0;//가로 0
-			}
+			if (m_nRow == texMat.z * 1.5f)
+				m_nRow = 0;//가로 0
 		}
 	}
 }
@@ -1166,7 +1146,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 	}
 
 	if (m_pSibling)
-		m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState,  pCamera);
+		m_pSibling->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	if (m_pChild)
 		m_pChild->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 }
@@ -1309,7 +1289,7 @@ void CGameObject::SetLookAt(XMFLOAT3& xmf3Target, XMFLOAT3& xmf3Up)
 	m_xmf4x4World._21 = mtxLookAt._12; m_xmf4x4World._22 = mtxLookAt._22; m_xmf4x4World._23 = mtxLookAt._32;
 	m_xmf4x4World._31 = mtxLookAt._13; m_xmf4x4World._32 = mtxLookAt._23; m_xmf4x4World._33 = mtxLookAt._33;
 
-	
+
 	/*
 		XMFLOAT3 xmf3Look = Vector3::Normalize(Vector3::Subtract(xmf3Target, xmf3Position));
 		XMFLOAT3 xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
@@ -1654,7 +1634,7 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 			pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames = ::ReadIntegerFromFile(pInFile);
 			pLoadedModel->m_pAnimationSets->m_ppAnimatedBoneFrameCaches = new CGameObject * [pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames];
 
-			
+
 
 			for (int j = 0; j < pLoadedModel->m_pAnimationSets->m_nAnimatedBoneFrames; j++)
 			{
@@ -1965,7 +1945,7 @@ CMultiSpriteObject::~CMultiSpriteObject()
 {
 }
 
-void CMultiSpriteObject::Animate(float fTimeElapsed,bool onPl, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CMultiSpriteObject::Animate(float fTimeElapsed, bool onPl, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_ppMaterials[0] && m_ppMaterials[0]->m_ppTextures[0])
 	{

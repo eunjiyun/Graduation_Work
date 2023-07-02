@@ -1301,19 +1301,30 @@ void CGameFramework::FrameAdvance()
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-		if (5 == Monsters[0]->c_id / 10)
+		if (5 == Monsters[0]->c_id / 10)//pat
 		{
 			for (m = 0; m < Monsters.size(); ++m)
 			{
 				if (59 == Monsters[m]->c_id)
+				//if (0 == Monsters[m]->c_id)//pat
 				{
 					if (2 == Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
-						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
-						//cout << "true" << endl;
+						if (Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
+							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength *0.15f
+							&& Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
+							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+						{
+							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+						}
+						else if(Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
+							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+						{
+							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
+						}
 					}
-					else
-						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+					
 
 					break;
 				}

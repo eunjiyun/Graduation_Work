@@ -313,7 +313,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_LOADING.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[34] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/bossPat.dds", RESOURCE_TEXTURE2D, 0);
+	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/particle.dds", RESOURCE_TEXTURE2D, 0);//bossPat
 
 	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
@@ -629,9 +629,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		}
 		else if (2 == i)//파티클
 		{
-			pMultiSpriteObjectShader->obj[i]->texMat.z = 8;
-			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 6.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
-			pMultiSpriteObjectShader->obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 8;
+			pMultiSpriteObjectShader->obj[i]->texMat.z = 4;
+			pMultiSpriteObjectShader->obj[i]->m_fSpeed = 1.1f / (pMultiSpriteObjectShader->obj[i]->texMat.z * pMultiSpriteObjectShader->obj[i]->texMat.z);
 		}
 		else //피
 			pMultiSpriteObjectShader->obj[i]->texMat.z = 1;

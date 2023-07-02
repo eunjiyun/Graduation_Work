@@ -1552,7 +1552,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 		else if (1 == j)
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 5.0f, 5.0f, 0.0f, 0.0f, 0.0f, 0.0f);//로딩
 		else if (2 == j)
-			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 80.0f, 80.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 180.0f, 80.0f, 0.0f, 0.0f, 0.0f, 0.0f);//파티클
 		else if (3 == j)//||5==j)//피
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else if (10 == j )//팝업

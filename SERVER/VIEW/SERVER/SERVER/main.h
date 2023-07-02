@@ -722,7 +722,7 @@ void InitializeStages()
 	   t = 2;*/
 
 	{   // 1stage
-	   //while (ID_constructor < 1) {
+	   //while (ID_constructor < 1) {//pat
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -735,7 +735,7 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), t, ID_constructor);
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), 3, ID_constructor);//pat
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
