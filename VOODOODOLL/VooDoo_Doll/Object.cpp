@@ -199,7 +199,10 @@ void CTexture::AnimateRowColumn(XMFLOAT3& texMat,float fTime)
 				m_nCol = 8; //¼¼·Î 8
 				m_nRow = 8;
 
-				//m_bActive = false;
+				m_bActive[0] = false;
+				m_bActive[1] = false;
+				m_bActive[2] = false;
+				//cout << "particle false" << endl;
 			}
 			
 			if (0 == m_nRow )

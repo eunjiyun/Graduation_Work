@@ -384,9 +384,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			break;
 		case VK_RETURN:
 			if (false == idSet)
-			{
 				idSet = true;
-			}
 
 			break;
 		case VK_F1:
@@ -1223,7 +1221,7 @@ void CGameFramework::FrameAdvance()
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 	}
 
-	if (false == loginSign[1])
+	if (!loginSign[1])
 	{
 		if (!userId.empty() && !idSet && delUser)
 			userId.pop_back();
@@ -1297,7 +1295,7 @@ void CGameFramework::FrameAdvance()
 
 
 
-	int m;
+	int m=-1;
 	if (!Monsters.empty())
 	{
 		if (-1 != damagedMon)
@@ -1310,7 +1308,10 @@ void CGameFramework::FrameAdvance()
 				if (59 == Monsters[m]->c_id)
 				{
 					if (2 == Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
-						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;//0624
+					{
+						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+						//cout << "true" << endl;
+					}
 					else
 						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 

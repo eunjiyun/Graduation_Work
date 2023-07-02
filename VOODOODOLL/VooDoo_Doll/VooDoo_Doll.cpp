@@ -428,7 +428,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 OVER_EXP* signup_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
                 int ErrorStatus = WSASend(s_socket, &signup_data->_wsabuf, 1, 0, 0, &signup_data->_over, &send_callback);
                 if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-
                 gGameFramework.loginSign[0] = true;
                 delete[] wcharArray;
                 gGameFramework.signIn = -1;
@@ -461,7 +460,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 {
                     err_display("WSASend()");   
                 }
-
                 delete[] wcharArray;
                 gGameFramework.signIn = -1;
             //}
@@ -571,7 +569,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
         else {
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[1];
             wcout << "SIGNIN FAILED\n";
+
+            while (!gGameFramework.userId.empty())
+                gGameFramework.userId.pop_back();
+
+            while (!gGameFramework.userPw.empty())
+                gGameFramework.userPw.pop_back();
+
+            gGameFramework.idSet = false;
         }
+
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
         break;
     }
@@ -586,6 +593,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
             wcout << "SIGNUP FAILED\n";
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[3];
         }
+
+        while (!gGameFramework.userId.empty())
+            gGameFramework.userId.pop_back();
+
+        while (!gGameFramework.userPw.empty())
+            gGameFramework.userPw.pop_back();
+
+        gGameFramework.idSet = false;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
         break;
     }

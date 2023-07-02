@@ -1667,7 +1667,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 2 * xmf3CameraPosition.y) / 3;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 2 * xmf3CameraPosition.z) / 3;
 			}
-			else if (2 == i && !mon.empty())//파티클
+			else if (2 == i && !mon.empty()&& -1!=boss)//파티클
 			{
 				xmf3MonPos = mon[boss]->GetPosition();
 				xmf3MonLook = mon[boss]->GetLook();
