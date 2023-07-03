@@ -383,7 +383,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			::PostQuitMessage(0);
 			break;
 		case VK_RETURN:
-			if (false == idSet)
+			if (!idSet && !userId.empty())
 				idSet = true;
 
 			break;
@@ -570,7 +570,7 @@ void CGameFramework::BuildObjects()
 
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
 
-	/*for (int i = 1; i <= 2; ++i) {
+	for (int i = 1; i <= 2; ++i) {
 		for (int j{}; j < 3; ++j) {
 			pMonsterModel[i].push(
 				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
@@ -581,25 +581,24 @@ void CGameFramework::BuildObjects()
 		pMonsterModel[0].push(
 			CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[0], NULL, 1));
 
-	pMonsterModel[3].push(
-		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
 
 	for (int i = 0; i < 3; i++) {
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
-	}*/
+	}
 
-	for (int i = 0; i <= 2; ++i) {
+	pMonsterModel[3].push(
+		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
+
+	/*for (int i = 0; i <= 2; ++i) {
 		for (int j{}; j < 10; ++j) {
 			pMonsterModel[i].push(
 				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
 		}
 	}
-	pMonsterModel[3].push(
-		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
 
 	for (int i = 0; i < 10; i++) {
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
-	}
+	}*/
 
 
 #ifdef _WITH_TERRAIN_PLAYER
@@ -726,10 +725,9 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	// 이 함수에서 몬스터를 동적 할당하여 소환함
 	if (pMonsterModel[type].empty()) {
 		cout << "생성실패\n";
-		cout << "type : " << type << endl;
-		cout << "id : " << npc_id << endl;
 		return;
 	}
+
 	CMonster* Mon = nullptr;
 	CLoadedModelInfo* Hat = nullptr;
 	CLoadedModelInfo* Model = pMonsterModel[type].front();

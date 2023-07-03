@@ -705,26 +705,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_SUMMON_MONSTER: {
         SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-        /*if (50 > packet->id)
-        {
-           if (4 > packet->id % 10)
-              packet->monster_type = 0;
-           else if (7 > packet->id % 10)
-              packet->monster_type = 1;
-           else if (10 > packet->id % 10)
-              packet->monster_type = 2;
-        }
-        else
-        {
-           if(50== packet->id)
-              packet->monster_type = 3;
-           else if (54 > packet->id)
-              packet->monster_type = 0;
-           else if (57 > packet->id)
-              packet->monster_type = 1;
-           else if (60 > packet->id)
-              packet->monster_type = 2;
-        }*/
         gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
         break;
     }
