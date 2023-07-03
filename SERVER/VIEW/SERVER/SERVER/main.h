@@ -36,6 +36,21 @@ struct DB_EVENT {
 //	return wstr;
 //}
 
+constexpr int GRID_SIZE_X = 150;  
+constexpr int GRID_SIZE_Y = 2;
+constexpr int GRID_SIZE_Z = 1200;
+constexpr int CELL_SIZE = 4; 
+
+//bool ObstacleGrid[GRID_SIZE_Y][GRID_SIZE_X][GRID_SIZE_Z] = { true };  // Grid to store obstacle information
+
+array<array<array<bool, GRID_SIZE_Z>, GRID_SIZE_X>,GRID_SIZE_Y> ObstacleGrid = { true };
+
+struct MapNode {
+	int x, z;  // Cell coordinates
+	std::vector<MapNode*> neighbors;  // Connected neighboring nodes
+};
+std::vector<std::vector<MapNode>> graph(GRID_SIZE_X, std::vector<MapNode>(GRID_SIZE_Z));  // Graph to represent connectivity between cells
+
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
 
@@ -207,6 +222,13 @@ void SESSION::Update(CS_MOVE_PACKET* packet)
 }
 
 
+
+
+short Heuristic(const XMFLOAT3& start, const XMFLOAT3& dest) {
+	return abs(dest.z - start.z) + abs(dest.x - start.x);
+}
+
+
 bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash, PointEqual>& CloseList, BoundingBox& check_box)
 {
 	int collide_range_z = static_cast<int>(_pos.z / AREA_SIZE);
@@ -216,53 +238,30 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash
 		return false;
 	}
 
-	if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.z > MAP_Z_SIZE) return false;
-
-	if (Obstacles[collide_range_z].end() != find_if(Obstacles[collide_range_z].begin(), Obstacles[collide_range_z].end(),
-		[check_box](MapObject* MO) {return MO->m_xmOOBB.Intersects(check_box); }))
-	{
+	try {
+		if (_pos.y > -150) {
+			if (ObstacleGrid[0].at(int(_pos.x) / CELL_SIZE).at(int(_pos.z) / CELL_SIZE) == false)
+				return false;
+		}
+		else {
+			if (ObstacleGrid[1].at(int(_pos.x) / CELL_SIZE).at(int(_pos.z) / CELL_SIZE) == false)
+				return false;
+		}
+	}
+	catch (const exception& e) {
+		cout << "array access error\n";
 		return false;
 	}
+	//if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.z > MAP_Z_SIZE) return false;
+
+	//if (Obstacles[collide_range_z].end() != find_if(Obstacles[collide_range_z].begin(), Obstacles[collide_range_z].end(),
+	//	[check_box](MapObject* MO) {return MO->m_xmOOBB.Intersects(check_box); }))
+	//{
+	//	return false;
+	//}
 
 	return true;
 }
-
-unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual>::iterator getNode(unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual>& m_List)
-{
-	try {
-		return min_element(m_List.begin(), m_List.end(),
-			[](const pair<const XMFLOAT3, shared_ptr<A_star_Node>>& p1, const pair<const XMFLOAT3, shared_ptr<A_star_Node>>& p2)
-			{
-				if (p1.second && p2.second)
-					return p1.second->F < p2.second->F;
-				else {
-					return false;
-				}
-			});
-	}
-	catch (const exception& e) {
-		cout << "openlist access error - " << e.what() << endl;
-		return m_List.end();
-	}
-}
-
-short Heuristic(const XMFLOAT3& start, const XMFLOAT3& dest) {
-	return abs(dest.z - start.z) + abs(dest.x - start.x);
-}
-
-//bool check_openList(XMFLOAT3& _Pos, float _G, shared_ptr<A_star_Node> s_node, unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual>& m_List)
-//{
-//	auto iter = m_List.find(_Pos);
-//	if (iter != m_List.end()) {
-//		if ((*iter).second->G > _G) {
-//			(*iter).second->G = _G;
-//			(*iter).second->F = (*iter).second->G + (*iter).second->H;
-//			(*iter).second->parent = s_node;
-//		}
-//		return false;
-//	}
-//	return true;
-//}
 
 float nx[8]{ -1,1,0,0, -1, -1, 1, 1 };
 float nz[8]{ 0,0,1,-1, -1, 1, -1, 1 };
@@ -274,8 +273,6 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual> openlist;
 	priority_queue<shared_ptr<A_star_Node>, vector<shared_ptr<A_star_Node>>, CompareNodes> pq;
 
-	//openlist.reserve(300);
-	//A_star_Node* startNode = m_pool->GetMemory(start, 0.f, Heuristic(start, dest), nullptr);
 	shared_ptr<A_star_Node> startNode = make_shared<A_star_Node>(start, 0.f, Heuristic(start, dest), nullptr);
 	openlist.insert(make_pair(start, startNode));
 	pq.push(startNode);
@@ -294,10 +291,6 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 				if (Vector3::Compare(S_Node->parent->Pos, start))
 				{
 					XMFLOAT3 next_pos = S_Node->Pos;
-					//for (const auto& pair : openlist) {
-					//	m_pool->ReturnMemory(pair.second);
-					//}
-					//cout << m_id << ", "; m_pool->PrintSize();
 					return next_pos;
 				}
 				S_Node = S_Node->parent;
@@ -332,10 +325,6 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 		}
 	}
 
-	//m_pool->ReturnMemory(startNode);
-	//for (const auto& pair : openlist) {
-	//	m_pool->ReturnMemory(pair.second);
-	//}
 	//cout << "Trace Failed\n";
 	return Pos;
 }
@@ -739,6 +728,54 @@ void InitializeMonsters()
 	}
 }
 
+void InitializeGrid()
+{
+	BoundingBox CheckBox = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(15, 20, 12));
+	// 2층
+	for (int x = 30; x < GRID_SIZE_X * CELL_SIZE; ++x) {
+		for (int z = 65; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
+			CheckBox.Center = XMFLOAT3(x, -63, z);
+			for (auto& obj : Obstacles[static_cast<int>(z) / AREA_SIZE]) {
+				if (obj->m_xmOOBB.Intersects(CheckBox)) {
+					ObstacleGrid[0][x / CELL_SIZE][z / CELL_SIZE] = false;
+					z = z + CELL_SIZE - (z % CELL_SIZE);
+				}
+				else ObstacleGrid[0][x / CELL_SIZE][z / CELL_SIZE] = true;
+			}
+		}
+	}
+
+	// 1층
+	for (int x = 30; x < GRID_SIZE_X * CELL_SIZE; ++x) {
+		for (int z = 65; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
+			CheckBox.Center = XMFLOAT3(x, -304, z);
+			for (auto& obj : Obstacles[static_cast<int>(z) / AREA_SIZE]) {
+				if (obj->m_xmOOBB.Intersects(CheckBox)) {
+					ObstacleGrid[1][x / CELL_SIZE][z / CELL_SIZE] = false;
+					z = z + CELL_SIZE - (z % CELL_SIZE);
+				}
+				else ObstacleGrid[1][x / CELL_SIZE][z / CELL_SIZE] = true;
+			}
+		}
+	}
+
+	//wcout << "2층\n";
+	//for (int z = GRID_SIZE_Z - 1; z >= 65; --z) {
+	//	for (int x = 30; x < GRID_SIZE_X; ++x) {
+	//		wcout << ObstacleGrid[0][x][z];
+	//	}
+	//	wcout << endl;
+	//}
+
+	//wcout << "1층\n";
+	//for (int z = GRID_SIZE_Z - 1; z >= 65; --z) {
+	//	for (int x = 30; x < GRID_SIZE_X; ++x) {
+	//		wcout << ObstacleGrid[1][x][z];
+	//	}
+	//	wcout << endl;
+	//}
+
+}
 void InitializeStages()
 {
 	int ID_constructor = 0;

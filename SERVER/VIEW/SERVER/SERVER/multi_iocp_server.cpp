@@ -60,6 +60,7 @@ int main()
 	delete[] m_ppObjects;
 
 	InitializeStages();
+	InitializeGrid();
 	InitializeMonsters();
 
 	WSADATA WSAData;
@@ -137,8 +138,7 @@ void DB_Thread()
 	SQLHDBC hdbc;
 	SQLHSTMT hstmt = 0;
 	SQLRETURN retcode;
-	SQLWCHAR szUser_ID[IDPW_SIZE], szUser_PWD[IDPW_SIZE];
-	SQLINTEGER dUser_ClearTime, dUser_CurStage;
+	SQLLEN OutSize{};
 
 	setlocale(LC_ALL, "korean");
 
@@ -217,7 +217,7 @@ void DB_Thread()
 								p.type = SC_SIGNUP;
 								p.size = sizeof(p);
 								session.do_send(&p);
-								printf("SQLPrepare failed \n");
+								printf("SQLPrepare failed\n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
 							SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -230,12 +230,24 @@ void DB_Thread()
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									SC_SIGN_PACKET p;
-									p.success = true;
-									p.type = SC_SIGNIN;
-									p.size = sizeof(p);
-									session.do_send(&p);
-									wcout << "SIGNIN SUCCEED\n";
+									SQLBindCol(hstmt, 4, SQL_C_LONG, &session.cur_stage, sizeof(session.cur_stage), &OutSize);
+									retcode = SQLFetch(hstmt);
+									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+										SC_SIGN_PACKET p;
+										p.success = true;
+										p.type = SC_SIGNIN;
+										p.size = sizeof(p);
+										session.do_send(&p);
+										wcout << "SIGNIN SUCCEED\n";
+									}
+									else {
+										SC_SIGN_PACKET p;
+										p.success = false;
+										p.type = SC_SIGNIN;
+										p.size = sizeof(p);
+										session.do_send(&p);
+										printf("SIGNIN FAILED - The ID does not exist.  \n");
+									}
 								}
 								else {
 									SC_SIGN_PACKET p;
@@ -243,7 +255,7 @@ void DB_Thread()
 									p.type = SC_SIGNIN;
 									p.size = sizeof(p);
 									session.do_send(&p);
-									printf("SIGNIN FAILED \n");
+									printf("SIGNIN FAILED - The query has not been performed.  \n");
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
 							}
@@ -253,7 +265,7 @@ void DB_Thread()
 								p.type = SC_SIGNIN;
 								p.size = sizeof(p);
 								session.do_send(&p);
-								printf("SQLPrepare failed \n");
+								printf("SQLPrepare failed\n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
 							SQLFreeStmt(hstmt, SQL_CLOSE);
