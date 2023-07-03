@@ -746,7 +746,8 @@ void InitializeStages()
 	mt19937 gen(rd());
 	uniform_int_distribution<int> x_dis(150, 500);
 	uniform_int_distribution<int> z_dis(1300, 2500);
-	uniform_int_distribution<int> type_dis(0, 2);
+	//uniform_int_distribution<int> type_dis(0, 2);
+	int t = -1;
 
 	{   // 1stage
 	   //while (ID_constructor < 1) {//pat
@@ -762,8 +763,14 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), 3, ID_constructor);//pat
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
+			if (4 > ID_constructor % 10)
+				t = 0;
+			else if (7 > ID_constructor % 10)
+				t = 1;
+			else if (10 > ID_constructor % 10)
+				t = 2;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), t, ID_constructor);//pat
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -786,8 +793,14 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), t, ID_constructor);
+			if (4 > ID_constructor % 10)
+				t = 0;
+			else if (7 > ID_constructor % 10)
+				t = 1;
+			else if (10 > ID_constructor % 10)
+				t = 2;
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -810,8 +823,14 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
+			if (4 > ID_constructor % 10)
+				t = 0;
+			else if (7 > ID_constructor % 10)
+				t = 1;
+			else if (10 > ID_constructor % 10)
+				t = 2;
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -834,8 +853,14 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
+			if (4 > ID_constructor % 10)
+				t = 0;
+			else if (7 > ID_constructor % 10)
+				t = 1;
+			else if (10 > ID_constructor % 10)
+				t = 2;
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -858,8 +883,14 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
+			if (4 > ID_constructor % 10)
+				t = 0;
+			else if (7 > ID_constructor % 10)
+				t = 1;
+			else if (10 > ID_constructor % 10)
+				t = 2;
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -882,7 +913,14 @@ void InitializeStages()
 				}
 			if (col) continue;
 
-			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
+			if (4 > ID_constructor % 10)
+				t = 0;
+			else if (7 > ID_constructor % 10)
+				t = 1;
+			else if (10 > ID_constructor % 10)
+				t = 2;
+			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
+			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);

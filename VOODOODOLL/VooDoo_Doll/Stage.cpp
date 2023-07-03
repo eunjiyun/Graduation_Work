@@ -1110,19 +1110,6 @@ bool CStage::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wPar
 	switch (nMessageID)
 	{
 	case WM_KEYDOWN:
-		/*switch (wParam)
-		{
-		case 'F':case 'f':
-			if (m_ppShaders[1]->m_bActive)
-				m_ppShaders[1]->m_bActive = false;
-			else
-				m_ppShaders[1]->m_bActive = true;
-
-			cout << "press : " << m_ppShaders[1]->m_bActive << endl;
-			break;
-		default:
-			break;
-		}*/
 		break;
 	default:
 		break;
@@ -1175,11 +1162,6 @@ void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 
 	UpdateShaderVariables(pd3dCommandList);
 
-	//if (m_pd3dcbMaterials)
-	//{
-	//	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();
-	//	pd3dCommandList->SetGraphicsRootConstantBufferView(3, d3dcbMaterialsGpuVirtualAddress); //Materials
-	//}
 	if (m_pd3dcbLights)
 	{
 		D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();

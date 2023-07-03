@@ -958,12 +958,7 @@ void CGameObject::SetMesh(int nIndex, CMesh* pMesh)
 			m_ppMeshes[nIndex]->Release();
 	}
 	else
-	{
 		m_ppMeshes = new CMesh * [1];
-
-		/*if (m_ppMeshes[nIndex] == NULL)
-			m_ppMeshes[nIndex] = new CMesh();*/
-	}
 
 	m_ppMeshes[nIndex] = pMesh;
 
@@ -992,12 +987,7 @@ void CGameObject::SetMaterial(int nMaterial, CMaterial* pMaterial)
 			m_ppMaterials[nMaterial]->Release();
 	}
 	else
-	{
 		m_ppMaterials = new CMaterial * [1];
-
-		/*if (m_ppMeshes[nIndex] == NULL)
-			m_ppMeshes[nIndex] = new CMesh();*/
-	}
 
 	m_ppMaterials[nMaterial] = pMaterial;
 
@@ -1139,7 +1129,8 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 						pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &texMat, 16);
 					}
 
-					m_ppMeshes[0]->Render(pd3dCommandList, i, i);
+					if(m_ppMeshes && m_ppMeshes[0])
+						m_ppMeshes[0]->Render(pd3dCommandList, i, i);
 				}
 			}
 		}

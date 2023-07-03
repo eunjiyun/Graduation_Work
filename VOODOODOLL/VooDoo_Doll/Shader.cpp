@@ -1711,7 +1711,7 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 			else if (10 == i)//팝업
 			{
-				xmf3PlayerPosition.y -= 30.0f;
+				xmf3PlayerPosition.y -= 60.0f;
 
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
