@@ -40,7 +40,7 @@ concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
-//array<threadsafe_vector<Monster*>, MAX_ROOM> PoolMonsters;
+//array<threadsafe_vector<Monster*>, MAX_ROOM> monsters;
 array<array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>, MAX_ROOM> monsters;
 
 //CObjectPool<TIMER_EVENT> EventPool(20'000);
@@ -207,7 +207,7 @@ void SESSION::Update(CS_MOVE_PACKET* packet)
 }
 
 
-bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box)
+bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash, PointEqual>& CloseList, BoundingBox& check_box)
 {
 	int collide_range_z = static_cast<int>(_pos.z / AREA_SIZE);
 	check_box.Center = _pos;
@@ -227,7 +227,7 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3H
 	return true;
 }
 
-unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>::iterator getNode(unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>& m_List)
+unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual>::iterator getNode(unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual>& m_List)
 {
 	try {
 		return min_element(m_List.begin(), m_List.end(),
@@ -246,63 +246,97 @@ unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>::i
 	}
 }
 
-bool check_openList(XMFLOAT3& _Pos, float _G, shared_ptr<A_star_Node> s_node, unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal>& m_List)
-{
-	auto iter = m_List.find(_Pos);
-	if (iter != m_List.end()) {
-		if ((*iter).second->G > _G) {
-			(*iter).second->G = _G;
-			(*iter).second->F = (*iter).second->G + (*iter).second->H;
-			(*iter).second->parent = s_node;
-		}
-		return false;
-	}
-	return true;
+short Heuristic(const XMFLOAT3& start, const XMFLOAT3& dest) {
+	return abs(dest.z - start.z) + abs(dest.x - start.x);
 }
+
+//bool check_openList(XMFLOAT3& _Pos, float _G, shared_ptr<A_star_Node> s_node, unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual>& m_List)
+//{
+//	auto iter = m_List.find(_Pos);
+//	if (iter != m_List.end()) {
+//		if ((*iter).second->G > _G) {
+//			(*iter).second->G = _G;
+//			(*iter).second->F = (*iter).second->G + (*iter).second->H;
+//			(*iter).second->parent = s_node;
+//		}
+//		return false;
+//	}
+//	return true;
+//}
 
 float nx[8]{ -1,1,0,0, -1, -1, 1, 1 };
 float nz[8]{ 0,0,1,-1, -1, 1, -1, 1 };
-XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start_Pos, XMFLOAT3 dest_Pos)
+XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const XMFLOAT3 dest)
 {
-	unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal> closelist{};
-	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, XMFLOAT3Hash, XMFLOAT3Equal> openlist;
-	openlist.reserve(200);
-	closelist.reserve(600);
-	shared_ptr<A_star_Node> S_Node;
+	if (Vector3::Compare(start, dest)) return Pos;
 
-	openlist.emplace(start_Pos, make_shared<A_star_Node>(start_Pos, dest_Pos, 0.f, nullptr));
+	unordered_set<XMFLOAT3, PointHash, PointEqual> closelist{};
+	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual> openlist;
+	priority_queue<shared_ptr<A_star_Node>, vector<shared_ptr<A_star_Node>>, CompareNodes> pq;
 
-	BoundingBox CheckBox = BoundingBox(start_Pos, BB.Extents);
+	//openlist.reserve(300);
+	//A_star_Node* startNode = m_pool->GetMemory(start, 0.f, Heuristic(start, dest), nullptr);
+	shared_ptr<A_star_Node> startNode = make_shared<A_star_Node>(start, 0.f, Heuristic(start, dest), nullptr);
+	openlist.insert(make_pair(start, startNode));
+	pq.push(startNode);
+
+	BoundingBox CheckBox = BoundingBox(start, BB.Extents);
 	while (!openlist.empty())
 	{
-		auto iter = getNode(openlist);
-
-		S_Node = (*iter).second;
+		shared_ptr<A_star_Node> S_Node = pq.top();
+		pq.pop();
+		if (S_Node == nullptr) continue;
 
 		if (Vector3::Length(Vector3::Subtract(clients[room_num][target_id].GetPosition(), S_Node->Pos)) < 30)
 		{
 			while (S_Node->parent != nullptr)
 			{
-				if (Vector3::Compare(S_Node->parent->Pos, start_Pos))
+				if (Vector3::Compare(S_Node->parent->Pos, start))
 				{
-					return S_Node->Pos;
+					XMFLOAT3 next_pos = S_Node->Pos;
+					//for (const auto& pair : openlist) {
+					//	m_pool->ReturnMemory(pair.second);
+					//}
+					//cout << m_id << ", "; m_pool->PrintSize();
+					return next_pos;
 				}
 				S_Node = S_Node->parent;
 			}
 		}
+
+		closelist.insert(S_Node->Pos);
+
 		for (int i = 0; i < 8; i++) {
-			XMFLOAT3 _Pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed * fTimeElapsed, false));
+			XMFLOAT3 near_pos = Vector3::Add(S_Node->Pos, Vector3::ScalarProduct(XMFLOAT3{ nx[i],0,nz[i] }, speed * fTimeElapsed, false));
+
+			if (check_path(near_pos, closelist, CheckBox) == false)
+				continue;
+
 			float _G = S_Node->G + speed * fTimeElapsed * sqrt(abs(nx[i]) + abs(nz[i]));
-			if (check_path(_Pos, closelist, CheckBox) && check_openList(_Pos, _G, S_Node, openlist)) {
-				openlist.emplace(_Pos, make_shared<A_star_Node>(_Pos, dest_Pos, _G, S_Node));
+
+			auto neighborIter = openlist.find(near_pos);
+			if (neighborIter == openlist.end()) {
+				float neighborH = Heuristic(near_pos, dest);
+				shared_ptr<A_star_Node> neighborNode = make_shared<A_star_Node>(near_pos, _G, neighborH, S_Node);
+				openlist.insert(make_pair(near_pos, neighborNode));
+				pq.push(neighborNode);
+			}
+			else if (_G < neighborIter->second->G)
+			{
+				float neighborH = Heuristic(near_pos, dest);
+				neighborIter->second->G = _G;
+				neighborIter->second->H = neighborH;
+				neighborIter->second->F = _G + neighborH;
+				neighborIter->second->parent = S_Node;
 			}
 		}
-		closelist.emplace(S_Node->Pos);
-		openlist.erase(iter);
 	}
+
+	//m_pool->ReturnMemory(startNode);
+	//for (const auto& pair : openlist) {
+	//	m_pool->ReturnMemory(pair.second);
+	//}
 	//cout << "Trace Failed\n";
-	SetState(NPC_State::Idle);
-	target_id = -1;
 	return Pos;
 }
 
@@ -354,7 +388,7 @@ void Monster::Update(float fTimeElapsed)
 
 		g_distance = Vector3::Length(distanceVector);
 
-		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME)
+		if (clients[room_num][target_id]._state.load() != ST_INGAME || Vector3::Length(distanceVector) > view_range)
 		{
 			SetState(NPC_State::Idle);
 			target_id = -1;
@@ -429,7 +463,7 @@ void Monster::Update(float fTimeElapsed)
 						  break;
 	case NPC_State::Dead: {
 		dead_timer -= fTimeElapsed;
-		if (dead_timer <= 0) {			
+		if (dead_timer <= 0) {		
 			alive.store(false);
 		}
 	}
@@ -704,6 +738,7 @@ void InitializeMonsters()
 		}
 	}
 }
+
 void InitializeStages()
 {
 	int ID_constructor = 0;
@@ -712,14 +747,6 @@ void InitializeStages()
 	uniform_int_distribution<int> x_dis(150, 500);
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	uniform_int_distribution<int> type_dis(0, 2);
-	int t = -1;
-
-	/*if (4 > ID_constructor % 10)
-	   t = 0;
-	else if (7 > ID_constructor % 10)
-	   t = 1;
-	else if (10 > ID_constructor % 10)
-	   t = 2;*/
 
 	{   // 1stage
 	   //while (ID_constructor < 1) {//pat

@@ -274,7 +274,7 @@ namespace Matrix4x4
 	}
 }
 
-struct XMFLOAT3Hash {
+struct PointHash {
 	size_t operator()(const XMFLOAT3& v) const {
 		size_t h1 = std::hash<float>{}(v.x);
 		size_t h2 = std::hash<float>{}(v.z);
@@ -282,26 +282,12 @@ struct XMFLOAT3Hash {
 	}
 };
 
-struct XMFLOAT3Equal {
+struct PointEqual {
 	bool operator()(const XMFLOAT3& v1, const XMFLOAT3& v2) const {
 		return Vector3::Compare(v1, v2);
 	}
 };
 
-struct MYPOINT {
-	short x = 0;
-	short z = 0;
-	MYPOINT(short _x, short _z) : x(_x), z(_z) {}
-};
-class comparePOINT {
-public:
-	bool operator()(const MYPOINT& p1, const MYPOINT& p2) const {
-		if (p1.x < p2.x) return true;
-		else if (p1.x > p2.x) return false;
-		else if (p1.z < p2.z) return true;
-		else return false;
-	}
-};
 
 template<typename T>
 class threadsafe_vector : public vector<T>

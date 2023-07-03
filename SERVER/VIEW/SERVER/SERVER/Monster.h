@@ -17,7 +17,7 @@ private:
     array<float, 3> distances = { 10000.f };
     NPC_State curState = NPC_State::Idle;
 public:
-
+    //AStar_Pool* m_pool;
     float g_distance = 0;
     XMFLOAT3 MagicPos = { 5000, 5000, 5000 };
     XMFLOAT3 MagicLook = { 0, 0, 0 };
@@ -62,7 +62,7 @@ public:
     NPC_State GetState() const { return curState; }
     void SetAttackTimer(float time) { attack_timer = time; }
     float GetAttackTimer() const { return attack_timer; }
-    bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, XMFLOAT3Hash, XMFLOAT3Equal>& CloseList, BoundingBox& check_box);
+    bool check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash, PointEqual>& CloseList, BoundingBox& check_box);
 };
 
 class SorcererMonster : public Monster

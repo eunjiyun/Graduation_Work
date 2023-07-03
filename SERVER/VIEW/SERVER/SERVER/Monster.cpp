@@ -49,7 +49,7 @@ Monster& Monster::operator=(const Monster& other)
 
 Monster::~Monster()
 {
-
+    //delete m_pool;
 }
 
 void Monster::Re_Initialize(short _type, XMFLOAT3 _pos)
@@ -114,7 +114,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 0;
         HP = 250;
         power = 30;
-        view_range = 500;
+        view_range = 300;
         speed = 40.f;
         attack_cycle = (71.f / 30.f); // 2.366667√ 
         attack_timer = attack_cycle;
@@ -124,7 +124,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 1;
         HP = 150;
         power = 30;
-        view_range = 500;
+        view_range = 300;
         speed = 50.f;
         attack_range = 3.f;
         attack_cycle = (56.f / 30.f); // 2.366667√ 
@@ -135,7 +135,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 2;
         HP = 50;
         power = 70;
-        view_range = 500;
+        view_range = 400;
         speed = 50.f;
         attack_range = 150.f;
         attack_cycle = (8.f / 3.f); // 2.666664√ 
