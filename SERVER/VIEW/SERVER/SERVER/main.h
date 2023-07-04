@@ -239,7 +239,7 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash
 	}
 
 	try {
-		if (_pos.y > -150) {
+		if (_pos.y > -100) {
 			if (ObstacleGrid[0].at(int(_pos.x) / CELL_SIZE).at(int(_pos.z) / CELL_SIZE) == false)
 				return false;
 		}
@@ -249,7 +249,7 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash
 		}
 	}
 	catch (const exception& e) {
-		cout << "array access error\n";
+		cout << "array access error - " << _pos.x << ", " << _pos.z << endl;
 		return false;
 	}
 	//if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.z > MAP_Z_SIZE) return false;
@@ -333,7 +333,7 @@ int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
 		if (clients[room_num][i]._state.load() != ST_INGAME ||
-			clients[room_num][i].GetPosition().y - Pos.y >= 2.f) {
+			clients[room_num][i].GetPosition().y - Pos.y >= 1.f) {
 			distances[i] = view_range;
 			continue;
 		}
@@ -377,7 +377,7 @@ void Monster::Update(float fTimeElapsed)
 
 		g_distance = Vector3::Length(distanceVector);
 
-		if (clients[room_num][target_id]._state.load() != ST_INGAME || Vector3::Length(distanceVector) > view_range)
+		if (distanceVector.y >= 1.f || clients[room_num][target_id]._state.load() != ST_INGAME || Vector3::Length(distanceVector) > view_range)
 		{
 			SetState(NPC_State::Idle);
 			target_id = -1;
