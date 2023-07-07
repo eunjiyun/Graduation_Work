@@ -130,7 +130,7 @@
   <ItemGroup>
     <ClCompile Include="MapObject.cpp" />
     <ClCompile Include="Monster.cpp" />
-    <ClCompile Include="multi_iocp_server.cpp">
+    <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

@@ -23,43 +23,15 @@ void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCod
 void DB_Thread();
 void process_packet(const int c_id, char* packet);
 void worker_thread(HANDLE h_iocp);
-void do_Timer();
+void Timer_Thread();
 
 int main()
 {
 	wcout.imbue(locale("korean"));
 	setlocale(LC_ALL, "korean");
 
-	int* m_nObjects = new int(0);
-	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", m_nObjects);
-
-	for (int i = 0; i < *m_nObjects; i++) {
-		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
-			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
-			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
-
-		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Key_mesh"))
-		{ 
-			Key_Items[0].emplace_back(m_ppObjects[i]->m_xmOOBB, 1, i);
-			continue;
-		}
-		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "2ndRoomCoin")) {
-			Key_Items[1].emplace_back(m_ppObjects[i]->m_xmOOBB, 0.17f, i);
-			continue;
-		}
-
-
-		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
-		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
-
-		for (int j = collide_range_min; j <= collide_range_max; j++) {
-			Obstacles[j].emplace_back(m_ppObjects[i]);
-		}
-	}
-	delete m_nObjects;
-	delete[] m_ppObjects;
-
-	InitializeStages();
+	InitializeMap();
+	InitializeMonsterInfo();
 	InitializeGrid();
 	InitializeMonsters();
 
@@ -88,21 +60,19 @@ int main()
 	vector <thread> worker_threads;
 
 	int num_threads = std::thread::hardware_concurrency();
-	thread Timer_T{ do_Timer };
-	thread DB_t{ DB_Thread };
+	thread Event_Thread{ Timer_Thread };
+	thread Database_thread{ DB_Thread };
 	for (int i = 0; i < num_threads - 1; ++i)
 		worker_threads.emplace_back(worker_thread, h_iocp);
 
+
 	for (auto& th : worker_threads)
 		th.join();
-	Timer_T.join();
-	DB_t.join();
+	Event_Thread.join();
+	Database_thread.join();
 
-	for (int i = 0; i < monsters.size(); ++i)
-	{
-		for (int j = 0; j < monsters[i].size(); ++i)
-			delete monsters[i][j];
-	}
+	FinalizeMonsters();
+
 	closesocket(g_s_socket);
 	WSACleanup();
 }
@@ -635,7 +605,7 @@ void worker_thread(HANDLE h_iocp)
 
 
 
-void do_Timer()
+void Timer_Thread()
 {
 	while (1)
 	{

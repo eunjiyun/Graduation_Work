@@ -710,7 +710,6 @@ void BossMonster::Update(float fTimeElapsed)
 	}
 }
 
-
 void InitializeMonsters()
 {
 	for (int i = 0; i < MAX_ROOM; ++i)
@@ -727,6 +726,16 @@ void InitializeMonsters()
 		}
 	}
 }
+
+void FinalizeMonsters()
+{
+	for (int i = 0; i < monsters.size(); ++i)
+	{
+		for (int j = 0; j < monsters[i].size(); ++i)
+			delete monsters[i][j];
+	}
+}
+
 
 void InitializeGrid()
 {
@@ -776,7 +785,41 @@ void InitializeGrid()
 	//}
 
 }
-void InitializeStages()
+
+void InitializeMap()
+{
+	int* m_nObjects = new int(0);
+	MapObject** m_ppObjects = LoadGameObjectsFromFile("Models/Scene.bin", m_nObjects);
+
+	for (int i = 0; i < *m_nObjects; i++) {
+		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh") ||
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "Ceiling_concrete_base_mesh") ||
+			0 == strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+
+		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Key_mesh"))
+		{
+			Key_Items[0].emplace_back(m_ppObjects[i]->m_xmOOBB, 1, i);
+			continue;
+		}
+		if (0 == strcmp(m_ppObjects[i]->m_pstrName, "2ndRoomCoin")) {
+			Key_Items[1].emplace_back(m_ppObjects[i]->m_xmOOBB, 0.17f, i);
+			continue;
+		}
+
+
+		int collide_range_min = ((int)m_ppObjects[i]->m_xmOOBB.Center.z - (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
+		int collide_range_max = ((int)m_ppObjects[i]->m_xmOOBB.Center.z + (int)m_ppObjects[i]->m_xmOOBB.Extents.z) / AREA_SIZE;
+
+		for (int j = collide_range_min; j <= collide_range_max; j++) {
+			Obstacles[j].emplace_back(m_ppObjects[i]);
+		}
+	}
+
+	delete m_nObjects;
+	delete[] m_ppObjects;
+}
+
+void InitializeMonsterInfo()
 {
 	int ID_constructor = 0;
 	random_device rd;
