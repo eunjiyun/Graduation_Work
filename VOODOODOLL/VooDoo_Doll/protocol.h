@@ -14,7 +14,7 @@ constexpr short W_HEIGHT = 400;
 constexpr char CS_LOGIN = 0;
 constexpr char CS_SIGNUP = 1;
 constexpr char CS_SIGNIN = 2;
-constexpr char CS_MOVE = 3;
+constexpr char CS_HEARTBEAT = 3;
 constexpr char CS_ROTATE = 4;
 constexpr char CS_ATTACK = 5;
 constexpr char CS_INTERACTION = 6;
@@ -54,7 +54,7 @@ struct CS_SIGN_PACKET {
 };
 constexpr short CS_SIGN_PACKET_SIZE = sizeof(CS_SIGN_PACKET);
 
-struct CS_MOVE_PACKET {
+struct CS_HEARTBEAT_PACKET {
 	unsigned char size;
 	char	type;
 	short	direction = 0;
@@ -64,7 +64,7 @@ struct CS_MOVE_PACKET {
 	unsigned	move_time;
 #endif
 };
-constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_MOVE_PACKET);
+constexpr short CS_MOVE_PACKET_SIZE = sizeof(CS_HEARTBEAT_PACKET);
 
 struct CS_ROTATE_PACKET {
 	unsigned char size;

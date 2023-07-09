@@ -17,7 +17,6 @@ constexpr short SERVER_PORT = 3500;
 SOCKET s_socket;
 OVER_EXP recv_over;
 short _prev_remain = 0;
-DWORD Old_Direction = 0;
 auto elapsedTime = high_resolution_clock::now();
 #pragma endregion
 
@@ -90,10 +89,10 @@ void ProcessInput()
     }
 
     if (duration_cast<milliseconds>(high_resolution_clock::now() - elapsedTime).count() > 100) {
-        CS_MOVE_PACKET p;
+        CS_HEARTBEAT_PACKET p;
         p.direction = dwDirection;
-        p.size = sizeof(CS_MOVE_PACKET);
-        p.type = CS_MOVE;
+        p.size = sizeof(CS_HEARTBEAT_PACKET);
+        p.type = CS_HEARTBEAT;
         p.pos = gGameFramework.m_pPlayer->GetPosition();
         p.vel = gGameFramework.m_pPlayer->GetVelocity();
 

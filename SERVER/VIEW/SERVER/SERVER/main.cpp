@@ -266,37 +266,39 @@ void process_packet(const int c_id, char* packet)
 {
 	SESSION& CL = getClient(c_id);
 	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom_Clients(c_id);
-	if (CL._state.load() == ST_DEAD) {
-		return;
-	}
+	//if (CL._state.load() == ST_DEAD) {
+	//	return;
+	//}
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		CL._state.store(ST_INGAME);
-		CL.Initialize();
 
 		// 3인 매칭 후 시작해야 하는 경우
-		//for (auto& pl : Room)
-		//	if (pl._state.load() != ST_INGAME) return;
-		//for (auto& pl : Room) {
-		//	pl.send_login_info_packet();
-		//	for (auto& session : Room) {
-		//		if (pl._id == session._id) continue;
-		//		pl.send_add_player_packet(&session);
-		//	}
-		//}
+		for (auto& pl : Room) {
+			if (pl._state.load() != ST_INGAME) return;
+			pl.Initialize();
+		}
+		for (auto& pl : Room) {
+			pl.send_game_start_packet();
+			for (auto& session : Room) {
+				if (pl._id == session._id) continue;
+				pl.send_add_player_packet(&session);
+			}
+		}
 
 		// 1인 게임 - 테스트용
-		CL.send_game_start_packet();
-		for (auto& pl : Room) {
-			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
-			pl.send_add_player_packet(&CL);
-			CL.send_add_player_packet(&pl);
-		}
-		for (auto& monster : getRoom_Monsters(c_id)) {
-			if (monster->alive.load() == false) continue;
-			CL.send_summon_monster_packet(monster);
-		}
+		//CL.send_game_start_packet();
+		//for (auto& pl : Room) {
+		//	if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
+		//	pl.send_add_player_packet(&CL);
+		//	CL.send_add_player_packet(&pl);
+		//}
+		//for (auto& monster : getRoom_Monsters(c_id)) {
+		//	if (monster->alive.load() == false) continue;
+		//	CL.send_summon_monster_packet(monster);
+		//}
+
 		break;
 	}
 	case CS_SIGNUP: {
@@ -319,11 +321,11 @@ void process_packet(const int c_id, char* packet)
 		db_queue.push(ev);
 		break;
 	}
-	case CS_MOVE: {
-		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
+	case CS_HEARTBEAT: {
+		CS_HEARTBEAT_PACKET* p = reinterpret_cast<CS_HEARTBEAT_PACKET*>(packet);
 		CL.Update(p);
 		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_move_packet(&CL);
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_update_packet(&CL);
 		}
 		break;
 	}
@@ -555,6 +557,9 @@ void worker_thread(HANDLE h_iocp)
 		}
 		case OP_RECV: {
 			SESSION& CL = getClient(static_cast<int>(key));
+			if (CL._state.load() == ST_DEAD) {
+				break;
+			}
 			int remain_data = num_bytes + CL._prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {

@@ -211,7 +211,7 @@ int get_new_client_id()
 
 
 
-void SESSION::Update(CS_MOVE_PACKET* packet)
+void SESSION::Update(CS_HEARTBEAT_PACKET* packet)
 {
 	direction.store(packet->direction);
 	SetVelocity(packet->vel);
@@ -432,7 +432,7 @@ void Monster::Update(float fTimeElapsed)
 					targetPlayer->_state.store(ST_DEAD);
 					for (auto& cl : clients[room_num]) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
-							cl.send_move_packet(targetPlayer);
+							cl.send_update_packet(targetPlayer);
 					}
 				}
 			}
@@ -478,7 +478,7 @@ void SorcererMonster::Update(float fTimeElapsed)
 					player._state.store(ST_DEAD);
 					for (auto& cl : clients[room_num]) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
-							cl.send_move_packet(&player);
+							cl.send_update_packet(&player);
 					}
 				}
 			}
@@ -679,7 +679,7 @@ void BossMonster::Update(float fTimeElapsed)
 						client._state.store(ST_DEAD);
 						for (auto& cl : clients[room_num]) {
 							if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
-								cl.send_move_packet(targetPlayer);
+								cl.send_update_packet(targetPlayer);
 						}
 					}
 				}

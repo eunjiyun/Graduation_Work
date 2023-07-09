@@ -183,9 +183,11 @@ public:
 		p.size = sizeof(SC_GAME_START_PACKET);
 		p.type = SC_GAME_START;
 		p.pos = m_xmf3Position;
+		cout << p.id << " - ";
+		Vector3::Print(m_xmf3Position);
 		do_send(&p);
 	}
-	void send_move_packet(SESSION* Player)
+	void send_update_packet(SESSION* Player)
 	{
 		SC_UPDATE_PLAYER_PACKET p;
 		p.id = Player->_id;
@@ -258,6 +260,9 @@ public:
 		add_packet.size = sizeof(SC_ADD_PLAYER_PACKET);
 		add_packet.type = SC_ADD_PLAYER;
 		add_packet.Pos = Player->GetPosition();
+
+		cout << add_packet.id << " - ";
+		Vector3::Print(add_packet.Pos);
 		do_send(&add_packet);
 	}
 
@@ -351,7 +356,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void Update(CS_MOVE_PACKET* packet);
+	void Update(CS_HEARTBEAT_PACKET* packet);
 	void CheckPosition(XMFLOAT3 newPos);
 };
 
