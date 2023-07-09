@@ -7,7 +7,7 @@
 
 
 enum EVENT_TYPE { EV_MONSTER_UPDATE };
-enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP };
+enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP, EV_SAVE };
 
 struct TIMER_EVENT {
 	int room_id;
@@ -25,6 +25,7 @@ struct DB_EVENT {
 	wchar_t user_id[IDPW_SIZE];
 	wchar_t user_password[IDPW_SIZE];
 	DB_EVENT_TYPE _event;
+	short		cur_stage;
 };
 
 //wstring ConverttoWchar(const char* str)
@@ -104,7 +105,7 @@ void disconnect(int c_id)
 	SESSION& CL = getClient(c_id);
 	closesocket(CL._socket);
 
-	if (game_in_progress) // ���� �� �ȿ� ����� �ִٸ� 
+	if (game_in_progress) 
 		CL._state.store(ST_CRASHED);
 
 	else {// ���� ����ٸ� ���Ϳ� �÷��̾� �����̳� ��� ����

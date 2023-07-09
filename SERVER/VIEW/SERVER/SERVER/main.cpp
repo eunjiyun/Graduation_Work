@@ -153,6 +153,8 @@ void DB_Thread()
 						cout << "GET REQUEST\n";
 						SQLWCHAR* param1 = ev.user_id;
 						SQLWCHAR* param2 = ev.user_password;
+						SQLINTEGER param3 = ev.session_id;
+						SQLINTEGER param4 = ev.cur_stage;
 						auto& session = getClient(ev.session_id);
 						if (param1[0] == L'\0' || param2[0] == L'\0') continue;
 						switch (ev._event) {
@@ -246,9 +248,37 @@ void DB_Thread()
 							//}
 							//SQLFreeStmt(hstmt, SQL_CLOSE);
 							//break;
+						case EV_SAVE:
+							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
+								SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
+								retcode = SQLExecute(hstmt);
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
+									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+										std::cout << "COMMIT OK\n";
+									}
+									else {
+										std::cout << "COMMIT FAILED\n";
+										HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+									}
+								}
+								else {
+									std::cout << "UPDATE FAILED \n";
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
+							}
+							else {
+								wcout << "SQLPrepare failed \n";
+								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							}
+							SQLFreeStmt(hstmt, SQL_UNBIND);
+							break;
 						}
 					}
-					else this_thread::sleep_for(10ms);
+					else this_thread::sleep_for(100ms);
 				}
 
 				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
@@ -273,7 +303,7 @@ void process_packet(const int c_id, char* packet)
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		CL._state.store(ST_INGAME);
-
+		
 		// 3인 매칭 후 시작해야 하는 경우
 		//for (auto& pl : Room) {
 		//	if (pl._state.load() != ST_INGAME) return;
@@ -288,6 +318,7 @@ void process_packet(const int c_id, char* packet)
 		//}
 
 		// 1인 게임 - 테스트용
+		CL.Initialize();
 		CL.send_game_start_packet();
 		for (auto& pl : Room) {
 			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
