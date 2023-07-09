@@ -344,16 +344,14 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 			sign[2].y = 345; sign[3].y = 392;
 		}
 
-
-		if (sign[0].x <= m_ptOldCursorPos.x - windowX && sign[1].x >= m_ptOldCursorPos.x - windowX
-			&& sign[0].y <= m_ptOldCursorPos.y - windowY && sign[1].y >= m_ptOldCursorPos.y - windowY)
+		if (1 != gameButton)
 		{
-			signIn = 0;
-		}
-		else if (sign[2].x <= m_ptOldCursorPos.x - windowX && sign[3].x >= m_ptOldCursorPos.x - windowX
-			&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
-		{
-			signIn = 1;
+			if (sign[0].x <= m_ptOldCursorPos.x - windowX && sign[1].x >= m_ptOldCursorPos.x - windowX
+				&& sign[0].y <= m_ptOldCursorPos.y - windowY && sign[1].y >= m_ptOldCursorPos.y - windowY)
+				signIn = 0;
+			else if (sign[2].x <= m_ptOldCursorPos.x - windowX && sign[3].x >= m_ptOldCursorPos.x - windowX
+				&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
+				signIn = 1;
 		}
 		break;
 	case WM_LBUTTONUP:

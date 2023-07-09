@@ -159,6 +159,6 @@ public:
 	CGameObject** m_ppBullets = NULL;
 	CGameObject** m_ppCap = NULL;
 	bool onFullScreen = false;
-	
+	int curAtt[3] = { 0,0,0 };
 };
 

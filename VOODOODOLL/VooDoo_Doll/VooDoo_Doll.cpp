@@ -678,12 +678,12 @@ void ProcessPacket(char* ptr)//몬스터 생성
         (*iter)->SetVelocity(XMFLOAT3(0, 0, 0));
         (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
         (*iter)->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-        
-        if(0== (*iter)->c_id)
+
+        if(0== (*iter)->c_id && 1==gGameFramework.curAtt[0])
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
-        else if (1 == (*iter)->c_id)
+        else if (1 == (*iter)->c_id && 1 == gGameFramework.curAtt[1])
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[8]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] = true;
-        else if (2 == (*iter)->c_id)
+        else if (2 == (*iter)->c_id && 1 == gGameFramework.curAtt[2])
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[9]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] = true;
 
         break;
@@ -694,6 +694,27 @@ void ProcessPacket(char* ptr)//몬스터 생성
         int cur_track = (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track;
         (*iter)->m_pChild = (*iter)->pAngrybotModels[packet->cur_weaponType]->m_pModelRootObject;
         (*iter)->m_pSkinnedAnimationController = (*iter)->AnimationControllers[packet->cur_weaponType];
+
+
+        for (int i{};i<3;++i)
+        {
+            if (i == (*iter)->c_id )
+            {
+                switch (packet->cur_weaponType)
+                {
+                case 0:
+                    gGameFramework.curAtt[i] = 0;
+                    break;
+                case 1:
+                    gGameFramework.curAtt[i] = 1;
+                    break;
+                case 2:
+                    gGameFramework.curAtt[i] = 2;
+                    break;
+                }
+            }
+        }
+
         for (int i = 0; i < 6; i++)
         {
             (*iter)->m_pSkinnedAnimationController->SetTrackAnimationSet(i, i);
