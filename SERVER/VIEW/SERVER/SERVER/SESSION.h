@@ -13,7 +13,7 @@
 #pragma comment(lib, "MSWSock.lib")
 
 
-enum COMP_TYPE { OP_ACCEPT, OP_LOGGEDIN, OP_RECV, OP_SEND, OP_NPC_UPDATE };
+enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND, OP_NPC_UPDATE };
 class OVER_EXP {
 public:
 	WSAOVERLAPPED _over;
@@ -103,7 +103,7 @@ public:
 };
 //OVERLAPPEDPOOL OverPool(500'000);
 
-enum S_STATE { ST_FREE, ST_ALLOC, ST_INGAME, ST_DEAD, ST_CRASHED };
+enum S_STATE { ST_FREE, ST_ALLOC, ST_CRASHED, ST_INGAME, ST_DEAD };
 enum WEAPON_TYPE {BLADE, GUN, PUNCH};
 class SESSION {
 	OVER_EXP _recv_over;

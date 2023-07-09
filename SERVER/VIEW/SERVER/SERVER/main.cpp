@@ -275,29 +275,29 @@ void process_packet(const int c_id, char* packet)
 		CL._state.store(ST_INGAME);
 
 		// 3인 매칭 후 시작해야 하는 경우
-		for (auto& pl : Room) {
-			if (pl._state.load() != ST_INGAME) return;
-			pl.Initialize();
-		}
-		for (auto& pl : Room) {
-			pl.send_game_start_packet();
-			for (auto& session : Room) {
-				if (pl._id == session._id) continue;
-				pl.send_add_player_packet(&session);
-			}
-		}
+		//for (auto& pl : Room) {
+		//	if (pl._state.load() != ST_INGAME) return;
+		//	pl.Initialize();
+		//}
+		//for (auto& pl : Room) {
+		//	pl.send_game_start_packet();
+		//	for (auto& session : Room) {
+		//		if (pl._id == session._id) continue;
+		//		pl.send_add_player_packet(&session);
+		//	}
+		//}
 
 		// 1인 게임 - 테스트용
-		//CL.send_game_start_packet();
-		//for (auto& pl : Room) {
-		//	if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
-		//	pl.send_add_player_packet(&CL);
-		//	CL.send_add_player_packet(&pl);
-		//}
-		//for (auto& monster : getRoom_Monsters(c_id)) {
-		//	if (monster->alive.load() == false) continue;
-		//	CL.send_summon_monster_packet(monster);
-		//}
+		CL.send_game_start_packet();
+		for (auto& pl : Room) {
+			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
+			pl.send_add_player_packet(&CL);
+			CL.send_add_player_packet(&pl);
+		}
+		for (auto& monster : getRoom_Monsters(c_id)) {
+			if (monster->alive.load() == false) continue;
+			CL.send_summon_monster_packet(monster);
+		}
 
 		break;
 	}
@@ -340,8 +340,8 @@ void process_packet(const int c_id, char* packet)
 	case CS_ATTACK: {
 		auto& Monsters = getRoom_Monsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
-		XMFLOAT3 _Look = CL.GetLookVector();
-		XMFLOAT3 _Pos = CL.GetPosition();
+		XMFLOAT3 Cur_LookVector = CL.GetLookVector();
+		XMFLOAT3 Cur_Pos = CL.GetPosition();
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
 		}
@@ -349,11 +349,11 @@ void process_packet(const int c_id, char* packet)
 		{
 		case BLADE:
 		{
-			_Pos = Vector3::Add(_Pos, Vector3::ScalarProduct(_Look, 10, false));
+			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 10, false));
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(_Pos, monster->GetPosition())) < 40)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 100;
 					monster->target_id = CL._id;
@@ -370,15 +370,15 @@ void process_packet(const int c_id, char* packet)
 		break;
 		case GUN:
 		{
-			_Pos = Vector3::Add(_Pos, Vector3::ScalarProduct(_Look, 5, false));
-			XMVECTOR Bullet_Origin = XMLoadFloat3(&_Pos);
-			XMVECTOR Bullet_Direction = XMLoadFloat3(&_Look);
+			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 5, false));
+			XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
+			XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
 			vector<Monster*> monstersInRange;
 
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> monster_lock{ monster->m_lock };
-				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, _Pos));
+				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, Cur_Pos));
 				if (monster->HP > 0 && monster->BB.Intersects(Bullet_Origin, Bullet_Direction, bullet_monster_distance))
 				{
 					monstersInRange.push_back(monster);
@@ -392,7 +392,7 @@ void process_packet(const int c_id, char* packet)
 				for (auto& monster : monstersInRange)
 				{
 					lock_guard<mutex> monster_lock{ monster->m_lock };
-					float distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, _Pos));
+					float distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, Cur_Pos));
 					if (distance < minDistance)
 					{
 						minDistance = distance;
@@ -402,13 +402,13 @@ void process_packet(const int c_id, char* packet)
 				if (closestMonster)
 				{
 					lock_guard<mutex> monster_lock{ closestMonster->m_lock };
-					int _min = static_cast<int>(min(_Pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
-					int _max = static_cast<int>(max(_Pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
+					int _min = static_cast<int>(min(Cur_Pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
+					int _max = static_cast<int>(max(Cur_Pos.z / AREA_SIZE, closestMonster->BB.Center.z / AREA_SIZE));
 					for (int i = _min; i <= _max; i++)
 					{
 						for (auto& obj : Obstacles[i])
 						{
-							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, _Pos));
+							float bullet_obstacle_distance = Vector3::Length(Vector3::Subtract(obj->m_xmOOBB.Center, Cur_Pos));
 							if (obj->m_xmOOBB.Intersects(Bullet_Origin, Bullet_Direction, bullet_obstacle_distance) &&
 								bullet_obstacle_distance < minDistance) {
 								return;
@@ -421,7 +421,6 @@ void process_packet(const int c_id, char* packet)
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(closestMonster->m_id);
 					}
 					if (closestMonster->HP <= 0) {
-
 						closestMonster->SetState(NPC_State::Dead);
 					}
 					return;
@@ -431,11 +430,11 @@ void process_packet(const int c_id, char* packet)
 		}
 		case PUNCH:
 		{
-			_Pos = Vector3::Add(_Pos, Vector3::ScalarProduct(_Look, 5, false));
+			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 5, false));
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(_Pos, monster->GetPosition())) < 40)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 40)
 				{
 					monster->HP -= 50;
 					monster->target_id = CL._id;
@@ -538,23 +537,7 @@ void worker_thread(HANDLE h_iocp)
 			AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
 			break;
 		}
-		case OP_LOGGEDIN: {
-			SESSION& CL = getClient(static_cast<int>(key));
-			SC_SIGN_PACKET p;
-			p.success = true;
-			p.type = SC_SIGNIN;
-			p.size = sizeof(p);
-			CL.do_send(&p);
-			//CL.Initialize();
-			//CL.send_login_info_packet();
-			//CL._state.store(ST_INGAME);
-			//for (auto& pl : getRoom(CL._id)) {
-			//	if (pl._id == CL._id || ST_INGAME != pl._state.load()) continue;
-			//	pl.send_add_player_packet(&CL);
-			//	CL.send_add_player_packet(&pl);
-			//}
-			break;
-		}
+
 		case OP_RECV: {
 			SESSION& CL = getClient(static_cast<int>(key));
 			if (CL._state.load() == ST_DEAD) {

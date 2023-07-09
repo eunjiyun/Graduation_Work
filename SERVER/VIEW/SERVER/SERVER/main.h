@@ -45,12 +45,6 @@ constexpr int CELL_SIZE = 4;
 
 array<array<array<bool, GRID_SIZE_Z>, GRID_SIZE_X>,GRID_SIZE_Y> ObstacleGrid = { true };
 
-struct MapNode {
-	int x, z;  // Cell coordinates
-	std::vector<MapNode*> neighbors;  // Connected neighboring nodes
-};
-std::vector<std::vector<MapNode>> graph(GRID_SIZE_X, std::vector<MapNode>(GRID_SIZE_Z));  // Graph to represent connectivity between cells
-
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
 
