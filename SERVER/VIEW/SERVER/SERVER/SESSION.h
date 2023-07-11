@@ -111,6 +111,7 @@ public:
 	mutex _s_lock;
 	atomic<S_STATE> _state;
 	short _id;
+	wchar_t _name[IDPW_SIZE]{};
 	SOCKET _socket;
 	XMFLOAT3 m_xmf3Position, m_xmf3Look, m_xmf3Up, m_xmf3Right, m_xmf3Velocity; 
 	float HP;

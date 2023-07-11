@@ -7,7 +7,7 @@
 
 
 enum EVENT_TYPE { EV_MONSTER_UPDATE };
-enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP, EV_SAVE };
+enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP, EV_SAVE, EV_RESET };
 
 struct TIMER_EVENT {
 	int room_id;
@@ -21,11 +21,11 @@ struct TIMER_EVENT {
 };
 
 struct DB_EVENT {
-	unsigned short session_id;
-	wchar_t user_id[IDPW_SIZE];
-	wchar_t user_password[IDPW_SIZE];
+	unsigned short session_id = -1;
+	wchar_t user_id[IDPW_SIZE]{};
+	wchar_t user_password[IDPW_SIZE]{};
 	DB_EVENT_TYPE _event;
-	short		cur_stage;
+	short		cur_stage = -1;
 };
 
 //wstring ConverttoWchar(const char* str)
@@ -50,6 +50,7 @@ concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
+//array<concurrent_unordered_map<short, shared_ptr<SESSION>>, MAX_ROOM> sessions;
 //array<threadsafe_vector<Monster*>, MAX_ROOM> monsters;
 array<array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>, MAX_ROOM> monsters;
 
@@ -105,12 +106,27 @@ void disconnect(int c_id)
 	SESSION& CL = getClient(c_id);
 	closesocket(CL._socket);
 
-	if (game_in_progress) 
+	if (game_in_progress) {
 		CL._state.store(ST_CRASHED);
+		DB_EVENT ev;
+		ev._event = EV_SAVE;
+		wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), CL._name);
+		ev.cur_stage = CL.cur_stage.load();
+		ev.session_id = CL._id;
+		db_queue.push(ev);
+		wcout << ev.user_id << " CALLED EV_SAVE\n";
+	}
 
-	else {// ���� ����ٸ� ���Ϳ� �÷��̾� �����̳� ��� ����
+	else {
 		for (auto& pl : getRoom_Clients(c_id)) {
-			pl._state.store(ST_FREE);
+			if (pl._state.load() == ST_FREE) continue;
+			pl._state = ST_FREE;
+			DB_EVENT ev;
+			ev._event = EV_RESET;
+			wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), pl._name);
+			ev.session_id = pl._id;
+			db_queue.push(ev);
+			wcout << ev.user_id << " CALLED EV_RESET\n";
 		}
 
 		for (auto& mon : getRoom_Monsters(c_id)) {

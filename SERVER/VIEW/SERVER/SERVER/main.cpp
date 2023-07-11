@@ -155,14 +155,14 @@ void DB_Thread()
 						SQLWCHAR* param2 = ev.user_password;
 						SQLINTEGER param3 = ev.session_id;
 						SQLINTEGER param4 = ev.cur_stage;
-						auto& session = getClient(ev.session_id);
-						if (param1[0] == L'\0' || param2[0] == L'\0') continue;
+						auto& requested_session = getClient(ev.session_id);
+						//if (param1[0] == L'\0' || param2[0] == L'\0') continue;
 						switch (ev._event) {
-						case EV_SIGNUP:
+						case EV_SIGNUP: {
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_up(?, ?)}", SQL_NTS);
 							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
-								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param2, 0, NULL);
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param2, 0, NULL);
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
@@ -170,7 +170,7 @@ void DB_Thread()
 									p.success = true;
 									p.type = SC_SIGNUP;
 									p.size = sizeof(p);
-									session.do_send(&p);
+									requested_session.do_send(&p);
 									wcout << "SIGNUP SUCCEED \n";
 								}
 								else {
@@ -178,7 +178,7 @@ void DB_Thread()
 									p.success = false;
 									p.type = SC_SIGNUP;
 									p.size = sizeof(p);
-									session.do_send(&p);
+									requested_session.do_send(&p);
 									wcout << "SIGNUP FAILED \n";
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
@@ -188,73 +188,82 @@ void DB_Thread()
 								p.success = false;
 								p.type = SC_SIGNUP;
 								p.size = sizeof(p);
-								session.do_send(&p);
+								requested_session.do_send(&p);
 								printf("SQLPrepare failed\n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
 							SQLFreeStmt(hstmt, SQL_CLOSE);
 							break;
-						case EV_SIGNIN:
-							SC_SIGN_PACKET p;
-							p.success = true;
-							p.type = SC_SIGNIN;
-							p.size = sizeof(p);
-							session.do_send(&p);
-							wcout << "SIGNIN SUCCEED\n";
-							//retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
-							//if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							//	SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
-							//	SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param2, 0, NULL);
+						}
+						case EV_SIGNIN: {
+							wcscpy_s(requested_session._name, sizeof(ev.user_id) / sizeof(ev.user_id[0]), ev.user_id);
 
-							//	retcode = SQLExecute(hstmt);
-							//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							//		SQLBindCol(hstmt, 4, SQL_C_LONG, &session.cur_stage, sizeof(session.cur_stage), &OutSize);
-							//		retcode = SQLFetch(hstmt);
-							//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-							//			SC_SIGN_PACKET p;
-							//			p.success = true;
-							//			p.type = SC_SIGNIN;
-							//			p.size = sizeof(p);
-							//			session.do_send(&p);
-							//			wcout << "SIGNIN SUCCEED\n";
-							//		}
-							//		else {
-							//			SC_SIGN_PACKET p;
-							//			p.success = false;
-							//			p.type = SC_SIGNIN;
-							//			p.size = sizeof(p);
-							//			session.do_send(&p);
-							//			printf("SIGNIN FAILED - The ID does not exist.  \n");
-							//		}
-							//	}
-							//	else {
-							//		SC_SIGN_PACKET p;
-							//		p.success = false;
-							//		p.type = SC_SIGNIN;
-							//		p.size = sizeof(p);
-							//		session.do_send(&p);
-							//		printf("SIGNIN FAILED - The query has not been performed.  \n");
-							//		HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							//	}
-							//}
-							//else {
-							//	SC_SIGN_PACKET p;
-							//	p.success = false;
-							//	p.type = SC_SIGNIN;
-							//	p.size = sizeof(p);
-							//	session.do_send(&p);
-							//	printf("SQLPrepare failed\n");
-							//	HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							//}
-							//SQLFreeStmt(hstmt, SQL_CLOSE);
-							//break;
-						case EV_SAVE:
+
+							//SC_SIGN_PACKET p;
+							//p.success = true;
+							//p.type = SC_SIGNIN;
+							//p.size = sizeof(p);
+							//session.do_send(&p);
+
+							//wcout << "SIGNIN SUCCEED\n";
+
+							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param2, 0, NULL);
+
+								retcode = SQLExecute(hstmt);
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									SQLBindCol(hstmt, 4, SQL_C_LONG, &requested_session.cur_stage, sizeof(requested_session.cur_stage), &OutSize);
+									retcode = SQLFetch(hstmt);
+									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+										SC_SIGN_PACKET p;
+										p.success = true;
+										p.type = SC_SIGNIN;
+										p.size = sizeof(p);
+										requested_session.do_send(&p);
+										wcout << "SIGNIN SUCCEED\n";
+									}
+									else {
+										SC_SIGN_PACKET p;
+										p.success = false;
+										p.type = SC_SIGNIN;
+										p.size = sizeof(p);
+										requested_session.do_send(&p);
+										printf("SIGNIN FAILED - The ID does not exist.  \n");
+									}
+								}
+								else {
+									SC_SIGN_PACKET p;
+									p.success = false;
+									p.type = SC_SIGNIN;
+									p.size = sizeof(p);
+									requested_session.do_send(&p);
+									printf("SIGNIN FAILED - The query has not been performed.  \n");
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
+							}
+							else {
+								SC_SIGN_PACKET p;
+								p.success = false;
+								p.type = SC_SIGNIN;
+								p.size = sizeof(p);
+								requested_session.do_send(&p);
+								printf("SQLPrepare failed\n");
+								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							}
+							SQLFreeStmt(hstmt, SQL_CLOSE);
+							break;
+						}
+						case EV_SAVE: {
+							wcout << "DB THREAD RECVED SAVE EVENT\n";
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
 							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 10, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
 								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
 								SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
 								retcode = SQLExecute(hstmt);
+								wcout << param1 << ", " << param3 << ", " << param4 << endl;
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 									retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
 									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
@@ -276,6 +285,40 @@ void DB_Thread()
 							}
 							SQLFreeStmt(hstmt, SQL_UNBIND);
 							break;
+						}
+						case EV_RESET: {
+							param3 = -1;
+							param4 = 0;
+							wcout << "DB THREAD RECVED RESET EVENT\n";
+							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
+							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
+								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
+								SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
+								retcode = SQLExecute(hstmt);
+								wcout << param1 << ", " << param3 << ", " << param4 << endl;
+								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+									retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
+									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+										std::cout << "COMMIT OK\n";
+									}
+									else {
+										std::cout << "COMMIT FAILED\n";
+										HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+									}
+								}
+								else {
+									std::cout << "UPDATE FAILED \n";
+									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+								}
+							}
+							else {
+								wcout << "SQLPrepare failed \n";
+								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							}
+							SQLFreeStmt(hstmt, SQL_UNBIND);
+							break;
+						}
 						}
 					}
 					else this_thread::sleep_for(100ms);
