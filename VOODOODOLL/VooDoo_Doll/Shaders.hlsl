@@ -38,6 +38,7 @@ cbuffer cbToLightSpace : register(b6)
 	CB_TOOBJECTSPACE gcbToLightSpaces[MAX_SHADOW_LIGHTS];
 };
 
+#define NUM_RENDER_TARGETS 5
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -68,6 +69,7 @@ struct VS_STANDARD_INPUT
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 bitangent : BITANGENT;
+
 };
 
 struct VS_STANDARD_OUTPUT
@@ -78,6 +80,11 @@ struct VS_STANDARD_OUTPUT
 	float3 tangentW : TANGENT;
 	float3 bitangentW : BITANGENT;
 	float2 uv : TEXCOORD;
+};
+
+struct PS_STANDARD_OUTPUT
+{
+	  float4 renderTarget[NUM_RENDER_TARGETS] : SV_Target;
 };
 
 VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
@@ -94,43 +101,31 @@ VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 	return(output);
 }
 
-float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
+PS_STANDARD_OUTPUT PSStandard(VS_STANDARD_OUTPUT input)
 {
-	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
-	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
-	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+	PS_STANDARD_OUTPUT output;
 
-	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
-	////메탈릭 속성 값을 수정
-	//float metallicFactor = 0.1f; // 낮은 값으로 변경하려면 0.0f ~ 1.0f 사이의 값을 설정
-	//cMetallicColor *= metallicFactor;
+     for (int i = 0; i < NUM_RENDER_TARGETS; i++)
+    {
+        output.renderTarget[i] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
 
-	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+	if (gnTexturesMask & MATERIAL_ALBEDO_MAP)
+		output.renderTarget[0] = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
 
-	float3 normalW;
-	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
+	if (gnTexturesMask & MATERIAL_SPECULAR_MAP)
+		output.renderTarget[1] = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+
 	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
-	{
-		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
-		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] → [-1, 1]
-		normalW = normalize(mul(vNormal, TBN));
-	}
-	else
-	{
-		normalW = normalize(input.normalW);
-	}
+		output.renderTarget[2] = gtxtNormalTexture.Sample(gssWrap, input.uv);
 
-	float4 cIllumination = Lighting(input.positionW, normalW);
-	
-	if (cColor.x == 1 && cColor.y == 1 && cColor.z == 1)
-		discard;
+	if (gnTexturesMask & MATERIAL_METALLIC_MAP)
+		output.renderTarget[3] = gtxtMetallicTexture.Sample(gssWrap, input.uv);
 
-	return lerp(cColor, cIllumination, 0.5f);
+	if (gnTexturesMask & MATERIAL_EMISSION_MAP)
+		output.renderTarget[4] = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+
+	return output;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,12 +314,12 @@ VS_TEXTURED_OUTPUT VSSpriteAnimation(VS_TEXTURED_INPUT input)
 	
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
 	
-	if (texMat.z == 6 )//연기 
+	if (texMat.z ==8 || texMat.z == 6)//연기 파티클
 	{
 		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
 		output.uv.y = input.uv.y / texMat.z + texMat.y;
 	}
-	else if (texMat.z == 4)//로딩 파티클
+	else if (texMat.z == 4)//로딩
 	{
 		output.uv.x = (input.uv.x) / texMat.z + texMat.x;
 		output.uv.y = input.uv.y / (texMat.z*1.5f) + texMat.y;
@@ -350,7 +345,7 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 
 	float4 cColor = cAlbedoColor + cSpecularColor + cMetallicColor + cEmissionColor;
 
-	if (texMat.z == 6)
+	if (texMat.z == 8 || texMat.z == 6)
 	{
 		if (cColor.x <= 0.05f&& cColor.y <= 0.05f && cColor.z <= 0.05f)
 			discard;
@@ -370,3 +365,4 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 
 	return(cColor);
 }
+
