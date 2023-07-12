@@ -108,25 +108,25 @@ void disconnect(int c_id)
 
 	if (game_in_progress) {
 		CL._state.store(ST_CRASHED);
-		DB_EVENT ev;
-		ev._event = EV_SAVE;
-		wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), CL._name);
-		ev.cur_stage = CL.cur_stage.load();
-		ev.session_id = CL._id;
-		db_queue.push(ev);
-		wcout << ev.user_id << " CALLED EV_SAVE\n";
+		//DB_EVENT ev;
+		//ev._event = EV_SAVE;
+		//wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), CL._name);
+		//ev.cur_stage = CL.cur_stage.load();
+		//ev.session_id = CL._id;
+		//db_queue.push(ev);
+		//wcout << ev.user_id << " CALLED EV_SAVE\n";
 	}
 
 	else {
 		for (auto& pl : getRoom_Clients(c_id)) {
 			if (pl._state.load() == ST_FREE) continue;
 			pl._state = ST_FREE;
-			DB_EVENT ev;
-			ev._event = EV_RESET;
-			wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), pl._name);
-			ev.session_id = pl._id;
-			db_queue.push(ev);
-			wcout << ev.user_id << " CALLED EV_RESET\n";
+			//DB_EVENT ev;
+			//ev._event = EV_RESET;
+			//wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), pl._name);
+			//ev.session_id = pl._id;
+			//db_queue.push(ev);
+			//wcout << ev.user_id << " CALLED EV_RESET\n";
 		}
 
 		for (auto& mon : getRoom_Monsters(c_id)) {

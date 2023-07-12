@@ -199,60 +199,60 @@ void DB_Thread()
 							wcscpy_s(requested_session._name, sizeof(ev.user_id) / sizeof(ev.user_id[0]), ev.user_id);
 
 
-							//SC_SIGN_PACKET p;
-							//p.success = true;
-							//p.type = SC_SIGNIN;
-							//p.size = sizeof(p);
-							//session.do_send(&p);
+							SC_SIGN_PACKET p;
+							p.success = true;
+							p.type = SC_SIGNIN;
+							p.size = sizeof(p);
+							requested_session.do_send(&p);
 
-							//wcout << "SIGNIN SUCCEED\n";
+							wcout << "SIGNIN SUCCEED\n";
 
-							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
-							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
-								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param2, 0, NULL);
+							//retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
+							//if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+							//	SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
+							//	SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param2, 0, NULL);
 
-								retcode = SQLExecute(hstmt);
-								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									SQLBindCol(hstmt, 4, SQL_C_LONG, &requested_session.cur_stage, sizeof(requested_session.cur_stage), &OutSize);
-									retcode = SQLFetch(hstmt);
-									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-										SC_SIGN_PACKET p;
-										p.success = true;
-										p.type = SC_SIGNIN;
-										p.size = sizeof(p);
-										requested_session.do_send(&p);
-										wcout << "SIGNIN SUCCEED\n";
-									}
-									else {
-										SC_SIGN_PACKET p;
-										p.success = false;
-										p.type = SC_SIGNIN;
-										p.size = sizeof(p);
-										requested_session.do_send(&p);
-										printf("SIGNIN FAILED - The ID does not exist.  \n");
-									}
-								}
-								else {
-									SC_SIGN_PACKET p;
-									p.success = false;
-									p.type = SC_SIGNIN;
-									p.size = sizeof(p);
-									requested_session.do_send(&p);
-									printf("SIGNIN FAILED - The query has not been performed.  \n");
-									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-								}
-							}
-							else {
-								SC_SIGN_PACKET p;
-								p.success = false;
-								p.type = SC_SIGNIN;
-								p.size = sizeof(p);
-								requested_session.do_send(&p);
-								printf("SQLPrepare failed\n");
-								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							}
-							SQLFreeStmt(hstmt, SQL_CLOSE);
+							//	retcode = SQLExecute(hstmt);
+							//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+							//		SQLBindCol(hstmt, 4, SQL_C_LONG, &requested_session.cur_stage, sizeof(requested_session.cur_stage), &OutSize);
+							//		retcode = SQLFetch(hstmt);
+							//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+							//			SC_SIGN_PACKET p;
+							//			p.success = true;
+							//			p.type = SC_SIGNIN;
+							//			p.size = sizeof(p);
+							//			requested_session.do_send(&p);
+							//			wcout << "SIGNIN SUCCEED\n";
+							//		}
+							//		else {
+							//			SC_SIGN_PACKET p;
+							//			p.success = false;
+							//			p.type = SC_SIGNIN;
+							//			p.size = sizeof(p);
+							//			requested_session.do_send(&p);
+							//			printf("SIGNIN FAILED - The ID does not exist.  \n");
+							//		}
+							//	}
+							//	else {
+							//		SC_SIGN_PACKET p;
+							//		p.success = false;
+							//		p.type = SC_SIGNIN;
+							//		p.size = sizeof(p);
+							//		requested_session.do_send(&p);
+							//		printf("SIGNIN FAILED - The query has not been performed.  \n");
+							//		HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							//	}
+							//}
+							//else {
+							//	SC_SIGN_PACKET p;
+							//	p.success = false;
+							//	p.type = SC_SIGNIN;
+							//	p.size = sizeof(p);
+							//	requested_session.do_send(&p);
+							//	printf("SQLPrepare failed\n");
+							//	HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+							//}
+							//SQLFreeStmt(hstmt, SQL_CLOSE);
 							break;
 						}
 						case EV_SAVE: {
