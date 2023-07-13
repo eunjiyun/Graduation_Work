@@ -76,6 +76,7 @@ public:
 	void Move(float fxOffset = 0.0f, float fyOffset = 0.0f, float fzOffset = 0.0f);
 	void Rotate(float x, float y, float z);
 
+	void processAnimation();
 	virtual void Update(float fTimeElapsed);
 	
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }

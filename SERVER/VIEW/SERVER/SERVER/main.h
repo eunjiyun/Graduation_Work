@@ -54,7 +54,7 @@ array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
 //array<threadsafe_vector<Monster*>, MAX_ROOM> monsters;
 array<array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>, MAX_ROOM> monsters;
 
-CObjectPool<TIMER_EVENT> EventPool(30'000);
+//CObjectPool<TIMER_EVENT> EventPool(30'000);
 //CObjectPool<Monster> MonsterPool(20'000);
 vector<MonsterInfo> StagesInfo;
 

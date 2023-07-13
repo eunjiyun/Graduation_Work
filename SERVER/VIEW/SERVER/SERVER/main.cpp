@@ -542,7 +542,7 @@ void process_packet(const int c_id, char* packet)
 				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
 					cl.send_open_door_packet(CL.cur_stage);
 				cl.clear_percentage = 0.f;
-				if (cl.cur_stage >= 1) cl.clear_percentage = 1.f; // 3번째(코드에선 2번 인덱스) 스테이지부터 퍼즐 미구현이라 임의의 코드로 percent를 100%로 조정함
+				if (cl.cur_stage >= 0) cl.clear_percentage = 1.f; // 3번째(코드에선 2번 인덱스) 스테이지부터 퍼즐 미구현이라 임의의 코드로 percent를 100%로 조정함
 			}
 		}
 	}

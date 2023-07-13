@@ -66,7 +66,7 @@ void ProcessInput()
         }
     }
     if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 700, true);
-    else gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, gGameFramework.m_pPlayer->GetVelocity().y, 0));
+    //else gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, gGameFramework.m_pPlayer->GetVelocity().y, 0));
 
     if (cxDelta != 0.0f || cyDelta != 0.0f)
     {
@@ -517,7 +517,6 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 void ProcessAnimation(CPlayer* pl, SC_UPDATE_PLAYER_PACKET* p)
 {
     pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-
     if (pl->onFloor == false) {
         pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
         return;
@@ -621,7 +620,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             return;
         }
         if ((*iter)->onAct == false) {
-            ProcessAnimation(*iter, packet);
+            //ProcessAnimation(*iter, packet);
             XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
             XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
             (*iter)->SetVelocity(packet->vel);
@@ -756,6 +755,21 @@ void ProcessPacket(char* ptr)//몬스터 생성
             (*iter)->m_xmOOBB.Center = targetPos;
             (*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
             (*iter)->SetPosition(targetPos);
+        }
+        else if ((*iter)->npc_type == 2 && (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 2) {
+            auto target = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->target_id == Pl->c_id; });
+            if (target != gGameFramework.Players.end()) {
+                XMFLOAT3 FROM = (*iter)->GetPosition();
+                XMFLOAT3 TO = (*target)->GetPosition();
+                TO.y = FROM.y;
+                XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(FROM,
+                    TO, XMFLOAT3(0, 1, 0));
+                mtkLookAt._11 = -mtkLookAt._11;
+                mtkLookAt._21 = -mtkLookAt._21;
+                mtkLookAt._31 = -mtkLookAt._31;
+                (*iter)->m_xmf4x4ToParent = mtkLookAt;
+                (*iter)->SetPosition(FROM);
+            }
         }
         (*iter)->m_ppHat->SetPosition(packet->BulletPos);
         break;

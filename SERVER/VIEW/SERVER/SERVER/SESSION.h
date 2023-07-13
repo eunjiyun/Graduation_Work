@@ -292,7 +292,6 @@ public:
 		p.Pos = M->GetPosition();
 		p.HP = M->HP;
 		p.is_alive = M->alive;
-		//p.animation_track = M->cur_animation_track; // 원래 p.animation_track = (short)M->GetState();가 맞는데 2번 귀신이 애니메이션이 빠져 있어서 이렇게 함
 		p.animation_track = (short)M->GetState();
 		p.BulletPos = M->MagicPos;
 

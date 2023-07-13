@@ -160,6 +160,25 @@ void CPlayer::Rotate(float x, float y, float z)
 	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 }
 
+void CPlayer::processAnimation()
+{
+	m_pSkinnedAnimationController->SetTrackEnable(m_pSkinnedAnimationController->Cur_Animation_Track, false);
+	if (onFloor == false) {
+		m_pSkinnedAnimationController->SetTrackEnable(5, true);
+		return;
+	}
+	else m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
+
+	if (Vector3::Length(m_xmf3Velocity) > 0.f) {
+		m_pSkinnedAnimationController->SetTrackEnable(1, true);
+	}
+	else
+	{
+		m_pSkinnedAnimationController->SetTrackEnable(0, true);
+		m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+	}
+}
+
 void CPlayer::Update(float fTimeElapsed)
 {
 	if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
@@ -470,13 +489,14 @@ CCamera* CTerrainPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 		break;
 	case THIRD_PERSON_CAMERA:
-		SetFriction(50.0f);
-		SetGravity(XMFLOAT3(0.0f, -5.0f, 0.0f));
-		SetMaxVelocityXZ(10.0f);
-		SetMaxVelocityY(100.f);
+		SetFriction(300.0f);
+		SetGravity(XMFLOAT3(0.0f, -20.0f, 0.0f));
+		SetMaxVelocityXZ(100.0f);
+		SetMaxVelocityY(300.f);
 		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
 		m_pCamera->SetTimeLag(0.25f);
 		m_pCamera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
+		//m_pCamera->SetOffset(XMFLOAT3(0.0f, 30.0f, -125.0f));
 		m_pCamera->GenerateProjectionMatrix(1.01f, 5000.0f, ASPECT_RATIO, 60.0f);
 		m_pCamera->SetViewport(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 0.0f, 1.0f);
 		m_pCamera->SetScissorRect(0, 0, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
