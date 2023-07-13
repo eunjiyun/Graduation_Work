@@ -65,8 +65,8 @@ void ProcessInput()
             ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
         }
     }
-    if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 7.0, true);
-
+    if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 700, true);
+    else gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, gGameFramework.m_pPlayer->GetVelocity().y, 0));
 
     if (cxDelta != 0.0f || cyDelta != 0.0f)
     {
@@ -524,12 +524,7 @@ void ProcessAnimation(CPlayer* pl, SC_UPDATE_PLAYER_PACKET* p)
     }
     else pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 
-    pl->onRun = p->direction & DIR_RUN;
-
-    if (Vector3::Length(p->vel) > 100.f) {
-        pl->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-    }
-    else if (Vector3::Length(p->vel) > 0.f) {
+    if (Vector3::Length(pl->m_xmf3Velocity) > 0.f) {
         pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
     }
     else
@@ -631,7 +626,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
             XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
             (*iter)->SetVelocity(packet->vel);
             (*iter)->SetPosition(targetPos);
-            /*(*iter)->obBox.Center = Vector3::Add(targetPos, XMFLOAT3(0, 10.f, 0));*/
         }
 
         if (0 == packet->id % 3)

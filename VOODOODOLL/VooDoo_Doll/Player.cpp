@@ -163,8 +163,7 @@ void CPlayer::Rotate(float x, float y, float z)
 void CPlayer::Update(float fTimeElapsed)
 {
 	if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
-	else if (onRun) SetMaxVelocityXZ(100.0f);
-	else SetMaxVelocityXZ(10.0f);
+	else SetMaxVelocityXZ(100.0f);
 
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
 

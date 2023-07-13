@@ -1052,7 +1052,7 @@ void CGameFramework::FrameAdvance()
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
 			m_pStage->Lighthing(player);
 			m_pStage->Pushing_Button(player);
-			player->Deceleration(fTimeElapsed);
+			//player->Deceleration(fTimeElapsed);
 		}
 	}
 

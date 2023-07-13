@@ -372,9 +372,8 @@ void process_packet(const int c_id, char* packet)
 			if (monster->alive.load() == false) continue;
 			CL.send_summon_monster_packet(monster);
 		}
-
-		break;
 	}
+				 break;
 	case CS_SIGNUP: {
 		CS_SIGN_PACKET* p = reinterpret_cast<CS_SIGN_PACKET*>(packet);
 		DB_EVENT ev;
@@ -383,8 +382,8 @@ void process_packet(const int c_id, char* packet)
 		wcscpy_s(ev.user_password, sizeof(ev.user_password) / sizeof(wchar_t), p->password);
 		ev.session_id = c_id;
 		db_queue.push(ev);
-		break;
 	}
+				  break;
 	case CS_SIGNIN: {
 		CS_SIGN_PACKET* p = reinterpret_cast<CS_SIGN_PACKET*>(packet);
 		DB_EVENT ev;
@@ -393,24 +392,24 @@ void process_packet(const int c_id, char* packet)
 		wcscpy_s(ev.user_password, sizeof(ev.user_password) / sizeof(wchar_t), p->password);
 		ev.session_id = c_id;
 		db_queue.push(ev);
-		break;
 	}
+				  break;
 	case CS_HEARTBEAT: {
 		CS_HEARTBEAT_PACKET* p = reinterpret_cast<CS_HEARTBEAT_PACKET*>(packet);
 		CL.Update(p);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_update_packet(&CL);
 		}
-		break;
 	}
+					 break;
 	case CS_ROTATE: {
 		CS_ROTATE_PACKET* p = reinterpret_cast<CS_ROTATE_PACKET*>(packet);
 		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_rotate_packet(&CL);
 		}
-		break;
 	}
+				  break;
 	case CS_ATTACK: {
 		auto& Monsters = getRoom_Monsters(CL._id);
 		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
@@ -524,9 +523,8 @@ void process_packet(const int c_id, char* packet)
 			break;
 		}
 		}
-
-		break;
 	}
+	break;
 	case CS_INTERACTION: {
 		CS_INTERACTION_PACKET* p = reinterpret_cast<CS_INTERACTION_PACKET*>(packet);
 		int cur_stage = CL.cur_stage.load();
@@ -541,22 +539,22 @@ void process_packet(const int c_id, char* packet)
 
 		if (CL.clear_percentage >= 1.f && get_remain_Monsters(CL._id) == 0) {
 			for (auto& cl : Room) {
-				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   
+				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
 					cl.send_open_door_packet(CL.cur_stage);
 				cl.clear_percentage = 0.f;
 				if (cl.cur_stage >= 1) cl.clear_percentage = 1.f; // 3번째(코드에선 2번 인덱스) 스테이지부터 퍼즐 미구현이라 임의의 코드로 percent를 100%로 조정함
 			}
 		}
-		break;
 	}
+					   break;
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
 		CL.weapon_type = static_cast<WEAPON_TYPE>((CL.weapon_type + 1) % 3);
 		for (auto& cl : Room) {
 			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
 		}
-		break;
 	}
+						break;
 	}
 }
 
@@ -609,9 +607,8 @@ void worker_thread(HANDLE h_iocp)
 			ZeroMemory(&g_a_over._over, sizeof(g_a_over._over));
 			int addr_size = sizeof(SOCKADDR_IN);
 			AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
-			break;
 		}
-
+			break;
 		case OP_RECV: {
 			SESSION& CL = getClient(static_cast<int>(key));
 			if (CL._state.load() == ST_DEAD) {
@@ -633,11 +630,12 @@ void worker_thread(HANDLE h_iocp)
 				memcpy(ex_over->_send_buf, p, remain_data);
 			}
 			CL.do_recv();
-			break;
 		}
-		case OP_SEND:
+			break;
+		case OP_SEND: {
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
+		}
 			break;
 		case OP_NPC_UPDATE: {
 			int roomNum = static_cast<int>(key) / 100;
@@ -659,8 +657,8 @@ void worker_thread(HANDLE h_iocp)
 
 			delete ex_over;
 			//OverPool.ReturnMemory(ex_over);
-			break;
 		}
+		break;
 		}
 	}
 }
@@ -675,7 +673,10 @@ void Timer_Thread()
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
 			if (ev.wakeup_time > current_time) {
-				this_thread::sleep_for(duration_cast<milliseconds>(ev.wakeup_time - current_time));
+				//this_thread::sleep_for(duration_cast<milliseconds>(ev.wakeup_time - current_time));
+				timer_queue.push(ev);
+				this_thread::sleep_for(1ms);
+				continue;
 			}
 			switch (ev.event_id) {
 			case EV_MONSTER_UPDATE: {
@@ -683,8 +684,8 @@ void Timer_Thread()
 				//OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_UPDATE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
-				break;
 			}
+								  break;
 			}
 			//EventPool.ReturnMemory(ev);
 		}
