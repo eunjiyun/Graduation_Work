@@ -836,7 +836,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	{
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(15, 20, 12));
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(5, 5, 3));
 		Mon->SetPosition(Pos);
 		Monsters.push_back(Mon);
 		//cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";

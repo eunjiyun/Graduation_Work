@@ -101,13 +101,12 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     Pos = _pos;
     room_num = _roomNum;
     m_id = _id;
-    BB = BoundingBox(_pos, XMFLOAT3(15, 20, 12));
+    BB = BoundingBox(_pos, MONSTER_SIZE);
     curState = NPC_State::Idle;
     recent_updateTime = high_resolution_clock::now();
     distances = { 10000.f };
     target_id = -1;
     attacked = false;
-    attack_range = 5.f;
     switch (_type)
     {
     case 0: // 손에 칼
@@ -116,6 +115,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         power = 30;
         view_range = 300;
         speed = 40.f;
+        attack_range = 20.f;
         attack_cycle = (71.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -125,8 +125,8 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 150;
         power = 30;
         view_range = 300;
-        speed = 50.f;
-        attack_range = 3.f;
+        speed = 40.f;
+        attack_range = 10.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
         dead_timer = 3.3f;
@@ -136,7 +136,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         HP = 50;
         power = 70;
         view_range = 400;
-        speed = 50.f;
+        speed = 40.f;
         attack_range = 150.f;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;

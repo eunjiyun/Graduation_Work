@@ -63,22 +63,46 @@ array<vector<Key_Object>, 7> Key_Items;
 
 SESSION& getClient(int c_id)
 {
-	return clients[c_id / MAX_USER_PER_ROOM][c_id % MAX_USER_PER_ROOM];
+	try {
+		return clients[c_id / MAX_USER_PER_ROOM][c_id % MAX_USER_PER_ROOM];
+	}
+	catch (const exception& e) {
+		cout << "getClient catched error -" << e.what() << endl;
+		exit(0);
+	}
 }
 
 array<SESSION, MAX_USER_PER_ROOM>& getRoom_Clients(int c_id)
 {
-	return clients[c_id / MAX_USER_PER_ROOM];
+	try {
+		return clients[c_id / MAX_USER_PER_ROOM];
+	}
+	catch (const exception& e) {
+		cout << "getRoom_Clients catched error -" << e.what() << endl;
+		exit(0);
+	}
 }
 
 array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>& getRoom_Monsters(int c_id)
 {
-	return monsters[c_id / MAX_USER_PER_ROOM];
+	try {
+		return monsters[c_id / MAX_USER_PER_ROOM];
+	}
+	catch (const exception& e) {
+		cout << "getRoom_Monsters catched error -" << e.what() << endl;
+		exit(0);
+	}
 }
 
 vector<MapObject*>& getRoom_Obstacles(XMFLOAT3 Pos)
 {
-	return Obstacles[static_cast<int>(Pos.z) / STAGE_SIZE];
+	try {
+		return Obstacles[static_cast<int>(Pos.z) / STAGE_SIZE];
+	}
+	catch (const exception& e) {
+		cout << "getRoom_Obstacles catched error -" << e.what() << endl;
+		exit(0);
+	}
 }
 
 short get_remain_Monsters(int c_id)
@@ -249,6 +273,12 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash
 		return false;
 	}
 
+	for (auto& monster : monsters[room_num]) {
+		if (monster->alive.load() == false || monster->m_id == m_id) continue;
+		if (monster->BB.Intersects(check_box))
+			return false;
+	}
+
 	try {
 		if (_pos.y > -100) {
 			if (ObstacleGrid[0].at(int(_pos.x) / CELL_SIZE).at(int(_pos.z) / CELL_SIZE) == false)
@@ -280,6 +310,8 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 {
 	if (Vector3::Compare(start, dest)) return Pos;
 
+
+	auto start_time = high_resolution_clock::now();
 	unordered_set<XMFLOAT3, PointHash, PointEqual> closelist{};
 	unordered_map<XMFLOAT3, shared_ptr<A_star_Node>, PointHash, PointEqual> openlist;
 	priority_queue<shared_ptr<A_star_Node>, vector<shared_ptr<A_star_Node>>, CompareNodes> pq;
@@ -289,13 +321,14 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 	pq.push(startNode);
 
 	BoundingBox CheckBox = BoundingBox(start, BB.Extents);
-	while (!openlist.empty())
+	while (!pq.empty())
 	{
+		if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() > 3) break;
 		shared_ptr<A_star_Node> S_Node = pq.top();
 		pq.pop();
-		if (S_Node == nullptr) continue;
+		//if (S_Node == nullptr) break;
 
-		if (Vector3::Length(Vector3::Subtract(clients[room_num][target_id].GetPosition(), S_Node->Pos)) < 30)
+		if (Vector3::Length(Vector3::Subtract(dest, S_Node->Pos)) < min(attack_range,MELEE_ATTACK_RANGE))
 		{
 			while (S_Node->parent != nullptr)
 			{
@@ -336,7 +369,6 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 		}
 	}
 
-	//cout << "Trace Failed\n";
 	return Pos;
 }
 
@@ -405,13 +437,27 @@ void Monster::Update(float fTimeElapsed)
 		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
 
 		bool collide = false;
-		for (const auto& obj : Obstacles[collide_range]) {
-			if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
+
+		if (Pos.y > -100) {
+			if (ObstacleGrid[0].at(int(newPos.x) / CELL_SIZE).at(int(newPos.z) / CELL_SIZE) == false)
 				collide = true;
-				break;
+		}
+		else {
+			if (ObstacleGrid[1].at(int(newPos.x) / CELL_SIZE).at(int(newPos.z) / CELL_SIZE) == false)
+				collide = true;
+		}
+
+		if (collide == false) {
+			for (const auto& monster : monsters[room_num]) {
+				if (monster->alive.load() == false || monster->m_id == m_id) continue;
+				if (monster->BB.Intersects(BoundingBox(newPos, BB.Extents))) {
+					collide = true;
+					break;
+				}
 			}
 		}
-		if (collide) {
+
+		if (collide == true) {
 			Pos = Find_Direction(fTimeElapsed, Pos, targetPlayer->GetPosition());
 			BB.Center = Pos;
 		}
@@ -750,7 +796,7 @@ void FinalizeMonsters()
 
 void InitializeGrid()
 {
-	BoundingBox CheckBox = BoundingBox(XMFLOAT3(0, 0, 0), XMFLOAT3(15, 20, 12));
+	BoundingBox CheckBox = BoundingBox(XMFLOAT3(0, 0, 0), MONSTER_SIZE);
 	// 2층
 	for (int x = 30; x < GRID_SIZE_X * CELL_SIZE; ++x) {
 		for (int z = 65; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
@@ -845,13 +891,19 @@ void InitializeMonsterInfo()
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), MONSTER_SIZE);
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
 				}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
 			if (col) continue;
 
 			if (4 > ID_constructor % 10)
@@ -875,13 +927,22 @@ void InitializeMonsterInfo()
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -63, _z), MONSTER_SIZE);
 			bool col = false;
-			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
+
+			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE]) {
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
 				}
+			}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
+
 			if (col) continue;
 
 			if (4 > ID_constructor % 10)
@@ -905,13 +966,19 @@ void InitializeMonsterInfo()
 		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), MONSTER_SIZE);
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
 				}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
 			if (col) continue;
 
 			if (4 > ID_constructor % 10)
@@ -935,13 +1002,19 @@ void InitializeMonsterInfo()
 		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), MONSTER_SIZE);
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
 				}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
 			if (col) continue;
 
 			if (4 > ID_constructor % 10)
@@ -965,13 +1038,19 @@ void InitializeMonsterInfo()
 		while (ID_constructor < 50) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), MONSTER_SIZE);
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
 				}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
 			if (col) continue;
 
 			if (4 > ID_constructor % 10)
@@ -995,13 +1074,19 @@ void InitializeMonsterInfo()
 		while (ID_constructor < 59) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), XMFLOAT3(15, 20, 12));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, _z), MONSTER_SIZE);
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(_z) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {
 					col = true;
 					break;
 				}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
 			if (col) continue;
 
 			if (4 > ID_constructor % 10)
@@ -1030,6 +1115,12 @@ void InitializeMonsterInfo()
 					col = true;
 					break;
 				}
+			for (int i = ID_constructor - 1; i >= ID_constructor - ID_constructor % 10; i--) {
+				if (BoundingBox(StagesInfo[i].Pos, MONSTER_SIZE).Intersects(test)) {
+					col = true;
+					break;
+				}
+			}
 			if (col) continue;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, 300), 3, ID_constructor);
 			StagesInfo.push_back(MI);

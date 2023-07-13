@@ -2,6 +2,11 @@
 #include "stdafx.h"
 #include "MemoryPool.h"
 
+#define MONSTER_SIZE XMFLOAT3{5,5,3}
+#define MELEE_ATTACK_RANGE 30
+#define MAGIC_ATTACK_RANGE 150
+#define BOSS_ATTACK_RANGE 75
+
 enum class NPC_State
 {
     Idle,
