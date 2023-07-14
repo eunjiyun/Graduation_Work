@@ -185,15 +185,6 @@ void Summon_Monster(int roomNum, int stageNum)
 
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
-	// check velocity
-	static const float max_distance_squared = 10000.f;
-	//XMFLOAT3 Distance = Vector3::Subtract(newPos, GetPosition());
-	//float distance_squared = Distance.x * Distance.x + Distance.z * Distance.z;
-	
-	if (Vector3::Length(m_xmf3Velocity) > max_distance_squared) {
-		SetVelocity(XMFLOAT3{ 0,0,0 });
-		return;
-	}
 
 	XMFLOAT3 newCenter = Vector3::Add(newPos, XMFLOAT3(0,10.f,0));			// ĳ������ ��ġ�� �浹�ڽ��� ��ġ�� ���� ������ �浹üũ�� y�� +10�ؼ� ����ؾ���
 	try {
@@ -280,7 +271,7 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash
 	}
 
 	try {
-		if (_pos.y > -100) {
+		if (m_id < 20) {
 			if (ObstacleGrid[0].at(int(_pos.x) / CELL_SIZE).at(int(_pos.z) / CELL_SIZE) == false)
 				return false;
 		}
@@ -290,26 +281,18 @@ bool Monster::check_path(const XMFLOAT3& _pos, unordered_set<XMFLOAT3, PointHash
 		}
 	}
 	catch (const exception& e) {
-		cout << "array access error - " << _pos.x << ", " << _pos.z << endl;
+		//cout << "array access error - " << _pos.x << ", " << _pos.z << endl;
 		return false;
 	}
-	//if (_pos.x < 0 || _pos.z < 0 || _pos.x > MAP_X_SIZE || _pos.z > MAP_Z_SIZE) return false;
-
-	//if (Obstacles[collide_range_z].end() != find_if(Obstacles[collide_range_z].begin(), Obstacles[collide_range_z].end(),
-	//	[check_box](MapObject* MO) {return MO->m_xmOOBB.Intersects(check_box); }))
-	//{
-	//	return false;
-	//}
 
 	return true;
 }
 
 float nx[8]{ -1,1,0,0, -1, -1, 1, 1 };
 float nz[8]{ 0,0,1,-1, -1, 1, -1, 1 };
-XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const XMFLOAT3 dest)
+XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start, XMFLOAT3 dest)
 {
 	if (Vector3::Compare(start, dest)) return Pos;
-
 
 	auto start_time = high_resolution_clock::now();
 	unordered_set<XMFLOAT3, PointHash, PointEqual> closelist{};
@@ -375,8 +358,7 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, const XMFLOAT3 start, const
 int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
-		if (clients[room_num][i]._state.load() != ST_INGAME ||
-			clients[room_num][i].GetPosition().y - Pos.y >= 1.f) {
+		if (clients[room_num][i]._state.load() != ST_INGAME) {
 			distances[i] = view_range;
 			continue;
 		}
@@ -403,7 +385,7 @@ void Monster::Update(float fTimeElapsed)
 		if (target_id != -1) {
 			const auto& targetPlayer = &clients[room_num][target_id];
 			XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
-			g_distance = Vector3::Length(distanceVector);
+			g_distance = Vector3::XZLength(distanceVector);
 			if (attack_range >= g_distance)
 			{
 				SetState(NPC_State::Attack);
@@ -417,10 +399,9 @@ void Monster::Update(float fTimeElapsed)
 	case NPC_State::Chase: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+		g_distance = Vector3::XZLength(distanceVector);
 
-		g_distance = Vector3::Length(distanceVector);
-
-		if (distanceVector.y >= 1.f || clients[room_num][target_id]._state.load() != ST_INGAME || Vector3::Length(distanceVector) > view_range)
+		if (clients[room_num][target_id]._state.load() != ST_INGAME)
 		{
 			SetState(NPC_State::Idle);
 			target_id = -1;
@@ -432,13 +413,11 @@ void Monster::Update(float fTimeElapsed)
 			break;
 		}
 		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
-		XMFLOAT3 vel = Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos));
-		vel.y = 0.f;
-		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
-
+		XMFLOAT3 vel = Vector3::XZNormalize(distanceVector);
+		XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
 		bool collide = false;
 
-		if (Pos.y > -100) {
+		if (m_id < 20) {
 			if (ObstacleGrid[0].at(int(newPos.x) / CELL_SIZE).at(int(newPos.z) / CELL_SIZE) == false)
 				collide = true;
 		}
@@ -562,7 +541,7 @@ void SorcererMonster::Update(float fTimeElapsed)
 		if (target_id != -1) {
 			const auto& targetPlayer = &clients[room_num][target_id];
 			XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
-			g_distance = Vector3::Length(distanceVector);
+			g_distance = Vector3::XZLength(distanceVector);
 			if (attack_range >= g_distance)
 			{
 				SetState(NPC_State::Attack);
@@ -576,10 +555,9 @@ void SorcererMonster::Update(float fTimeElapsed)
 	case NPC_State::Chase: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
+		g_distance = Vector3::XZLength(distanceVector);
 
-		g_distance = Vector3::Length(distanceVector);
-
-		if (clients[room_num][target_id].GetPosition().y - Pos.y >= 2.f || clients[room_num][target_id]._state.load() != ST_INGAME)
+		if (clients[room_num][target_id]._state.load() != ST_INGAME)
 		{
 			SetState(NPC_State::Idle);
 			target_id = -1;
@@ -591,18 +569,30 @@ void SorcererMonster::Update(float fTimeElapsed)
 			break;
 		}
 		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
-		XMFLOAT3 vel = Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos));
-		vel.y = 0.f;
-		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
-
+		XMFLOAT3 vel = Vector3::XZNormalize(distanceVector);
+		XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
 		bool collide = false;
-		for (const auto& obj : Obstacles[collide_range]) {
-			if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
+
+		if (m_id < 20) {
+			if (ObstacleGrid[0].at(int(newPos.x) / CELL_SIZE).at(int(newPos.z) / CELL_SIZE) == false)
 				collide = true;
-				break;
+		}
+		else {
+			if (ObstacleGrid[1].at(int(newPos.x) / CELL_SIZE).at(int(newPos.z) / CELL_SIZE) == false)
+				collide = true;
+		}
+
+		if (collide == false) {
+			for (const auto& monster : monsters[room_num]) {
+				if (monster->alive.load() == false || monster->m_id == m_id) continue;
+				if (monster->BB.Intersects(BoundingBox(newPos, BB.Extents))) {
+					collide = true;
+					break;
+				}
 			}
 		}
-		if (collide) {
+
+		if (collide == true) {
 			Pos = Find_Direction(fTimeElapsed, Pos, targetPlayer->GetPosition());
 			BB.Center = Pos;
 		}
@@ -622,7 +612,6 @@ void SorcererMonster::Update(float fTimeElapsed)
 			SetState(NPC_State::Idle);
 			target_id = -1;
 			SetAttackTimer(attack_cycle);
-
 			break;
 		}
 		if (attacked == false && GetAttackTimer() <= attack_cycle / 2.f) {
@@ -663,7 +652,7 @@ void BossMonster::Update(float fTimeElapsed)
 		if (target_id != -1) {
 			const auto& targetPlayer = &clients[room_num][target_id];
 			XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
-			g_distance = Vector3::Length(distanceVector);
+			g_distance = Vector3::XZLength(distanceVector);
 			if (attack_range >= g_distance)
 			{
 				SetState(NPC_State::Attack);
@@ -677,7 +666,7 @@ void BossMonster::Update(float fTimeElapsed)
 	case NPC_State::Chase: {
 		const auto& targetPlayer = &clients[room_num][target_id];
 		XMFLOAT3 distanceVector = Vector3::Subtract(targetPlayer->GetPosition(), Pos);
-		g_distance = Vector3::Length(distanceVector);
+		g_distance = Vector3::XZLength(distanceVector);
 
 		if (clients[room_num][target_id]._state.load() != ST_INGAME)
 		{
@@ -691,18 +680,25 @@ void BossMonster::Update(float fTimeElapsed)
 			break;
 		}
 		const int collide_range = static_cast<int>(Pos.z / AREA_SIZE);
-		XMFLOAT3 vel = Vector3::Normalize(Vector3::Subtract(targetPlayer->GetPosition(), Pos));
-		vel.y = 0.f;
-		const XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
+		XMFLOAT3 vel = Vector3::XZNormalize(distanceVector);
+		XMFLOAT3 newPos = Vector3::Add(Pos, Vector3::ScalarProduct(vel, speed * fTimeElapsed, false));
 
 		bool collide = false;
-		for (const auto& obj : Obstacles[collide_range]) {
-			if (obj->m_xmOOBB.Intersects(BoundingBox(newPos, BB.Extents))) {
-				collide = true;
-				break;
+
+		if (ObstacleGrid[1].at(int(newPos.x) / CELL_SIZE).at(int(newPos.z) / CELL_SIZE) == false)
+			collide = true;
+		
+		if (collide == false) {
+			for (const auto& monster : monsters[room_num]) {
+				if (monster->alive.load() == false || monster->m_id == m_id) continue;
+				if (monster->BB.Intersects(BoundingBox(newPos, BB.Extents))) {
+					collide = true;
+					break;
+				}
 			}
 		}
-		if (collide) {
+
+		if (collide == true) {
 			Pos = Find_Direction(fTimeElapsed, Pos, targetPlayer->GetPosition());
 			BB.Center = Pos;
 		}
@@ -1108,7 +1104,7 @@ void InitializeMonsterInfo()
 		gen.seed(rd());
 		while (ID_constructor < 60) {
 			float _x = static_cast<float>(x_dis(gen));
-			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, 300), XMFLOAT3(30, 40, 24));
+			BoundingBox test = BoundingBox(XMFLOAT3(_x, -304, 300), BOSS_MONSTER_SIZE);
 			bool col = false;
 			for (auto& obj : Obstacles[static_cast<int>(300) / AREA_SIZE])
 				if (obj->m_xmOOBB.Intersects(test)) {

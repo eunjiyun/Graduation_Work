@@ -651,7 +651,7 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 	}
 
 
-	m_nDoor = 6;
+	m_nDoor = 7;
 	door = new CGameObject * [m_nDoor];
 
 	for (int h{}; h < m_nDoor; ++h)
@@ -1669,10 +1669,15 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 			else if (2 == i && !mon.empty()&& -1!=boss)//파티클
 			{
-				xmf3MonPos = mon[boss]->GetPosition();
-				xmf3MonLook = mon[boss]->GetLook();
-				xmf3MonPos.y += 40.0f;
-				xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
+				try {
+					xmf3MonPos = mon.at(boss)->GetPosition();
+					xmf3MonLook = mon.at(boss)->GetLook();
+					xmf3MonPos.y += 40.0f;
+					xmf3Pos = Vector3::Add(xmf3MonPos, Vector3::ScalarProduct(xmf3MonLook, 50.0f, false));
+				}
+				catch (const exception& e) {
+
+				}
 			}
 			else if (3 == i)//몬스터 피격
 			{

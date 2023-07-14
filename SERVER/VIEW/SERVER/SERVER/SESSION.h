@@ -147,7 +147,7 @@ public:
 	void Initialize()
 	{
 		//_id = id;
-		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,1300 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
+		m_xmf3Position = XMFLOAT3{ 300 + 50.f * (_id % 3), -63,600 };// 중간발표 데모를 위해 시작위치를 임의로 조정  //-259,4500
 		m_xmf3Velocity = { 0.f,0.f,0.f };
 		direction = 0;
 		_prev_remain = 0;
@@ -158,7 +158,7 @@ public:
 		cur_stage = 0;
 		weapon_type = BLADE;
 		HP =  5000;
-		clear_percentage = 0.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
+		clear_percentage = 1.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
 	}
 	void do_recv()
 	{

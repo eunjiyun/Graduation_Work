@@ -42,7 +42,7 @@ public:
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
 	CAnimationController* AnimationControllers[3];
-	
+	steady_clock::time_point recv_time;
 
 public:
 	CPlayer();
@@ -63,7 +63,7 @@ public:
 
 	void SetScale(XMFLOAT3& xmf3Scale) { m_xmf3Scale = xmf3Scale; }
 
-	const XMFLOAT3& GetVelocity() const { return(m_xmf3Velocity); }
+	XMFLOAT3 GetVelocity() { return m_xmf3Velocity; }
 	float GetYaw() const { return(m_fYaw); }
 	float GetPitch() const { return(m_fPitch); }
 	float GetRoll() const { return(m_fRoll); }

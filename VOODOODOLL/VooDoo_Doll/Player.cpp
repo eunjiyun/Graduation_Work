@@ -181,11 +181,10 @@ void CPlayer::processAnimation()
 
 void CPlayer::Update(float fTimeElapsed)
 {
-	if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
-	else SetMaxVelocityXZ(100.0f);
+	//if (onAttack || onCollect || onDie) SetMaxVelocityXZ(0.0f);
+	//else SetMaxVelocityXZ(100.0f);
 
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, m_xmf3Gravity);
-
 
 	float fLength = sqrtf(m_xmf3Velocity.x * m_xmf3Velocity.x + m_xmf3Velocity.z * m_xmf3Velocity.z);
 	float fMaxVelocityXZ = m_fMaxVelocityXZ;
@@ -216,6 +215,9 @@ void CPlayer::Deceleration(float fTimeElapsed)
 	float fDeceleration = (m_fFriction * fTimeElapsed);
 	if (fDeceleration > fLength) fDeceleration = fLength;
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true));
+	//XMFLOAT3 Decel = Vector3::ScalarProduct(m_xmf3Velocity, -fDeceleration, true);
+	//Decel.y = 0;
+	//m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Decel);
 }
 
 CCamera* CPlayer::OnChangeCamera(DWORD nNewCameraMode, DWORD nCurrentCameraMode)

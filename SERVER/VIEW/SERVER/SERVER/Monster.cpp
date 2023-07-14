@@ -101,7 +101,6 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     Pos = _pos;
     room_num = _roomNum;
     m_id = _id;
-    BB = BoundingBox(_pos, MONSTER_SIZE);
     curState = NPC_State::Idle;
     recent_updateTime = high_resolution_clock::now();
     distances = { 10000.f };
@@ -113,22 +112,24 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         type = 0;
         HP = 250;
         power = 30;
-        view_range = 300;
+        view_range = 400;
         speed = 40.f;
         attack_range = 20.f;
         attack_cycle = (71.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
+        BB = BoundingBox(_pos, MONSTER_SIZE);
         dead_timer = 3.3f;
         break;
     case 1: // 뼈다귀 다리
         type = 1;
         HP = 150;
         power = 30;
-        view_range = 300;
+        view_range = 400;
         speed = 40.f;
         attack_range = 10.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
+        BB = BoundingBox(_pos, MINI_MONSTER_SIZE);
         dead_timer = 3.3f;
         break;
     case 2: // 마술사
@@ -140,17 +141,19 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         attack_range = 150.f;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;
+        BB = BoundingBox(_pos, MINI_MONSTER_SIZE);
         dead_timer = 3.3f;
         break;
     case 3: // 보스 몬스터
         type = 3;
         HP = 1000;
         power = 100;
-        view_range = 700;
+        view_range = 100;
         speed = 40.f;
         attack_range = 75.f;
         attack_cycle = (10.f / 3.f); // 3.333333초
         attack_timer = attack_cycle;
+        BB = BoundingBox(_pos, BOSS_MONSTER_SIZE);
         dead_timer = 1.f;
         break;
     }

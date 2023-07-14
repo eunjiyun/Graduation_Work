@@ -147,9 +147,26 @@ namespace Vector3
 		return(m_xmf3Normal);
 	}
 
+	inline XMFLOAT3 XZNormalize(XMFLOAT3& xmf3Vector)
+	{
+		XMFLOAT3 m_xmf3Normal;
+		xmf3Vector.y = 0;
+		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
+		return(m_xmf3Normal);
+	}
+
 	inline float Length(XMFLOAT3& xmf3Vector)
 	{
 		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
+		return(xmf3Result.x);
+		//return sqrtf(xmf3Vector.x * xmf3Vector.x + xmf3Vector.z * xmf3Vector.z);
+	}
+
+	inline float XZLength(XMFLOAT3& xmf3Vector)
+	{
+		XMFLOAT3 xmf3Result;
+		xmf3Vector.y = 0;
 		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
 		return(xmf3Result.x);
 		//return sqrtf(xmf3Vector.x * xmf3Vector.x + xmf3Vector.z * xmf3Vector.z);

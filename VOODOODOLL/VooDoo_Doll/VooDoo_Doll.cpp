@@ -543,6 +543,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
         SC_GAME_START_PACKET* packet = reinterpret_cast<SC_GAME_START_PACKET*>(ptr);
         gGameFramework.m_pPlayer->c_id = packet->id;
         gGameFramework.m_pPlayer->SetPosition(packet->pos);
+        gGameFramework.m_pPlayer->recv_time = high_resolution_clock::now();
         cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
         break;
     }
@@ -620,7 +621,24 @@ void ProcessPacket(char* ptr)//몬스터 생성
             return;
         }
         if ((*iter)->onAct == false) {
-            //ProcessAnimation(*iter, packet);
+            //auto cur_time = high_resolution_clock::now();
+            //float time = duration_cast<milliseconds>(cur_time - (*iter)->recv_time).count() / 1000.f;
+            //
+            //float fLength = sqrtf(packet->vel.x * packet->vel.x + packet->vel.z * packet->vel.z);
+            //if (fLength > 100)
+            //{
+            //    packet->vel.x *= (100 / fLength);
+            //    packet->vel.z *= (100 / fLength);
+            //}
+
+            //fLength = sqrtf(packet->vel.y * packet->vel.y);
+            //if (fLength > 300) packet->vel.y *= (300 / fLength);
+            // 
+            //XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(packet->vel, time, false));
+            //(*iter)->SetVelocity(packet->vel);  
+            //(*iter)->SetPosition(targetPos);
+            //(*iter)->recv_time = cur_time;
+
             XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
             XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
             (*iter)->SetVelocity(packet->vel);
@@ -743,15 +761,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
         }
 
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1) {
-            XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH((*iter)->GetPosition(),
-                packet->Pos, XMFLOAT3(0, 1, 0));
+            XMFLOAT3 FROM = (*iter)->GetPosition();
+            XMFLOAT3 TO = packet->Pos;
+            XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(FROM, TO, XMFLOAT3(0, 1, 0));
             mtkLookAt._11 = -mtkLookAt._11;
             mtkLookAt._21 = -mtkLookAt._21;
             mtkLookAt._31 = -mtkLookAt._31;
             (*iter)->m_xmf4x4ToParent = mtkLookAt;
 
-            XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
-            XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
+            XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, FROM);
+            XMFLOAT3 targetPos = Vector3::Add(FROM, Vector3::ScalarProduct(deltaPos, 0.1f, false));
             (*iter)->m_xmOOBB.Center = targetPos;
             (*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
             (*iter)->SetPosition(targetPos);
@@ -762,8 +781,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
                 XMFLOAT3 FROM = (*iter)->GetPosition();
                 XMFLOAT3 TO = (*target)->GetPosition();
                 TO.y = FROM.y;
-                XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(FROM,
-                    TO, XMFLOAT3(0, 1, 0));
+                XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(FROM, TO, XMFLOAT3(0, 1, 0));
                 mtkLookAt._11 = -mtkLookAt._11;
                 mtkLookAt._21 = -mtkLookAt._21;
                 mtkLookAt._31 = -mtkLookAt._31;

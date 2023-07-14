@@ -714,6 +714,7 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos)
 			player->c_id = p_id;
 			player->SetPosition(Pos);
 			cout << player->c_id << endl;
+			player->recv_time = high_resolution_clock::now();
 			break;
 		}
 }
@@ -746,6 +747,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
+
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
@@ -761,7 +764,9 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->speed = 15.f;
+
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 2:
@@ -776,13 +781,14 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 7,7,7 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
 		Mon->Hat_Model = Hat;
 		Mon->m_ppHat = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Mon->Hat_Model, 1, 2);
 		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
-		Mon->speed = 9.f;
+		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 3:
@@ -801,8 +807,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//점프
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//피격
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//걷기
-
-		Mon->speed = 7.f;
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 30,30,30 });
+		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	case 4:
@@ -836,7 +842,6 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	{
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3(5, 10, 3));
 		Mon->SetPosition(Pos);
 		Monsters.push_back(Mon);
 		//cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";
