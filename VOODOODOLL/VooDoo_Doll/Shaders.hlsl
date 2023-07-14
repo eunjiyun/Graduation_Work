@@ -130,6 +130,87 @@ PS_STANDARD_OUTPUT PSStandard(VS_STANDARD_OUTPUT input)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+// 기본 셰이더로 변경 예정 
+
+struct GBuffer
+{
+    float4 albedo : SV_Target0;
+    float4 specular : SV_Target1;
+    float4 normal : SV_Target2;
+    float4 metallic : SV_Target3;
+    float4 emission : SV_Target4;
+};
+
+struct VS_STANDARD_INPUT
+{
+	float3 position : POSITION;
+	float2 uv : TEXCOORD;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 bitangent : BITANGENT;
+
+};
+
+struct VS_STANDARD_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL;
+	float3 tangentW : TANGENT;
+	float3 bitangentW : BITANGENT;
+	float2 uv : TEXCOORD;
+};
+
+struct PS_STANDARD_OUTPUT
+{
+	GBuffer gbuffer : SV_Target;
+};
+
+VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
+{
+	VS_STANDARD_OUTPUT output;
+
+	output.positionW = mul(float4(input.position, 1.0f), gmtxGameObject).xyz;
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.tangentW = mul(input.tangent, (float3x3)gmtxGameObject);
+	output.bitangentW = mul(input.bitangent, (float3x3)gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+}
+
+PS_STANDARD_OUTPUT PSStandard(VS_STANDARD_OUTPUT input)
+{
+	  PS_STANDARD_OUTPUT output;
+
+    output.gbuffer.albedo = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.gbuffer.specular = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.gbuffer.normal = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.gbuffer.metallic = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.gbuffer.emission = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    if (gnTexturesMask & MATERIAL_ALBEDO_MAP)
+        output.gbuffer.albedo = gtxtAlbedo.Sample(gssWrap, input.uv);
+
+    if (gnTexturesMask & MATERIAL_SPECULAR_MAP)
+        output.gbuffer.specular = gtxtSpecular.Sample(gssWrap, input.uv);
+
+    if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+        output.gbuffer.normal = gtxtNormal.Sample(gssWrap, input.uv);
+
+    if (gnTexturesMask & MATERIAL_METALLIC_MAP)
+        output.gbuffer.metallic = gtxtMetallic.Sample(gssWrap, input.uv);
+
+    if (gnTexturesMask & MATERIAL_EMISSION_MAP)
+        output.gbuffer.emission = gtxtEmission.Sample(gssWrap, input.uv);
+
+    return output;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 #define MAX_VERTEX_INFLUENCES			4
 #define SKINNED_ANIMATION_BONES			256
 
