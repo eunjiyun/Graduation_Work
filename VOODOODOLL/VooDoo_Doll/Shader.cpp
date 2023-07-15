@@ -1537,7 +1537,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	m_nObjects = 11;
+	m_nObjects = 12;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1557,6 +1557,8 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else if (10 == j )//팝업
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 60.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		else if (11 == j)//크로스헤어
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else//화면
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
 
@@ -1604,13 +1606,14 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 		}
 
 		if (0 < i && 5 > i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
-			||10==i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
+			|| 10 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
 			|| 5 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && 0 == pPlayer->c_id
 			|| 6 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] && 1 == pPlayer->c_id
 			|| 7 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] && 2 == pPlayer->c_id
 			|| 0 == i && p1
 			|| 8 == i && p2
-			|| 9 == i && p3)
+			|| 9 == i && p3
+			|| 11 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0])
 		{
 			XMFLOAT3 xmf3CameraPosition = pCamera->GetPosition();
 			XMFLOAT3 xmf3PlayerPosition = pPlayer->GetPosition();
@@ -1732,7 +1735,6 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 			}
 
 			xmf3Position = Vector3::Add(xmf3PlayerPosition, Vector3::ScalarProduct(xmf3PlayerLook, 50.0f, false));
-
 			if (obj[i])
 			{
 				if (1 != i && 2 != i && 1 != obj[i]->texMat.z)
@@ -1755,9 +1757,11 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					obj[i]->SetPosition(xmf3Pos);
 					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
-
+				if (i == 11) {
+					obj[i]->SetPosition(Vector3::Add(XMFLOAT3(0,20,0),Vector3::Add(pPlayer->GetPosition(), Vector3::ScalarProduct(pPlayer->GetLook(), 100, false))));				
+					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+				}
 				CShader::Render(pd3dCommandList, pCamera);
-
 				obj[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 			}
 		}

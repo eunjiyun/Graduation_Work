@@ -706,6 +706,16 @@ void ProcessPacket(char* ptr)//몬스터 생성
         (*iter)->m_pChild = (*iter)->pAngrybotModels[packet->cur_weaponType]->m_pModelRootObject;
         (*iter)->m_pSkinnedAnimationController = (*iter)->AnimationControllers[packet->cur_weaponType];
 
+        if (packet->id == gGameFramework.m_pPlayer->c_id)
+            if (packet->cur_weaponType == 1) {
+                wcout << "RENDER\n";
+                gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+            }
+            else {
+                wcout << "DESTROY\n";
+                gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+            }
+
 
         for (int i{};i<3;++i)
         {

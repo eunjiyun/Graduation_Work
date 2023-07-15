@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[37];
+	CTexture* ppTextures[38];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -321,6 +321,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[36] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[36]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/plBlood.dds", RESOURCE_TEXTURE2D, 0);
 
+	ppTextures[37] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[37]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/crosshair.dds", RESOURCE_TEXTURE2D, 0);
 
 
 	// 버튼 퍼즐 오브젝트
@@ -370,7 +372,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/lobby2.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a{}; a < 37; ++a)
+	for (int a{}; a < 38; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -677,6 +679,14 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials = new CMaterial * [1];
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = m_ppShaders[0]->popUpMat[1];
 	pMultiSpriteObjectShader->obj[10]->texMat.z = 2;
+
+	pMultiSpriteObjectShader->obj[11]->m_ppMaterials = new CMaterial * [1];
+	CMaterial* p_Material = new CMaterial(1);
+	p_Material->SetMaterialType(MATERIAL_ALBEDO_MAP);
+	p_Material->SetTexture(ppTextures[37]);
+	pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0] = p_Material;
+	pMultiSpriteObjectShader->obj[11]->texMat.z = 1;
+
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
@@ -1380,11 +1390,13 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
 	xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
+	XMFLOAT3 LookAtPos = Vector3::Add(pl->obBox.Center, Vector3::ScalarProduct(cm->GetLookVector(), 40, false));
+
 	if (cm->GetMode() == THIRD_PERSON_CAMERA) {
 		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(cm->GetOffset(), xmf4x4Rotate);
 		XMFLOAT3 xmf3Position = Vector3::Add(pl->obBox.Center, xmf3Offset);
 		XMFLOAT3 ray_castPos = pl->obBox.Center;
-		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, pl->obBox.Center));
+		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(xmf3Position, ray_castPos));
 
 		bool collide = false;
 		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
@@ -1407,11 +1419,11 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			}
 			ray_castPos = Vector3::Add(ray_castPos, dir);
 		}
-
-		cm->Update(xmf3Position, pl->obBox.Center, fTimeElapsed);
+		//cm->Update(xmf3Position, pl->obBox.Center, fTimeElapsed);
+		cm->Update(xmf3Position, LookAtPos, fTimeElapsed);
 	}
-
-	cm->SetLookAt(pl->obBox.Center);
+	//cm->SetLookAt(pl->obBox.Center);
+	cm->SetLookAt(LookAtPos);
 
 	cm->RegenerateViewMatrix();
 }
