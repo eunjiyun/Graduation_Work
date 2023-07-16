@@ -60,8 +60,15 @@ void ProcessInput()
             ::SetCursor(NULL);
             POINT ptCursorPos;
             ::GetCursorPos(&ptCursorPos);
-            cxDelta = (float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f;
-            cyDelta = (float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f;
+            if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
+                cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
+            else 
+                cxDelta = max((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, -10.f);
+
+            if (ptCursorPos.y - gGameFramework.Get_OldCursorPointY() > 0)
+                cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
+            else 
+                cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
             ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
         }
     }
@@ -83,6 +90,7 @@ void ProcessInput()
             gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
             gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
         }
+        cout << cxDelta << ", " << cyDelta << endl;
         OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
         int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
         if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
@@ -265,6 +273,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_RBUTTONDOWN:
+        if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
+        {
+            gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
+            CS_ATTACK_PACKET p;
+            p.size = sizeof(CS_ATTACK_PACKET);
+            p.type = CS_ATTACK;
+            OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+            int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
+            if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+            gGameFramework.m_pPlayer->onAct = true;
+        }
+        break;
     case WM_KEYDOWN:
         if (VK_CONTROL == wParam)//full screen
         {
@@ -282,18 +303,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
         {
-            if (wParam == 'Z' || wParam == 'z')
-            {
-                gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
-                CS_ATTACK_PACKET p;
-                p.size = sizeof(CS_ATTACK_PACKET);
-                p.type = CS_ATTACK;
-                OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-                int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
-                if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-                gGameFramework.m_pPlayer->onAct = true;
-            }
-            else if (wParam == 'C' || wParam == 'c')
+            //if (wParam == 'Z' || wParam == 'z')
+            //{
+            //    gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
+            //    CS_ATTACK_PACKET p;
+            //    p.size = sizeof(CS_ATTACK_PACKET);
+            //    p.type = CS_ATTACK;
+            //    OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+            //    int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
+            //    if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+            //    gGameFramework.m_pPlayer->onAct = true;
+            //}
+            if (wParam == 'C' || wParam == 'c')
             {
                 CS_INTERACTION_PACKET p;
                 p.size = sizeof(CS_INTERACTION_PACKET);
@@ -321,11 +342,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             gGameFramework.delUser = false;
             break;
         }
-
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
     case WM_SIZE:
-    case WM_RBUTTONDOWN:
         if (gGameFramework.lobby[0])
         {
             if (false == gGameFramework.onFullScreen)
@@ -540,6 +559,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
         gGameFramework.lobby[2] = true;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+        gGameFramework.m_pStage->ingame = true;
         SC_GAME_START_PACKET* packet = reinterpret_cast<SC_GAME_START_PACKET*>(ptr);
         gGameFramework.m_pPlayer->c_id = packet->id;
         gGameFramework.m_pPlayer->SetPosition(packet->pos);

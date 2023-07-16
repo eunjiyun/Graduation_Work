@@ -1426,6 +1426,27 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	cm->SetLookAt(LookAtPos);
 
 	cm->RegenerateViewMatrix();
+
+	{
+		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
+		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
+		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
+		while (Vector3::Length(Vector3::Subtract(pl->Aiming_Position, xmf3Position)) > 5.f)
+		{
+			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+			{
+				//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
+				if (oBox.Contains(XMLoadFloat3(&xmf3Position)))
+				{
+					pl->Aiming_Position = xmf3Position;
+					return;
+				}
+			}
+			xmf3Position = Vector3::Add(xmf3Position, dir);
+		}
+	}
+
 }
 
 void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)

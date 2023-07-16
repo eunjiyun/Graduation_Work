@@ -430,6 +430,10 @@ void process_packet(const int c_id, char* packet)
 				{
 					monster->HP -= 100;
 					monster->target_id = CL._id;
+					if (monster->GetState() == NPC_State::Idle)
+					{
+						monster->SetState(NPC_State::Chase);
+					}
 					for (auto& cl : Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(monster->m_id);
 					}
@@ -490,6 +494,10 @@ void process_packet(const int c_id, char* packet)
 					}
 					closestMonster->HP -= 200;
 					closestMonster->target_id = CL._id;
+					if (closestMonster->GetState() == NPC_State::Idle)
+					{
+						closestMonster->SetState(NPC_State::Chase);
+					}
 					for (auto& cl : Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(closestMonster->m_id);
 					}
@@ -511,6 +519,10 @@ void process_packet(const int c_id, char* packet)
 				{
 					monster->HP -= 50;
 					monster->target_id = CL._id;
+					if (monster->GetState() == NPC_State::Idle)
+					{
+						monster->SetState(NPC_State::Chase);
+					}
 					for (auto& cl : Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(monster->m_id);
 					}

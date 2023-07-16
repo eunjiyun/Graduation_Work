@@ -1758,8 +1758,9 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 				if (i == 11) {
-					obj[i]->SetPosition(Vector3::Add(XMFLOAT3(0,20,0),Vector3::Add(pPlayer->GetPosition(), Vector3::ScalarProduct(pPlayer->GetLook(), 100, false))));				
-					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
+					//obj[i]->SetPosition(Vector3::Add(XMFLOAT3(0,80,0),Vector3::Add(pCamera->GetPosition(), Vector3::ScalarProduct(pCamera->GetLookVector(), 300, false))));				
+					obj[i]->SetPosition(pPlayer->Aiming_Position);
+					obj[i]->SetLookAt(pCamera->GetPosition(), XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 				CShader::Render(pd3dCommandList, pCamera);
 				obj[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);

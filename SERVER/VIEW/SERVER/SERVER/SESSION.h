@@ -184,8 +184,6 @@ public:
 		p.size = sizeof(SC_GAME_START_PACKET);
 		p.type = SC_GAME_START;
 		p.pos = m_xmf3Position;
-		cout << p.id << " - ";
-		Vector3::Print(m_xmf3Position);
 		do_send(&p);
 	}
 	void send_update_packet(SESSION* Player)

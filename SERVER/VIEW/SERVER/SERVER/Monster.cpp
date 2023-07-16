@@ -129,7 +129,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         attack_range = 10.f;
         attack_cycle = (56.f / 30.f); // 2.366667초
         attack_timer = attack_cycle;
-        BB = BoundingBox(_pos, MINI_MONSTER_SIZE);
+        BB = BoundingBox(_pos, MONSTER_SIZE);
         dead_timer = 3.3f;
         break;
     case 2: // 마술사
@@ -141,7 +141,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         attack_range = 150.f;
         attack_cycle = (8.f / 3.f); // 2.666664초
         attack_timer = attack_cycle;
-        BB = BoundingBox(_pos, MINI_MONSTER_SIZE);
+        BB = BoundingBox(_pos, MONSTER_SIZE);
         dead_timer = 3.3f;
         break;
     case 3: // 보스 몬스터

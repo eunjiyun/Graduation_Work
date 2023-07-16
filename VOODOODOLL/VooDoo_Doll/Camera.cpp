@@ -285,7 +285,7 @@ void CThirdPersonCamera::Update(XMFLOAT3& camera_pos, XMFLOAT3& xmf3LookAt, floa
 		if (fDistance > 0)
 		{
 			m_xmf3Position = Vector3::Add(XMFLOAT3(m_xmf3Position.x, m_xmf3Position.y, m_xmf3Position.z), xmf3Direction, fDistance);
-			SetLookAt(xmf3LookAt);
+			//SetLookAt(xmf3LookAt);
 		}
 	}
 }

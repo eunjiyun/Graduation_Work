@@ -781,7 +781,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 7,7,7 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
 		Mon->Hat_Model = Hat;
