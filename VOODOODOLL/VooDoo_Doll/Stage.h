@@ -183,6 +183,7 @@ public:
 	CGameObject** hpUi = nullptr;
 	CGameObject** userId = nullptr;
 	CGameObject** userPw = nullptr;
+	CGameObject** Aim = nullptr;
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = nullptr;
 	
 	bool ingame = false;

@@ -364,8 +364,10 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 		if(texMat.z == 3)
 			cColor.a = 0.7f;
 
-		if (cColor.x < 0.4f)
+		if (cColor.x == cColor.y && cColor.y == cColor.z)
 			discard;
+		//if (cColor.x < 0.4f)
+		//	discard;
 	}
 
 	return(cColor);

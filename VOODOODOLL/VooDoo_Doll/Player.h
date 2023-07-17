@@ -44,6 +44,7 @@ public:
 	CAnimationController* AnimationControllers[3];
 	steady_clock::time_point recv_time;
 	XMFLOAT3 Aiming_Position;
+	float aimSize = 1.f;
 public:
 	CPlayer();
 	virtual ~CPlayer();

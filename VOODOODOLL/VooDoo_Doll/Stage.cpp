@@ -191,7 +191,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	int iMaterialCheck = 0;
 
-	CTexture* ppTextures[38];
+	CTexture* ppTextures[39];
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -324,6 +324,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[37] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[37]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/crosshair.dds", RESOURCE_TEXTURE2D, 0);
 
+	ppTextures[38] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	ppTextures[38]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hit_marker.dds", RESOURCE_TEXTURE2D, 0);
+
 
 	// 버튼 퍼즐 오브젝트
 	pButtonTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -372,7 +375,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/lobby2.dds", RESOURCE_TEXTURE2D, 0);
 
-	for (int a{}; a < 38; ++a)
+	for (int a{}; a < 39; ++a)
 	{
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
@@ -1431,6 +1434,8 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
 		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
+		pl->aimSize = 1.f;
+		float size = 0.f;
 		while (Vector3::Length(Vector3::Subtract(pl->Aiming_Position, xmf3Position)) > 5.f)
 		{
 			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
@@ -1439,10 +1444,13 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 				if (oBox.Contains(XMLoadFloat3(&xmf3Position)))
 				{
+					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 					pl->Aiming_Position = xmf3Position;
+					pl->aimSize = size;
 					return;
 				}
 			}
+			size += 0.001f;
 			xmf3Position = Vector3::Add(xmf3Position, dir);
 		}
 	}

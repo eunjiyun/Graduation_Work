@@ -90,7 +90,6 @@ void ProcessInput()
             gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
             gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
         }
-        cout << cxDelta << ", " << cyDelta << endl;
         OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
         int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
         if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
@@ -856,6 +855,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
     case SC_MONSTER_DAMAGED: {
         SC_MONSTER_DAMAGED_PACKET* packet = reinterpret_cast<SC_MONSTER_DAMAGED_PACKET*>(ptr);
         gGameFramework.damagedMon = packet->monster_id;
+        auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
+        if (iter == gGameFramework.Monsters.end()) return;
+        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track < 2) {
+            (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
+            (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+            (*iter)->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+        }
         break;
     }
     }
