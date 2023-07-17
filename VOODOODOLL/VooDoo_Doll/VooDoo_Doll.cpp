@@ -630,7 +630,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
         auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
         if (iter == gGameFramework.Players.end()) break;
         (*iter)->HP = packet->HP;
-        
+
         if (packet->HP <= 0) {
             (*iter)->onAct = true;
             (*iter)->alive = false;
@@ -770,8 +770,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_MOVE_MONSTER: {
         SC_MOVE_MONSTER_PACKET* packet = reinterpret_cast<SC_MOVE_MONSTER_PACKET*>(ptr);
-        auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
-        if (iter == gGameFramework.Monsters.end()) return;
+        auto iter = find_if(gGameFramework.m_pStage->Monsters.begin(), gGameFramework.m_pStage->Monsters.end(), [packet](CMonster* Mon) {return packet->id == Mon->c_id; });
+        if (iter == gGameFramework.m_pStage->Monsters.end()) return;
         if (packet->is_alive == false) {
             short type = (*iter)->npc_type;
             gGameFramework.pMonsterModel[type].push((*iter)->_Model);   // 받아온 모델타입 다시 큐로 반환
@@ -780,7 +780,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             {
                 gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
             }
-            gGameFramework.Monsters.erase(iter);
+            gGameFramework.m_pStage->Monsters.erase(iter);
             break;
         }
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
@@ -855,8 +855,12 @@ void ProcessPacket(char* ptr)//몬스터 생성
     case SC_MONSTER_DAMAGED: {
         SC_MONSTER_DAMAGED_PACKET* packet = reinterpret_cast<SC_MONSTER_DAMAGED_PACKET*>(ptr);
         gGameFramework.damagedMon = packet->monster_id;
-        auto iter = find_if(gGameFramework.Monsters.begin(), gGameFramework.Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
-        if (iter == gGameFramework.Monsters.end()) return;
+        if (packet->player_id == gGameFramework.m_pPlayer->c_id) {
+            gGameFramework.m_pPlayer->gun_hit = 1;
+        }
+
+        auto iter = find_if(gGameFramework.m_pStage->Monsters.begin(), gGameFramework.m_pStage->Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
+        if (iter == gGameFramework.m_pStage->Monsters.end()) return;
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track < 2) {
             (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);

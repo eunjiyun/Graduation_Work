@@ -228,6 +228,7 @@ public:
 		p.size = sizeof(SC_MONSTER_DAMAGED_PACKET);
 		p.type = SC_MONSTER_DAMAGED;
 		p.monster_id = monster_id;
+		p.player_id = _id;
 		do_send(&p);
 	}
 

@@ -667,7 +667,7 @@ void CGameFramework::ReleaseObjects()
 			delete player;
 	}
 
-	for (auto& monster : Monsters)
+	for (auto& monster : m_pStage->Monsters)
 		delete monster;
 
 	if (sound)
@@ -748,7 +748,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
@@ -765,7 +765,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
@@ -781,7 +781,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
 		Mon->Hat_Model = Hat;
@@ -843,7 +843,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->c_id = npc_id;
 		Mon->npc_type = type;
 		Mon->SetPosition(Pos);
-		Monsters.push_back(Mon);
+		m_pStage->Monsters.push_back(Mon);
 		//cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";
 		//Vector3::Print(Mon->GetPosition());
 
@@ -891,7 +891,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			player->Animate(fTimeElapsed, true);
 		}
 	}
-	for (auto& monster : Monsters)
+	for (auto& monster : m_pStage->Monsters)
 	{
 		if (monster->c_id > -1)
 		{
@@ -927,7 +927,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 
 	m_pStage->pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed, m_pd3dDevice, m_pd3dCommandList);
 
-	if (0 == Monsters.size())
+	if (0 == m_pStage->Monsters.size())
 	{
 		if (monsterSound.sourceVoice_)
 		{
@@ -984,10 +984,11 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 
 
 	bloodTime += fTimeElapsed;
-	if (bloodTime > 0.3f)
+	if (bloodTime > 0.1f)
 	{
-		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
+		//m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
 		damagedMon = -1;
+		m_pPlayer->gun_hit = 0;
 		bloodTime = 0.f;
 	}
 
@@ -1051,7 +1052,7 @@ void CGameFramework::FrameAdvance()
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Update(fTimeElapsed);
-			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, Monsters, Players);
+			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, m_pStage->Monsters, Players);
 			// 문과의 충돌처리
 			m_pStage->CheckDoorCollisions(fTimeElapsed, player);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
@@ -1156,7 +1157,7 @@ void CGameFramework::FrameAdvance()
 		break;
 	}
 
-	for (auto& monster : Monsters) {
+	for (auto& monster : m_pStage->Monsters) {
 		monster->Update(fTimeElapsed);
 	}
 	AnimateObjects(fTimeElapsed);
@@ -1164,7 +1165,7 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
-	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, Monsters, Players);
+	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, m_pStage->Monsters, Players);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
@@ -1299,29 +1300,29 @@ void CGameFramework::FrameAdvance()
 
 
 	int m=-1;
-	if (!Monsters.empty())
+	if (!m_pStage->Monsters.empty())
 	{
-		if (-1 != damagedMon)
-			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+		//if (-1 != damagedMon)
+		//	m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-		if (5 == Monsters[0]->c_id / 10)//pat
+		if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
 		{
-			for (m = 0; m < Monsters.size(); ++m)
+			for (m = 0; m < m_pStage->Monsters.size(); ++m)
 			{
-				if (59 == Monsters[m]->c_id)
+				if (59 == m_pStage->Monsters[m]->c_id)
 				//if (0 == Monsters[m]->c_id)//pat
 				{
-					if (2 == Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
+					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
-						if (Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
-							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength *0.15f
-							&& Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
-							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+						if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
+							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength *0.15f
+							&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
+							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 						}
-						else if(Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
-							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+						else if(m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
+							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
@@ -1335,11 +1336,11 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon,Players, m);
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon,Players, m);
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])
-		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, Monsters, Players, m_pLights);
+		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{

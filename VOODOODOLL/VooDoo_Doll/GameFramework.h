@@ -142,7 +142,6 @@ public:
 
 	CPlayer* m_pPlayer = NULL;
 	vector<CPlayer*> Players;
-	vector<CMonster*> Monsters;
 	short damagedMon = -1;
 	CCamera* m_pCamera = NULL;
 	float beforeHp[3] = { 5000,5000,5000 };

@@ -683,12 +683,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = m_ppShaders[0]->popUpMat[1];
 	pMultiSpriteObjectShader->obj[10]->texMat.z = 2;
 
-	pMultiSpriteObjectShader->obj[11]->m_ppMaterials = new CMaterial * [1];
-	CMaterial* p_Material = new CMaterial(1);
-	p_Material->SetMaterialType(MATERIAL_ALBEDO_MAP);
-	p_Material->SetTexture(ppTextures[37]);
-	pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0] = p_Material;
-	pMultiSpriteObjectShader->obj[11]->texMat.z = 1;
+	for (int i{}; i < 2; ++i)
+	{
+		pMultiSpriteObjectShader->obj[11 + i]->m_ppMaterials = new CMaterial * [1];
+		CMaterial* p_Material = new CMaterial(1);
+		p_Material->SetMaterialType(MATERIAL_ALBEDO_MAP);
+		p_Material->SetTexture(ppTextures[37 + i]);
+		pMultiSpriteObjectShader->obj[11 + i]->m_ppMaterials[0] = p_Material;
+		pMultiSpriteObjectShader->obj[11 + i]->texMat.z = 1;
+	}
 
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
@@ -1434,10 +1437,19 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
 		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
-		pl->aimSize = 1.f;
-		float size = 0.f;
-		while (Vector3::Length(Vector3::Subtract(pl->Aiming_Position, xmf3Position)) > 5.f)
+		//pl->aimSize = 1.f;
+		//float size = 0.f;
+		while (Vector3::Length(Vector3::Subtract(pl->Aiming_Position, xmf3Position)) > 10.f)
 		{
+			for (const auto& monster : Monsters) {
+				if (monster->m_xmOOBB.Contains(XMLoadFloat3(&xmf3Position)))
+				{
+					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
+					pl->Aiming_Position = xmf3Position;
+					return;
+				}
+			}
+
 			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 			{
 				//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
@@ -1446,11 +1458,10 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				{
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 					pl->Aiming_Position = xmf3Position;
-					pl->aimSize = size;
-					return;
 				}
 			}
-			size += 0.001f;
+
+			//size += 0.001f;
 			xmf3Position = Vector3::Add(xmf3Position, dir);
 		}
 	}

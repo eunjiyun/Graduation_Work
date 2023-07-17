@@ -1537,7 +1537,7 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 {
 	CTexturedRectMesh* pSpriteMesh = nullptr;
 
-	m_nObjects = 12;
+	m_nObjects = 13;
 
 	obj = new CMultiSpriteObject * [m_nObjects];
 
@@ -1557,8 +1557,8 @@ void CMultiSpriteObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gra
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else if (10 == j )//팝업
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 60.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		else if (11 == j)//크로스헤어
-			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 20.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		else if (11 == j || 12 == j)//크로스헤어
+			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 15.0f, 15.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		else//화면
 			pSpriteMesh = new CTexturedRectMesh(pd3dDevice, pd3dCommandList, 130.0f, 10.0f, 0.0f, 0.0f, 45.0f, 0.0f);
 
@@ -1759,8 +1759,11 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 				}
 				if (i == 11) {
 					//obj[i]->SetPosition(Vector3::Add(XMFLOAT3(0,80,0),Vector3::Add(pCamera->GetPosition(), Vector3::ScalarProduct(pCamera->GetLookVector(), 300, false))));				
-					obj[i]->SetPosition(pPlayer->Aiming_Position);
-					obj[i]->SetLookAt(pCamera->GetPosition(), XMFLOAT3(0.0f, 1.0f, 0.0f));
+					obj[i + pPlayer->gun_hit]->SetPosition(pPlayer->Aiming_Position);
+					obj[i + pPlayer->gun_hit]->SetLookAt(pCamera->GetPosition(), XMFLOAT3(0.0f, 1.0f, 0.0f));
+					CShader::Render(pd3dCommandList, pCamera);
+					obj[i + pPlayer->gun_hit]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+					return;
 				}
 				CShader::Render(pd3dCommandList, pCamera);
 				obj[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
