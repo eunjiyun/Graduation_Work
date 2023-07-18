@@ -11,6 +11,14 @@
 #include <queue>
 #include <array>
 
+#define DRAW_SCENE_COLOR				   'S'
+
+#define DRAW_SCENE_TEXTURE				'T'
+#define DRAW_SCENE_LIGHTING				'L'
+#define DRAW_SCENE_NORMAL				'N'
+#define DRAW_SCENE_Z_DEPTH				'Z'
+#define DRAW_SCENE_DEPTH					'D'
+
 
 class CGameFramework
 {
@@ -160,5 +168,7 @@ public:
 	CGameObject** m_ppCap = NULL;
 	bool onFullScreen = false;
 	int curAtt[3] = { 0,0,0 };
+
+	int								m_nDrawOptions = DRAW_SCENE_COLOR;
 };
 

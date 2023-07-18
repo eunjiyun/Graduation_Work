@@ -390,6 +390,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
+		case VK_F9:
+			ChangeSwapChainState();
+			break;
+		case 'S': //83
+		case 'T': //84
+		case 'D': //68
+		case 'Z': //90
+		case 'N': //78
+		case 'L': //76
+		{
+			m_nDrawOptions = (int)wParam;
+			break;
+		}
 		default:
 			break;
 		}
