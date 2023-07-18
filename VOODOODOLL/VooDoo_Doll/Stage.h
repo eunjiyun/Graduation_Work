@@ -184,8 +184,6 @@ public:
 	CGameObject** userId = nullptr;
 	CGameObject** userPw = nullptr;
 	CMultiSpriteObjectsShader* pMultiSpriteObjectShader = nullptr;
-	
-	bool ingame = false;
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;

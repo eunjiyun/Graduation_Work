@@ -877,7 +877,7 @@ void InitializeMonsterInfo()
 	int ID_constructor = 0;
 	random_device rd;
 	mt19937 gen(rd());
-	uniform_int_distribution<int> x_dis(150, 500);
+	uniform_int_distribution<int> x_dis(130, 550);
 	uniform_int_distribution<int> z_dis(1300, 2500);
 	//uniform_int_distribution<int> type_dis(0, 2);
 	int t = -1;
@@ -957,6 +957,7 @@ void InitializeMonsterInfo()
 	}
 	{   // 3stage
 		gen.seed(rd());
+		x_dis.param(uniform_int_distribution<int>::param_type(130, 320));
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
 		//while (ID_constructor < 21) {
 		while (ID_constructor < 30) {
@@ -993,6 +994,7 @@ void InitializeMonsterInfo()
 	}
 	{   // 4stage
 		gen.seed(rd());
+		x_dis.param(uniform_int_distribution<int>::param_type(130, 550));
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
 		//while (ID_constructor < 31) {
 		while (ID_constructor < 40) {

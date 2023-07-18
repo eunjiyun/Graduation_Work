@@ -1411,7 +1411,6 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			{
 				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 
-
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 				if (oBox.Contains(XMLoadFloat3(&ray_castPos)))
 				{
@@ -1419,6 +1418,16 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 					break;
 				}
 			}
+
+			for (int i = 0; i < 7; i++)
+			{
+				if (m_ppShaders[0]->door[i]->obBox.Contains(XMLoadFloat3(&xmf3Position)))
+				{
+					collide = true;
+					break;
+				}
+			}
+
 			if (collide) {
 				xmf3Position = ray_castPos;
 				break;
@@ -1452,12 +1461,23 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
 			{
-				//if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
+				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 				if (oBox.Contains(XMLoadFloat3(&xmf3Position)))
 				{
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 					pl->Aiming_Position = xmf3Position;
+					return;
+				}
+			}
+
+			for (int i = 0; i < 7; i++)
+			{
+				if (m_ppShaders[0]->door[i]->obBox.Contains(XMLoadFloat3(&xmf3Position)))
+				{
+					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
+						pl->Aiming_Position = xmf3Position;
+						return;
 				}
 			}
 

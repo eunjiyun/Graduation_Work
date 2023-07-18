@@ -982,8 +982,8 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
-
-	bloodTime += fTimeElapsed;
+	if (m_pPlayer->gun_hit)
+		bloodTime += fTimeElapsed;
 	if (bloodTime > 0.1f)
 	{
 		//m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
@@ -1336,11 +1336,12 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon,Players, m);
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights);
+
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{

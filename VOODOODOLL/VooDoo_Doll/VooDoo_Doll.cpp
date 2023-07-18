@@ -558,7 +558,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
         gGameFramework.lobby[2] = true;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
         gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
-        gGameFramework.m_pStage->ingame = true;
         SC_GAME_START_PACKET* packet = reinterpret_cast<SC_GAME_START_PACKET*>(ptr);
         gGameFramework.m_pPlayer->c_id = packet->id;
         gGameFramework.m_pPlayer->SetPosition(packet->pos);
