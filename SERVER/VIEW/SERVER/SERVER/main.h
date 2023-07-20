@@ -44,7 +44,7 @@ constexpr int CELL_SIZE = 4;
 
 //bool ObstacleGrid[GRID_SIZE_Y][GRID_SIZE_X][GRID_SIZE_Z] = { true };  // Grid to store obstacle information
 
-array<array<array<bool, GRID_SIZE_Z>, GRID_SIZE_X>,GRID_SIZE_Y> ObstacleGrid = { true };
+array<array<array<bool, GRID_SIZE_Z>, GRID_SIZE_X>,GRID_SIZE_Y> ObstacleGrid = { false };
 
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
@@ -792,46 +792,106 @@ void FinalizeMonsters()
 
 void InitializeGrid()
 {
-	BoundingBox CheckBox = BoundingBox(XMFLOAT3(0, 0, 0), MONSTER_SIZE);
-	// 2층
-	for (int x = 30; x < GRID_SIZE_X * CELL_SIZE; ++x) {
-		for (int z = 65; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
-			CheckBox.Center = XMFLOAT3(x, -63, z);
-			for (auto& obj : Obstacles[static_cast<int>(z) / AREA_SIZE]) {
-				if (obj->m_xmOOBB.Intersects(CheckBox)) {
-					ObstacleGrid[0][x / CELL_SIZE][z / CELL_SIZE] = false;
-					z = z + CELL_SIZE - (z % CELL_SIZE);
+	//BoundingBox CheckBox = BoundingBox(XMFLOAT3(0, 0, 0), MONSTER_SIZE);
+
+	//// 2층
+	//for (int x = 0; x < GRID_SIZE_X * CELL_SIZE; ++x) {
+	//	for (int z = 0; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
+	//		CheckBox.Center = XMFLOAT3(x, -63, z);
+
+	//		bool collide = false;
+
+	//		for (int i = 0; i < 24; i++) {
+	//			for (auto& obj : Obstacles[i]) {
+	//				if (obj->m_xmOOBB.Intersects(CheckBox)) {
+	//					ObstacleGrid[0][x / CELL_SIZE][z / CELL_SIZE] = false;
+	//					z = z + CELL_SIZE - (z % CELL_SIZE);
+	//					collide = true;
+	//					break;
+	//				}
+	//				else ObstacleGrid[0][x / CELL_SIZE][z / CELL_SIZE] = true;
+	//			}
+	//			if (collide) break;
+	//		}
+	//	}
+	//}
+
+	//// 1층
+	//for (int x = 0; x < GRID_SIZE_X * CELL_SIZE; ++x) {
+	//	for (int z = 0; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
+	//		CheckBox.Center = XMFLOAT3(x, -304, z);
+
+	//		bool collide = false;
+
+	//		for (int i = 0; i < 24; i++) {
+	//			for (auto& obj : Obstacles[i]) {
+	//				if (obj->m_xmOOBB.Intersects(CheckBox)) {
+	//					ObstacleGrid[1][x / CELL_SIZE][z / CELL_SIZE] = false;
+	//					z = z + CELL_SIZE - (z % CELL_SIZE);
+	//					collide = true;
+	//					break;
+	//				}
+	//				else ObstacleGrid[1][x / CELL_SIZE][z / CELL_SIZE] = true;
+	//			}
+	//			if (collide) break;
+	//		}
+	//	}
+	//}
+
+
+	std::ifstream file("map.txt");
+
+	if (file.is_open())
+	{
+		for (int floor = 0; floor < 2; ++floor)
+		{
+			for (int x = 0; x < GRID_SIZE_X; ++x)
+			{
+				for (int z = 0; z < GRID_SIZE_Z; ++z)
+				{
+					file >> ObstacleGrid[floor][x][z];
 				}
-				else ObstacleGrid[0][x / CELL_SIZE][z / CELL_SIZE] = true;
 			}
 		}
+		file.close();
+	}
+	else
+	{
+		std::cout << "Failed to open file for reading." << endl;
 	}
 
-	// 1층
-	for (int x = 30; x < GRID_SIZE_X * CELL_SIZE; ++x) {
-		for (int z = 65; z < GRID_SIZE_Z * CELL_SIZE; ++z) {
-			CheckBox.Center = XMFLOAT3(x, -304, z);
-			for (auto& obj : Obstacles[static_cast<int>(z) / AREA_SIZE]) {
-				if (obj->m_xmOOBB.Intersects(CheckBox)) {
-					ObstacleGrid[1][x / CELL_SIZE][z / CELL_SIZE] = false;
-					z = z + CELL_SIZE - (z % CELL_SIZE);
-				}
-				else ObstacleGrid[1][x / CELL_SIZE][z / CELL_SIZE] = true;
-			}
-		}
-	}
+	//ofstream file("map.txt");
 
-	//wcout << "2층\n";
+	//if (file.is_open())
+	//{
+	//	for (int floor = 0; floor < 2; ++floor)
+	//	{
+	//		for (int x = 0; x < GRID_SIZE_X; ++x)
+	//		{
+	//			for (int z = 0; z < GRID_SIZE_Z; ++z)
+	//			{
+	//				file << ObstacleGrid[floor][x][z] << " ";
+	//			}
+	//			file << endl;
+	//		}
+	//	}
+	//	file.close();
+	//}
+	 
+	 
+	//wcout << "2 FLOOR\n";
 	//for (int z = GRID_SIZE_Z - 1; z >= 65; --z) {
-	//	for (int x = 30; x < GRID_SIZE_X; ++x) {
+	//	for (int x = 0; x < GRID_SIZE_X; ++x) {
 	//		wcout << ObstacleGrid[0][x][z];
 	//	}
 	//	wcout << endl;
 	//}
+	//
+	//wcout << endl << endl << endl;
 
-	//wcout << "1층\n";
+	//wcout << "1 FLOOR\n";
 	//for (int z = GRID_SIZE_Z - 1; z >= 65; --z) {
-	//	for (int x = 30; x < GRID_SIZE_X; ++x) {
+	//	for (int x = 0; x < GRID_SIZE_X; ++x) {
 	//		wcout << ObstacleGrid[1][x][z];
 	//	}
 	//	wcout << endl;

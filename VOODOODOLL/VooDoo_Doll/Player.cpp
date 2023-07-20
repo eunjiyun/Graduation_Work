@@ -169,6 +169,14 @@ void CPlayer::processAnimation()
 	}
 	else m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
 
+	if (HP > packet_HP) {
+		m_pSkinnedAnimationController->SetTrackPosition(3, 0.0f);
+		m_pSkinnedAnimationController->SetTrackEnable(3, true);
+		HP = packet_HP;
+		return;
+	}
+	HP = packet_HP;
+
 	if (Vector3::Length(m_xmf3Velocity) > 0.f) {
 		m_pSkinnedAnimationController->SetTrackEnable(1, true);
 	}

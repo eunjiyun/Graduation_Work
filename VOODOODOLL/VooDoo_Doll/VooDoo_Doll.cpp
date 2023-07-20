@@ -628,8 +628,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
         SC_UPDATE_PLAYER_PACKET* packet = reinterpret_cast<SC_UPDATE_PLAYER_PACKET*>(ptr);
         auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
         if (iter == gGameFramework.Players.end()) break;
-        (*iter)->HP = packet->HP;
 
+        (*iter)->packet_HP = packet->HP;
+        
         if (packet->HP <= 0) {
             (*iter)->onAct = true;
             (*iter)->alive = false;
@@ -726,11 +727,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
         if (packet->id == gGameFramework.m_pPlayer->c_id)
             if (packet->cur_weaponType == 1) {
-                wcout << "RENDER\n";
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
             }
             else {
-                wcout << "DESTROY\n";
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
             }
 

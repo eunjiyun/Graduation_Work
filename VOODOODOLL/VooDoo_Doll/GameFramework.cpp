@@ -844,8 +844,6 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->npc_type = type;
 		Mon->SetPosition(Pos);
 		m_pStage->Monsters.push_back(Mon);
-		//cout << Mon->npc_type << "type, " << Mon->c_id << "number Monster SUMMONED - ";
-		//Vector3::Print(Mon->GetPosition());
 
 		if (0 == Mon->c_id % 10)
 		{
@@ -986,7 +984,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		bloodTime += fTimeElapsed;
 	if (bloodTime > 0.1f)
 	{
-		//m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
+		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
 		damagedMon = -1;
 		m_pPlayer->gun_hit = 0;
 		bloodTime = 0.f;
@@ -1302,8 +1300,8 @@ void CGameFramework::FrameAdvance()
 	int m=-1;
 	if (!m_pStage->Monsters.empty())
 	{
-		//if (-1 != damagedMon)
-		//	m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+		if (-1 != damagedMon)
+			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
 		if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
 		{

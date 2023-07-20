@@ -492,7 +492,7 @@ void process_packet(const int c_id, char* packet)
 							}
 						}
 					}
-					closestMonster->HP -= 200;
+					closestMonster->HP -= 100;
 					closestMonster->target_id = CL._id;
 					if (closestMonster->GetState() == NPC_State::Idle)
 					{

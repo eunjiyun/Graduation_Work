@@ -38,7 +38,7 @@ public:
 	int c_id = -1;
 	short cur_weapon = 0;
 	bool alive = true;
-	float HP = 0;
+	float HP, packet_HP = 0;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
 	CAnimationController* AnimationControllers[3];
