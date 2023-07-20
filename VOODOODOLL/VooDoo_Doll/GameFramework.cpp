@@ -863,28 +863,28 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	{
 		if (player->c_id > -1) {
 
-			if (5 == player->m_pSkinnedAnimationController->Cur_Animation_Track)
-			{
-				if (player->m_xmf3Velocity.y <= 0)
-				{
-					if (0 != checkJump % 2)
-					{
-						playerSound.Stop();
-						playerSound.Terminate();
-						++checkJump;
-					}
-				}
-				else
-				{
-					if (0 == checkJump % 2)
-					{
-						playerSound.Initialize();
-						playerSound.LoadWave(jump);
-						playerSound.Play();
-						++checkJump;
-					}
-				}
-			}
+			//if (5 == player->m_pSkinnedAnimationController->Cur_Animation_Track)
+			//{
+			//	if (player->m_xmf3Velocity.y <= 0)
+			//	{
+			//		if (0 != checkJump % 2)
+			//		{
+			//			playerSound.Stop();
+			//			playerSound.Terminate();
+			//			++checkJump;
+			//		}
+			//	}
+			//	else
+			//	{
+			//		if (0 == checkJump % 2)
+			//		{
+			//			playerSound.Initialize();
+			//			playerSound.LoadWave(jump);
+			//			playerSound.Play();
+			//			++checkJump;
+			//		}
+			//	}
+			//}
 			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
 		}
