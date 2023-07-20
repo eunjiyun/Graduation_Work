@@ -686,7 +686,7 @@ HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename)
 	return S_OK;
 }
 
-bool SoundPlayer::LoadWave(const wchar_t* filename)
+bool SoundPlayer::LoadWave(const wchar_t* filename, int type = 0)
 {
 	HRESULT hr;
 	// WAVE 파일 로드
@@ -697,7 +697,11 @@ bool SoundPlayer::LoadWave(const wchar_t* filename)
 		return false;
 	}
 
-	//sourceVoice_ = nullptr;//0506
+	if (type == 1)
+	{
+		buffer_.Flags = XAUDIO2_END_OF_STREAM;
+		buffer_.LoopCount = 0; // 한 번만 재생하고 멈추기 위해 루프 횟수를 0으로 설정
+	}
 
 	if (nullptr == sourceVoice_)
 	{

@@ -126,49 +126,6 @@ public:
 	virtual void Update(float fTimeElapsed);
 };
 
-struct WAVEHEADER
-{
-	char chunkId[4];
-	unsigned long chunkSize;
-	char format[4];
-	char subchunk1Id[4];
-	unsigned long subchunk1Size;
-	unsigned short audioFormat;
-	unsigned short numChannels;
-	unsigned long sampleRate;
-	unsigned long byteRate;
-	unsigned short blockAlign;
-	unsigned short bitsPerSample;
-	char subchunk2Id[4];
-	unsigned long subchunk2Size;
-};
-
-class SoundPlayer {
-public:
-	SoundPlayer();
-	~SoundPlayer();
-
-	bool Initialize();
-	void Terminate();
-
-	HRESULT LoadWaveFile(const wchar_t* filename);
-	bool LoadWave(const wchar_t* filename);
-
-	void Play();
-	void Stop();
-
-public:
-	IXAudio2SourceVoice* sourceVoice_;
-
-
-	XAUDIO2_BUFFER buffer_;
-	WAVEFORMATEX waveFormat_;
-
-private:
-	IXAudio2* xAudio2_;
-	IXAudio2MasteringVoice* masterVoice_;
-	std::vector<BYTE> audioData_;
-};
 
 
 

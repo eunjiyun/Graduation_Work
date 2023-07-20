@@ -130,11 +130,12 @@ public:
 	const wchar_t* opening = _T("Sound/opening.wav");
 	const wchar_t* closing = _T("Sound/closing.wav");
 	const wchar_t* win = _T("Sound/win.wav");
-	const wchar_t* monster = _T("Sound/monster.wav");
-	//const wchar_t* monsterDie = _T("Sound/mob10die.wav");
+	const wchar_t* monster[4] = { _T("Sound/monsterSummon.wav"),_T("Sound/monsterAttack.wav"),_T("Sound/monsterDeath.wav"),_T("Sound/monsterDamaged.wav") };
+	//const wchar_t* monsterDie = _T("Sound/monsterDeath.wav");
 	const wchar_t* door = _T("Sound/door.wav");
 	const wchar_t* jump = _T("Sound/jump.wav");
 
+	float monsterSound_CheckTime = 0.f;
 
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;

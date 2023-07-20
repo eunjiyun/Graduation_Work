@@ -550,19 +550,19 @@ void CGameFramework::BuildObjects()
 
 	// Initialize SoundPlayer
 	sound[0].Initialize();
-	sound[0].LoadWave(inGame);
+	sound[0].LoadWave(inGame,0);
 
 
 	sound[1].Initialize();
-	sound[1].LoadWave(opening);
+	sound[1].LoadWave(opening,0);
 
 
 	sound[2].Initialize();
-	sound[2].LoadWave(closing);
+	sound[2].LoadWave(closing,0);
 
 
 	sound[3].Initialize();
-	sound[3].LoadWave(win);
+	sound[3].LoadWave(win,1);
 
 	m_pLights = m_pStage->m_pLights;
 
@@ -736,7 +736,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	pMonsterModel[type].pop();
 	switch (type)
 	{
-	case 0:
+	case 0: {
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //손에 칼	
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -753,7 +753,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
 		break;
-	case 1:
+	}
+	case 1: {
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//뼈다귀 다리
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -769,7 +770,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
-	case 2:
+	}
+	case 2: {
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // 마술사
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -781,6 +783,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
+
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
@@ -791,7 +794,8 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
-	case 3:
+	}
+	case 3: {
 		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 7);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
@@ -800,6 +804,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(4, 4);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(6, 6);
+
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);//아이들
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);//뛰기
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//공격
@@ -807,34 +812,12 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//점프
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//피격
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//걷기
+
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 30,30,30 });
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
-	case 4:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 2);//귀신
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);
-		Mon->speed = 15.f;
-		Mon->SetScale(1.0f, 1.0f, 1.0f);
-		break;
-	case 5:
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);// 머리에 바늘
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
-		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(3, 3);
-
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
-		Mon->speed = 15.f;
-		Mon->SetScale(1.0f, 1.0f, 1.0f);
-		break;
+	}
 	default:
 		break;
 	}
@@ -845,12 +828,15 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetPosition(Pos);
 		m_pStage->Monsters.push_back(Mon);
 
-		if (0 == Mon->c_id % 10)
-		{
-			monsterSound.Initialize();
-			monsterSound.LoadWave(monster);
-			monsterSound.Play();
-		}
+		Mon->Sound.Initialize();
+		Mon->Sound.LoadWave(monster[0],1);
+		Mon->Sound.Play();
+		//if (0 == Mon->c_id % 10)
+		//{
+		//	monsterSound.Initialize();
+		//	monsterSound.LoadWave(monster[0]);
+		//	monsterSound.Play();
+		//}
 	}
 }
 
@@ -862,29 +848,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	for (auto& player : Players)
 	{
 		if (player->c_id > -1) {
-
-			//if (5 == player->m_pSkinnedAnimationController->Cur_Animation_Track)
-			//{
-			//	if (player->m_xmf3Velocity.y <= 0)
-			//	{
-			//		if (0 != checkJump % 2)
-			//		{
-			//			playerSound.Stop();
-			//			playerSound.Terminate();
-			//			++checkJump;
-			//		}
-			//	}
-			//	else
-			//	{
-			//		if (0 == checkJump % 2)
-			//		{
-			//			playerSound.Initialize();
-			//			playerSound.LoadWave(jump);
-			//			playerSound.Play();
-			//			++checkJump;
-			//		}
-			//	}
-			//}
 			player->boundingAnimate(fTimeElapsed);
 			player->Animate(fTimeElapsed, true);
 		}
@@ -893,46 +856,11 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	{
 		if (monster->c_id > -1)
 		{
-			/*if (3 == monster->m_pSkinnedAnimationController->Cur_Animation_Track)
-			{
-				if (curId != monster->c_id)
-				{
-					monsterSound[1].Initialize();
-					monsterSound[1].LoadWave(monsterDie);
-					monsterSound[1].Play();
-					curId = monster->c_id;
-					cout << "몬스터 플레이" << endl;
-				}
-			}*/
-
 			monster->Animate(fTimeElapsed, false);
-			//클라그림자
-			/*monster->m_pSkinnedAnimationController->SetTrackEnable(0, false);
-			monster->m_pSkinnedAnimationController->SetTrackEnable(2, true);
-
-			time += fTimeElapsed;
-			if (time > 3.0f)
-			{
-				monster->SetPosition(m_pPlayer->GetPosition());
-				time = 0.f;
-			}*/
-
-			/*cout << "x : " << monster->GetPosition().x << endl;
-			cout << "y : " << monster->GetPosition().y << endl;
-			cout << "z : " << monster->GetPosition().z << endl << endl << endl;*/
 		}
 	}
 
 	m_pStage->pMultiSpriteObjectShader->AnimateObjects(fTimeElapsed, m_pd3dDevice, m_pd3dCommandList);
-
-	if (0 == m_pStage->Monsters.size())
-	{
-		if (monsterSound.sourceVoice_)
-		{
-			monsterSound.Stop();
-			monsterSound.Terminate();
-		}
-	}
 
 	for (int i{}; i < 7; ++i)
 	{
@@ -968,7 +896,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 					if (false == checkDoor[i])
 					{
 						doorSound.Initialize();
-						doorSound.LoadWave(door);
+						doorSound.LoadWave(door,1);
 						doorSound.Play();
 						checkDoor[i] = true;
 						checkDoorSound = false;

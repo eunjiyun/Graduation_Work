@@ -778,10 +778,17 @@ void ProcessPacket(char* ptr)//몬스터 생성
             {
                 gGameFramework.MagiciansHat.push((*iter)->Hat_Model);
             }
+            (*iter)->Sound.Stop();
+            (*iter)->Sound.Terminate();
             gGameFramework.m_pStage->Monsters.erase(iter);
             break;
         }
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
+            if (packet->animation_track != 0) {
+                (*iter)->Sound.Stop();
+                (*iter)->Sound.LoadWave(gGameFramework.monster[packet->animation_track - 1],1);
+                (*iter)->Sound.Play();
+            }
             (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
@@ -859,10 +866,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
         auto iter = find_if(gGameFramework.m_pStage->Monsters.begin(), gGameFramework.m_pStage->Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
         if (iter == gGameFramework.m_pStage->Monsters.end()) return;
-        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track < 2) {
+        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track < 2 && packet->remain_HP > 0) {
             (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable(3, true);
+            //(*iter)->Sound.Stop();
+            //(*iter)->Sound.LoadWave(gGameFramework.monster[3], 1);
+            //(*iter)->Sound.Play();
         }
         break;
     }

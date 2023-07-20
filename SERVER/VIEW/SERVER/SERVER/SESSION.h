@@ -222,13 +222,14 @@ public:
 		do_send(&p);
 	}
 
-	void send_monster_damaged_packet(int monster_id)
+	void send_monster_damaged_packet(int monster_id, int monster_HP)
 	{
 		SC_MONSTER_DAMAGED_PACKET p;
 		p.size = sizeof(SC_MONSTER_DAMAGED_PACKET);
 		p.type = SC_MONSTER_DAMAGED;
 		p.monster_id = monster_id;
 		p.player_id = _id;
+		p.remain_HP = monster_HP;
 		do_send(&p);
 	}
 

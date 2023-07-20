@@ -224,6 +224,7 @@ struct SC_MONSTER_DAMAGED_PACKET {
 	char	type;
 	short	player_id;
 	short	monster_id;
+	short	remain_HP;
 };
 
 #pragma pack (pop)
