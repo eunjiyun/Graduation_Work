@@ -725,13 +725,13 @@ void ProcessPacket(char* ptr)//몬스터 생성
         (*iter)->m_pChild = (*iter)->pAngrybotModels[packet->cur_weaponType]->m_pModelRootObject;
         (*iter)->m_pSkinnedAnimationController = (*iter)->AnimationControllers[packet->cur_weaponType];
 
-        if (packet->id == gGameFramework.m_pPlayer->c_id)
-            if (packet->cur_weaponType == 1) {
-                gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
-            }
-            else {
-                gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
-            }
+        //if (packet->id == gGameFramework.m_pPlayer->c_id)
+        //    if (packet->cur_weaponType == 1) {
+        //        gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+        //    }
+        //    else {
+        //        gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[11]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+        //    }
 
 
         for (int i{};i<3;++i)
@@ -784,7 +784,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             break;
         }
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != packet->animation_track) {
-            if (packet->animation_track != 0) {
+            if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track != 3 && packet->animation_track != 0) {
                 (*iter)->Sound.Stop();
                 (*iter)->Sound.LoadWave(gGameFramework.monster[packet->animation_track - 1],1);
                 (*iter)->Sound.Play();
@@ -794,7 +794,14 @@ void ProcessPacket(char* ptr)//몬스터 생성
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
         }
 
-        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1) {
+        if ((*iter)->lock && Vector3::Compare((*iter)->recent_Pos, packet->Pos) == false) (*iter)->lock = false;
+
+        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1 && (*iter)->lock == false) {
+            if (Vector3::Compare((*iter)->recent_Pos, packet->Pos)) {
+                (*iter)->m_xmf3Velocity = XMFLOAT3(0, 0, 0);
+                (*iter)->lock = true;
+                break;
+            }
             XMFLOAT3 FROM = (*iter)->GetPosition();
             XMFLOAT3 TO = packet->Pos;
             XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(FROM, TO, XMFLOAT3(0, 1, 0));
@@ -808,6 +815,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             (*iter)->m_xmOOBB.Center = targetPos;
             (*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
             (*iter)->SetPosition(targetPos);
+            (*iter)->recent_Pos = packet->Pos;
         }
         else if ((*iter)->npc_type == 2 && (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 2) {
             auto target = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->target_id == Pl->c_id; });
@@ -862,17 +870,18 @@ void ProcessPacket(char* ptr)//몬스터 생성
         gGameFramework.damagedMon = packet->monster_id;
         if (packet->player_id == gGameFramework.m_pPlayer->c_id) {
             gGameFramework.m_pPlayer->gun_hit = 1;
+            gGameFramework.hitSound.Stop();
+            gGameFramework.hitSound.LoadWave(gGameFramework.hit_marker, 1);
+            gGameFramework.hitSound.Play();
         }
 
         auto iter = find_if(gGameFramework.m_pStage->Monsters.begin(), gGameFramework.m_pStage->Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
         if (iter == gGameFramework.m_pStage->Monsters.end()) return;
+
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track < 2 && packet->remain_HP > 0) {
             (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable(3, true);
-            //(*iter)->Sound.Stop();
-            //(*iter)->Sound.LoadWave(gGameFramework.monster[3], 1);
-            //(*iter)->Sound.Play();
         }
         break;
     }

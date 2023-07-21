@@ -116,7 +116,7 @@ public:
 
 	CGameTimer					m_GameTimer;
 	SoundPlayer sound[4];
-	SoundPlayer monsterSound;
+	SoundPlayer hitSound;
 	SoundPlayer doorSound;
 	SoundPlayer playerSound;
 	bool checkDoor[6] = { false,false,false,false,false,false };
@@ -130,8 +130,8 @@ public:
 	const wchar_t* opening = _T("Sound/opening.wav");
 	const wchar_t* closing = _T("Sound/closing.wav");
 	const wchar_t* win = _T("Sound/win.wav");
-	const wchar_t* monster[4] = { _T("Sound/monsterSummon.wav"),_T("Sound/monsterAttack.wav"),_T("Sound/monsterDeath.wav"),_T("Sound/monsterDamaged.wav") };
-	//const wchar_t* monsterDie = _T("Sound/monsterDeath.wav");
+	const wchar_t* monster[4] = { _T("Sound/monsterSummon.wav"),_T("Sound/monsterAttack.wav"),_T("Sound/monsterDeath.wav"),_T("Sound/hit_marker.wav") };
+	const wchar_t* hit_marker = _T("Sound/hit_marker.wav");
 	const wchar_t* door = _T("Sound/door.wav");
 	const wchar_t* jump = _T("Sound/jump.wav");
 

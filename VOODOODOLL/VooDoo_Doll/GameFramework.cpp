@@ -564,6 +564,8 @@ void CGameFramework::BuildObjects()
 	sound[3].Initialize();
 	sound[3].LoadWave(win,1);
 
+	hitSound.Initialize();
+
 	m_pLights = m_pStage->m_pLights;
 
 	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
@@ -677,7 +679,7 @@ void CGameFramework::ReleaseObjects()
 		//delete sound;
 	}
 	playerSound.~SoundPlayer();
-	monsterSound.~SoundPlayer();
+	hitSound.~SoundPlayer();
 	doorSound.~SoundPlayer();
 
 	if (m_pStage->userId)
@@ -831,6 +833,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->Sound.Initialize();
 		Mon->Sound.LoadWave(monster[0],1);
 		Mon->Sound.Play();
+
 		//if (0 == Mon->c_id % 10)
 		//{
 		//	monsterSound.Initialize();
@@ -1126,8 +1129,6 @@ void CGameFramework::FrameAdvance()
 			lobby[2] = false;
 			gameEnd = true;
 
-			monsterSound.Stop();//몬스터
-			monsterSound.Terminate();
 			sound[0].Stop();//인게임
 			sound[2].Play();//클로징
 		}

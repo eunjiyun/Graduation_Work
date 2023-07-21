@@ -123,34 +123,10 @@ void CPlayer::Rotate(float x, float y, float z)
 			if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
 			if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 		}
-		m_pCamera->Rotate(x, y, z);
-
 		if (y != 0.0f)
 		{
 			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
 			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-	}
-	else if (nCurrentCameraMode == SPACESHIP_CAMERA)
-	{
-		m_pCamera->Rotate(x, y, z);
-		if (x != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right), XMConvertToRadians(x));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
-		}
-		if (y != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
-			m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-		}
-		if (z != 0.0f)
-		{
-			XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look), XMConvertToRadians(z));
-			m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
 			m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 		}
 	}
@@ -395,7 +371,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 
 	AnimationControllers[0]->SetCallbackKeys(1, 1);
-	AnimationControllers[0]->SetCallbackKeys(2, 1);
+	//AnimationControllers[0]->SetCallbackKeys(2, 1);
 	AnimationControllers[0]->SetCallbackKeys(3, 1);
 	AnimationControllers[0]->SetCallbackKeys(4, 1);
 	AnimationControllers[0]->SetCallbackKeys(5, 1);
@@ -407,7 +383,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	AnimationControllers[1]->SetCallbackKeys(5, 1);
 
 	AnimationControllers[2]->SetCallbackKeys(1, 1);
-	AnimationControllers[2]->SetCallbackKeys(2, 1);
+	//AnimationControllers[2]->SetCallbackKeys(2, 1);
 	AnimationControllers[2]->SetCallbackKeys(3, 1);
 	AnimationControllers[2]->SetCallbackKeys(4, 1);
 	AnimationControllers[2]->SetCallbackKeys(5, 1);
@@ -419,7 +395,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 #else
 
 	AnimationControllers[0]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
-	AnimationControllers[0]->SetCallbackKey(2, 0, 0.2f, _T("Sound/swordAttack.wav"));
+	//AnimationControllers[0]->SetCallbackKey(2, 0, 0.2f, _T("Sound/swordAttack.wav"));
 	AnimationControllers[0]->SetCallbackKey(3, 0, 0.0333f, _T("Sound/player_damaged.wav"));
 	AnimationControllers[0]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
 	AnimationControllers[0]->SetCallbackKey(5, 0, 0.9666f, _T("Sound/Jump.wav"));
@@ -433,7 +409,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 
 	AnimationControllers[2]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
-	AnimationControllers[2]->SetCallbackKey(2, 0, 0.2f, _T("Sound/attack.wav"));
+	//AnimationControllers[2]->SetCallbackKey(2, 0, 0.2f, _T("Sound/attack.wav"));
 	AnimationControllers[2]->SetCallbackKey(3, 0, 0.0333f, _T("Sound/player_damaged.wav"));
 	AnimationControllers[2]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
 	AnimationControllers[2]->SetCallbackKey(5, 0, 0.9666f, _T("Sound/Jump.wav"));
@@ -442,7 +418,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
 
 	AnimationControllers[0]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
-	AnimationControllers[0]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
+	//AnimationControllers[0]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
 	AnimationControllers[0]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 	AnimationControllers[0]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
 	AnimationControllers[0]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
@@ -454,7 +430,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	AnimationControllers[1]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
 
 	AnimationControllers[2]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
-	AnimationControllers[2]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
+	//AnimationControllers[2]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
 	AnimationControllers[2]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);

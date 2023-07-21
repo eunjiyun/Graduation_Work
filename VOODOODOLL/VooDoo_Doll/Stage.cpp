@@ -691,6 +691,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		p_Material->SetTexture(ppTextures[37 + i]);
 		pMultiSpriteObjectShader->obj[11 + i]->m_ppMaterials[0] = p_Material;
 		pMultiSpriteObjectShader->obj[11 + i]->texMat.z = 1;
+		pMultiSpriteObjectShader->obj[11 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 	}
 
 
