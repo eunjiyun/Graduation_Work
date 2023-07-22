@@ -867,8 +867,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_MONSTER_DAMAGED: {
         SC_MONSTER_DAMAGED_PACKET* packet = reinterpret_cast<SC_MONSTER_DAMAGED_PACKET*>(ptr);
-        gGameFramework.damagedMon = packet->monster_id;
         if (packet->player_id == gGameFramework.m_pPlayer->c_id) {
+            gGameFramework.damagedMon = packet->monster_id;
             gGameFramework.m_pPlayer->gun_hit = 1;
             gGameFramework.hitSound.Stop();
             gGameFramework.hitSound.LoadWave(gGameFramework.hit_marker, 1);

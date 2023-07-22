@@ -351,7 +351,8 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start, XMFLOAT3 de
 			}
 		}
 	}
-
+	SetState(NPC_State::Idle);
+	target_id = -1;
 	return Pos;
 }
 
@@ -359,19 +360,24 @@ int Monster::get_targetID()
 {
 	for (int i = 0; i < MAX_USER_PER_ROOM; ++i) {
 		if (clients[room_num][i]._state.load() != ST_INGAME) {
-			distances[i] = view_range;
+			distances[i].distance = view_range;
+			distances[i]._id = -1;
 			continue;
 		}
 		float distance_z = clients[room_num][i].GetPosition().z - Pos.z;
 		float distance_x = clients[room_num][i].GetPosition().x - Pos.x;
-		distances[i] = sqrtf(distance_z * distance_z + distance_x * distance_x);
+		distances[i].distance = sqrtf(distance_z * distance_z + distance_x * distance_x);
+		distances[i]._id = clients[room_num][i]._id;
 	}
 
-	float min = *min_element(distances.begin(), distances.end());
-
-	if (min < view_range)
+	auto min = (*min_element(distances.begin(), distances.end(), 
+		[](const Player_Distance& a, const Player_Distance& b) {
+		return a.distance < b.distance;
+		}));
+	
+	if (min.distance < view_range)
 	{
-		return static_cast<int>(min_element(distances.begin(), distances.end()) - distances.begin());
+		return min._id;
 	}
 	else return -1;
 }

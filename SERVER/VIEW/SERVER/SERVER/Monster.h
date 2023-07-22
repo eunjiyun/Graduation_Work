@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "MemoryPool.h"
 
-#define MONSTER_SIZE XMFLOAT3{10,10,10}
+#define MONSTER_SIZE XMFLOAT3{15,15,15}
 #define BOSS_MONSTER_SIZE XMFLOAT3{30,30,30}
 #define MELEE_ATTACK_RANGE 30
 #define MAGIC_ATTACK_RANGE 150
@@ -16,11 +16,16 @@ enum class NPC_State
     Dead
 };
 
+struct Player_Distance
+{
+    short _id;
+    float distance;
+};
 class Monster
 {
 private:
     short type;
-    array<float, 3> distances = { 10000.f };
+    array<Player_Distance, 3> distances;
     NPC_State curState = NPC_State::Idle;
 public:
     //AStar_Pool* m_pool;

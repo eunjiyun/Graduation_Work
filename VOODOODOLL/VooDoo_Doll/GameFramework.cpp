@@ -603,6 +603,71 @@ void CGameFramework::BuildObjects()
 
 #ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
+
+	m_pPlayer->AnimationControllers[0]->SetCallbackKeys(1, 1);
+	//m_pPlayer->AnimationControllers[0]->SetCallbackKeys(2, 1);
+	m_pPlayer->AnimationControllers[0]->SetCallbackKeys(3, 1);
+	m_pPlayer->AnimationControllers[0]->SetCallbackKeys(4, 1);
+	m_pPlayer->AnimationControllers[0]->SetCallbackKeys(5, 1);
+
+	m_pPlayer->AnimationControllers[1]->SetCallbackKeys(1, 1);
+	m_pPlayer->AnimationControllers[1]->SetCallbackKeys(2, 1);
+	m_pPlayer->AnimationControllers[1]->SetCallbackKeys(3, 1);
+	m_pPlayer->AnimationControllers[1]->SetCallbackKeys(4, 1);
+	m_pPlayer->AnimationControllers[1]->SetCallbackKeys(5, 1);
+
+	m_pPlayer->AnimationControllers[2]->SetCallbackKeys(1, 1);
+	//m_pPlayer->AnimationControllers[2]->SetCallbackKeys(2, 1);
+	m_pPlayer->AnimationControllers[2]->SetCallbackKeys(3, 1);
+	m_pPlayer->AnimationControllers[2]->SetCallbackKeys(4, 1);
+	m_pPlayer->AnimationControllers[2]->SetCallbackKeys(5, 1);
+
+#ifdef _WITH_SOUND_RESOURCE
+	m_pPlayer->m_pSkinnedAnimationController->SetCallbackKey(0, 0.1f, _T("Footstep01"));
+	m_pPlayer->m_pSkinnedAnimationController->SetCallbackKey(1, 0.5f, _T("Footstep02"));
+	m_pPlayer->m_pSkinnedAnimationController->SetCallbackKey(2, 0.9f, _T("Footstep03"));
+#else
+
+	m_pPlayer->AnimationControllers[0]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
+	//m_pPlayer->AnimationControllers[0]->SetCallbackKey(2, 0, 0.2f, _T("Sound/swordAttack.wav"));
+	m_pPlayer->AnimationControllers[0]->SetCallbackKey(3, 0, 0.0333f, _T("Sound/player_damaged.wav"));
+	m_pPlayer->AnimationControllers[0]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
+	m_pPlayer->AnimationControllers[0]->SetCallbackKey(5, 0, 0.9666f, _T("Sound/Jump.wav"));
+
+
+	m_pPlayer->AnimationControllers[1]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
+	m_pPlayer->AnimationControllers[1]->SetCallbackKey(2, 0, 0.2f, _T("Sound/gunAttack.wav"));
+	m_pPlayer->AnimationControllers[1]->SetCallbackKey(3, 0, 0.0333f, _T("Sound/player_damaged.wav"));
+	m_pPlayer->AnimationControllers[1]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
+	m_pPlayer->AnimationControllers[1]->SetCallbackKey(5, 0, 0.9666f, _T("Sound/Jump.wav"));
+
+
+	m_pPlayer->AnimationControllers[2]->SetCallbackKey(1, 0, 0.2f, _T("Sound/walk.wav"));
+	//m_pPlayer->AnimationControllers[2]->SetCallbackKey(2, 0, 0.2f, _T("Sound/attack.wav"));
+	m_pPlayer->AnimationControllers[2]->SetCallbackKey(3, 0, 0.0333f, _T("Sound/player_damaged.wav"));
+	m_pPlayer->AnimationControllers[2]->SetCallbackKey(4, 0, 0.2f, _T("Sound/death.wav"));
+	m_pPlayer->AnimationControllers[2]->SetCallbackKey(5, 0, 0.9666f, _T("Sound/Jump.wav"));
+
+#endif
+	CAnimationCallbackHandler* pAnimationCallbackHandler = new CSoundCallbackHandler();
+
+	m_pPlayer->AnimationControllers[0]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+	//AnimationControllers[0]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[0]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[0]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[0]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
+
+	m_pPlayer->AnimationControllers[1]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[1]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[1]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[1]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[1]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
+
+	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(1, pAnimationCallbackHandler);
+	//m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(2, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
+	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
 #else
 	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
 	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
@@ -750,7 +815,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 15,15,15 });
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
@@ -768,7 +833,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 15,15,15 });
 		Mon->speed = 12.f;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
@@ -786,7 +851,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 15,15,15 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
 		Mon->Hat_Model = Hat;

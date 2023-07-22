@@ -58,7 +58,10 @@ void Monster::Re_Initialize(short _type, XMFLOAT3 _pos)
     Pos = _pos;
     curState = NPC_State::Idle;
     recent_updateTime = high_resolution_clock::now();
-    distances = { 10000.f };
+    for (auto& distance : distances) {
+        distance.distance = 10000.f;
+        distance._id = -1;
+    }
     target_id = -1;
     attacked = false;
     switch (_type)
@@ -103,7 +106,10 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     m_id = _id;
     curState = NPC_State::Idle;
     recent_updateTime = high_resolution_clock::now();
-    distances = { 10000.f };
+    for (auto& distance : distances) {
+        distance.distance = 10000.f;
+        distance._id = -1;
+    }
     target_id = -1;
     attacked = false;
     switch (_type)

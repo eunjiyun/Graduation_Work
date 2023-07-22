@@ -1444,7 +1444,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	cm->RegenerateViewMatrix();
 
 	{
-		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
+		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->GetPosition());
 		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
 		//pl->aimSize = 1.f;

@@ -158,7 +158,7 @@ public:
 		cur_stage = 0;
 		weapon_type = BLADE;
 		HP =  5000;
-		clear_percentage = 1.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
+		clear_percentage = 0.f; // 중간발표 데모를 위해 시작위치를 임의로 조정
 	}
 	void do_recv()
 	{
@@ -222,13 +222,13 @@ public:
 		do_send(&p);
 	}
 
-	void send_monster_damaged_packet(int monster_id, int monster_HP)
+	void send_monster_damaged_packet(int player_id, int monster_id, int monster_HP)
 	{
 		SC_MONSTER_DAMAGED_PACKET p;
 		p.size = sizeof(SC_MONSTER_DAMAGED_PACKET);
 		p.type = SC_MONSTER_DAMAGED;
 		p.monster_id = monster_id;
-		p.player_id = _id;
+		p.player_id = player_id;
 		p.remain_HP = monster_HP;
 		do_send(&p);
 	}
