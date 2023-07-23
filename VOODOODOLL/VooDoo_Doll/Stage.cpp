@@ -1444,16 +1444,17 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	cm->RegenerateViewMatrix();
 
 	{
-		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->GetPosition());
+		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
 		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
-		//pl->aimSize = 1.f;
-		//float size = 0.f;
+		pl->aimSize = 0.7f;
 		while (Vector3::Length(Vector3::Subtract(pl->Aiming_Position, xmf3Position)) > 10.f)
 		{
+			XMVECTOR _Pos = XMLoadFloat3(&xmf3Position);
 			for (const auto& monster : Monsters) {
-				if (monster->m_xmOOBB.Contains(XMLoadFloat3(&xmf3Position)))
+				if (monster->m_xmOOBB.Contains(_Pos))
 				{
+					cout << monster->c_id << endl;
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 					pl->Aiming_Position = xmf3Position;
 					return;
@@ -1464,7 +1465,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			{
 				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
-				if (oBox.Contains(XMLoadFloat3(&xmf3Position)))
+				if (oBox.Contains(_Pos))
 				{
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 					pl->Aiming_Position = xmf3Position;
@@ -1474,7 +1475,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 			for (int i = 0; i < 7; i++)
 			{
-				if (m_ppShaders[0]->door[i]->obBox.Contains(XMLoadFloat3(&xmf3Position)))
+				if (m_ppShaders[0]->door[i]->obBox.Contains(_Pos))
 				{
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 						pl->Aiming_Position = xmf3Position;
@@ -1482,7 +1483,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			//size += 0.001f;
+			pl->aimSize += 0.003f;
 			xmf3Position = Vector3::Add(xmf3Position, dir);
 		}
 	}

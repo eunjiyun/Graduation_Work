@@ -355,9 +355,10 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float plHp, XMFLOAT2 pos);
 	void hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float);
-
+	XMFLOAT2 WorldToScreen(XMFLOAT3 worldPosition, CCamera* pCamera, int screenWidth, int screenHeight);
+	bool IsInPlayerView(XMFLOAT3 playerPosition, XMFLOAT3 playerLookVector, XMFLOAT3 monsterPosition, float fieldOfViewAngle);
 protected:
 	CTexture* m_pDepthTexture = NULL;
 public:
@@ -365,6 +366,7 @@ public:
 	int curPl = -1;
 	float hpBar = 0;
 	float maxHp = -1;
+	XMFLOAT2 test = XMFLOAT2(0, 0);
 };
 
 class CMultiSpriteObjectsShader : public CShader
@@ -385,7 +387,7 @@ public:
 	virtual void ReleaseObjects();
 
 	void AnimateObjects(float fTimeElapsed, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,vector<CMonster*>,short, vector<CPlayer*>,int, void* pContext=NULL);
+	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,vector<CMonster*>,short, vector<CPlayer*>,int, void* pContext=NULL);
 
 	virtual void ReleaseUploadBuffers();
 

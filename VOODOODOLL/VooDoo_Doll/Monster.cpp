@@ -67,5 +67,12 @@ void CMonster::Update(float fTimeElapsed)
 	}
 	m_xmOOBB.Center = GetPosition();
 
+	if (damaged) {
+		damaged_timer += fTimeElapsed;
+		if (damaged_timer > 1.f) {
+			damaged = false;
+			damaged_timer = 0.f;
+		}
+	}
 	//Vector3::Print(m_xmOOBB.Center);
 }

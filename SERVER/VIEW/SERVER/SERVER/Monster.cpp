@@ -82,7 +82,7 @@ void Monster::Re_Initialize(short _type, XMFLOAT3 _pos)
         attack_timer = attack_cycle;
         break;
     case 3:
-        HP = 50;
+        HP = 2000;
         dead_timer = 3.3f;
         attack_timer = attack_cycle;
         break;
@@ -152,7 +152,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
         break;
     case 3: // 보스 몬스터
         type = 3;
-        HP = 1000;
+        HP = 2000;
         power = 100;
         view_range = 100;
         speed = 40.f;

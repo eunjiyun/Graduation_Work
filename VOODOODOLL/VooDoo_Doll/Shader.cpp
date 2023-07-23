@@ -1434,10 +1434,55 @@ void CTextureToViewportShader::ReleaseObjects()
 {
 }
 
-void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp)
+bool CTextureToViewportShader::IsInPlayerView(XMFLOAT3 playerPosition, XMFLOAT3 playerLookVector, XMFLOAT3 monsterPosition, float fieldOfViewAngle)
+{
+	XMVECTOR playerPosVec = XMLoadFloat3(&playerPosition);
+	XMVECTOR playerLookVec = XMLoadFloat3(&playerLookVector);
+	XMVECTOR monsterPosVec = XMLoadFloat3(&monsterPosition);
+
+	XMVECTOR directionToMonster = XMVectorSubtract(monsterPosVec, playerPosVec);
+	XMVECTOR normalizedDirectionToMonster = XMVector3Normalize(directionToMonster);
+
+	float dotProduct = XMVectorGetX(XMVector3Dot(normalizedDirectionToMonster, playerLookVec));
+	float angle = std::acosf(dotProduct);
+
+	// 시야 각도보다 작은 경우에만 true를 반환
+	return angle <= fieldOfViewAngle;
+}
+
+XMFLOAT2 CTextureToViewportShader::WorldToScreen(XMFLOAT3 worldPosition, CCamera* pCamera, int screenWidth, int screenHeight)
+{
+	XMMATRIX viewMatrix = XMLoadFloat4x4(&pCamera->GetViewMatrix());
+	XMMATRIX projectionMatrix = XMLoadFloat4x4(&pCamera->GetProjectionMatrix());
+
+	XMMATRIX viewProjectionMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
+
+	XMVECTOR worldPositionVec = XMLoadFloat3(&worldPosition);
+
+	// 월드 좌표를 카메라 좌표로 변환
+	XMVECTOR cameraPositionVec = XMVector3TransformCoord(worldPositionVec, viewMatrix);
+
+	// 카메라 좌표를 클립 좌표로 변환
+	XMVECTOR clipPositionVec = XMVector3TransformCoord(cameraPositionVec, projectionMatrix);
+
+	// 클립 좌표를 NDC로 변환
+	XMFLOAT4 ndcPosition;
+	XMStoreFloat4(&ndcPosition, clipPositionVec);
+	ndcPosition.x /= ndcPosition.w;
+	ndcPosition.y /= ndcPosition.w;
+
+	// NDC를 스크린 좌표로 변환
+	XMFLOAT2 screenPosition;
+	screenPosition.x = (ndcPosition.x + 1.0f) * 0.5f * screenWidth;
+	screenPosition.y = (1.0f - ndcPosition.y) * 0.5f * screenHeight;
+
+	return screenPosition;
+}
+
+void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp, XMFLOAT2 pos)
 {
 	hpBarSet(pd3dCommandList, pCamera, plHp);
-	D3D12_RECT d3dScissorRect = { 38,27, 230.f - hpBar, FRAME_BUFFER_HEIGHT / 11.f };
+	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 15.f };
 
 	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
@@ -1446,6 +1491,7 @@ void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
+
 
 void CTextureToViewportShader::hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp)
 {
@@ -1586,7 +1632,7 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed, ID3D12Device*
 			obj[j]->Animate(fTimeElapsed, false, pd3dDevice, pd3dCommandList);
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo, vector<CPlayer*> pl, int boss, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo, vector<CPlayer*> pl, int boss, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1758,9 +1804,11 @@ void CMultiSpriteObjectsShader::Render(ID3D12GraphicsCommandList* pd3dCommandLis
 					obj[i]->SetLookAt(xmf3PlayerPosition, XMFLOAT3(0.0f, 1.0f, 0.0f));
 				}
 				if (i == 11) {
-					//obj[i]->SetPosition(Vector3::Add(XMFLOAT3(0,80,0),Vector3::Add(pCamera->GetPosition(), Vector3::ScalarProduct(pCamera->GetLookVector(), 300, false))));				
+					
 					obj[i + pPlayer->gun_hit]->SetPosition(pPlayer->Aiming_Position);
 					obj[i + pPlayer->gun_hit]->SetLookAt(pCamera->GetPosition(), XMFLOAT3(0.0f, 1.0f, 0.0f));
+					auto mesh = static_cast<CTexturedRectMesh*>(obj[i + pPlayer->gun_hit]->m_ppMeshes[0]);
+					mesh->Scale(pd3dDevice, pd3dCommandList,pPlayer->aimSize);
 					CShader::Render(pd3dCommandList, pCamera);
 					obj[i + pPlayer->gun_hit]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 					return;

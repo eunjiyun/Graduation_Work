@@ -10,8 +10,10 @@ public:
 	XMFLOAT3					m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	XMFLOAT3					m_hats_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float speed;
+	short HP;
 	SoundPlayer Sound;
-
+	bool damaged = false;
+	float damaged_timer = 0.f;
 	bool lock = false;
 	XMFLOAT3 recent_Pos = XMFLOAT3(0.f, 0.f, 0.f);
 

@@ -45,7 +45,7 @@ public:
 	steady_clock::time_point recv_time;
 	XMFLOAT3 Aiming_Position;
 	short gun_hit = 0;
-	//float aimSize = 1.f;
+	float aimSize = 1.f;
 public:
 	CPlayer();
 	virtual ~CPlayer();

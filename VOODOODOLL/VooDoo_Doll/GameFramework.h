@@ -43,8 +43,8 @@ public:
 	void			Change_Scene(SCENEID _eSceneid);
 	LONG		Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
 	LONG		Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
-	void		Set_OldCursorPointX(LONG in) {m_ptOldCursorPos.x = in; }
-	void		Set_OldCursorPointY(LONG in) {m_ptOldCursorPos.y = in; }
+	void		Set_OldCursorPoint(LONG in_x, LONG in_y) {m_ptOldCursorPos.x = in_x; m_ptOldCursorPos.y = in_y;}
+	
 
 	void AnimateObjects(float fTimeElapsed);
 	void FrameAdvance();

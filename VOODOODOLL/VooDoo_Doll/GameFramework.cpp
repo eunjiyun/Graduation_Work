@@ -815,8 +815,9 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 15,15,15 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
 		Mon->speed = 12.f;
+		Mon->HP = 250;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
 		break;
@@ -833,8 +834,9 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 15,15,15 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
 		Mon->speed = 12.f;
+		Mon->HP = 150;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	}
@@ -851,7 +853,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 15,15,15 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
 		Mon->Hat_Model = Hat;
@@ -859,6 +861,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_ppHat->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_ppHat->SetScale(0.8f, 0.8f, 0.8f);
 		Mon->speed = 12.f;
+		Mon->HP = 50;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	}
@@ -882,6 +885,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 30,30,30 });
 		Mon->speed = 12.f;
+		Mon->HP = 2000;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	}
@@ -1291,7 +1295,7 @@ void CGameFramework::FrameAdvance()
 
 
 
-	int m=-1;
+	int m = -1;
 	if (!m_pStage->Monsters.empty())
 	{
 		if (-1 != damagedMon)
@@ -1302,25 +1306,25 @@ void CGameFramework::FrameAdvance()
 			for (m = 0; m < m_pStage->Monsters.size(); ++m)
 			{
 				if (59 == m_pStage->Monsters[m]->c_id)
-				//if (0 == Monsters[m]->c_id)//pat
+					//if (0 == Monsters[m]->c_id)//pat
 				{
 					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
 						if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
-							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength *0.15f
+							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
 							&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
 							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 						}
-						else if(m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
+						else if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
 							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
 						}
 					}
-					
+
 
 					break;
 				}
@@ -1329,42 +1333,26 @@ void CGameFramework::FrameAdvance()
 	}
 
 
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
 
 	if (m_pStage->m_pShadowShader && lobby[2])
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights);
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
-
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
-		if (-1 == m_pStage->m_pShadowMapToViewport->curPl)
+		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38,27));
+
+		for (int i = 0; i < m_pStage->Monsters.size(); ++i)
 		{
-			m_pStage->m_pShadowMapToViewport->maxHp = 5000;
-			m_pStage->m_pShadowMapToViewport->curPl = 0;
-		}
-
-		if (false == m_pStage->m_pShadowMapToViewport->init)
-		{
-			if (1 != m_pStage->m_pShadowMapToViewport->curPl)
-			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 5000;
-
-				if (2 != m_pStage->m_pShadowMapToViewport->curPl)
-					++m_pStage->m_pShadowMapToViewport->curPl;
-				else
-					m_pStage->m_pShadowMapToViewport->curPl = 0;
+			try {
+				if (m_pStage->Monsters.at(i)->damaged) {
+					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(m_pStage->Monsters.at(i)->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, 640, 480);
+					m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters.at(i)->HP, pos);
+				}
 			}
-			else
-			{
-				m_pStage->m_pShadowMapToViewport->maxHp = 5000;
-				m_pStage->m_pShadowMapToViewport->curPl = 2;
-			}
-			m_pStage->m_pShadowMapToViewport->init = true;
-
+			catch (const exception& e) { cout << "MONSTER HP BAR LOAD ERROR\n"; }
 		}
-
-		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP);
-	};
+	}
 
 
 #ifdef _WITH_PLAYER_TOP

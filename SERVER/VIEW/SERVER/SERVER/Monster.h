@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "MemoryPool.h"
 
-#define MONSTER_SIZE XMFLOAT3{15,15,15}
+#define MONSTER_SIZE XMFLOAT3{10,10,10}
 #define BOSS_MONSTER_SIZE XMFLOAT3{30,30,30}
 #define MELEE_ATTACK_RANGE 30
 #define MAGIC_ATTACK_RANGE 150
@@ -46,7 +46,9 @@ public:
     short m_id = -1;    // 몬스터 자체ID
     float dead_timer = 0;
     float attack_timer = 0;
+    float wander_timer = 0;
     bool attacked = false;
+    bool wander = false;
     mutable mutex m_lock; // const 함수에서 lock을 사용하기 위해 mutable로 선언
     Monster() { }
     Monster(const Monster& other);
