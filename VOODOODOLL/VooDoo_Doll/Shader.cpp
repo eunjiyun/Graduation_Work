@@ -10,13 +10,13 @@
 
 CShader::CShader()
 {
+
 	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr = NULL;
 	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr = NULL;
 }
 
 CShader::~CShader()
 {
-	if (m_pd3dPipelineState) m_pd3dPipelineState->Release();
 	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
 	ReleaseShaderVariables();
@@ -639,8 +639,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			{
 				boxShader->obj.push_back(m_ppObjects[i]);
 			}
-
-
 
 			if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle1") ||
 				0 == strcmp(m_ppObjects[i]->m_pstrName, "Candle2") ||
@@ -1878,7 +1876,7 @@ D3D12_DEPTH_STENCIL_DESC CPostProcessingShader::CreateDepthStencilState()
 
 ID3D12RootSignature* CPostProcessingShader::CreateGraphicsRootSignature(ID3D12Device* pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 5;
@@ -1921,6 +1919,7 @@ ID3D12RootSignature* CPostProcessingShader::CreateGraphicsRootSignature(ID3D12De
 
 	ID3DBlob* pd3dSignatureBlob = NULL;
 	ID3DBlob* pd3dErrorBlob = NULL;
+
 	D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
 	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dGraphicsRootSignature);
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
@@ -1965,11 +1964,8 @@ void CPostProcessingShader::CreateResourcesAndRtvsSrvs(ID3D12Device* pd3dDevice,
 
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, nShaderResources);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-#ifdef _WITH_SCENE_ROOT_SIGNATURE
+
 	CreateShaderResourceViews(pd3dDevice, m_pTexture, 0, 6);
-#else
-	CreateShaderResourceViews(pd3dDevice, m_pTexture, 0, 0);
-#endif
 
 	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc;
 	d3dRenderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;

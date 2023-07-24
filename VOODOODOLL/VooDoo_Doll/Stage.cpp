@@ -286,14 +286,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[27] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[27]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Coin01_Roughness.dds", RESOURCE_TEXTURE2D, 0);
 
-
-
-
-
-
-	
-
-
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);
 
@@ -841,7 +833,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[15];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[16];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -919,6 +911,11 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[14].Constants.ShaderRegister = 3; //Material
 	pd3dRootParameters[14].Constants.RegisterSpace = 0;
 	pd3dRootParameters[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[15].Descriptor.ShaderRegister = 5; //DrawOptions
+	pd3dRootParameters[15].Constants.RegisterSpace = 0;
+	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];
 
@@ -1210,7 +1207,6 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool login, CCam
 			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 
-	//m_ppShaders[1]->Render(pd3dCommandList, pCamera);
 	
 }
 

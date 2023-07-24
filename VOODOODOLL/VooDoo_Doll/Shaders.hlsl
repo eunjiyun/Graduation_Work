@@ -64,6 +64,9 @@ Texture2D gtxtMetallicTexture : register(t9);
 Texture2D gtxtEmissionTexture : register(t10);
 Texture2D gtxtDetailAlbedoTexture : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
+Texture2D gtxtIlluminationTexture : register(t13);
+Texture2D gtxtzDepthTexture : register(t14);
+Texture2D gtxtDepthTexture : register(t15);
 
 
 Texture2DArray gtxtTextureArray : register(t0);
@@ -517,4 +520,61 @@ VS_SCREEN_RECT_TEXTURED_OUTPUT VSScreenRectSamplingTextured(uint nVertexID : SV_
 	return(output);
 }
 
+float4 GetColorFromDepth(float fDepth)
+{
+	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
+	if (fDepth >= 1.0f) cColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	else if (fDepth < 0.00625f) cColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
+	else if (fDepth < 0.0125f) cColor = float4(0.0f, 1.0f, 0.0f, 1.0f);
+	else if (fDepth < 0.025f) cColor = float4(0.0f, 0.0f, 1.0f, 1.0f);
+	else if (fDepth < 0.05f) cColor = float4(1.0f, 1.0f, 0.0f, 1.0f);
+	else if (fDepth < 0.075f) cColor = float4(0.0f, 1.0f, 1.0f, 1.0f);
+	else if (fDepth < 0.1f) cColor = float4(1.0f, 0.5f, 0.5f, 1.0f);
+	else if (fDepth < 0.4f) cColor = float4(0.5f, 1.0f, 1.0f, 1.0f);
+	else if (fDepth < 0.6f) cColor = float4(1.0f, 0.0f, 1.0f, 1.0f);
+	else if (fDepth < 0.8f) cColor = float4(0.5f, 0.5f, 1.0f, 1.0f);
+	else if (fDepth < 0.9f) cColor = float4(0.5f, 1.0f, 0.5f, 1.0f);
+	else cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	return(cColor);
+}
+
+float4 PSScreenRectSamplingTextured(VS_TEXTURED_OUTPUT input): SV_Target
+{
+	float4 cColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	switch (gvDrawOptions.x)
+	{
+		case 84: //'T'
+		{
+			cColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+			break;
+		}
+		case 89: //'Y'
+		{
+			cColor = gtxtIlluminationTexture.Sample(gssWrap, input.uv);
+			break;
+		}
+		case 85: //'U'
+		{
+			cColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+			break;
+		}
+		case 73: //'I'
+		{
+			float fDepth = gtxtDepthTexture.Load(uint3((uint)input.position.x, (uint)input.position.y, 0));
+			cColor = fDepth;
+//			cColor = GetColorFromDepth(fDepth);
+			break; 
+		}
+		case 79: //'O'
+		{
+			float fzDepth = gtxtzDepthTexture.Load(uint3((uint)input.position.x, (uint)input.position.y, 0));
+			cColor = fzDepth;
+//			cColor = GetColorFromDepth(fDepth);
+			break;
+		}
+	}
+	return(cColor);
+}

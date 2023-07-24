@@ -382,9 +382,9 @@ public:
 	CMesh** m_ppMeshes;
 	int								m_nMeshes;
 	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dCbvGPUDescriptorHandle;
-	char							m_pstrFrameName[64];
+	char								m_pstrFrameName[64];
 	int								m_nMaterials = 0;
-	CMaterial** m_ppMaterials = NULL;
+	CMaterial**				m_ppMaterials = NULL;
 
 	int										m_iObjID = 0; 
 	bool									m_bGetItem = false;

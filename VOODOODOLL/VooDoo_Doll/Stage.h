@@ -176,10 +176,11 @@ public:
 	float							mpTime = 0.f;
 	XMFLOAT4X4				m_xmf4x4World = Matrix4x4::Identity();
 
-	CBoxShader*							pBoxShader = NULL;
-	CShadowMapShader*			m_pShadowShader = NULL;
-	CDepthRenderShader*		m_pDepthRenderShader = NULL;
+	CBoxShader*								pBoxShader = NULL;
+	CShadowMapShader*				m_pShadowShader = NULL;
+	CDepthRenderShader*			m_pDepthRenderShader = NULL;
 	CTextureToViewportShader* m_pShadowMapToViewport = NULL;
+
 	CGameObject** hpUi = nullptr;
 	CGameObject** userId = nullptr;
 	CGameObject** userPw = nullptr;

@@ -95,7 +95,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext = NULL);
 	virtual void ReleaseUploadBuffers() { }
 
-	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, void* pContext = NULL) { }
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL) { }
 	virtual void AnimateObjects(float fTimeElapsed) { }
 	virtual void ReleaseObjects() { }
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
@@ -240,10 +240,10 @@ protected:
 
 	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap = NULL;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_pd3dRtvCPUDescriptorHandles[MAX_DEPTH_TEXTURES];
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dDsvDescriptorCPUHandle;
 
 	ID3D12DescriptorHeap* m_pd3dDsvDescriptorHeap = NULL;
 	ID3D12Resource* m_pd3dDepthBuffer = NULL;
-	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dDsvDescriptorCPUHandle;
 
 	XMMATRIX						m_xmProjectionToTexture;
 

@@ -203,17 +203,15 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
 	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
-	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers;
+	d3dDescriptorHeapDesc.NumDescriptors = m_nSwapChainBuffers + 5;
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
 	HRESULT hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dRtvDescriptorHeap);
-	::gnRtvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
 	d3dDescriptorHeapDesc.NumDescriptors = 1;
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	hResult = m_pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dDsvDescriptorHeap);
-	::gnDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
 
 void CGameFramework::CreateRenderTargetViews()
@@ -223,6 +221,26 @@ void CGameFramework::CreateRenderTargetViews()
 	{
 		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dSwapChainBackBuffers[i]);
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
+		d3dRtvCPUDescriptorHandle.ptr += ::gnRtvDescriptorIncrementSize;
+	}
+}
+
+void CGameFramework::CreateSwapChainRenderTargetViews()
+{
+
+	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc;
+	d3dRenderTargetViewDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	d3dRenderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
+	d3dRenderTargetViewDesc.Texture2D.PlaneSlice = 0;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+
+	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+	{
+		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dSwapChainBackBuffers[i]);
+		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], &d3dRenderTargetViewDesc, d3dRtvCPUDescriptorHandle);
+		m_pd3dSwapChainBackBufferRTVCPUHandles[i] = d3dRtvCPUDescriptorHandle;
 		d3dRtvCPUDescriptorHandle.ptr += ::gnRtvDescriptorIncrementSize;
 	}
 }
@@ -262,9 +280,9 @@ void CGameFramework::CreateDepthStencilView()
 	d3dDepthStencilViewDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	d3dDepthStencilViewDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	d3dDepthStencilViewDesc.Flags = D3D12_DSV_FLAG_NONE;
-
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pd3dDevice->CreateDepthStencilView(m_pd3dDepthStencilBuffer, &d3dDepthStencilViewDesc, d3dDsvCPUDescriptorHandle);
+	
+	m_d3dDsvDescriptorCPUHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_pd3dDevice->CreateDepthStencilView(m_pd3dDepthStencilBuffer, &d3dDepthStencilViewDesc, m_d3dDsvDescriptorCPUHandle);
 }
 
 void CGameFramework::ChangeSwapChainState()
@@ -298,7 +316,7 @@ void CGameFramework::ChangeSwapChainState()
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 
-	CreateRenderTargetViews();
+	CreateSwapChainRenderTargetViews();
 }
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -393,11 +411,14 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F9:
 			ChangeSwapChainState();
 			break;
-		case 'S': //83
 		case 'T': //84
-		case 'D': //68
-		case 'Z': //90
-		case 'N': //78
+			cout << "Somtime" << endl;
+			break;
+		case 'P': //80
+		case 'Y': //89
+		case 'U': //85
+		case 'I': //73
+		case 'O': //79
 		case 'L': //76
 		{
 			m_nDrawOptions = (int)wParam;
@@ -645,6 +666,19 @@ void CGameFramework::BuildObjects()
 	m_pStage->m_pShadowMapToViewport = new CTextureToViewportShader();
 	m_pStage->m_pShadowMapToViewport->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
+	//SOMTIMES
+	m_pPostProcessingShader = new CTextureToFullScreenShader();
+	m_pPostProcessingShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
+	m_pPostProcessingShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, &m_nDrawOptions);
+	
+	m_d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_d3dRtvCPUDescriptorHandle.ptr += (::gnRtvDescriptorIncrementSize * m_nSwapChainBuffers);
+
+	DXGI_FORMAT pdxgiResourceFormats[4] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	m_pPostProcessingShader->CreateResourcesAndRtvsSrvs(m_pd3dDevice, m_pd3dCommandList, 4, pdxgiResourceFormats, m_d3dRtvCPUDescriptorHandle, 4 + 1); //SRV to (Render Targets)+ (Depth Buffer)
+
+	DXGI_FORMAT pdxgiSrvFormats[1] = { DXGI_FORMAT_R32_FLOAT };
+	m_pPostProcessingShader->CreateShaderResourceViews(m_pd3dDevice, 1, &m_pd3dDepthStencilBuffer, pdxgiSrvFormats);
 
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
@@ -718,6 +752,10 @@ void CGameFramework::ReleaseObjects()
 
 	if (m_pLogin) m_pLogin->ReleaseObjects();
 	if (m_pLogin) delete m_pLogin;
+
+	//SOMTIMES
+	if (m_pPostProcessingShader)m_pPostProcessingShader->ReleaseObjects();
+	if (m_pPostProcessingShader)m_pPostProcessingShader->Release();
 }
 
 void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos)
@@ -1054,7 +1092,29 @@ void CGameFramework::FrameAdvance()
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	// Play sound
+
+	// hWnd는 게임 창의 윈도우 핸들입니다.
+	RECT rcWindow;
+	GetWindowRect(Get_HWND(), &rcWindow);
+
+	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
+
+	//::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	sound[1].Play();//오프닝
+
+	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+
+	HRESULT hResult = m_pd3dCommandAllocator->Reset();
+	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
+
+	//SOMTIMES
+	if (m_nDrawOptions == DRAW_SCENE_COLOR)//'P' 
+	{
+	}
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
@@ -1075,13 +1135,6 @@ void CGameFramework::FrameAdvance()
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 	}
 
-	// hWnd는 게임 창의 윈도우 핸들입니다.
-	RECT rcWindow;
-	GetWindowRect(Get_HWND(), &rcWindow);
-
-	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
-	int windowX = rcWindow.left;
-	int windowY = rcWindow.top;
 
 	if (!lobby[0])
 	{
@@ -1166,14 +1219,13 @@ void CGameFramework::FrameAdvance()
 		monster->Update(fTimeElapsed);
 	}
 	AnimateObjects(fTimeElapsed);
-	HRESULT hResult = m_pd3dCommandAllocator->Reset();
-	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
+
+	//SOMTIMES
+	//m_pPostProcessingShader->OnPrepareRenderTarget(m_pd3dCommandList, 1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], &m_d3dDsvDescriptorCPUHandle);
 
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
 	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, Monsters, Players);
 
-	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-	::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 	d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 	d3dResourceBarrier.Transition.pResource = m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex];
@@ -1182,16 +1234,16 @@ void CGameFramework::FrameAdvance()
 	d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	m_pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * ::gnRtvDescriptorIncrementSize);
+	m_d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * ::gnRtvDescriptorIncrementSize);
 
 	float pfClearColor[4] = { 0.31f, 0.74f, 0.88f, 1.0f };// 하늘 색깔
-	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
+	m_pd3dCommandList->ClearRenderTargetView(m_d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+	m_d3dDsvDescriptorCPUHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
+	m_pd3dCommandList->OMSetRenderTargets(1, &m_d3dRtvCPUDescriptorHandle, TRUE, &m_d3dDsvDescriptorCPUHandle);
 
 
 
@@ -1304,7 +1356,7 @@ void CGameFramework::FrameAdvance()
 
 
 
-	int m=-1;
+	int m = -1;
 	if (!Monsters.empty())
 	{
 		if (-1 != damagedMon)
@@ -1315,25 +1367,25 @@ void CGameFramework::FrameAdvance()
 			for (m = 0; m < Monsters.size(); ++m)
 			{
 				if (59 == Monsters[m]->c_id)
-				//if (0 == Monsters[m]->c_id)//pat
+					//if (0 == Monsters[m]->c_id)//pat
 				{
 					if (2 == Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
 						if (Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
-							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength *0.15f
+							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
 							&& Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
 							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 						}
-						else if(Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
+						else if (Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
 							Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
 						}
 					}
-					
+
 
 					break;
 				}
@@ -1341,7 +1393,7 @@ void CGameFramework::FrameAdvance()
 		}
 	}
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon,Players, m);
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dCommandList, m_pCamera, Monsters, damagedMon, Players, m);
 
 
 	if (m_pStage->m_pShadowShader && lobby[2])
@@ -1377,6 +1429,9 @@ void CGameFramework::FrameAdvance()
 
 		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP);
 	};
+
+
+
 
 
 #ifdef _WITH_PLAYER_TOP

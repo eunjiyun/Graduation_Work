@@ -1066,6 +1066,8 @@ void CGameObject::SetTrackAnimationPosition(int nAnimationTrack, float fPosition
 	if (m_pSkinnedAnimationController) m_pSkinnedAnimationController->SetTrackPosition(nAnimationTrack, fPosition);
 }
 
+
+
 void CGameObject::Animate(float fTimeElapsed, bool onPlayer)
 {
 	OnPrepareRender();
