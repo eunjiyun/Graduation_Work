@@ -694,6 +694,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             {
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
                 gGameFramework.beforeHp[0] = packet->HP;
+                gGameFramework.plTime[0] = 0.f;
             }
         }
         else if (1 == packet->id % 3)
@@ -702,6 +703,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             {
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[6]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] = true;
                 gGameFramework.beforeHp[1] = packet->HP;
+                gGameFramework.plTime[1] = 0.f;
             }
         }
         else if (2 == packet->id % 3)
@@ -710,6 +712,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
             {
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[7]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] = true;
                 gGameFramework.beforeHp[2] = packet->HP;
+                gGameFramework.plTime[2] = 0.f;
             }
         }
 

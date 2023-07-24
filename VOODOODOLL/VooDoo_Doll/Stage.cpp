@@ -1454,7 +1454,6 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 			for (const auto& monster : Monsters) {
 				if (monster->m_xmOOBB.Contains(_Pos))
 				{
-					cout << monster->c_id << endl;
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
 					pl->Aiming_Position = xmf3Position;
 					return;

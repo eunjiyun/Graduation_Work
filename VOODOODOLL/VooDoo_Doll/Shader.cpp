@@ -1627,9 +1627,17 @@ void CMultiSpriteObjectsShader::ReleaseObjects()
 }
 void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	for (int j{}; j < m_nObjects; ++j)
-		if (1 != obj[j]->texMat.z && 2 != obj[j]->texMat.z && obj[j]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive)
+	for (int j{}; j < m_nObjects; ++j) {
+		bool active = false;
+		for (int i = 0; i < 3; ++i) {
+			if (obj[j]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] == true) {
+				active = true; 
+				break;
+			}
+		}
+		if (1 != obj[j]->texMat.z && 2 != obj[j]->texMat.z && active)
 			obj[j]->Animate(fTimeElapsed, false, pd3dDevice, pd3dCommandList);
+	}
 }
 
 void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo, vector<CPlayer*> pl, int boss, void* pContext)
@@ -1643,19 +1651,19 @@ void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 
 		for (int i{}; i < pl.size(); ++i)
 		{
-			if (0 == pl[i]->c_id && obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0])
+			if (0 == pl[i]->c_id % 3 && obj[0]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0])
 				p1 = pl[i];
-			else if (1 == pl[i]->c_id && obj[8]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1])
+			else if (1 == pl[i]->c_id % 3 && obj[8]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1])
 				p2 = pl[i];
-			else if (2 == pl[i]->c_id && obj[9]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2])
+			else if (2 == pl[i]->c_id % 3 && obj[9]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2])
 				p3 = pl[i];
 		}
 
 		if (0 < i && 5 > i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
 			|| 10 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]
-			|| 5 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && 0 == pPlayer->c_id
-			|| 6 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] && 1 == pPlayer->c_id
-			|| 7 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] && 2 == pPlayer->c_id
+			|| 5 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && 0 == pPlayer->c_id % 3
+			|| 6 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] && 1 == pPlayer->c_id % 3
+			|| 7 == i && obj[i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] && 2 == pPlayer->c_id % 3
 			|| 0 == i && p1
 			|| 8 == i && p2
 			|| 9 == i && p3

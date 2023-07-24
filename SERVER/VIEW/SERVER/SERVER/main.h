@@ -431,7 +431,11 @@ void Monster::Update(float fTimeElapsed)
 				break;
 			}
 			wander_timer += fTimeElapsed;
-			if (wander_timer > 2.f) { wander_timer = 0.f; wander = false; }
+			if (wander_timer > 2.f) {
+				wander_timer = 0.f;
+				wander = false;
+				SetState(NPC_State::Idle);
+			}
 		}
 		else {
 			const auto& targetPlayer = &clients[room_num][target_id];
@@ -620,7 +624,11 @@ void SorcererMonster::Update(float fTimeElapsed)
 				break;
 			}
 			wander_timer += fTimeElapsed;
-			if (wander_timer > 2.f) { wander_timer = 0.f; wander = false; }
+			if (wander_timer > 2.f) {
+				wander_timer = 0.f;
+				wander = false;
+				SetState(NPC_State::Idle);
+			}
 		}
 		else {
 			const auto& targetPlayer = &clients[room_num][target_id];
@@ -759,7 +767,11 @@ void BossMonster::Update(float fTimeElapsed)
 				break;
 			}
 			wander_timer += fTimeElapsed;
-			if (wander_timer > 2.f) { wander_timer = 0.f; wander = false; }
+			if (wander_timer > 2.f) {
+				wander_timer = 0.f;
+				wander = false;
+				SetState(NPC_State::Idle);
+			}
 		}
 		else {
 			const auto& targetPlayer = &clients[room_num][target_id];
