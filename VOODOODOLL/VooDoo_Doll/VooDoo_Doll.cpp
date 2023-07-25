@@ -242,14 +242,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     ::ShowWindow(hMainWnd, nCmdShow);
     ::UpdateWindow(hMainWnd);
 
-    //full screen
-    //#ifdef _WITH_SWAPCHAIN_FULLSCREEN_STATE
-    if (true == gGameFramework.onFullScreen)
-        gGameFramework.ChangeSwapChainState();
-    else
-        gGameFramework.CreateRenderTargetViews();
-    //#endif
-    //
+    
 
     return(TRUE);
 }
@@ -350,6 +343,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
                 gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
+            }
+            else if ('z' == wParam|| 'Z' == wParam)
+            {
+                if (gGameFramework.m_pStage->blur)
+                    gGameFramework.m_pStage->blur = false;
+                else
+                    gGameFramework.m_pStage->blur = true;
             }
         }
         break;
@@ -591,7 +591,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_SIGNIN: {
         SC_SIGN_PACKET* packet = reinterpret_cast<SC_SIGN_PACKET*>(ptr);
-        if (packet->success == true) {
+        if (packet->success == true)
+        {
             gGameFramework.loginSign[1] = true;
             gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->popUpMat[0];
             wcout << "SIGNIN SUCCEED\n";
@@ -784,7 +785,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_SUMMON_MONSTER: {
         SC_SUMMON_MONSTER_PACKET* packet = reinterpret_cast<SC_SUMMON_MONSTER_PACKET*>(ptr);
-        gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);
+
+        gGameFramework.SummonMonster(packet->id, packet->monster_type, packet->Pos);//debugMode
+
+
         break;
     }
     case SC_MOVE_MONSTER: {

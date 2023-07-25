@@ -6,7 +6,6 @@
 #include "GameFramework.h"
 
 
-
 ID3D12GraphicsCommandList* CGameFramework::m_pd3dCommandList = NULL;
 
 CGameFramework::CGameFramework()
@@ -15,7 +14,8 @@ CGameFramework::CGameFramework()
 	m_pdxgiSwapChain = NULL;
 	m_pd3dDevice = NULL;
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++) m_ppd3dSwapChainBackBuffers[i] = NULL;
+	for (int i{}; i < m_nSwapChainBuffers; ++i)
+		m_ppd3dSwapChainBackBuffers[i] = NULL;
 	m_nSwapChainBufferIndex = 0;
 
 	m_pd3dCommandAllocator = NULL;
@@ -27,7 +27,7 @@ CGameFramework::CGameFramework()
 
 	m_hFenceEvent = NULL;
 	m_pd3dFence = NULL;
-	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
+	for (int i{}; i < m_nSwapChainBuffers; ++i) m_nFenceValues[i] = 0;
 
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
@@ -59,6 +59,12 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	CreateDepthStencilView();
 
 	CoInitialize(NULL);
+
+	//full screen
+	if (onFullScreen)
+		ChangeSwapChainState();
+	else
+		CreateRenderTargetViews();
 
 	BuildObjects();
 
@@ -111,7 +117,7 @@ void CGameFramework::CreateSwapChain()
 	dxgiSwapChainDesc.SampleDesc.Count = (m_bMsaa4xEnable) ? 4 : 1;
 	dxgiSwapChainDesc.SampleDesc.Quality = (m_bMsaa4xEnable) ? (m_nMsaa4xQualityLevels - 1) : 0;
 	dxgiSwapChainDesc.Windowed = TRUE;
-	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;//전체화면 모드에서 바탕화면의 해상도를 스왑체인(후면버퍼)의 크기에 맞게 변경한다. 
+	dxgiSwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;//??u??? ????? ????????? ????? ????u??(???????)?? ??? ???? ???????. 
 
 
 
@@ -148,7 +154,7 @@ void CGameFramework::CreateDirect3DDevice()
 
 	IDXGIAdapter1* pd3dAdapter = NULL;
 
-	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
+	for (UINT i{}; DXGI_ERROR_NOT_FOUND != m_pdxgiFactory->EnumAdapters1(i, &pd3dAdapter); ++i)
 	{
 		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
 		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
@@ -172,13 +178,14 @@ void CGameFramework::CreateDirect3DDevice()
 	m_bMsaa4xEnable = (m_nMsaa4xQualityLevels > 1) ? true : false;
 
 	hResult = m_pd3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&m_pd3dFence);
-	for (UINT i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
+	for (UINT i{}; i < m_nSwapChainBuffers; ++i) m_nFenceValues[i] = 0;
 
 	m_hFenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	::gnCbvSrvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	::gnRtvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	::gnDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+	::gnCbvSrvUavDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	if (pd3dAdapter) pd3dAdapter->Release();
 }
@@ -216,10 +223,15 @@ void CGameFramework::CreateRtvAndDsvDescriptorHeaps()
 	::gnDsvDescriptorIncrementSize = m_pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 }
 
+
+
+
+
 void CGameFramework::CreateRenderTargetViews()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+
+	for (UINT i{}; i < m_nSwapChainBuffers; ++i)
 	{
 		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dSwapChainBackBuffers[i]);
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], NULL, d3dRtvCPUDescriptorHandle);
@@ -286,7 +298,7 @@ void CGameFramework::ChangeSwapChainState()
 	m_pdxgiSwapChain->ResizeTarget(&dxgiTargetParameters);
 
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++)
+	for (int i{}; i < m_nSwapChainBuffers; ++i)
 		if (m_ppd3dSwapChainBackBuffers[i])
 			m_ppd3dSwapChainBackBuffers[i]->Release();
 
@@ -303,12 +315,12 @@ void CGameFramework::ChangeSwapChainState()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	//마우스 입력
-	// hWnd는 게임 창의 윈도우 핸들입니다.
+	//???? ???
+	// hWnd?? ???? a?? ?????? ???????.
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
 
-	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
+	// rcWindow ???????? ?????? a?? ????? ??? ???????.
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
@@ -324,8 +336,6 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
 		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
-
-		//m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive = false;//피
 
 		if (false == onFullScreen)
 		{
@@ -351,7 +361,10 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				signIn = 0;
 			else if (sign[2].x <= m_ptOldCursorPos.x - windowX && sign[3].x >= m_ptOldCursorPos.x - windowX
 				&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
+			{
 				signIn = 1;
+				loginSign[1] = true;
+			}
 		}
 		break;
 	case WM_LBUTTONUP:
@@ -481,7 +494,8 @@ void CGameFramework::OnDestroy()
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
-	for (int i = 0; i < m_nSwapChainBuffers; i++) if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
+	for (int i{}; i < m_nSwapChainBuffers; ++i) if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
+
 	if (m_pd3dRtvDescriptorHeap) m_pd3dRtvDescriptorHeap->Release();
 
 	if (m_pd3dCommandAllocator) m_pd3dCommandAllocator->Release();
@@ -522,6 +536,8 @@ void CGameFramework::BuildObjects()
 	m_pStage->userPw = new CGameObject * [10];
 	for (int i{}; i < 10; ++i)
 		m_pStage->userPw[i] = new CGameObject(1);
+
+	m_pStage->pCurrentFrameTexture = m_ppd3dSwapChainBackBuffers;
 
 
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
@@ -582,27 +598,18 @@ void CGameFramework::BuildObjects()
 			CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[0], NULL, 1));
 
 
-	for (int i = 0; i < 3; i++) {
+
+
+	for (int i{}; i < 3; ++i) {
 		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
 	}
 
 	pMonsterModel[3].push(
-		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 4));
-
-	/*for (int i = 0; i <= 2; ++i) {
-		for (int j{}; j < 10; ++j) {
-			pMonsterModel[i].push(
-				CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[i], NULL, i + 1));
-		}
-	}
-
-	for (int i = 0; i < 10; i++) {
-		MagiciansHat.push(CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), "Model/Warlock_cap.bin", NULL, 7));
-	}*/
+		CGameObject::LoadGeometryAndAnimationFromFile(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), binFileNames[3], NULL, 1));
 
 
-#ifdef _WITH_TERRAIN_PLAYER
 	m_pPlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
+
 
 	m_pPlayer->AnimationControllers[0]->SetCallbackKeys(1, 1);
 	//m_pPlayer->AnimationControllers[0]->SetCallbackKeys(2, 1);
@@ -668,10 +675,9 @@ void CGameFramework::BuildObjects()
 	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(3, pAnimationCallbackHandler);
 	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(4, pAnimationCallbackHandler);
 	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
-#else
-	CAirplanePlayer* pPlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL);
-	pPlayer->SetPosition(XMFLOAT3(425.0f, 240.0f, 640.0f));
-#endif
+
+
+
 
 
 	m_pStage->m_pPlayer = m_pPlayer;
@@ -680,11 +686,11 @@ void CGameFramework::BuildObjects()
 
 	Players.push_back(m_pPlayer);
 
-	for (int i = 0; i < 2; i++) {
+	for (int i{}; i < 2; ++i) {
 		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 		Players.push_back(pAirplanePlayer);
 	}
-	CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
+	//CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
 
 
 	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
@@ -788,9 +794,11 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos)
 
 void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 {
-	// 이 함수에서 몬스터를 동적 할당하여 소환함
+	// ?? ??????? ????? ???? ?????? ?????
 	if (pMonsterModel[type].empty()) {
-		cout << "생성실패\n";
+
+		cout << "????????\n";
+
 		return;
 	}
 
@@ -799,12 +807,14 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 	CLoadedModelInfo* Model = pMonsterModel[type].front();
 
 
-	// Client's monster speed = Server's monster speed * 3 / 10	-> 클라는 30ms, 서버는 100ms 주기로 업데이트하기 때문
+	// Client's monster speed = Server's monster speed * 3 / 10	-> ???? 30ms, ?????? 100ms ???? ?????????? ????
 	pMonsterModel[type].pop();
 	switch (type)
 	{
+
 	case 0: {
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //손에 칼	
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); //�տ� Į	
+
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -821,9 +831,11 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 
 		break;
+
 	}
 	case 1: {
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//뼈다귀 다리
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4);//���ٱ� �ٸ�
+
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -839,9 +851,11 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->HP = 150;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
+
 	}
 	case 2: {
-		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // 마술사
+		Mon = new CMonster(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), Model, 4); // ������
+
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(0, 0);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(1, 1);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(2, 2);
@@ -875,17 +889,19 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(5, 5);
 		Mon->m_pSkinnedAnimationController->SetTrackAnimationSet(6, 6);
 
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);//아이들
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);//뛰기
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//공격
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);//사망
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//점프
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//피격
-		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//걷기
+
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(0, true);//���̵�
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(1, false);//�ٱ�
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);//����
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);//���
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(4, false);//����
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//�ǰ�
+		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//�ȱ�
 
 		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 30,30,30 });
 		Mon->speed = 12.f;
 		Mon->HP = 2000;
+
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
 		break;
 	}
@@ -980,11 +996,13 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 
+
 	if (m_pPlayer->gun_hit)
 		bloodTime += fTimeElapsed;
 	if (bloodTime > 0.1f)
+
 	{
-		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//피
+		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//??
 		damagedMon = -1;
 		m_pPlayer->gun_hit = 0;
 		bloodTime = 0.f;
@@ -995,18 +1013,33 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
 		{
 			plTime[i] += fTimeElapsed;
-			if (plTime[i] > 0.2f)
+			if (0.2f < plTime[i])
 			{
-				m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//피
+				m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//??
 				plTime[i] = 0.f;
 			}
 		}
 	}
 
+	//if (m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && !m_pStage->blur)
+	////if (4800 > m_pPlayer->HP && 4500 > m_pPlayer->HP &&!m_pStage->blur)
+	//{
+	//	m_pStage->blur = true;
+	//	//cout << "blur" << endl;
+	//}
+
+	//blurTime += fTimeElapsed;
+	//if (10.f < blurTime)
+	//{
+	//	m_pStage->blur = false;//??
+	//	blurTime = 0.f;
+	//}
+
+
 	popUpTime += fTimeElapsed;
 	if (popUpTime > 3.f)
 	{
-		m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//팝업
+		m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//???
 		popUpTime = 0.f;
 	}
 }
@@ -1041,17 +1074,18 @@ void CGameFramework::MoveToNextFrame()
 
 void CGameFramework::FrameAdvance()
 {
-	m_GameTimer.Tick(30.0f);//30프레임
+	m_GameTimer.Tick(30.0f);//30??????
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
 	// Play sound
-	sound[1].Play();//오프닝
+	sound[1].Play();//??????
 
 	for (auto& player : Players) {
 		if (player->c_id > -1) {
 			player->Update(fTimeElapsed);
+
 			m_pStage->CheckMoveObjectsCollisions(fTimeElapsed, player, m_pStage->Monsters, Players);
-			// 문과의 충돌처리
+			// ������ �浹ó��
 			m_pStage->CheckDoorCollisions(fTimeElapsed, player);
 			m_pStage->CheckObjectByObjectCollisions(fTimeElapsed, player);
 			m_pStage->Lighthing(player);
@@ -1059,6 +1093,7 @@ void CGameFramework::FrameAdvance()
 			if (player->onAct == false)
 				player->processAnimation();
 			player->Deceleration(fTimeElapsed);
+
 		}
 	}
 
@@ -1068,15 +1103,15 @@ void CGameFramework::FrameAdvance()
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 	}
 
-	// hWnd는 게임 창의 윈도우 핸들입니다.
+	// hWnd?? ???? a?? ?????? ???????.
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
 
-	// rcWindow 변수에는 윈도우 창의 위치와 크기가 저장됩니다.
+	// rcWindow ???????? ?????? a?? ????? ??? ???????.
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
-	if (!lobby[0])
+	if (loginSign[1] && !lobby[0])
 	{
 		if (false == onFullScreen)
 		{
@@ -1143,10 +1178,10 @@ void CGameFramework::FrameAdvance()
 	switch (gameButton)
 	{
 	case 1://play
-		sound[1].Stop();//오프닝
-		sound[0].Play();//인게임
+		sound[1].Stop();//??????
+		sound[0].Play();//?????
 
-		ShowCursor(false);//마우스
+		ShowCursor(false);//????
 		break;
 	case 2://exit
 		PostQuitMessage(0);
@@ -1163,6 +1198,9 @@ void CGameFramework::FrameAdvance()
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
+
+//D3D12 ERROR: ID3D12CommandList::DrawIndexedInstanced: The render target format in slot 0 does not match that specified by the current pipeline state. (pipeline state = R8G8B8A8_UNORM, render target format = R32_FLOAT, RTV ID3D12Resource* = 0x000001B914EA31A0:'Unnamed ID3D12Resource Object') [ EXECUTION ERROR #613: RENDER_TARGET_FORMAT_MISMATCH_PIPELINE_STATE]
+	
 	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, m_pStage->Monsters, Players);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -1178,7 +1216,7 @@ void CGameFramework::FrameAdvance()
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBufferIndex * ::gnRtvDescriptorIncrementSize);
 
-	float pfClearColor[4] = { 0.31f, 0.74f, 0.88f, 1.0f };// 하늘 색깔
+	float pfClearColor[4] = { 0.31f, 0.74f, 0.88f, 0.0f };// ??? ????
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
@@ -1188,7 +1226,7 @@ void CGameFramework::FrameAdvance()
 
 
 
-	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//게임오버 
+	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//??????? 
 	{
 		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
 			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
@@ -1198,8 +1236,9 @@ void CGameFramework::FrameAdvance()
 			lobby[2] = false;
 			gameEnd = true;
 
-			sound[0].Stop();//인게임
-			sound[2].Play();//클로징
+			sound[0].Stop();//�ΰ���
+			sound[2].Play();//Ŭ��¡
+
 		}
 	}
 
@@ -1216,6 +1255,13 @@ void CGameFramework::FrameAdvance()
 			m_pStage->hpUi[0]->SetPosition(50, -55, 178);
 			m_pStage->hpUi[1]->SetPosition(50, -55, 346);
 		}
+
+
+		if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
+			m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
+
+		if (m_pStage->m_ppShaders[0]->m_pd3dPipelineState)
+			m_pd3dCommandList->SetPipelineState(m_pStage->m_ppShaders[0]->m_pd3dPipelineState);
 
 		m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
 		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
@@ -1290,13 +1336,35 @@ void CGameFramework::FrameAdvance()
 	else if (lobby[0] && lobby[1] && lobby[2])
 		gameButton = 1;
 
-	if (m_pStage)
-		m_pStage->Render(m_pd3dCommandList, lobby[2], m_pCamera);
+	m_pCamera->SetViewportsAndScissorRects(m_pd3dCommandList);
+	m_pCamera->UpdateShaderVariables(m_pd3dCommandList);
 
+	if (m_pStage->m_pShadowShader && lobby[2])
+	{
+		if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);
+
+		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
+	}
+
+	if (m_pStage)
+		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_pCamera);
+
+	if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
+		m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
+
+	if (m_pStage->m_pShadowShader && lobby[2])
+	{
+		if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);
+
+		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, false);
+	}
 
 
 	int m = -1;
 	if (!m_pStage->Monsters.empty())
+
 	{
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
@@ -1305,11 +1373,14 @@ void CGameFramework::FrameAdvance()
 		{
 			for (m = 0; m < m_pStage->Monsters.size(); ++m)
 			{
+
 				if (59 == m_pStage->Monsters[m]->c_id)
 					//if (0 == Monsters[m]->c_id)//pat
+
 				{
 					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
+
 						if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
 							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
 							&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
@@ -1319,6 +1390,7 @@ void CGameFramework::FrameAdvance()
 						}
 						else if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
 							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+
 						{
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
@@ -1333,10 +1405,9 @@ void CGameFramework::FrameAdvance()
 	}
 
 
+
 	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
 
-	if (m_pStage->m_pShadowShader && lobby[2])
-		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights);
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
@@ -1356,7 +1427,6 @@ void CGameFramework::FrameAdvance()
 			catch (const exception& e) { cout << "MONSTER HP BAR LOAD ERROR\n"; }
 		}
 	}
-
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -1394,9 +1464,9 @@ void CGameFramework::FrameAdvance()
 
 	unsigned long frame = m_GameTimer.GetFrameRate(m_pszFrameRate + 12, 37);
 
-	//int nKeyFrame = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_nKeyFrames;//몬스터3번 애니메이션번호
-	//float clipMoStartTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[0];//키프레임0번
-	//float clipMoEndTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[nKeyFrame-1];//마지막 키프레임
+	//int nKeyFrame = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_nKeyFrames;//????3?? ?????????
+	//float clipMoStartTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[0];//???????0??
+	//float clipMoEndTime = pMonsterModel[3].front()->m_pAnimationSets->m_pAnimationSets[6]->m_pfKeyFrameTimes[nKeyFrame-1];//?????? ???????
 
 	//float cycleTime = (clipMoEndTime - clipMoStartTime) / frame * 60;// frame : frameSpeed, 60 : nFramePerSecond
 	//

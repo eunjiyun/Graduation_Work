@@ -49,10 +49,10 @@ private:
 	UINT							m_nTextureType;
 
 	int								m_nTextures = 0;
-	ID3D12Resource** m_ppd3dTextures = NULL;
+	
 	ID3D12Resource** m_ppd3dTextureUploadBuffers;
 
-	UINT* m_pnResourceTypes = NULL;
+	
 
 	DXGI_FORMAT* m_pdxgiBufferFormats = NULL;
 	int* m_pnBufferElements = NULL;
@@ -64,10 +64,33 @@ private:
 	int								m_nSamplers = 0;
 	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dSamplerGpuDescriptorHandles = NULL;
 
+	int* m_pnGraphicsSrvRootParameterIndices = NULL; //Graphics Root Parameters Index of Root Signature
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dGraphicsSrvRootParameterGpuDescriptorHandles = NULL; //Start SRV Descriptor for Graphics Root Parameters
+	int* m_pnComputeSrvRootParameterIndices = NULL;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dComputeSrvRootParameterGpuDescriptorHandles = NULL;
+	int* m_pnComputeUavRootParameterIndices = NULL;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dComputeUavRootParameterGpuDescriptorHandles = NULL;
+	int								m_nComputeSrvRootParameters = 0;
+	int* m_pnComputeSrvRootParameterDescriptors = 0;
+
+	int								m_nComputeUavRootParameters = 0;
+	int* m_pnComputeUavRootParameteDescriptors = 0;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dComputeSrvGpuDescriptorHandles = NULL;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dComputeUavGpuDescriptorHandles = NULL;
+	int								m_nComputeSrvGpuHandles = 0;
+	int								m_nComputeUavGpuHandles = 0;
+	int								m_nGraphicsSrvGpuHandles = 0;
+	D3D12_GPU_DESCRIPTOR_HANDLE* m_pd3dGraphicsSrvGpuDescriptorHandles = NULL;
+	int								m_nGraphicsSrvRootParameters = 0; //Number of Graphics Root Parameters
+	int* m_pnGraphicsSrvRootParameterDescriptors = NULL; //Number of Descriptors Per Graphics Root Parameter
+
 public:
 	int 							m_nRow = 0;
 	int 							m_nCol = 0;
 	bool m_bActive[3] = { false,false,false };
+
+	ID3D12Resource** m_ppd3dTextures = NULL;
+	UINT* m_pnResourceTypes = NULL;
 
 public:
 	void AddRef() { m_nReferences++; }
@@ -100,6 +123,25 @@ public:
 	void ReleaseUploadBuffers();
 
 	void AnimateRowColumn(XMFLOAT3&,float fTime = 0.0f);
+
+	void UpdateGraphicsSrvShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nIndex);
+
+	void UpdateComputeSrvShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nIndex);
+
+	void UpdateComputeUavShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList, int nIndex);
+
+	void SetComputeSrvRootParameter(int nIndex, int nRootParameterIndex, int nGpuHandleIndex, int nSrvDescriptors);
+
+	void SetComputeUavRootParameter(int nIndex, int nRootParameterIndex, int nGpuHandleIndex, int nUavDescriptors);
+
+	void SetComputeSrvGpuDescriptorHandle(int nHandleIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle);
+
+	D3D12_UNORDERED_ACCESS_VIEW_DESC GetUnorderedAccessViewDesc(int nIndex);
+
+	void SetComputeUavGpuDescriptorHandle(int nHandleIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dUavGpuDescriptorHandle);
+	void SetGraphicsSrvRootParameter(int nIndex, int nRootParameterIndex, int nGpuHandleIndex, int nSrvDescriptors);
+	void SetGraphicsSrvGpuDescriptorHandle(int nHandleIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle);
+	ID3D12Resource* CreateTexture(ID3D12Device* pd3dDevice, UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE* pd3dClearValue, UINT nResourceType, UINT nIndex);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -401,7 +443,6 @@ public:
 	ID3D12Resource* m_pd3dcbGameObject = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObject = NULL;
 
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 	BoundingBox			m_xmOOBB = BoundingBox();
 	BoundingOrientedBox			obBox = BoundingOrientedBox();
 
@@ -589,10 +630,10 @@ public:
 class CDoor : public CGameObject
 {
 public:
-	CLoadedModelInfo* _Model;
-
 	CDoor(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, int nAnimationTracks);
 	virtual ~CDoor();
+
+	CLoadedModelInfo* _Model;
 };
 
 class CMultiSpriteObject : public CGameObject
@@ -606,7 +647,6 @@ public:
 
 	void Animate(float fTimeElapsed,bool,  ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 };
-
 
 
 struct WAVEHEADER

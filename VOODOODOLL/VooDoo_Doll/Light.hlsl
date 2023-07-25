@@ -1,6 +1,11 @@
 //--------------------------------------------------------------------------------------
-#define MAX_LIGHTS				37
-#define MAX_MATERIALS			16 
+//<<<<<<< HEAD
+//#define MAX_LIGHTS				37
+//#define MAX_MATERIALS			16 
+//=======
+#define MAX_LIGHTS				32
+#define MAX_MATERIALS		16 //10
+//>>>>>>> parent of d2508f9 (Fix Texture)
 
 #define POINT_LIGHT			1
 #define SPOT_LIGHT			2
@@ -180,7 +185,7 @@ float4 Lighting(float3 vPosition, float3 vNormal)
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
 
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	[unroll(MAX_LIGHTS)] for (int i = 0; i < gnLights; i++)
+	[unroll(MAX_LIGHTS)] for (int i = 0; i < gnLights; ++i)
 	{
 		if (gLights[i].m_bEnable)
 		{
@@ -214,7 +219,7 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 	[unroll]
 
 
-	for (int i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	for (int i = 0; i < MAX_SHADOW_LIGHTS; ++i)
 	{
 		if (gLights[i].m_bEnable)
 		{

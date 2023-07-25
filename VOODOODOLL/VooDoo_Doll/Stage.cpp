@@ -11,11 +11,15 @@ D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dCbvCPUDescriptorStartHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dCbvGPUDescriptorStartHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dSrvCPUDescriptorStartHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dSrvGPUDescriptorStartHandle;
+D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dUavCPUDescriptorStartHandle;
+D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dUavGPUDescriptorStartHandle;
 
 D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dCbvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dCbvGPUDescriptorNextHandle;
 D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dSrvCPUDescriptorNextHandle;
 D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dSrvGPUDescriptorNextHandle;
+D3D12_CPU_DESCRIPTOR_HANDLE	CStage::m_d3dUavCPUDescriptorNextHandle;
+D3D12_GPU_DESCRIPTOR_HANDLE	CStage::m_d3dUavGPUDescriptorNextHandle;
 
 CStage::CStage()
 {
@@ -63,14 +67,10 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.73f, 0.73f, 0.73f, 1.0f);
 	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
-	/*m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.6f, 0.6f, 0.6f, 1.0f);
-	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.0f);*/
-	m_pLights[0].m_xmf3Position = XMFLOAT3(512 + 50, 200 - 60.0f, 2300);//-100 
-	//m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -0.0f, 0.0f);
+	m_pLights[0].m_xmf3Position = XMFLOAT3(562, 140, 2300);
 	m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 
-	m_pLights[1].m_bEnable = false;//true
+	m_pLights[1].m_bEnable = false;
 	m_pLights[1].m_nType = SPOT_LIGHT;
 	m_pLights[1].m_fRange = 500.0f;
 	m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
@@ -105,8 +105,6 @@ void CStage::BuildDefaultLightsAndMaterials()
 	m_pLights[3].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
 	m_pLights[3].m_xmf3Position = XMFLOAT3(0.0f, 128.0f, 0.0f);
 	m_pLights[3].m_xmf3Direction = XMFLOAT3(+1.0f, -1.0f, 0.0f);
-	//m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-
 
 
 	{
@@ -162,10 +160,26 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 900, 0);
+
+
+	m_pd3dComputeRootSignature = CreateComputeRootSignature(pd3dDevice);
+	m_nComputeShaders = 1;
+	m_ppComputeShaders = new CComputeShader * [m_nComputeShaders];
+	pComputeShader = new CGaussian2DBlurComputeShader();
+	pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature);
+	m_ppComputeShaders[0] = pComputeShader;
+
+
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 2000); //SuperCobra(17), Gunship(2), Player:Mi24(1), Angrybot()//76
+	m_nGraphicsShaders = 1;
+	m_ppGraphicsShaders = new CGraphicsShader * [m_nGraphicsShaders];
+	pGraphicsShader = new CTextureToFullScreenShader(pComputeShader->m_pTexture);
+	pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
+	m_ppGraphicsShaders[0] = pGraphicsShader;
+
 
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
 
@@ -173,7 +187,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	pBoxShader = new CBoxShader();
-
 
 	m_nShaders = 1;
 	m_ppShaders = new CShader * [m_nShaders];
@@ -184,7 +197,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0] = pObjectShader;
 
 
-
 	m_pLights = new LIGHT[MAX_LIGHTS];
 	BuildDefaultLightsAndMaterials();//조명
 
@@ -192,6 +204,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	int iMaterialCheck = 0;
 
 	CTexture* ppTextures[39];
+
 
 	ppTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wall_wood_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
@@ -291,10 +304,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 
-	
+
 
 
 	ppTextures[28] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+
 	ppTextures[28]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/hp.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[29] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -306,8 +320,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[31] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[31]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Puppet_add_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
+
 	ppTextures[32] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[32]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Explosion_6x6.dds", RESOURCE_TEXTURE2D, 0);
+
 
 	ppTextures[33] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_LOADING.dds", RESOURCE_TEXTURE2D, 0);
@@ -338,14 +354,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup4.dds", RESOURCE_TEXTURE2D, 0);
 
+
 	// 캔들 오브젝트
 	/*pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
 
 	pCandleTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);
+	pCandleTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);*/
 
-	pCandleTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	/*pCandleTextures[2] = new CTexture(3, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	pCandleTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
@@ -356,6 +373,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	pCandleTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pCandleTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_Off.dds", RESOURCE_TEXTURE2D, 0);
+
+
+	
+	
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
@@ -372,23 +393,26 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppShaders[0]->gameScreen[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/lobby1.dds", RESOURCE_TEXTURE2D, 0);
 
+
 	m_ppShaders[0]->gameScreen[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/lobby2.dds", RESOURCE_TEXTURE2D, 0);
 
+
 	for (int a{}; a < 39; ++a)
 	{
+
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
 	}
 	for (int a{}; a < 6; ++a)
 	{
-		if (2<a )
+		if (2 < a)
 			CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
 	}
+
 	for (int a{}; a < 2; ++a)
-	{
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
-	}
-	
+
+
 	for (int u{}; u < 2; ++u)
 	{
 		CMaterial* pMaterial = new CMaterial(1);
@@ -405,9 +429,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		pMaterial->SetTexture(ppTextures[30]);
 		userId[u]->m_ppMaterials[0] = pMaterial;
 	}
-	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
+	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-		for (int k = 0; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
+		for (int k{}; k < m_ppShaders[0]->m_ppObjects[i]->m_nMaterials; k++)
 		{
 			CMaterial* pMaterial = new CMaterial(1);
 			pMaterial->SetMaterialType(MATERIAL_ALBEDO_MAP);
@@ -541,7 +565,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				0 == strcmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) || 0 == strcmp("Book_03_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) || 0 == strcmp("Book_04_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
+
+
 				pMaterial->SetTexture(ppTextures[22]);
+
+
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -585,12 +613,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				pMaterial->SetTexture(pCandleTextures[5]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
+			//<<<<<<< HEAD
 			if (0 == strcmp("ButtonBottom", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Button", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(pButtonTextures[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
+			//=======
+			//>>>>>>> parent of d2508f9 (Fix Texture)
 
 			++iMaterialCheck;
 		}
@@ -672,16 +703,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		m_ppShaders[0]->popUpMat[i] = new CMaterial(1);
 		m_ppShaders[0]->popUpMat[i]->SetMaterialType(MATERIAL_ALBEDO_MAP);
 
-		if(2>i)
-			m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[2*i+2]);
-		else if(2==i)
+		if (2 > i)
+			m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[2 * i + 2]);
+		else if (2 == i)
 			m_ppShaders[0]->popUpMat[i]->SetTexture(ppTextures[7]);
-		else if(3==i)
+		else if (3 == i)
 			m_ppShaders[0]->popUpMat[i]->SetTexture(pButtonTextures[1]);
 	}
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials = new CMaterial * [1];
 	pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0] = m_ppShaders[0]->popUpMat[1];
 	pMultiSpriteObjectShader->obj[10]->texMat.z = 2;
+
 
 	for (int i{}; i < 2; ++i)
 	{
@@ -696,8 +728,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
+
 	{
+
 		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
+
 
 
 		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
@@ -708,13 +743,22 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			//cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
+
+		//<<<<<<< HEAD
+
 		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			//=======
+					//if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			//>>>>>>> parent of d2508f9 (Fix Texture)
 			388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[1].push_back(m_ppShaders[0]->m_ppObjects[i]);
 			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
+
+		//<<<<<<< HEAD
+
 		if (408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 414 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			416 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
@@ -724,11 +768,17 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				BoundingOrientedBox(m_ppShaders[0]->m_ppObjects[i]->GetPosition(), XMFLOAT3(3.f, 3.f, 2.5f), XMFLOAT4(0, 0, 0, 1));
 		}
 
-		//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
-		/*cout << "Center: ";
-		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
-		cout << "Extents: ";
-		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
+		//=======
+
+
+				//m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
+		//>>>>>>> parent of d2508f9 (Fix Texture)
+
+				//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+				/*cout << "Center: ";
+				Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
+				cout << "Extents: ";
+				Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -738,12 +788,16 @@ void CStage::ReleaseObjects()
 {
 	if (m_pd3dGraphicsRootSignature)
 		m_pd3dGraphicsRootSignature->Release();
+
 	if (m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCbvSrvDescriptorHeap->Release();
 
+	if (m_pd3dComputeRootSignature)
+		m_pd3dComputeRootSignature->Release();
+
 	if (m_ppShaders)
 	{
-		for (int i = 0; i < m_nShaders; i++)
+		for (int i{}; i < m_nShaders; ++i)
 		{
 			m_ppShaders[i]->ReleaseShaderVariables();
 			m_ppShaders[i]->ReleaseObjects();
@@ -765,7 +819,7 @@ void CStage::ReleaseObjects()
 	}
 	if (m_pShadowShader)
 	{
-		if (false == exitGame)
+		if (!exitGame)
 		{
 			m_pShadowShader->ReleaseShaderVariables();
 			m_pShadowShader->ReleaseObjects();
@@ -792,10 +846,31 @@ void CStage::ReleaseObjects()
 		pBoxShader->ReleaseShaderVariables();
 		pBoxShader->Release();
 
-		if (false == exitGame)
+		if (!exitGame)
 		{
 			pBoxShader->ReleaseObjects();
 		}
+	}
+
+	if (m_ppGraphicsShaders)
+	{
+		for (int i{}; i < m_nGraphicsShaders; ++i)
+		{
+			m_ppGraphicsShaders[i]->ReleaseShaderVariables();
+			m_ppGraphicsShaders[i]->ReleaseObjects();
+			m_ppGraphicsShaders[i]->Release();
+		}
+		delete[] m_ppGraphicsShaders;
+	}
+
+	if (m_ppComputeShaders)
+	{
+		for (int i{}; i < m_nComputeShaders; ++i)
+		{
+			m_ppComputeShaders[i]->ReleaseShaderVariables();
+			m_ppComputeShaders[i]->Release();
+		}
+		delete[] m_ppComputeShaders;
 	}
 
 	ReleaseShaderVariables();
@@ -807,7 +882,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[8];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -845,6 +920,12 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[5].RegisterSpace = 0;
 	pd3dDescriptorRanges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	//pd3dDescriptorRanges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//pd3dDescriptorRanges[5].NumDescriptors = 1;
+	//pd3dDescriptorRanges[5].BaseShaderRegister = 2; //t2: Texture2D
+	//pd3dDescriptorRanges[5].RegisterSpace = 0;
+	//pd3dDescriptorRanges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	pd3dDescriptorRanges[6].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[6].NumDescriptors = 1;
 	pd3dDescriptorRanges[6].BaseShaderRegister = 12; //t12: gtxtEmissionTexture
@@ -857,8 +938,27 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[7].RegisterSpace = 0;
 	pd3dDescriptorRanges[7].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	pd3dDescriptorRanges[8].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[8].NumDescriptors = 1;
+	pd3dDescriptorRanges[8].BaseShaderRegister = 0; //t0: Texture2D
+	pd3dDescriptorRanges[8].RegisterSpace = 0;
+	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[15];
+	pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[9].NumDescriptors = 1;
+	pd3dDescriptorRanges[9].BaseShaderRegister = 1; //t1: Texture2D
+	pd3dDescriptorRanges[9].RegisterSpace = 0;
+	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	//pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//pd3dDescriptorRanges[10].NumDescriptors = 1;
+	//pd3dDescriptorRanges[10].BaseShaderRegister = 2; //t2: Texture2D
+	//pd3dDescriptorRanges[10].RegisterSpace = 0;
+	//pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -906,6 +1006,11 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[8].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[5]);
 	pd3dRootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	//pd3dRootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//pd3dRootParameters[8].DescriptorTable.NumDescriptorRanges = 1;
+	//pd3dRootParameters[8].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[5]; //Texture2D
+	//pd3dRootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
 	pd3dRootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[9].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[9].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[6]);
@@ -936,6 +1041,23 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[14].Constants.ShaderRegister = 3; //Material
 	pd3dRootParameters[14].Constants.RegisterSpace = 0;
 	pd3dRootParameters[14].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[15].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[15].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[15].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[8]; //Texture2D
+	pd3dRootParameters[15].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[16].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9]; //Texture2D
+	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	//pd3dRootParameters[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//pd3dRootParameters[17].DescriptorTable.NumDescriptorRanges = 1;
+	//pd3dRootParameters[17].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[10]; //Texture2D
+	//pd3dRootParameters[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];
 
@@ -993,6 +1115,8 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dSamplerDescs[3].RegisterSpace = 0;
 	pd3dSamplerDescs[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+
+
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
@@ -1045,11 +1169,11 @@ void CStage::ReleaseShaderVariables()
 
 void CStage::ReleaseUploadBuffers()
 {
-	for (int i = 0; i < m_nShaders; i++)
+	for (int i{}; i < m_nShaders; ++i)
 		m_ppShaders[i]->ReleaseUploadBuffers();
 
 	pMultiSpriteObjectShader->ReleaseUploadBuffers();
-	
+
 	if (m_pShadowShader)
 		m_pShadowShader->ReleaseUploadBuffers();
 
@@ -1061,21 +1185,36 @@ void CStage::ReleaseUploadBuffers()
 		hpUi[0]->ReleaseUploadBuffers();
 		hpUi[1]->ReleaseUploadBuffers();
 	}
+
+	for (int i{}; i < m_nGraphicsShaders; ++i)
+		m_ppGraphicsShaders[i]->ReleaseUploadBuffers();
+
+	for (int i{}; i < m_nComputeShaders; ++i)
+		m_ppComputeShaders[i]->ReleaseUploadBuffers();
 }
 
-void CStage::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
+void CStage::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews)
 {
 	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
-	d3dDescriptorHeapDesc.NumDescriptors = nConstantBufferViews + nShaderResourceViews; //CBVs + SRVs 
+	d3dDescriptorHeapDesc.NumDescriptors = nConstantBufferViews + nShaderResourceViews + nUnorderedAccessViews; //CBVs + SRVs + UAVs
 	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	d3dDescriptorHeapDesc.NodeMask = 0;
-	pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dCbvSrvDescriptorHeap);
+	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void**)&m_pd3dCbvSrvDescriptorHeap);
 
-	m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_d3dCbvGPUDescriptorNextHandle = m_d3dCbvGPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	m_d3dSrvCPUDescriptorNextHandle.ptr = m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
-	m_d3dSrvGPUDescriptorNextHandle.ptr = m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
+	m_d3dCbvCPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_d3dCbvGPUDescriptorStartHandle = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvUavDescriptorIncrementSize * nConstantBufferViews);
+	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvUavDescriptorIncrementSize * nConstantBufferViews);
+	m_d3dUavCPUDescriptorStartHandle.ptr = m_d3dSrvCPUDescriptorStartHandle.ptr + (::gnCbvSrvUavDescriptorIncrementSize * nShaderResourceViews);
+	m_d3dUavGPUDescriptorStartHandle.ptr = m_d3dSrvGPUDescriptorStartHandle.ptr + (::gnCbvSrvUavDescriptorIncrementSize * nShaderResourceViews);
+
+	m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
+	m_d3dCbvGPUDescriptorNextHandle = m_d3dCbvGPUDescriptorStartHandle;
+	m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
+	m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
+	m_d3dUavCPUDescriptorNextHandle = m_d3dUavCPUDescriptorStartHandle;
+	m_d3dUavGPUDescriptorNextHandle = m_d3dUavGPUDescriptorStartHandle;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE CStage::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)
@@ -1084,7 +1223,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE CStage::CreateConstantBufferViews(ID3D12Device* pd3d
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
 	d3dCBVDesc.SizeInBytes = nStride;
-	for (int j = 0; j < nConstantBufferViews; j++)
+	for (int j{}; j < nConstantBufferViews; ++j)
 	{
 		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
 		m_d3dCbvCPUDescriptorNextHandle.ptr = m_d3dCbvCPUDescriptorNextHandle.ptr + ::gnCbvSrvDescriptorIncrementSize;
@@ -1102,7 +1241,7 @@ void CStage::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 	if (pTexture)
 	{
 		int nTextures = pTexture->GetTextures();
-		for (int i = 0; i < nTextures; i++)
+		for (int i{}; i < nTextures; ++i)
 		{
 			ID3D12Resource* pShaderResource = pTexture->GetResource(i);
 			D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = pTexture->GetShaderResourceViewDesc(i);
@@ -1113,7 +1252,7 @@ void CStage::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 		}
 	}
 	int nRootParameters = pTexture->GetRootParameters();
-	for (int j = 0; j < nRootParameters; j++)
+	for (int j{}; j < nRootParameters; ++j)
 		pTexture->SetRootParameterIndex(j, nRootParameterStartIndex + j);
 }
 
@@ -1144,12 +1283,8 @@ void CStage::AnimateObjects(float fTimeElapsed)
 	m_fElapsedTime = fTimeElapsed;
 
 	for (int i{}; i < m_nShaders; ++i)
-	{
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	}
 
-	
-	
 	if (m_pLights)
 	{
 		m_pLights[4].m_xmf3Position = m_pPlayer->obBox.Center;
@@ -1157,6 +1292,9 @@ void CStage::AnimateObjects(float fTimeElapsed)
 
 		m_pLights[1].m_bEnable = false;
 	}
+
+	//for (int i{}; i < m_nGraphicsShaders; ++i)
+		//m_ppGraphicsShaders[i]->AnimateObjects(fTimeElapsed);
 
 	static float fAngle = 0.0f;
 	fAngle += 1.50f;
@@ -1187,25 +1325,22 @@ void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 
-void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool login, CCamera* pCamera)
+void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, CCamera* pCamera)
 {
-
 	if (m_pd3dGraphicsRootSignature)
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-	if (m_pd3dCbvSrvDescriptorHeap)
-		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
+	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 
 	if (m_pDepthRenderShader)
 		m_pDepthRenderShader->UpdateShaderVariables(pd3dCommandList);
-
-	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);//����
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
+
+	if (m_ppShaders[0]->m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_ppShaders[0]->m_pd3dPipelineState);
 
 	if (login)
 	{
@@ -1227,8 +1362,44 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, bool login, CCam
 			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 
-	//m_ppShaders[1]->Render(pd3dCommandList, pCamera);
-	
+	if (blur)
+	{
+		/*D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+		d3dResourceBarrier.Transition.pResource = pCurrentFrameTexture[0];
+		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
+
+
+
+		pComputeShader->pCurrentFrameTexture = pCurrentFrameTexture;
+
+
+		/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
+
+		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature);
+
+		pGraphicsShader->m_pTexture = pComputeShader->m_pTexture;
+		if (pGraphicsShader->m_pTexture) pGraphicsShader->m_pTexture->AddRef();
+		pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
+
+		if (m_pd3dComputeRootSignature) pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
+		m_ppComputeShaders[0]->Dispatch(pd3dCommandList, 0);
+	}
+
+	if (m_pd3dGraphicsRootSignature)
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+
+	//D3D12 ERROR: ID3D12CommandList::DrawInstanced: The descriptor heap (0x0000025D211D2CE0:'Unnamed ID3D12DescriptorHeap Object') containing handle 0x25d211d32d8 is different from currently set descriptor heap 0x0000025D2122E430:'Unnamed ID3D12DescriptorHeap Object'. [ EXECUTION ERROR #554: SET_DESCRIPTOR_HEAP_INVALID]
+	if (blur)
+		m_ppGraphicsShaders[0]->Render(pd3dCommandList, pCamera, NULL);
 }
 
 
@@ -1239,7 +1410,7 @@ void CStage::CheckObjectByObjectCollisions(float fTimeElapsed, CPlayer*& pl)
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 
 	pl->onFloor = false;
-	for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
 
@@ -1408,7 +1579,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 		bool collide = false;
 		while (Vector3::Length(Vector3::Subtract(xmf3Position, ray_castPos)) > 5.f)
 		{
-			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+			for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 			{
 				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 
@@ -1489,6 +1660,77 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 
 }
 
+XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
+{
+	float Dot = Vector3::DotProduct(MovVec, ObjLook);
+	XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
+	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
+	return SlidingVec;
+}
+
+// 409, 411, 413, 415, 417
+
+void CStage::Pushing_Button(CPlayer*& pl)
+{
+	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
+	int iResult = 0; // 틀릴 경우 -1
+
+	for (int i = 0; i < 5; i++)
+	{
+		BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
+
+		if (false == pPuzzles[5][i]->m_bGetItem)
+		{
+			if (pl->obBox.Intersects(oBox))
+			{
+				pPuzzles[5][i]->m_bGetItem = true;
+				m_iHit[m_iHitNum] = pPuzzles[5][i]->m_iObjID;
+				cout << m_iHitNum << "	|" << m_iHit[m_iHitNum] << endl;
+				m_iHitNum++;
+			}
+		}
+
+		if (5 == m_iHitNum)
+		{
+			for (int k = 0; k < 5; k++)
+			{
+				if (iAnswer[k] == m_iHit[k])
+				{
+					iResult++;
+				}
+				else
+				{
+					iResult = -1;
+				}
+			}
+		}
+
+		if (5 == iResult)
+		{
+			cout << "Right!" << endl;
+			b5thDoorPass = true;
+			break;
+		}
+
+		else if (-1 == iResult)
+		{
+			cout << "Lose" << endl;
+
+
+			for (int i = 0; i < 5; i++)
+			{
+				pPuzzles[5][i]->m_bGetItem = false;
+			}
+			m_iHitNum = 0;
+		}
+	}
+
+}
+
+
+
+
+
 void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 {
 	XMFLOAT3 Vel = pl->GetVelocity();
@@ -1562,14 +1804,65 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 	}
 }
 
-XMFLOAT3 CStage::GetReflectVec(XMFLOAT3 ObjLook, XMFLOAT3 MovVec)
-{
-	float Dot = Vector3::DotProduct(MovVec, ObjLook);
-	XMFLOAT3 Nor = Vector3::ScalarProduct(ObjLook, Dot, false);
-	XMFLOAT3 SlidingVec = Vector3::Subtract(MovVec, Nor);
-	return SlidingVec;
-}
+//<<<<<<< HEAD
+//=======
 
+//XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB)
+//{
+//	XMVECTOR xmV1min = XMLoadFloat3(&pBouningBoxA.Center) - XMLoadFloat3(&pBouningBoxA.Extents);
+//	XMVECTOR xmV1max = XMLoadFloat3(&pBouningBoxA.Center) + XMLoadFloat3(&pBouningBoxA.Extents);
+//	XMVECTOR xmV2min = XMLoadFloat3(&pBouningBoxB.Center) - XMLoadFloat3(&pBouningBoxB.Extents);
+//	XMVECTOR xmV2max = XMLoadFloat3(&pBouningBoxB.Center) + XMLoadFloat3(&pBouningBoxB.Extents);
+//
+//	bool bIntersect = XMVector3GreaterOrEqual(xmV1min, xmV2max) || XMVector3GreaterOrEqual(xmV2min, xmV1max);
+//
+//	if (bIntersect)
+//	{
+//		return XMFLOAT3(0, 0, 0); 
+//	}
+//
+//	XMFLOAT3 xmf3Direction = { 0,0,0 };
+//	XMFLOAT3 xmf3Subtraction = { 0,0,0 };
+//
+//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
+//	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
+//	{
+//		xmf3Direction.x = xmf3Subtraction.x;
+//	}
+//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
+//	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
+//	{
+//		xmf3Direction.x = -xmf3Subtraction.x;
+//	}
+//
+//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
+//	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
+//	{
+//		xmf3Direction.y = xmf3Subtraction.y;
+//	}
+//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
+//	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
+//	{
+//		xmf3Direction.y = -xmf3Subtraction.y;
+//	}
+//
+//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
+//	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
+//	{
+//		xmf3Direction.z = xmf3Subtraction.z;
+//	}
+//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
+//	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
+//	{
+//		xmf3Direction.z = -xmf3Subtraction.z;
+//	}
+//
+//	XMStoreFloat3(&xmf3Direction, XMVector3Normalize(XMLoadFloat3(&xmf3Direction)));
+//	return xmf3Direction;
+//}
+//
+//
+//>>>>>>> parent of d2508f9 (Fix Texture)
 void CStage::Lighthing(CPlayer*& pl)
 {
 
@@ -1588,14 +1881,20 @@ void CStage::Lighthing(CPlayer*& pl)
 		}
 	}
 
+	//<<<<<<< HEAD
+	//
 }
-
-void CStage::ChangeTexture(int iState)
-{
-
-}
-
-
+//
+//void CStage::ChangeTexture(int iState)
+//{
+//
+//}
+//
+//
+//=======
+//}
+//
+//>>>>>>> parent of d2508f9 (Fix Texture)
 float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 {
 
@@ -1606,64 +1905,155 @@ float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 	float fDisatnce;
 	XMStoreFloat(&fDisatnce, XMVector3Length(diff));
 	return fDisatnce;
+	//<<<<<<< HEAD
 }
 
 
-// 409, 411, 413, 415, 417
 
-void CStage::Pushing_Button(CPlayer*& pl)
+ID3D12RootSignature* CStage::CreateRootSignature(ID3D12Device* pd3dDevice, D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags, UINT nRootParameters, D3D12_ROOT_PARAMETER* pd3dRootParameters, UINT nStaticSamplerDescs, D3D12_STATIC_SAMPLER_DESC* pd3dStaticSamplerDescs)
 {
-	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
-	int iResult = 0; // 틀릴 경우 -1
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = nRootParameters;
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = nStaticSamplerDescs;
+	d3dRootSignatureDesc.pStaticSamplers = pd3dStaticSamplerDescs;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 
-	for (int i = 0; i < 5; i++)
-	{
-		BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
+	ID3D12RootSignature* pd3dRootSignature = NULL;
 
-		if (false == pPuzzles[5][i]->m_bGetItem)
-		{
-			if (pl->obBox.Intersects(oBox))
-			{
-				pPuzzles[5][i]->m_bGetItem = true;
-				m_iHit[m_iHitNum] = pPuzzles[5][i]->m_iObjID;
-				cout << m_iHitNum << "	|" << m_iHit[m_iHitNum] << endl;
-				m_iHitNum++;
-			}
-		}
+	ID3DBlob* pd3dSignatureBlob = NULL;
+	ID3DBlob* pd3dErrorBlob = NULL;
+	D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
+	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void**)&pd3dRootSignature);
+	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
+	if (pd3dErrorBlob) pd3dErrorBlob->Release();
 
-		if (5 == m_iHitNum)
-		{
-			for (int k = 0; k < 5; k++)
-			{
-				if (iAnswer[k] == m_iHit[k])
-				{
-					iResult++;
-				}
-				else
-				{
-					iResult = -1;
-				}
-			}
-		}
-
-		if (5 == iResult)
-		{
-			cout << "Right!" << endl;
-			b5thDoorPass = true;
-			break;
-		}
-
-		else if (-1 == iResult)
-		{
-			cout << "Lose" << endl;
-
-
-			for (int i = 0; i < 5; i++)
-			{
-				pPuzzles[5][i]->m_bGetItem = false;
-			}
-			m_iHitNum = 0;
-		}
-	}
-
+	return(pd3dRootSignature);
 }
+
+ID3D12RootSignature* CStage::CreateComputeRootSignature(ID3D12Device* pd3dDevice)
+{
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+
+	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[0].NumDescriptors = 1;
+	pd3dDescriptorRanges[0].BaseShaderRegister = 0; //t0: Texture2D
+	pd3dDescriptorRanges[0].RegisterSpace = 0;
+	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = 0;
+
+	pd3dDescriptorRanges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+	pd3dDescriptorRanges[1].NumDescriptors = 1;
+	pd3dDescriptorRanges[1].BaseShaderRegister = 0; //u0: RWTexture2D
+	pd3dDescriptorRanges[1].RegisterSpace = 0;
+	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
+
+	//pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+	//pd3dDescriptorRanges[2].NumDescriptors = 1;
+	//pd3dDescriptorRanges[2].BaseShaderRegister = 1; //u1: Texture2D
+	//pd3dDescriptorRanges[2].RegisterSpace = 0;
+	//pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
+
+	pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[2].NumDescriptors = 1;
+	pd3dDescriptorRanges[2].BaseShaderRegister = 11; //t11: Texture2D
+	pd3dDescriptorRanges[2].RegisterSpace = 0;
+	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[3];
+
+	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture2D
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //RWTexture2D
+	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	//pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;
+	//pd3dRootParameters[2].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //RWTexture2D
+	//pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[2].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //Texture2D
+	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	ID3D12RootSignature* pd3dComputeRootSignature = CreateRootSignature(pd3dDevice, d3dRootSignatureFlags, _countof(pd3dRootParameters), pd3dRootParameters, 0, NULL);
+
+	return(pd3dComputeRootSignature);
+}
+
+
+
+
+
+
+
+//
+//
+//// 409, 411, 413, 415, 417
+//
+//void CStage::Pushing_Button(CPlayer*& pl)
+//{
+//	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
+//	int iResult = 0; // 틀릴 경우 -1
+//
+//	for (int i = 0; i < 5; i++)
+//	{
+//		BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
+//
+//		if (false == pPuzzles[5][i]->m_bGetItem)
+//		{
+//			if (pl->obBox.Intersects(oBox))
+//			{
+//				pPuzzles[5][i]->m_bGetItem = true;
+//				m_iHit[m_iHitNum] = pPuzzles[5][i]->m_iObjID;
+//				cout << m_iHitNum << "	|" << m_iHit[m_iHitNum] << endl;
+//				m_iHitNum++;
+//			}
+//		}
+//
+//		if (5 == m_iHitNum)
+//		{
+//			for (int k = 0; k < 5; k++)
+//			{
+//				if (iAnswer[k] == m_iHit[k])
+//				{
+//					iResult++;
+//				}
+//				else
+//				{
+//					iResult = -1;
+//				}
+//			}
+//		}
+//
+//		if (5 == iResult)
+//		{
+//			cout << "Right!" << endl;
+//			b5thDoorPass = true;
+//			break;
+//		}
+//
+//		else if (-1 == iResult)
+//		{
+//			cout << "Lose" << endl;
+//
+//
+//			for (int i = 0; i < 5; i++)
+//			{
+//				pPuzzles[5][i]->m_bGetItem = false;
+//			}
+//			m_iHitNum = 0;
+//		}
+//	}
+//
+//=======
+//>>>>>>> parent of d2508f9 (Fix Texture)
+//}
+

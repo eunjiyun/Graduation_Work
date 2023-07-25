@@ -56,10 +56,13 @@ Texture2D gtxtSpecularTexture : register(t7);
 Texture2D gtxtNormalTexture : register(t8);
 Texture2D gtxtMetallicTexture : register(t9);
 Texture2D gtxtEmissionTexture : register(t10);
-Texture2D gtxtDetailAlbedoTexture : register(t11);
+Texture2D gtxtPrevFrame : register(t11);
 Texture2D gtxtDetailNormalTexture : register(t12);
+Texture2D gtxtInput : register(t0);
+RWTexture2D<float4> gtxtRWOutput : register(u0);
 
 SamplerState gssWrap : register(s0);
+
 
 struct VS_STANDARD_INPUT
 {
@@ -164,7 +167,7 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	VS_STANDARD_OUTPUT output;
 
 	float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
-	for (int i = 0; i < MAX_VERTEX_INFLUENCES; i++)
+	for (int i=0; i < MAX_VERTEX_INFLUENCES; ++i)
 	{
 		//		mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
 		mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
@@ -253,7 +256,7 @@ VS_SHADOW_MAP_OUTPUT VSShadowMapShadow(VS_LIGHTING_INPUT input)
 	output.normalW = mul(float4(input.normal, 0.0f), gmtxGameObject).xyz;
 
 
-	for (int i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	for (int i = 0; i < MAX_SHADOW_LIGHTS; ++i)
 	{
 		if (gcbToLightSpaces[i].f4Position.w != 0.0f)
 			output.uvs[i] = mul(positionW, gcbToLightSpaces[i].mtxToTexture);
@@ -370,3 +373,64 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input) : SV_TARGET
 
 	return(cColor);
 }
+
+
+
+#define _WITH_2D_GAUSSIAN_BLUR
+#define _WITH_GROUPSHARED_MEMORY
+
+#ifdef _WITH_2D_GAUSSIAN_BLUR
+groupshared float4 gf4GroupSharedCache[2 + 32 + 2][2 + 32 + 2];
+
+static float gfGaussianBlurMask2D[5][5] = {
+	{ 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f },
+	{ 4.0f / 273.0f, 16.0f / 273.0f, 26.0f / 273.0f, 16.0f / 273.0f, 4.0f / 273.0f },
+	{ 7.0f / 273.0f, 26.0f / 273.0f, 41.0f / 273.0f, 26.0f / 273.0f, 7.0f / 273.0f },
+	{ 4.0f / 273.0f, 16.0f / 273.0f, 26.0f / 273.0f, 16.0f / 273.0f, 4.0f / 273.0f },
+	{ 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
+};
+
+#define MotionBlurStrength 3.1f // 모션 블러 강도
+
+[numthreads(32, 32, 1)]
+void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
+{
+	if ((n3DispatchThreadID.x < 2) || (n3DispatchThreadID.x >= int(gtxtInput.Length.x - 2)) || (n3DispatchThreadID.y < 2) || (n3DispatchThreadID.y >= int(gtxtInput.Length.y - 2)))
+	{
+		gtxtRWOutput[n3DispatchThreadID.xy] = gtxtInput[n3DispatchThreadID.xy];
+	}
+	else
+	{
+		// 모션 벡터 계산
+		float2 motionVector = gtxtInput[n3DispatchThreadID.xy].xy - gtxtPrevFrame[n3DispatchThreadID.xy].xy;
+		motionVector *= MotionBlurStrength;
+
+		float4 f4Color = float4(0, 0, 0, 0);
+		
+		for (int i =-2; i <= 2; i++)
+		{
+			for (int j = -2; j <= 2; j++)
+			{
+				float2 offset = float2(i, j) * motionVector;
+				f4Color += gfGaussianBlurMask2D[i+2 ][j +2] * gtxtInput[n3DispatchThreadID.xy + offset];
+			}
+		}
+		gtxtRWOutput[n3DispatchThreadID.xy] = f4Color;
+	}
+}
+
+#endif
+
+Texture2D gtxtOutput : register(t1);
+
+
+float4 PSTextureToFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
+	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;
+
+	return(cEdgeColor);
+	//return(cColor * cEdgeColor);
+	//return(cColor + cEdgeColor);
+}
+

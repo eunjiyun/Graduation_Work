@@ -77,7 +77,7 @@ private:
 	static const UINT			m_nSwapChainBuffers = 2;
 	UINT						m_nSwapChainBufferIndex;
 
-	ID3D12Resource* m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
+	
 	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap = NULL;
 
 	ID3D12Resource* m_pd3dDepthStencilBuffer = NULL;
@@ -92,7 +92,7 @@ private:
 	HANDLE						m_hFenceEvent;
 
 public:
-	
+	ID3D12Resource* m_ppd3dSwapChainBackBuffers[m_nSwapChainBuffers];
 	vector<char> userId;
 	vector<char> userPw;
 	bool delUser = false;
@@ -151,6 +151,7 @@ public:
 
 	float bloodTime=0.0f;
 	float plTime[3] = { 0.0f,0.0f,0.0f };
+	float blurTime = 0.f;
 	float popUpTime = 0.0f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };
 
@@ -161,6 +162,7 @@ public:
 	CGameObject** m_ppBullets = NULL;
 	CGameObject** m_ppCap = NULL;
 	bool onFullScreen = false;
+
 	int curAtt[3] = { 0,0,0 };
 };
 
