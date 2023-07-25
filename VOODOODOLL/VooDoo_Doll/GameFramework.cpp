@@ -1344,10 +1344,13 @@ void CGameFramework::FrameAdvance()
 
 		for (int i = 0; i < m_pStage->Monsters.size(); ++i)
 		{
+			auto& Mon = m_pStage->Monsters.at(i);
+			if (Mon->c_id == 59) continue;
 			try {
-				if (m_pStage->Monsters.at(i)->damaged) {
-					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(m_pStage->Monsters.at(i)->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, 640, 480);
-					m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters.at(i)->HP, pos);
+				if (Mon->damaged) {
+					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, 640, 480);
+					pos.x -= Mon->HP / 2.f;
+					m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, Mon->HP, pos);
 				}
 			}
 			catch (const exception& e) { cout << "MONSTER HP BAR LOAD ERROR\n"; }

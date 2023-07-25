@@ -703,12 +703,12 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 			door[h]->Rotate(0, 180, 0);
 		}
 		pDoor.push_back(door[h]);
-		cout << door[h]->obBox.Center.x << ",	" << door[h]->obBox.Center.y << ",	" << door[h]->obBox.Center.z << endl;
+		//cout << door[h]->obBox.Center.x << ",	" << door[h]->obBox.Center.y << ",	" << door[h]->obBox.Center.z << endl;
 		boxShader->obj.push_back(door[h]);
 	}
 
 
-	cout << "mnobj : " << m_nObjects << endl;
+	//cout << "mnobj : " << m_nObjects << endl;
 
 	return mpObjVec;
 }

@@ -426,7 +426,7 @@ void process_packet(const int c_id, char* packet)
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 40)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 30)
 				{
 					monster->HP -= 100;
 					monster->target_id = CL._id;
@@ -515,7 +515,7 @@ void process_packet(const int c_id, char* packet)
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
-				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 40)
+				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 20)
 				{
 					monster->HP -= 50;
 					monster->target_id = CL._id;

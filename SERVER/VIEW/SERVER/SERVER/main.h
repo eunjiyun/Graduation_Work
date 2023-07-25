@@ -571,7 +571,7 @@ void SorcererMonster::Update(float fTimeElapsed)
 			}
 		}
 		catch (const exception& e) {
-			cout << "Hat Update catched error -" << e.what() << endl;
+			//cout << "Hat Update catched error -" << e.what() << endl;
 			MagicPos = Pos;
 			return;
 		}

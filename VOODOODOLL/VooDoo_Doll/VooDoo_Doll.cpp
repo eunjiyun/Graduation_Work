@@ -53,37 +53,16 @@ void ProcessInput()
     float cxDelta = 0.0f, cyDelta = 0.0f;
 
     gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
-    //if (1 == gGameFramework.gameButton && ::GetForegroundWindow() == gGameFramework.Get_HWND())
-    //{
-    //    POINT ptCursorPos;
-    //    ::GetCursorPos(&ptCursorPos);
-
-    //    RECT rcClient;
-    //    ::GetClientRect(gGameFramework.Get_HWND(), &rcClient);
-
-    //    if (::PtInRect(&rcClient, ptCursorPos))
-    //    {
-    //        if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
-    //            cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
-    //        else
-    //            cxDelta = max((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, -10.f);
-
-    //        if (ptCursorPos.y - gGameFramework.Get_OldCursorPointY() > 0)
-    //            cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
-    //        else
-    //            cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
-
-    //        ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
-    //    }
-    //}
-
-    if (GetCapture() == gGameFramework.Get_HWND())
+    if (1 == gGameFramework.gameButton && ::GetForegroundWindow() == gGameFramework.Get_HWND())
     {
-        if (1 == gGameFramework.gameButton)
-        {
-            ::SetCursor(NULL);
-            POINT ptCursorPos;
-            ::GetCursorPos(&ptCursorPos);
+        POINT ptCursorPos;
+        ::GetCursorPos(&ptCursorPos);
+
+        RECT rcClient;
+        ::GetClientRect(gGameFramework.Get_HWND(), &rcClient);
+
+        //if (::PtInRect(&rcClient, ptCursorPos))
+        //{
             if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
                 cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
             else
@@ -93,9 +72,30 @@ void ProcessInput()
                 cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
             else
                 cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
+
             ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
-        }
+        //}
     }
+
+    //if (GetCapture() == gGameFramework.Get_HWND())
+    //{
+    //    if (1 == gGameFramework.gameButton)
+    //    {
+    //        ::SetCursor(NULL);
+    //        POINT ptCursorPos;
+    //        ::GetCursorPos(&ptCursorPos);
+    //        if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
+    //            cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
+    //        else
+    //            cxDelta = max((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, -10.f);
+
+    //        if (ptCursorPos.y - gGameFramework.Get_OldCursorPointY() > 0)
+    //            cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
+    //        else
+    //            cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
+    //        ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+    //    }
+    //}
 
     if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 700, true);
 
@@ -104,16 +104,10 @@ void ProcessInput()
         CS_ROTATE_PACKET p;
         p.size = sizeof(CS_ROTATE_PACKET);
         p.type = CS_ROTATE;
-        if (pKeysBuffer[VK_RBUTTON] & 0xF0) {
-            gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
-            gGameFramework.m_pPlayer->cyDelta = p.cyDelta = 0.f;
-            gGameFramework.m_pPlayer->czDelta = p.czDelta = -cxDelta;
-        }
-        else {
-            gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
-            gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
-            gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
-        }
+
+        gGameFramework.m_pPlayer->cxDelta = p.cxDelta = cyDelta;
+        gGameFramework.m_pPlayer->cyDelta = p.cyDelta = cxDelta;
+        gGameFramework.m_pPlayer->czDelta = p.czDelta = 0.f;
         OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(&p) };
         int ErrorStatus = WSASend(s_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, &send_callback);
         if (ErrorStatus == SOCKET_ERROR) err_quit("send()");
