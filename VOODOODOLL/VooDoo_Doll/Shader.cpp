@@ -665,23 +665,9 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 				m_ppObjects[i]->GetPosition().z), XMFLOAT3(10, 10, 10), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
 
 
-				//<<<<<<< HEAD
+			
 			if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider")
 				&& strcmp(m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_01_dense_mesh"))//Bedroom_wall_b_01_dense_mesh
-				//=======
-
-							//	//�ٴ� �ֱ�
-							//if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Dense_Floor_mesh"))//Stair_step_01_mesh
-							//	boxShader->obj.push_back(m_ppObjects[i]);
-
-							////��� �ֱ�
-							////if (0 == strcmp(m_ppObjects[i]->m_pstrName, "Stair_step_01_mesh"))//Stair_step_01_mesh
-							//	//boxShader->obj.push_back(m_ppObjects[i]);
-
-
-							////�� ���� �ʱ�
-							//if (strcmp(m_ppObjects[i]->m_pstrName, "ForDoorcollider"))//Bedroom_wall_b_01_dense_mesh
-				//>>>>>>> parent of d2508f9 (Fix Texture)
 			{
 				boxShader->obj.push_back(m_ppObjects[i]);
 			}
@@ -720,7 +706,6 @@ vector<XMFLOAT3> CObjectsShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12Gr
 		{
 		case 0:
 			/*door[h]->SetPosition(469, -64.6, 1235);*/
-//<<<<<<< HEAD
 			door[h]->SetPosition(469.f, -43.f, 1240.f);
 			door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f));
 			/*door[h]->obBox = BoundingOrientedBox(XMFLOAT3(469.f, -64.6f, 1240.f), XMFLOAT3(90.f, 50.f, 4.99f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));*/
@@ -1826,11 +1811,8 @@ void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			}
 			else if (4 == i)//화면
 			{
-				if (pPlayer->alive)
-					xmf3PlayerPosition.y -= 85.0f;
-				else
-					xmf3PlayerPosition.y -= 79.0f;
-
+				xmf3PlayerPosition.y -= 85.0f;
+				
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;
 				xmf3PlayerPosition.z = (xmf3PlayerPosition.z + 3.f * xmf3CameraPosition.z) / 4.f;
@@ -1959,7 +1941,7 @@ D3D12_SHADER_BYTECODE CGaussian2DBlurComputeShader::CreateComputeShader(ID3DBlob
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "CSGaussian2DBlur", "cs_5_1", ppd3dShaderBlob));
 }
 
-void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList,ID3D12Resource* tex)
 {
 	if (!set[1])
 	{
@@ -1969,36 +1951,30 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 1, RESOURCE_TEXTURE2D, 640, 480, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
 		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 2, RESOURCE_TEXTURE2D, 640, 480, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, NULL);
 	}
+	
+	
+	pd3dCommandList->CopyResource(m_pTexture->GetResource(0), tex);
 
-	if (!m_pTexture->GetResource(0))
-	{
-		pd3dCommandList->CopyResource(m_pTexture->GetResource(0), pCurrentFrameTexture[0]);
-	}
-	else
-	{
-		++softBlur;
+	++softBlur;
 
+	if (1 == softBlur % 3)
 		pd3dCommandList->CopyResource(m_pTexture->GetResource(1), m_pTexture->GetResource(0));
 
-		if (1 == softBlur % 3)
-			pd3dCommandList->CopyResource(m_pTexture->GetResource(0), pCurrentFrameTexture[0]);
-	}
-
-	ID3D12Resource* pd3dResource = m_pTexture->GetResource(0);
-	D3D12_RESOURCE_DESC d3dResourceDesc = pd3dResource->GetDesc();
 
 	if (!set[1])
 	{
 		CreateComputeShaderResourceView(pd3dDevice, m_pTexture, 1, 0, 0, 1);
+		//CreateComputeShaderResourceView(pd3dDevice, m_pTexture, 0, 1, 0, 1);
 		CreateComputeUnorderedAccessView(pd3dDevice, m_pTexture, 2, 0, 0, 1);
-		CreateComputeShaderResourceView(pd3dDevice, m_pTexture, 0, 1, 0, 1);
+		
 
 		m_pTexture->SetComputeSrvRootParameter(0, 0, 0, 1);
+		//m_pTexture->SetComputeSrvRootParameter(1, 2, 1, 1);
 		m_pTexture->SetComputeUavRootParameter(0, 1, 0, 1);
-		m_pTexture->SetComputeSrvRootParameter(1, 2, 1, 1);
+		
 
-		m_cxThreadGroups = ceil(d3dResourceDesc.Width / 32.0f);
-		m_cyThreadGroups = ceil(d3dResourceDesc.Height / 32.0f);
+		m_cxThreadGroups = ceil(640.f / 32.0f);
+		m_cyThreadGroups = ceil(480.f / 32.0f);
 
 		set[1] = true;
 	}
@@ -2006,7 +1982,7 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 
 
 
-void CGaussian2DBlurComputeShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature, UINT cxThreadGroups, UINT cyThreadGroups, UINT czThreadGroups, int nPipelineState)
+void CGaussian2DBlurComputeShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature, ID3D12Resource* tex, UINT cxThreadGroups, UINT cyThreadGroups, UINT czThreadGroups, int nPipelineState)
 {
 	if (!set[0])
 	{
@@ -2017,7 +1993,7 @@ void CGaussian2DBlurComputeShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12
 		set[0] = true;
 	}
 	else
-		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		CreateShaderVariables(pd3dDevice, pd3dCommandList,tex);
 }
 
 void CGaussian2DBlurComputeShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -2247,10 +2223,10 @@ void CGraphicsShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera
 //
 CTextureToFullScreenShader::CTextureToFullScreenShader(CTexture* pTexture)
 {
-	m_pTexture = pTexture;
+	/*m_pTexture = pTexture;
 
 	if (m_pTexture)
-		m_pTexture->AddRef();
+		m_pTexture->AddRef();*/
 }
 
 CTextureToFullScreenShader::~CTextureToFullScreenShader()
@@ -2332,8 +2308,7 @@ void CTextureToFullScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12Gr
 	if (!set[0])
 	{
 		CGraphicsShader::CreateShader(pd3dDevice, pd3dCommandList, pd3dRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat, 0);
-		//CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 2, 1);
-		//CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 3, 0);
+	
 		CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 2, 0);
 
 		set[0] = true;

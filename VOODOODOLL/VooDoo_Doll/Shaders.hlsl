@@ -393,6 +393,31 @@ static float gfGaussianBlurMask2D[5][5] = {
 #define MotionBlurStrength 3.1f // 모션 블러 강도
 
 [numthreads(32, 32, 1)]
+//void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
+//{
+//	if ((n3DispatchThreadID.x < 2) || (n3DispatchThreadID.x >= int(gtxtInput.Length.x - 2)) || (n3DispatchThreadID.y < 2) || (n3DispatchThreadID.y >= int(gtxtInput.Length.y - 2)))
+//	{
+//		gtxtRWOutput[n3DispatchThreadID.xy] = gtxtInput[n3DispatchThreadID.xy];
+//	}
+//	else
+//	{
+//		// 모션 벡터 계산
+//		float2 motionVector = gtxtInput[n3DispatchThreadID.xy].xy - gtxtPrevFrame[n3DispatchThreadID.xy].xy;
+//		motionVector *= MotionBlurStrength;
+//
+//		float4 f4Color = float4(0, 0, 0, 0);
+//		
+//		for (int i =-2; i <= 2; i++)
+//		{
+//			for (int j = -2; j <= 2; j++)
+//			{
+//				float2 offset = float2(i, j) * motionVector;
+//				f4Color += gfGaussianBlurMask2D[i+2 ][j +2] * gtxtInput[n3DispatchThreadID.xy + offset];
+//			}
+//		}
+//		gtxtRWOutput[n3DispatchThreadID.xy] = f4Color;
+//	}
+//}
 void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
 {
 	if ((n3DispatchThreadID.x < 2) || (n3DispatchThreadID.x >= int(gtxtInput.Length.x - 2)) || (n3DispatchThreadID.y < 2) || (n3DispatchThreadID.y >= int(gtxtInput.Length.y - 2)))
@@ -401,20 +426,15 @@ void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchTh
 	}
 	else
 	{
-		// 모션 벡터 계산
-		float2 motionVector = gtxtInput[n3DispatchThreadID.xy].xy - gtxtPrevFrame[n3DispatchThreadID.xy].xy;
-		motionVector *= MotionBlurStrength;
-
 		float4 f4Color = float4(0, 0, 0, 0);
-		
-		for (int i =-2; i <= 2; i++)
+		for (int i = -2; i <= 2; ++i)
 		{
-			for (int j = -2; j <= 2; j++)
+			for (int j = -2; j <= 2; ++j)
 			{
-				float2 offset = float2(i, j) * motionVector;
-				f4Color += gfGaussianBlurMask2D[i+2 ][j +2] * gtxtInput[n3DispatchThreadID.xy + offset];
+				f4Color += gfGaussianBlurMask2D[i + 2][j + 2] * gtxtInput[n3DispatchThreadID.xy + int2(i, j)];
 			}
 		}
+
 		gtxtRWOutput[n3DispatchThreadID.xy] = f4Color;
 	}
 }

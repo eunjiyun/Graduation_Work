@@ -434,9 +434,9 @@ public:
 public:
 	virtual D3D12_SHADER_BYTECODE CreateComputeShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState = 0);
 
-	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature,UINT cxThreadGroups = 1, UINT cyThreadGroups = 1, UINT czThreadGroups = 1, int nPipelineState = 0);
+	void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature,  ID3D12Resource* ,UINT cxThreadGroups = 1, UINT cyThreadGroups = 1, UINT czThreadGroups = 1, int nPipelineState = 0);
 
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource*);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 
@@ -449,7 +449,6 @@ public:
 	
 public:
 	CTexture* m_pTexture = NULL;
-	ID3D12Resource** pCurrentFrameTexture = nullptr;
 	bool set[2] = { false,false };
 	int softBlur = 0;
 };
@@ -506,5 +505,5 @@ public:
 
 public:
 	CTexture* m_pTexture = NULL;
-	bool set[2] = { false,false };
+	bool set[3] = { false,false,false };
 };

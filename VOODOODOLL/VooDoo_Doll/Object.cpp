@@ -99,7 +99,10 @@ CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
 	{
-		for (int i{}; i < m_nTextures; ++i) if (m_ppd3dTextures[i]) m_ppd3dTextures[i]->Release();
+		for (int i{}; i < m_nTextures; ++i) 
+			if (m_ppd3dTextures[i]) 
+				m_ppd3dTextures[i]->Release();
+
 		delete[] m_ppd3dTextures;
 	}
 	if (m_pnResourceTypes) delete[] m_pnResourceTypes;

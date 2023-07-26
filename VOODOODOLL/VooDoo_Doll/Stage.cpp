@@ -167,7 +167,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_nComputeShaders = 1;
 	m_ppComputeShaders = new CComputeShader * [m_nComputeShaders];
 	pComputeShader = new CGaussian2DBlurComputeShader();
-	pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature);
+	pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature,nullptr);
 	m_ppComputeShaders[0] = pComputeShader;
 
 
@@ -613,16 +613,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				pMaterial->SetTexture(pCandleTextures[5]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
-			//<<<<<<< HEAD
 			if (0 == strcmp("ButtonBottom", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||
 				0 == strcmp("Button", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
 				pMaterial->SetTexture(pButtonTextures[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
-			//=======
-			//>>>>>>> parent of d2508f9 (Fix Texture)
-
+			
 			++iMaterialCheck;
 		}
 		iMaterialCheck = 0;
@@ -744,12 +741,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		}
 
 
-		//<<<<<<< HEAD
+	
 
 		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			//=======
-					//if (1 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			//>>>>>>> parent of d2508f9 (Fix Texture)
 			388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
@@ -757,8 +751,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
-		//<<<<<<< HEAD
-
+		
 		if (408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 414 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			416 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
@@ -768,11 +761,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				BoundingOrientedBox(m_ppShaders[0]->m_ppObjects[i]->GetPosition(), XMFLOAT3(3.f, 3.f, 2.5f), XMFLOAT4(0, 0, 0, 1));
 		}
 
-		//=======
-
-
-				//m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
-		//>>>>>>> parent of d2508f9 (Fix Texture)
 
 				//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 				/*cout << "Center: ";
@@ -865,11 +853,11 @@ void CStage::ReleaseObjects()
 
 	if (m_ppComputeShaders)
 	{
-		for (int i{}; i < m_nComputeShaders; ++i)
+		/*for (int i{}; i < m_nComputeShaders; ++i)
 		{
 			m_ppComputeShaders[i]->ReleaseShaderVariables();
 			m_ppComputeShaders[i]->Release();
-		}
+		}*/
 		delete[] m_ppComputeShaders;
 	}
 
@@ -950,14 +938,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[9].RegisterSpace = 0;
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//pd3dDescriptorRanges[10].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[10].NumDescriptors = 1;
-	//pd3dDescriptorRanges[10].BaseShaderRegister = 2; //t2: Texture2D
-	//pd3dDescriptorRanges[10].RegisterSpace = 0;
-	//pd3dDescriptorRanges[10].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-
-
+	
 	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -1052,13 +1033,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9]; //Texture2D
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	//pd3dRootParameters[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//pd3dRootParameters[17].DescriptorTable.NumDescriptorRanges = 1;
-	//pd3dRootParameters[17].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[10]; //Texture2D
-	//pd3dRootParameters[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-
-
+	
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -1154,8 +1129,6 @@ void CStage::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 	::memcpy(m_pcbMappedLights->m_pLights, m_pLights, sizeof(LIGHT) * m_nLights);
 	::memcpy(&m_pcbMappedLights->m_xmf4GlobalAmbient, &m_xmf4GlobalAmbient, sizeof(XMFLOAT4));
 	::memcpy(&m_pcbMappedLights->m_nLights, &m_nLights, sizeof(int));
-
-
 }
 
 void CStage::ReleaseShaderVariables()
@@ -1325,7 +1298,7 @@ void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 
-void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, CCamera* pCamera)
+void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, ID3D12Resource* rt, CCamera* pCamera)//ID3D12Resource*
 {
 	if (m_pd3dGraphicsRootSignature)
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
@@ -1364,42 +1337,27 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 	if (blur)
 	{
-		/*D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-		::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
-		d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		d3dResourceBarrier.Transition.pResource = pCurrentFrameTexture[0];
-		d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
+		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt);
 
+		if (!pGraphicsShader->set[2])
+		{
+			pGraphicsShader->m_pTexture = pComputeShader->m_pTexture;
+			if (pGraphicsShader->m_pTexture) pGraphicsShader->m_pTexture->AddRef();
 
-
-		pComputeShader->pCurrentFrameTexture = pCurrentFrameTexture;
-
-
-		/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-		d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-		d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
-
-		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature);
-
-		pGraphicsShader->m_pTexture = pComputeShader->m_pTexture;
-		if (pGraphicsShader->m_pTexture) pGraphicsShader->m_pTexture->AddRef();
+			pGraphicsShader->set[2] = true;
+		}
 		pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
 
 		if (m_pd3dComputeRootSignature) pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
 		m_ppComputeShaders[0]->Dispatch(pd3dCommandList, 0);
-	}
 
-	if (m_pd3dGraphicsRootSignature)
-		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-	//D3D12 ERROR: ID3D12CommandList::DrawInstanced: The descriptor heap (0x0000025D211D2CE0:'Unnamed ID3D12DescriptorHeap Object') containing handle 0x25d211d32d8 is different from currently set descriptor heap 0x0000025D2122E430:'Unnamed ID3D12DescriptorHeap Object'. [ EXECUTION ERROR #554: SET_DESCRIPTOR_HEAP_INVALID]
-	if (blur)
+		if (m_pd3dGraphicsRootSignature)
+			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
+
+		//D3D12 ERROR: ID3D12CommandList::DrawInstanced: The descriptor heap (0x0000025D211D2CE0:'Unnamed ID3D12DescriptorHeap Object') containing handle 0x25d211d32d8 is different from currently set descriptor heap 0x0000025D2122E430:'Unnamed ID3D12DescriptorHeap Object'. [ EXECUTION ERROR #554: SET_DESCRIPTOR_HEAP_INVALID]
 		m_ppGraphicsShaders[0]->Render(pd3dCommandList, pCamera, NULL);
+	}
 }
 
 
@@ -1804,65 +1762,7 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 	}
 }
 
-//<<<<<<< HEAD
-//=======
 
-//XMFLOAT3 CStage::Calculate_Direction(BoundingBox& pBouningBoxA, BoundingBox& pBouningBoxB)
-//{
-//	XMVECTOR xmV1min = XMLoadFloat3(&pBouningBoxA.Center) - XMLoadFloat3(&pBouningBoxA.Extents);
-//	XMVECTOR xmV1max = XMLoadFloat3(&pBouningBoxA.Center) + XMLoadFloat3(&pBouningBoxA.Extents);
-//	XMVECTOR xmV2min = XMLoadFloat3(&pBouningBoxB.Center) - XMLoadFloat3(&pBouningBoxB.Extents);
-//	XMVECTOR xmV2max = XMLoadFloat3(&pBouningBoxB.Center) + XMLoadFloat3(&pBouningBoxB.Extents);
-//
-//	bool bIntersect = XMVector3GreaterOrEqual(xmV1min, xmV2max) || XMVector3GreaterOrEqual(xmV2min, xmV1max);
-//
-//	if (bIntersect)
-//	{
-//		return XMFLOAT3(0, 0, 0); 
-//	}
-//
-//	XMFLOAT3 xmf3Direction = { 0,0,0 };
-//	XMFLOAT3 xmf3Subtraction = { 0,0,0 };
-//
-//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-//	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
-//	{
-//		xmf3Direction.x = xmf3Subtraction.x;
-//	}
-//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-//	if (fabs(xmf3Subtraction.x) < fabs(xmf3Direction.x) || xmf3Direction.x == 0)
-//	{
-//		xmf3Direction.x = -xmf3Subtraction.x;
-//	}
-//
-//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-//	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
-//	{
-//		xmf3Direction.y = xmf3Subtraction.y;
-//	}
-//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-//	if (fabs(xmf3Subtraction.y) < fabs(xmf3Direction.y) || xmf3Direction.y == 0)
-//	{
-//		xmf3Direction.y = -xmf3Subtraction.y;
-//	}
-//
-//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV2max, xmV1min));
-//	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
-//	{
-//		xmf3Direction.z = xmf3Subtraction.z;
-//	}
-//	XMStoreFloat3(&xmf3Subtraction, XMVectorSubtract(xmV1max, xmV2min));
-//	if (fabs(xmf3Subtraction.z) < fabs(xmf3Direction.z) || xmf3Direction.z == 0)
-//	{
-//		xmf3Direction.z = -xmf3Subtraction.z;
-//	}
-//
-//	XMStoreFloat3(&xmf3Direction, XMVector3Normalize(XMLoadFloat3(&xmf3Direction)));
-//	return xmf3Direction;
-//}
-//
-//
-//>>>>>>> parent of d2508f9 (Fix Texture)
 void CStage::Lighthing(CPlayer*& pl)
 {
 
@@ -1881,20 +1781,8 @@ void CStage::Lighthing(CPlayer*& pl)
 		}
 	}
 
-	//<<<<<<< HEAD
-	//
 }
-//
-//void CStage::ChangeTexture(int iState)
-//{
-//
-//}
-//
-//
-//=======
-//}
-//
-//>>>>>>> parent of d2508f9 (Fix Texture)
+
 float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 {
 
@@ -1905,7 +1793,6 @@ float CStage::CalculateDistance(XMFLOAT3& pPlayer, XMFLOAT3& pLight)
 	float fDisatnce;
 	XMStoreFloat(&fDisatnce, XMVector3Length(diff));
 	return fDisatnce;
-	//<<<<<<< HEAD
 }
 
 
@@ -1994,66 +1881,4 @@ ID3D12RootSignature* CStage::CreateComputeRootSignature(ID3D12Device* pd3dDevice
 
 
 
-//
-//
-//// 409, 411, 413, 415, 417
-//
-//void CStage::Pushing_Button(CPlayer*& pl)
-//{
-//	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
-//	int iResult = 0; // 틀릴 경우 -1
-//
-//	for (int i = 0; i < 5; i++)
-//	{
-//		BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
-//
-//		if (false == pPuzzles[5][i]->m_bGetItem)
-//		{
-//			if (pl->obBox.Intersects(oBox))
-//			{
-//				pPuzzles[5][i]->m_bGetItem = true;
-//				m_iHit[m_iHitNum] = pPuzzles[5][i]->m_iObjID;
-//				cout << m_iHitNum << "	|" << m_iHit[m_iHitNum] << endl;
-//				m_iHitNum++;
-//			}
-//		}
-//
-//		if (5 == m_iHitNum)
-//		{
-//			for (int k = 0; k < 5; k++)
-//			{
-//				if (iAnswer[k] == m_iHit[k])
-//				{
-//					iResult++;
-//				}
-//				else
-//				{
-//					iResult = -1;
-//				}
-//			}
-//		}
-//
-//		if (5 == iResult)
-//		{
-//			cout << "Right!" << endl;
-//			b5thDoorPass = true;
-//			break;
-//		}
-//
-//		else if (-1 == iResult)
-//		{
-//			cout << "Lose" << endl;
-//
-//
-//			for (int i = 0; i < 5; i++)
-//			{
-//				pPuzzles[5][i]->m_bGetItem = false;
-//			}
-//			m_iHitNum = 0;
-//		}
-//	}
-//
-//=======
-//>>>>>>> parent of d2508f9 (Fix Texture)
-//}
 

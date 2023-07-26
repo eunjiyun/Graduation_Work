@@ -494,7 +494,9 @@ void CGameFramework::OnDestroy()
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
-	for (int i{}; i < m_nSwapChainBuffers; ++i) if (m_ppd3dSwapChainBackBuffers[i]) m_ppd3dSwapChainBackBuffers[i]->Release();
+	for (int i{}; i < m_nSwapChainBuffers; ++i) 
+		if (m_ppd3dSwapChainBackBuffers[i]) 
+			m_ppd3dSwapChainBackBuffers[i]->Release();
 
 	if (m_pd3dRtvDescriptorHeap) m_pd3dRtvDescriptorHeap->Release();
 
@@ -537,9 +539,7 @@ void CGameFramework::BuildObjects()
 	for (int i{}; i < 10; ++i)
 		m_pStage->userPw[i] = new CGameObject(1);
 
-	m_pStage->pCurrentFrameTexture = m_ppd3dSwapChainBackBuffers;
-
-
+	
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	if (m_pStage)
 	{
@@ -1348,7 +1348,7 @@ void CGameFramework::FrameAdvance()
 	}
 
 	if (m_pStage)
-		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_pCamera);
+		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
 
 	if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);

@@ -85,7 +85,7 @@ public:
 	void AnimateObjects(float fTimeElapsed);
 	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players);
 	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool,CCamera* pCamera = NULL);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool, ID3D12Resource* ,CCamera* pCamera = NULL);
 
 
 	void ReleaseUploadBuffers();
@@ -202,8 +202,7 @@ public:
 	CGraphicsShader** m_ppGraphicsShaders = NULL;
 	int								m_nGraphicsShaders = 0;
 	DXGI_FORMAT compShaderFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
-	ID3D12Resource** pCurrentFrameTexture = nullptr;
-
+	
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;
 	bool										b2ndDoorPass = false;
