@@ -1879,8 +1879,8 @@ void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 					
 					obj[i + pPlayer->gun_hit]->SetPosition(pPlayer->Aiming_Position);
 					obj[i + pPlayer->gun_hit]->SetLookAt(pCamera->GetPosition(), XMFLOAT3(0.0f, 1.0f, 0.0f));
-					auto mesh = static_cast<CTexturedRectMesh*>(obj[i + pPlayer->gun_hit]->m_ppMeshes[0]);
-					mesh->Scale(pd3dDevice, pd3dCommandList,pPlayer->aimSize);
+					//auto mesh = static_cast<CTexturedRectMesh*>(obj[i + pPlayer->gun_hit]->m_ppMeshes[0]);
+					//mesh->Scale(pd3dDevice, pd3dCommandList,pPlayer->aimSize);
 					CShader::Render(pd3dCommandList, pCamera);
 					obj[i + pPlayer->gun_hit]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 					return;

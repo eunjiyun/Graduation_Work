@@ -53,37 +53,16 @@ void ProcessInput()
     float cxDelta = 0.0f, cyDelta = 0.0f;
 
     gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
-    if (1 == gGameFramework.gameButton && ::GetForegroundWindow() == gGameFramework.Get_HWND())
-    {
-        POINT ptCursorPos;
-        ::GetCursorPos(&ptCursorPos);
-
-        RECT rcClient;
-        ::GetClientRect(gGameFramework.Get_HWND(), &rcClient);
-
-        //if (::PtInRect(&rcClient, ptCursorPos))
-        //{
-            if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
-                cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
-            else
-                cxDelta = max((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, -10.f);
-
-            if (ptCursorPos.y - gGameFramework.Get_OldCursorPointY() > 0)
-                cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
-            else
-                cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
-
-            ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
-        //}
-    }
-
-    //if (GetCapture() == gGameFramework.Get_HWND())
+    //if (1 == gGameFramework.gameButton && ::GetForegroundWindow() == gGameFramework.Get_HWND())
     //{
-    //    if (1 == gGameFramework.gameButton)
-    //    {
-    //        ::SetCursor(NULL);
-    //        POINT ptCursorPos;
-    //        ::GetCursorPos(&ptCursorPos);
+    //    POINT ptCursorPos;
+    //    ::GetCursorPos(&ptCursorPos);
+
+    //    RECT rcClient;
+    //    ::GetClientRect(gGameFramework.Get_HWND(), &rcClient);
+
+    //    //if (::PtInRect(&rcClient, ptCursorPos))
+    //    //{
     //        if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
     //            cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
     //        else
@@ -93,9 +72,30 @@ void ProcessInput()
     //            cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
     //        else
     //            cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
+
     //        ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
-    //    }
+    //    //}
     //}
+
+    if (GetCapture() == gGameFramework.Get_HWND())
+    {
+        if (1 == gGameFramework.gameButton)
+        {
+            ::SetCursor(NULL);
+            POINT ptCursorPos;
+            ::GetCursorPos(&ptCursorPos);
+            if (ptCursorPos.x - gGameFramework.Get_OldCursorPointX() > 0)
+                cxDelta = min((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, 10.f);
+            else
+                cxDelta = max((float)(ptCursorPos.x - gGameFramework.Get_OldCursorPointX()) / 3.0f, -10.f);
+
+            if (ptCursorPos.y - gGameFramework.Get_OldCursorPointY() > 0)
+                cyDelta = min((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, 10.f);
+            else
+                cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
+            ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+        }
+    }
 
     if (dwDirection) gGameFramework.m_pPlayer->Move(dwDirection, 700, true);
 
@@ -198,7 +198,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
     }
 
     gGameFramework.OnDestroy();
-
+    
     closesocket(s_socket);
     WSACleanup();
 
@@ -550,24 +550,24 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
     return((INT_PTR)FALSE);
 }
 
-void ProcessAnimation(CPlayer* pl, SC_UPDATE_PLAYER_PACKET* p)
-{
-    pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
-    if (pl->onFloor == false) {
-        pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
-        return;
-    }
-    else pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
-
-    if (Vector3::Length(pl->m_xmf3Velocity) > 0.f) {
-        pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
-    }
-    else
-    {
-        pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
-        pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
-    }
-}
+//void ProcessAnimation(CPlayer* pl, SC_UPDATE_PLAYER_PACKET* p)
+//{
+//    pl->m_pSkinnedAnimationController->SetTrackEnable(pl->m_pSkinnedAnimationController->Cur_Animation_Track, false);
+//    if (pl->onFloor == false) {
+//        pl->m_pSkinnedAnimationController->SetTrackEnable(5, true);
+//        return;
+//    }
+//    else pl->m_pSkinnedAnimationController->SetTrackPosition(5, 1.0f);
+//
+//    if (Vector3::Length(pl->m_xmf3Velocity) > 0.f) {
+//        pl->m_pSkinnedAnimationController->SetTrackEnable(1, true);
+//    }
+//    else
+//    {
+//        pl->m_pSkinnedAnimationController->SetTrackEnable(0, true);
+//        pl->m_pSkinnedAnimationController->SetTrackPosition(1, 0.0f);
+//    }
+//}
 
 void ProcessPacket(char* ptr)//몬스터 생성
 {
@@ -580,6 +580,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
         gGameFramework.m_pPlayer->c_id = packet->id;
         gGameFramework.m_pPlayer->SetPosition(packet->pos);
         gGameFramework.m_pPlayer->recv_time = high_resolution_clock::now();
+        gGameFramework.m_pPlayer->alive = true;
         cout << "접속 완료, id = " << gGameFramework.m_pPlayer->c_id << endl;
         break;
     }
@@ -661,7 +662,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
         if ((*iter)->onAct == false) {
             //auto cur_time = high_resolution_clock::now();
             //float time = duration_cast<milliseconds>(cur_time - (*iter)->recv_time).count() / 1000.f;
-            //
             //float fLength = sqrtf(packet->vel.x * packet->vel.x + packet->vel.z * packet->vel.z);
             //if (fLength > 100)
             //{
@@ -671,7 +671,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
             //fLength = sqrtf(packet->vel.y * packet->vel.y);
             //if (fLength > 300) packet->vel.y *= (300 / fLength);
-            // 
+            
+            //(*iter)->Deceleration(time);
             //XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(packet->vel, time, false));
             //(*iter)->SetVelocity(packet->vel);  
             //(*iter)->SetPosition(targetPos);
@@ -679,7 +680,8 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
             XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
             XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
-            (*iter)->SetVelocity(packet->vel);
+            if ((*iter) != gGameFramework.m_pPlayer)
+                (*iter)->SetVelocity(packet->vel);
             (*iter)->SetPosition(targetPos);
         }
 
@@ -892,20 +894,20 @@ void ProcessPacket(char* ptr)//몬스터 생성
     }
     case SC_MONSTER_DAMAGED: {
         SC_MONSTER_DAMAGED_PACKET* packet = reinterpret_cast<SC_MONSTER_DAMAGED_PACKET*>(ptr);
+
+        auto iter = find_if(gGameFramework.m_pStage->Monsters.begin(), gGameFramework.m_pStage->Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
+        if (iter == gGameFramework.m_pStage->Monsters.end()) return;
+
         if (packet->player_id == gGameFramework.m_pPlayer->c_id) {
             gGameFramework.damagedMon = packet->monster_id;
             gGameFramework.m_pPlayer->gun_hit = 1;
             gGameFramework.hitSound.Stop();
             gGameFramework.hitSound.LoadWave(gGameFramework.hit_marker, 1);
             gGameFramework.hitSound.Play();
+            (*iter)->damaged = true;
+            (*iter)->damaged_timer = 0.f;
         }
-
-        auto iter = find_if(gGameFramework.m_pStage->Monsters.begin(), gGameFramework.m_pStage->Monsters.end(), [packet](CMonster* Mon) {return packet->monster_id == Mon->c_id; });
-        if (iter == gGameFramework.m_pStage->Monsters.end()) return;
-
         (*iter)->HP = packet->remain_HP;
-        (*iter)->damaged = true;
-        (*iter)->damaged_timer = 0.f;
         if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track < 2 && packet->remain_HP > 0) {
             (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);

@@ -37,7 +37,7 @@ public:
 	CGameObject* m_ppBullet;
 	int c_id = -1;
 	short cur_weapon = 0;
-	bool alive = true;
+	bool alive = false;
 	float HP, packet_HP = 0;
 	float cxDelta, cyDelta, czDelta = 0.0f;
 	CLoadedModelInfo* pAngrybotModels[3];
@@ -45,7 +45,7 @@ public:
 	steady_clock::time_point recv_time;
 	XMFLOAT3 Aiming_Position;
 	short gun_hit = 0;
-	float aimSize = 1.f;
+	//float aimSize = 1.f;
 public:
 	CPlayer();
 	virtual ~CPlayer();

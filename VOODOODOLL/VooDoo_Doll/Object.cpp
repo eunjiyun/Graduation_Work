@@ -926,7 +926,7 @@ void CAnimationController::AdvanceTime(float fTimeElapsed, short curTrack, CGame
 			{
 				if (2 == curTrack)//player : attack
 					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_ONCE;
-				else if (4 == curTrack)//player : die 
+				else if (4 == curTrack || 3 == curTrack)//player : die 
 					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_DEAD;
 				else if (5 == curTrack)//player : jump 
 					m_pAnimationTracks[curTrack].m_nType = ANIMATION_TYPE_JUMP;

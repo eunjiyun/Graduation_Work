@@ -786,8 +786,8 @@ void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos)
 		if (player->c_id < 0) {
 			player->c_id = p_id;
 			player->SetPosition(Pos);
-			cout << player->c_id << endl;
 			player->recv_time = high_resolution_clock::now();
+			player->alive = true;
 			break;
 		}
 }
@@ -825,7 +825,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Mon->speed = 12.f;
 		Mon->HP = 250;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
@@ -846,7 +846,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(2, false);
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Mon->speed = 12.f;
 		Mon->HP = 150;
 		Mon->SetScale(1.0f, 1.0f, 1.0f);
@@ -867,7 +867,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(3, false);
 
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,10,10 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 10,30,10 });
 		Hat = MagiciansHat.front();
 		MagiciansHat.pop();
 		Mon->Hat_Model = Hat;
@@ -898,7 +898,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(5, false);//�ǰ�
 		Mon->m_pSkinnedAnimationController->SetTrackEnable(6, false);//�ȱ�
 
-		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 30,30,30 });
+		Mon->m_xmOOBB = BoundingBox(Pos, XMFLOAT3{ 30,60,30 });
 		Mon->speed = 12.f;
 		Mon->HP = 2000;
 

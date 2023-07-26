@@ -1618,7 +1618,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
 		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
-		pl->aimSize = 0.7f;
+		//pl->aimSize = 0.7f;
 		while (Vector3::Length(Vector3::Subtract(pl->Aiming_Position, xmf3Position)) > 10.f)
 		{
 			XMVECTOR _Pos = XMLoadFloat3(&xmf3Position);
@@ -1653,7 +1653,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			pl->aimSize += 0.003f;
+			//pl->aimSize += 0.003f;
 			xmf3Position = Vector3::Add(xmf3Position, dir);
 		}
 	}
