@@ -109,6 +109,7 @@ public:
 	virtual void AnimateObjects(float fTimeElapsed) { }
 	virtual void ReleaseObjects() { }
 	void CreateCbvSrvUavDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews,int nUnorderedAccessViews);
+	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
 	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
 	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, int nResources, ID3D12Resource** ppd3dResources, DXGI_FORMAT* pdxgiSrvFormats);
@@ -153,10 +154,6 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 class CSkinnedAnimationStandardShader : public CStandardShader
 {
 public:
@@ -193,7 +190,35 @@ protected:
 
 class CBoxShader;
 
-class CObjectsShader : public CShader
+
+class CTexturedShader : public CShader
+{
+public:
+	CTexturedShader();
+	virtual ~CTexturedShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+};
+
+
+class CIlluminatedTexturedShader : public CTexturedShader
+{
+public:
+	CIlluminatedTexturedShader();
+	virtual ~CIlluminatedTexturedShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+};
+
+
+
+class CObjectsShader : public CIlluminatedTexturedShader
 {
 public:
 	CObjectsShader();
@@ -406,6 +431,7 @@ public:
 	CMultiSpriteObject* pSpriteObject = nullptr;
 };
 
+
 class CComputeShader : public CShader
 {
 public:
@@ -507,3 +533,68 @@ public:
 	CTexture* m_pTexture = NULL;
 	bool set[3] = { false,false,false };
 };
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+
+class CPostProcessingShader : public CShader
+{
+public:
+	CPostProcessingShader();
+	virtual ~CPostProcessingShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+
+	virtual ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
+
+	virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat);
+	virtual void CreateResourcesAndRtvsSrvs(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, UINT nRenderTargets, DXGI_FORMAT* pdxgiFormats, D3D12_CPU_DESCRIPTOR_HANDLE d3dRtvCPUDescriptorHandle, UINT nShaderResources);
+
+	virtual void OnPrepareRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList, int nRenderTargets, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dRtvCPUHandles, D3D12_CPU_DESCRIPTOR_HANDLE* pd3dDsvCPUHandle);
+	virtual void OnPostRenderTarget(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext);
+
+protected:
+	CTexture* m_pTexture = NULL;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE* m_pd3dRtvCPUDescriptorHandles = NULL;
+
+public:
+	CTexture* GetTexture() { return(m_pTexture); }
+	ID3D12Resource* GetTextureResource(UINT nIndex) { return(m_pTexture->GetResource(nIndex)); }
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvCPUDescriptorHandle(UINT nIndex) { return(m_pd3dRtvCPUDescriptorHandles[nIndex]); }
+};
+
+struct PS_CB_DRAW_OPTIONS
+{
+	XMINT4							m_xmn4DrawOptions;
+};
+
+
+class CTextureSampling : public CPostProcessingShader
+{
+public:
+	CTextureSampling();
+	virtual ~CTextureSampling();
+
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
+	virtual void ReleaseShaderVariables();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext = NULL);
+
+protected:
+	ID3D12Resource* m_pd3dcbDrawOptions = NULL;
+	PS_CB_DRAW_OPTIONS* m_pcbMappedDrawOptions = NULL;
+};
+

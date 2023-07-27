@@ -939,7 +939,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	
-	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[18];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -1032,6 +1032,11 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[16].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9]; //Texture2D
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	pd3dRootParameters[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[17].Descriptor.ShaderRegister = 5; //DrawOptions
+	pd3dRootParameters[17].Constants.RegisterSpace = 0;
+	pd3dRootParameters[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];

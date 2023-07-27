@@ -11,6 +11,14 @@
 #include <queue>
 #include <array>
 
+#define DRAW_SCENE_COLOR				   'P'
+
+#define DRAW_SCENE_TEXTURE				'T'
+#define DRAW_SCENE_LIGHTING				'Y'
+#define DRAW_SCENE_NORMAL				'U'
+#define DRAW_SCENE_Z_DEPTH				'I'
+#define DRAW_SCENE_DEPTH					'O'
+
 
 class CGameFramework
 {
@@ -28,6 +36,7 @@ public:
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	void CreateRenderTargetViews();
+	void CreateSwapChainRenderTargetViews();
 	void CreateDepthStencilView();
 
 	void ChangeSwapChainState();
@@ -79,6 +88,10 @@ private:
 
 	
 	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap = NULL;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dRtvCPUDescriptorHandle;
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBuffers];
+	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dDsvDescriptorCPUHandle;
 
 	ID3D12Resource* m_pd3dDepthStencilBuffer = NULL;
 	ID3D12DescriptorHeap* m_pd3dDsvDescriptorHeap = NULL;
@@ -161,6 +174,8 @@ public:
 
 	CGameObject** m_ppBullets = NULL;
 	CGameObject** m_ppCap = NULL;
+	CPostProcessingShader* m_pPostProcessingShader = NULL;
+
 	bool onFullScreen = false;
 
 	int curAtt[3] = { 0,0,0 };
