@@ -403,6 +403,7 @@ static float gfGaussianBlurMask2D[5][5] = {
 //	{
 //		// 모션 벡터 계산
 //		float2 motionVector = gtxtInput[n3DispatchThreadID.xy].xy - gtxtPrevFrame[n3DispatchThreadID.xy].xy;
+//		//normalize(round(motionVector));
 //		motionVector *= MotionBlurStrength;
 //
 //		float4 f4Color = float4(0, 0, 0, 0);
@@ -411,8 +412,19 @@ static float gfGaussianBlurMask2D[5][5] = {
 //		{
 //			for (int j = -2; j <= 2; j++)
 //			{
+//				//float2 offset = float2(0, 0);
+//				//if(motionVector.x>0 && motionVector.y>0)
+//				//	offset = float2(i + 1, j + 1);// *motionVector;
+//				//else if (motionVector.x <= 0 && motionVector.y <= 0)
+//				//	offset = float2(i - 1, j - 1);// *motionVector;
+//				//else if (motionVector.x > 0 && motionVector.y <= 0)
+//				//	offset = float2(i + 1, j -1);// *motionVector;
+//				//else if (motionVector.x <= 0 && motionVector.y > 0)
+//				//	offset = float2(i - 1, j + 1);// *motionVector;
 //				float2 offset = float2(i, j) * motionVector;
+//				//float2 offset = float2( motionVector.x, motionVector.y);// *motionVector;
 //				f4Color += gfGaussianBlurMask2D[i+2 ][j +2] * gtxtInput[n3DispatchThreadID.xy + offset];
+//				//f4Color += gfGaussianBlurMask2D[i + 2][j + 2] * gtxtInput.Sample(gssWrap, gtxtInput[n3DispatchThreadID.xy].xy + offset);
 //			}
 //		}
 //		gtxtRWOutput[n3DispatchThreadID.xy] = f4Color;
@@ -447,7 +459,8 @@ Texture2D gtxtOutput : register(t1);
 float4 PSTextureToFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
 {
 	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
-	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;
+	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
+	//float4 cEdgeColor = gtxtPrevFrame.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
 
 	return(cEdgeColor);
 	//return(cColor * cEdgeColor);

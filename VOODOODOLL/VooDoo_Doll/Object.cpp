@@ -11,7 +11,6 @@
 //
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootParameters)
 {
-	//new CTexture(nTextures=3, nTextureType=RESOURCE_TEXTURE2D,nSamplers= 0, nRootParameters=3);
 	m_nTextureType = nTextureType;
 
 	m_nTextures = nTextures;
@@ -43,14 +42,13 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 		for (int i{}; i < m_nComputeUavGpuHandles; ++i) m_pd3dComputeUavGpuDescriptorHandles[i].ptr = NULL;
 	}
 
-	m_nComputeSrvGpuHandles = 1;
+	m_nComputeSrvGpuHandles = 2;
 	if (m_nComputeSrvGpuHandles > 0)
 	{
 		m_pd3dComputeSrvGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nComputeSrvGpuHandles];
 		for (int i{}; i < m_nComputeSrvGpuHandles; ++i) m_pd3dComputeSrvGpuDescriptorHandles[i].ptr = NULL;
 	}
 
-	//m_nComputeUavRootParameters = nComputeUavRootParameters;
 	m_nComputeUavRootParameters = 1;
 	if (m_nComputeUavRootParameters > 0)
 	{
@@ -62,8 +60,7 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers, int nRootPar
 		for (int i{}; i < m_nComputeUavRootParameters; ++i) m_pd3dComputeUavRootParameterGpuDescriptorHandles[i].ptr = NULL;
 	}
 
-	//m_nComputeSrvRootParameters = nComputeSrvRootParameters;
-	m_nComputeSrvRootParameters = 1;
+	m_nComputeSrvRootParameters = 2;
 	if (m_nComputeSrvRootParameters > 0)
 	{
 		m_pnComputeSrvRootParameterIndices = new int[m_nComputeSrvRootParameters];
