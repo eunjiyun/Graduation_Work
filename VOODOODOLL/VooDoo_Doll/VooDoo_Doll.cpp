@@ -680,8 +680,9 @@ void ProcessPacket(char* ptr)//몬스터 생성
 
             XMFLOAT3 deltaPos = Vector3::Subtract(packet->Pos, (*iter)->GetPosition());
             XMFLOAT3 targetPos = Vector3::Add((*iter)->GetPosition(), Vector3::ScalarProduct(deltaPos, 0.1f, false));
-            if ((*iter) != gGameFramework.m_pPlayer)
+            if ((*iter) != gGameFramework.m_pPlayer) {
                 (*iter)->SetVelocity(packet->vel);
+            }
             (*iter)->SetPosition(targetPos);
         }
 
