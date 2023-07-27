@@ -1340,7 +1340,8 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 	}
 
-	if (blur)
+	//if (blur)
+	if(login && pMultiSpriteObjectShader->obj[5+m_pPlayer->c_id]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id])
 	{
 		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt);
 
