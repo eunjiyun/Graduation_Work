@@ -94,6 +94,8 @@ void ProcessInput()
             else
                 cyDelta = max((float)(ptCursorPos.y - gGameFramework.Get_OldCursorPointY()) / 3.0f, -10.f);
             ::SetCursorPos(gGameFramework.Get_OldCursorPointX(), gGameFramework.Get_OldCursorPointY());
+
+            //gGameFramework.m_pStage->blur = true;
         }
     }
 
@@ -361,6 +363,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
+        //gGameFramework.m_pStage->blur = false;
     case WM_SIZE:
         if (gGameFramework.lobby[0])
         {
