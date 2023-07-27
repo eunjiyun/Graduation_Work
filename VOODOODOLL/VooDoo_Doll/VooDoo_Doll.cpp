@@ -344,13 +344,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
             }
-            else if ('z' == wParam|| 'Z' == wParam)
+            /*else if ('z' == wParam|| 'Z' == wParam)
             {
                 if (gGameFramework.m_pStage->blur)
                     gGameFramework.m_pStage->blur = false;
                 else
                     gGameFramework.m_pStage->blur = true;
-            }
+            }*/
         }
         break;
     case WM_KEYUP:

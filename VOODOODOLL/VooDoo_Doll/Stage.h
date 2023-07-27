@@ -115,7 +115,7 @@ public:
 	float							m_fLightRotationAngle = 0.0f;
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
-	bool blur = true;
+	bool blur = false;
 	
 protected:
 	
