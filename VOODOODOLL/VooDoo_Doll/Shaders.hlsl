@@ -400,7 +400,7 @@ static float gfGaussianBlurMask2D[5][5] = {
 	{ 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
 };
 
-#define MotionBlurStrength 3.1f // 모션 블러 강도
+#define MotionBlurStrength 0.1f // 모션 블러 강도
 
 [numthreads(32, 32, 1)]
 //void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
@@ -453,7 +453,8 @@ void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchTh
 		{
 			for (int j = -2; j <= 2; ++j)
 			{
-				f4Color += gfGaussianBlurMask2D[i + 2][j + 2] * gtxtInput[n3DispatchThreadID.xy + int2(i, j)];
+				float2 offset = float2(i, j) * MotionBlurStrength;
+				f4Color += gfGaussianBlurMask2D[i + 2][j + 2] * gtxtInput[n3DispatchThreadID.xy + offset];
 			}
 		}
 
