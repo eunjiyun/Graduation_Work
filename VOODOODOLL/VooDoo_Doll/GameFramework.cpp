@@ -383,7 +383,6 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
 			{
 				signIn = 1;
-				loginSign[1] = true;
 			}
 		}
 		break;
