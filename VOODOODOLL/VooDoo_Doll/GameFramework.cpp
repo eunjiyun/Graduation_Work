@@ -1436,7 +1436,7 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
-		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38,27));
+		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 13.f, XMFLOAT2(76,54));
 
 		for (int i = 0; i < m_pStage->Monsters.size(); ++i)
 		{
