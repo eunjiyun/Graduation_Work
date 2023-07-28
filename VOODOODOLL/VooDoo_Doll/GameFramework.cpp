@@ -1028,39 +1028,35 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		bloodTime = 0.f;
 	}
 
-	for (int i{}; i < 3; ++i)
-	{
-		if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
+	//for (int i{}; i < 3; ++i)
+	//{
+	//	if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
+	//	{
+	//		plTime[i] += fTimeElapsed;
+	//		if (0.1f < plTime[i])
+	//		{
+	//			if (i == m_pPlayer->c_id % 3) m_pStage->blur = false;
+	//			m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//??
+	//			plTime[i] = 0.f;
+	//		}
+	//	}
+	//}
+
+	if (m_pStage->blur) {
+		blurTime += fTimeElapsed;
+		if (0.9f < blurTime)
 		{
-			plTime[i] += fTimeElapsed;
-			if (0.2f < plTime[i])
-			{
-				m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//??
-				plTime[i] = 0.f;
-			}
+			m_pStage->blur = false;
 		}
 	}
 
-	if (m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] && !m_pStage->blur)
-	//if (4800 > m_pPlayer->HP && 4500 > m_pPlayer->HP &&!m_pStage->blur)
-	{
-		m_pStage->blur = true;
-		//cout << "blur" << endl;
-	}
-
-	blurTime += fTimeElapsed;
-	if (10.f < blurTime)
-	{
-		m_pStage->blur = false;//??
-		blurTime = 0.f;
-	}
-
-
-	popUpTime += fTimeElapsed;
-	if (popUpTime > 3.f)
-	{
-		m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//???
-		popUpTime = 0.f;
+	if (m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]) {
+		popUpTime += fTimeElapsed;
+		if (popUpTime > 3.f)
+		{
+			m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//???
+			popUpTime = 0.f;
+		}
 	}
 }
 

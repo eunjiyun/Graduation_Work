@@ -161,14 +161,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
         cout << "소켓 생성 실패\n";
     }
 
-
+    string IP;
+    cout << "서버 IP 입력 : ";
+    cin >> IP;
     // 서버와 연결
     SOCKADDR_IN svr_addr;
     memset(&svr_addr, 0, sizeof(svr_addr));
     svr_addr.sin_family = AF_INET;
     svr_addr.sin_port = htons(SERVER_PORT);
-
-    inet_pton(AF_INET, "127.0.0.1", &svr_addr.sin_addr);
+    
+    inet_pton(AF_INET, IP.c_str(), &svr_addr.sin_addr);
     ErrorStatus = WSAConnect(s_socket, reinterpret_cast<sockaddr*>(&svr_addr), sizeof(svr_addr), 0, 0, 0, 0);
     if (ErrorStatus == SOCKET_ERROR) err_quit("WSAConnect()");
 
@@ -693,6 +695,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
                 gGameFramework.beforeHp[0] = packet->HP;
                 gGameFramework.plTime[0] = 0.f;
+                if (gGameFramework.m_pPlayer->c_id == packet->id) {
+                    gGameFramework.m_pStage->blur = true;
+                    gGameFramework.blurTime = 0.f;
+                }
             }
         }
         else if (1 == packet->id % 3)
@@ -702,6 +708,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[6]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] = true;
                 gGameFramework.beforeHp[1] = packet->HP;
                 gGameFramework.plTime[1] = 0.f;
+                if (gGameFramework.m_pPlayer->c_id == packet->id) {
+                    gGameFramework.m_pStage->blur = true;
+                    gGameFramework.blurTime = 0.f;
+                }
             }
         }
         else if (2 == packet->id % 3)
@@ -711,6 +721,10 @@ void ProcessPacket(char* ptr)//몬스터 생성
                 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[7]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[2] = true;
                 gGameFramework.beforeHp[2] = packet->HP;
                 gGameFramework.plTime[2] = 0.f;
+                if (gGameFramework.m_pPlayer->c_id == packet->id) {
+                    gGameFramework.m_pStage->blur = true;
+                    gGameFramework.blurTime = 0.f;
+                }
             }
         }
 
@@ -719,7 +733,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
     case SC_ROTATE_PLAYER: {
         SC_ROTATE_PLAYER_PACKET* packet = reinterpret_cast<SC_ROTATE_PLAYER_PACKET*>(ptr);
         auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
-        if (iter == gGameFramework.Players.end()) break;
+        if (iter == gGameFramework.Players.end() || (*iter) == gGameFramework.m_pPlayer) break;
         (*iter)->SetLookVector(packet->Look);
         (*iter)->SetRightVector(packet->Right);
         (*iter)->SetUpVector(Vector3::CrossProduct((*iter)->GetLookVector(), (*iter)->GetRightVector(), true));
