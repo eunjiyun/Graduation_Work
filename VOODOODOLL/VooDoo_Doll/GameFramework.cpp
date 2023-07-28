@@ -388,6 +388,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		}
 		break;
 	case WM_LBUTTONUP:
+		//gGameFramework.m_pStage->blur = false;
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
 		break;
@@ -1020,7 +1021,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	if (m_pPlayer->gun_hit)
 		bloodTime += fTimeElapsed;
 	if (bloodTime > 0.1f)
-
 	{
 		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;//??
 		damagedMon = -1;
@@ -1042,13 +1042,14 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 	//	}
 	//}
 
-	if (m_pStage->blur) {
+	/*if (m_pStage->blur) {
 		blurTime += fTimeElapsed;
 		if (0.9f < blurTime)
 		{
 			m_pStage->blur = false;
 		}
-	}
+	}*/
+
 
 	if (m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]) {
 		popUpTime += fTimeElapsed;
@@ -1058,6 +1059,14 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			popUpTime = 0.f;
 		}
 	}
+	if (m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3])
+		//if (4800 > m_pPlayer->HP && 4500 > m_pPlayer->HP &&!m_pStage->blur)
+	{
+		m_pStage->blur = true;
+		//cout << "blur" << endl;
+	}
+	else
+		m_pStage->blur = false;
 }
 
 void CGameFramework::WaitForGpuComplete()
