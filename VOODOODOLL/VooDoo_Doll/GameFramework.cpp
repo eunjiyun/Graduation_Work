@@ -354,24 +354,24 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
-		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
-		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
+		cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
+		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;
 
 		if (false == onFullScreen)
 		{
-			sign[0].x = 253; sign[1].x = 365;
-			sign[0].y = 381; sign[1].y = 422;
+			sign[0].x = 505; sign[1].x = 726;
+			sign[0].y = 739; sign[1].y = 812;
 
-			sign[2].x = 421; sign[3].x = 531;
-			sign[2].y = 379; sign[3].y = 425;
+			sign[2].x = 836; sign[3].x = 1055;
+			sign[2].y = 740; sign[3].y = 819;
 		}
 		else
 		{
-			sign[0].x = 245; sign[1].x = 356;
-			sign[0].y = 346; sign[1].y = 392;
+			sign[0].x = 496; sign[1].x = 712;
+			sign[0].y = 708; sign[1].y = 783;
 
-			sign[2].x = 413; sign[3].x = 522;
-			sign[2].y = 345; sign[3].y = 392;
+			sign[2].x = 832; sign[3].x = 1046;
+			sign[2].y = 715; sign[3].y = 781;
 		}
 
 		if (1 != gameButton)
@@ -383,7 +383,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
 			{
 				signIn = 1;
-				//loginSign[1] = true;
+
 			}
 		}
 		break;
@@ -725,8 +725,7 @@ void CGameFramework::BuildObjects()
 
 	m_pStage->m_pShadowMapToViewport = new CTextureToViewportShader();
 	m_pStage->m_pShadowMapToViewport->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-
-
+	
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
@@ -1140,8 +1139,8 @@ void CGameFramework::FrameAdvance()
 	{
 		if (false == onFullScreen)
 		{
-			if (530 <= m_ptOldCursorPos.x - windowX && 594 >= m_ptOldCursorPos.x - windowX
-				&& 290 <= m_ptOldCursorPos.y - windowY && 325 >= m_ptOldCursorPos.y - windowY)//play
+			if (1058 <= m_ptOldCursorPos.x - windowX && 1184 >= m_ptOldCursorPos.x - windowX
+				&& 563 <= m_ptOldCursorPos.y - windowY && 620 >= m_ptOldCursorPos.y - windowY)//play
 			{
 				if (!lobby[0])
 				{
@@ -1157,20 +1156,20 @@ void CGameFramework::FrameAdvance()
 
 
 			}
-			else if (532 <= m_ptOldCursorPos.x - windowX && 595 >= m_ptOldCursorPos.x - windowX
-				&& 348 <= m_ptOldCursorPos.y - windowY && 385 >= m_ptOldCursorPos.y - windowY)//exit
+			else if (1063 <= m_ptOldCursorPos.x - windowX && 1186 >= m_ptOldCursorPos.x - windowX
+				&& 686 <= m_ptOldCursorPos.y - windowY && 740 >= m_ptOldCursorPos.y - windowY)//exit
 			{
 				gameButton = 2;
 				m_pStage->exitGame = true;
 			}
-			else if (504 <= m_ptOldCursorPos.x - windowX && 625 >= m_ptOldCursorPos.x - windowX
-				&& 410 <= m_ptOldCursorPos.y - windowY && 446 >= m_ptOldCursorPos.y - windowY)//settings
+			else if (1007 <= m_ptOldCursorPos.x - windowX && 1245 >= m_ptOldCursorPos.x - windowX
+				&& 807 <= m_ptOldCursorPos.y - windowY && 861 >= m_ptOldCursorPos.y - windowY)//settings
 				gameButton = 3;
 		}
 		else
 		{
-			if (523 <= m_ptOldCursorPos.x - windowX && 587 >= m_ptOldCursorPos.x - windowX
-				&& 257 <= m_ptOldCursorPos.y - windowY && 293 >= m_ptOldCursorPos.y - windowY)
+			if (1047 <= m_ptOldCursorPos.x - windowX && 1177 >= m_ptOldCursorPos.x - windowX
+				&& 527 <= m_ptOldCursorPos.y - windowY && 587 >= m_ptOldCursorPos.y - windowY)
 			{
 				if (!lobby[0])
 				{
@@ -1185,15 +1184,15 @@ void CGameFramework::FrameAdvance()
 					m_pStage->userId[i]->SetPosition(50, -52, 554 + 12 * i);
 
 			}
-			else if (525 <= m_ptOldCursorPos.x - windowX && 588 >= m_ptOldCursorPos.x - windowX
-				&& 318 <= m_ptOldCursorPos.y - windowY && 353 >= m_ptOldCursorPos.y - windowY)
+			else if (1056 <= m_ptOldCursorPos.x - windowX && 1178 >= m_ptOldCursorPos.x - windowX
+				&& 651 <= m_ptOldCursorPos.y - windowY && 703>= m_ptOldCursorPos.y - windowY)
 			{
 				gameButton = 2;
 				m_pStage->exitGame = true;
 				ChangeSwapChainState();
 			}
-			else if (495 <= m_ptOldCursorPos.x - windowX && 618 >= m_ptOldCursorPos.x - windowX
-				&& 377 <= m_ptOldCursorPos.y - windowY && 415 >= m_ptOldCursorPos.y - windowY)
+			else if (999 <= m_ptOldCursorPos.x - windowX && 1236>= m_ptOldCursorPos.x - windowX
+				&& 775<= m_ptOldCursorPos.y - windowY && 828 >= m_ptOldCursorPos.y - windowY)
 				gameButton = 3;
 		}
 	}
@@ -1445,7 +1444,7 @@ void CGameFramework::FrameAdvance()
 			if (Mon->c_id == 59) continue;
 			try {
 				if (Mon->damaged) {
-					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, 640, 480);
+					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
 					pos.x -= Mon->HP / 2.f;
 					m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, Mon->HP, pos);
 				}

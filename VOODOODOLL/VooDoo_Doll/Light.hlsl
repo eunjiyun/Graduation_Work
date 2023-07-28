@@ -37,8 +37,8 @@ cbuffer cbLights : register(b4)
 	int						gnLights;
 };
 
-#define FRAME_BUFFER_WIDTH		640
-#define FRAME_BUFFER_HEIGHT		480
+#define FRAME_BUFFER_WIDTH		640*2
+#define FRAME_BUFFER_HEIGHT		480*2
 
 #define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 4)
 #define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 4)
