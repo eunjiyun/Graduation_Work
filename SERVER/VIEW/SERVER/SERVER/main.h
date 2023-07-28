@@ -949,28 +949,6 @@ void InitializeGrid()
 	//	}
 	//}
 
-
-	std::ifstream file("map.txt");
-
-	if (file.is_open())
-	{
-		for (int floor = 0; floor < 2; ++floor)
-		{
-			for (int x = 0; x < GRID_SIZE_X; ++x)
-			{
-				for (int z = 0; z < GRID_SIZE_Z; ++z)
-				{
-					file >> ObstacleGrid[floor][x][z];
-				}
-			}
-		}
-		file.close();
-	}
-	else
-	{
-		std::cout << "Failed to open file for reading." << endl;
-	}
-
 	//ofstream file("map.txt");
 
 	//if (file.is_open())
@@ -1008,6 +986,26 @@ void InitializeGrid()
 	//	wcout << endl;
 	//}
 
+	std::ifstream file("map.txt");
+
+	if (file.is_open())
+	{
+		for (int floor = 0; floor < 2; ++floor)
+		{
+			for (int x = 0; x < GRID_SIZE_X; ++x)
+			{
+				for (int z = 0; z < GRID_SIZE_Z; ++z)
+				{
+					file >> ObstacleGrid[floor][x][z];
+				}
+			}
+		}
+		file.close();
+	}
+	else
+	{
+		std::cout << "Failed to open file for reading." << endl;
+	}
 }
 
 void InitializeMap()
