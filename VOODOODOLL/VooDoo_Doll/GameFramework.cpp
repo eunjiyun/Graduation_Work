@@ -423,6 +423,17 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
+		case 'T': //84
+		case 'P': //80
+		case 'Y': //89
+		case 'U': //85
+		case 'I': //73
+		case 'O': //79
+		case 'L': //76
+		{
+			m_nDrawOptions = (int)wParam;
+			break;
+		}
 		default:
 			break;
 		}
@@ -697,12 +708,14 @@ void CGameFramework::BuildObjects()
 	m_pPlayer->AnimationControllers[2]->SetAnimationCallbackHandler(5, pAnimationCallbackHandler);
 
 
-
-
-
 	m_pStage->m_pPlayer = m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
+	m_pPostProcessingShader = new CTextureSampling();
+	m_pPostProcessingShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
+	m_pPostProcessingShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, &m_nDrawOptions);
+
+	m_pd3dCommandList->Close();
 
 	Players.push_back(m_pPlayer);
 
@@ -725,7 +738,12 @@ void CGameFramework::BuildObjects()
 	m_pStage->m_pShadowMapToViewport = new CTextureToViewportShader();
 	m_pStage->m_pShadowMapToViewport->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
 
+	DXGI_FORMAT pdxgiResourceFormats[4] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
+	m_pPostProcessingShader->CreateResourcesAndRtvsSrvs(m_pd3dDevice, m_pd3dCommandList, 4, pdxgiResourceFormats, m_d3dRtvCPUDescriptorHandle, 4 + 1); //SRV to (Render Targets)+ (Depth Buffer)
 
+	DXGI_FORMAT pdxgiSrvFormats[1] = { DXGI_FORMAT_R32_FLOAT };
+	m_pPostProcessingShader->CreateShaderResourceViews(m_pd3dDevice, 1, &m_pd3dDepthStencilBuffer, pdxgiSrvFormats);
+	
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);

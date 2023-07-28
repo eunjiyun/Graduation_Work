@@ -10,10 +10,15 @@
 
 CShader::CShader()
 {
+	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr = NULL;
+	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr = NULL;
 }
 
 CShader::~CShader()
 {
+	if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
+	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
+
 	ReleaseShaderVariables();
 
 	if (m_pd3dPipelineState)
@@ -624,6 +629,7 @@ D3D12_SHADER_BYTECODE CObjectsShader::CreateVertexShader()
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSStandard", "vs_5_1", &m_pd3dVertexShaderBlob));
 }
 
+// PSStandard
 D3D12_SHADER_BYTECODE CObjectsShader::CreatePixelShader()
 {
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTexturedLightingToMultipleRTs", "ps_5_1", &m_pd3dPixelShaderBlob));
@@ -1105,8 +1111,7 @@ void CDepthRenderShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	for (UINT i{}; i < MAX_DEPTH_TEXTURES; ++i)
 		m_pDepthTexture->CreateTexture(pd3dDevice, pd3dCommandList, i, RESOURCE_TEXTURE2D, _DEPTH_BUFFER_WIDTH, _DEPTH_BUFFER_HEIGHT, 1, 0, DXGI_FORMAT_R32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &d3dClearValue);
-	//m_pDepthTexture->CreateTexture(pd3dDevice, pd3dCommandList, i, RESOURCE_TEXTURE2D, _DEPTH_BUFFER_WIDTH, _DEPTH_BUFFER_HEIGHT, 1, 0, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON, &d3dClearValue);
-
+	
 	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc;
 	d3dRenderTargetViewDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	d3dRenderTargetViewDesc.Texture2D.MipSlice = 0;
@@ -2588,7 +2593,7 @@ D3D12_SHADER_BYTECODE CPostProcessingShader::CreatePixelShader()
 
 void CPostProcessingShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dGraphicsRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
 {
-#ifdef _WITH_SCENE_ROOT_SIGNATURE
+#ifdef _WITH_Scene_ROOT_SIGNATURE
 	m_pd3dGraphicsRootSignature = pd3dGraphicsRootSignature;
 	m_pd3dGraphicsRootSignature->AddRef();
 #else
@@ -2675,50 +2680,50 @@ void CPostProcessingShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, C
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
-//CTextureSampling::CTextureSampling()
-//{
-//}
-//
-//CTextureSampling::~CTextureSampling()
-//{
-//	ReleaseShaderVariables();
-//}
-//}
-//
-//D3D12_SHADER_BYTECODE CTextureSampling::CreateVertexShader()
-//{
-//	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSScreenRectSamplingTextured", "vs_5_1", &m_pd3dVertexShaderBlob));
-//}
-//
-//D3D12_SHADER_BYTECODE CTextureSampling::CreatePixelShader()
-//{
-//	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", &m_pd3dPixelShaderBlob));
-//}
-//
-//void CTextureSampling::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
-//{
-//	UINT ncbElementBytes = ((sizeof(PS_CB_DRAW_OPTIONS) + 255) & ~255); //256의 배수
-//	m_pd3dcbDrawOptions = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-//	m_pd3dcbDrawOptions->Map(0, NULL, (void**)&m_pcbMappedDrawOptions);
-//
-//	CPostProcessingShader::CreateShaderVariables(pd3dDevice, pd3dCommandList);
-//}
-//
-//void CTextureSampling::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
-//{
-//	m_pcbMappedDrawOptions->m_xmn4DrawOptions.x = *((int*)pContext);
-//	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbDrawOptions->GetGPUVirtualAddress();
-//	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress);
-//
-//	CPostProcessingShader::UpdateShaderVariables(pd3dCommandList, pContext);
-//}
-//
-//void CTextureSampling::ReleaseShaderVariables()
-//{
-//	if (m_pd3dcbDrawOptions) m_pd3dcbDrawOptions->Release();
-//}
-//
-//void CTextureSampling::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
-//{
-//	CPostProcessingShader::Render(pd3dCommandList, pCamera, pContext);
-//}
+CTextureSampling::CTextureSampling()
+{
+}
+
+CTextureSampling::~CTextureSampling()
+{
+	ReleaseShaderVariables();
+}
+
+
+D3D12_SHADER_BYTECODE CTextureSampling::CreateVertexShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSScreenRectSamplingTextured", "vs_5_1", &m_pd3dVertexShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CTextureSampling::CreatePixelShader()
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSScreenRectSamplingTextured", "ps_5_1", &m_pd3dPixelShaderBlob));
+}
+
+void CTextureSampling::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	UINT ncbElementBytes = ((sizeof(PS_CB_DRAW_OPTIONS) + 255) & ~255); //256의 배수
+	m_pd3dcbDrawOptions = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+	m_pd3dcbDrawOptions->Map(0, NULL, (void**)&m_pcbMappedDrawOptions);
+
+	CPostProcessingShader::CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void CTextureSampling::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext)
+{
+	m_pcbMappedDrawOptions->m_xmn4DrawOptions.x = *((int*)pContext);
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbDrawOptions->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(7, d3dGpuVirtualAddress);
+
+	CPostProcessingShader::UpdateShaderVariables(pd3dCommandList, pContext);
+}
+
+void CTextureSampling::ReleaseShaderVariables()
+{
+	if (m_pd3dcbDrawOptions) m_pd3dcbDrawOptions->Release();
+}
+
+void CTextureSampling::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext)
+{
+	CPostProcessingShader::Render(pd3dCommandList, pCamera, pContext);
+}

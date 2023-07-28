@@ -3,6 +3,14 @@
 #define FRAME_BUFFER_WIDTH		640
 #define FRAME_BUFFER_HEIGHT		480
 
+#define DRAW_SCENE_COLOR				   'P'
+
+#define DRAW_SCENE_TEXTURE				'T'
+#define DRAW_SCENE_LIGHTING				'Y'
+#define DRAW_SCENE_NORMAL				'U'
+#define DRAW_SCENE_Z_DEPTH				'I'
+#define DRAW_SCENE_DEPTH					'O'
+
 #include "Timer.h"
 #include "Player.h"
 #include "Stage.h"
@@ -100,7 +108,7 @@ private:
 	ID3D12CommandQueue* m_pd3dCommandQueue = NULL;
 	static ID3D12GraphicsCommandList* m_pd3dCommandList;// = NULL;
 
-	ID3D12Fence* m_pd3dFence = NULL;
+	ID3D12Fence*			m_pd3dFence = NULL;
 	UINT64						m_nFenceValues[m_nSwapChainBuffers];
 	HANDLE						m_hFenceEvent;
 
@@ -179,5 +187,6 @@ public:
 	bool onFullScreen = false;
 
 	int curAtt[3] = { 0,0,0 };
+	int								m_nDrawOptions = DRAW_SCENE_COLOR;
 };
 
