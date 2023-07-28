@@ -1372,6 +1372,8 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
 	}
 
+
+
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
 
@@ -1380,8 +1382,8 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage->m_pShadowShader && lobby[2])
 	{
-		if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
-			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);
+		/*if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);*/
 
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, false);
 	}
@@ -1398,14 +1400,11 @@ void CGameFramework::FrameAdvance()
 		{
 			for (m = 0; m < m_pStage->Monsters.size(); ++m)
 			{
-
 				if (59 == m_pStage->Monsters[m]->c_id)
 					//if (0 == Monsters[m]->c_id)//pat
-
 				{
 					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
-
 						if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
 							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
 							&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <

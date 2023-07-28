@@ -1318,7 +1318,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
-	if (m_ppShaders[0]->m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_ppShaders[0]->m_pd3dPipelineState);
+	
 
 	if (login)
 	{
@@ -1331,6 +1331,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 				if (false == m_ppShaders[0]->m_ppObjects[i]->m_bGetItem)
 				{
+					m_ppShaders[0]->m_ppObjects[i]->m_ppMaterials[0]->m_pStandardShader->Render(pd3dCommandList, pCamera);
 					m_ppShaders[0]->m_ppObjects[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
 				}
 			}
