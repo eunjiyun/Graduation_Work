@@ -370,8 +370,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             if (false == gGameFramework.onFullScreen)
             {
-                if (31 <= gGameFramework.m_ptOldCursorPos.x - windowX && 146 >= gGameFramework.m_ptOldCursorPos.x - windowX
-                    && 103 <= gGameFramework.m_ptOldCursorPos.y - windowY && 162 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
+                if (60 <= gGameFramework.m_ptOldCursorPos.x - windowX && 291 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 190 <= gGameFramework.m_ptOldCursorPos.y - windowY && 300 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
                 {
                     if (!gGameFramework.lobby[1])
                     {
@@ -394,8 +394,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         //end search
                     }
                 }
-                else if (30 <= gGameFramework.m_ptOldCursorPos.x - windowX && 145 >= gGameFramework.m_ptOldCursorPos.x - windowX
-                    && 166 <= gGameFramework.m_ptOldCursorPos.y - windowY && 225 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
+                else if (55 <= gGameFramework.m_ptOldCursorPos.x - windowX && 284>= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 318<= gGameFramework.m_ptOldCursorPos.y - windowY && 421 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
                 {
                     gGameFramework.gameButton = 2;
                     gGameFramework.m_pStage->exitGame = true;
@@ -403,8 +403,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else//full
             {
-                if (22 <= gGameFramework.m_ptOldCursorPos.x - windowX && 139 >= gGameFramework.m_ptOldCursorPos.x - windowX
-                    && 72 <= gGameFramework.m_ptOldCursorPos.y - windowY && 133 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
+                if (53 <= gGameFramework.m_ptOldCursorPos.x - windowX && 277 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 164<= gGameFramework.m_ptOldCursorPos.y - windowY && 264 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
                 {
                     if (!gGameFramework.lobby[1])
                     {
@@ -427,8 +427,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         //end search
                     }
                 }
-                else if (22 <= gGameFramework.m_ptOldCursorPos.x - windowX && 139 >= gGameFramework.m_ptOldCursorPos.x - windowX
-                    && 136 <= gGameFramework.m_ptOldCursorPos.y - windowY && 194 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
+                else if (52<= gGameFramework.m_ptOldCursorPos.x - windowX && 275 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 289 <= gGameFramework.m_ptOldCursorPos.y - windowY && 392 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
                 {
                     gGameFramework.gameButton = 2;
                     gGameFramework.m_pStage->exitGame = true;

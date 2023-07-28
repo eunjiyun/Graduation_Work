@@ -1547,7 +1547,7 @@ XMFLOAT2 CTextureToViewportShader::WorldToScreen(XMFLOAT3 worldPosition, CCamera
 void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp, XMFLOAT2 pos)
 {
 	hpBarSet(pd3dCommandList, pCamera, plHp);
-	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 15.f };
+	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 35.f };
 
 	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
@@ -1965,9 +1965,9 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 	{
 		m_pTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 3);
 		m_pTexture->m_pnResourceTypes[0] = RESOURCE_TEXTURE2D;
-		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 0, RESOURCE_TEXTURE2D, 640, 480, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 1, RESOURCE_TEXTURE2D, 640, 480, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 2, RESOURCE_TEXTURE2D, 640, 480, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, NULL);
+		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 0, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 1, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 2, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, NULL);
 	}
 	
 	/*D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -2022,8 +2022,8 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 		m_pTexture->SetComputeUavRootParameter(0, 1, 0, 1);
 		
 
-		m_cxThreadGroups = ceil(640.f / 32.0f);
-		m_cyThreadGroups = ceil(480.f / 32.0f);
+		m_cxThreadGroups = ceil(FRAME_BUFFER_WIDTH/ 32.0f);
+		m_cyThreadGroups = ceil(FRAME_BUFFER_HEIGHT / 32.0f);
 
 		set[1] = true;
 	}
