@@ -728,13 +728,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	{
 
-		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
+		cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
 
 
 
 		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
 
-		if (17 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (18 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[0].push_back(m_ppShaders[0]->m_ppObjects[i]);
 			//cout << "p1stRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
@@ -743,18 +743,18 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	
 
-		if (9 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 387 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (11 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 392 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[1].push_back(m_ppShaders[0]->m_ppObjects[i]);
 			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
 		
-		if (408 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 410 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			412 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 414 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
-			416 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
+		if (409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			413 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 415 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
+			417 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
 		{
 			pPuzzles[5].push_back(m_ppShaders[0]->m_ppObjects[i]);
 			m_ppShaders[0]->m_ppObjects[i]->obBox =
