@@ -2064,7 +2064,7 @@ void CGaussian2DBlurComputeShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12
 	if (!set[0])
 	{
 		CComputeShader::CreateShader(pd3dDevice, pd3dRootSignature, cxThreadGroups, cyThreadGroups, czThreadGroups, 0);
-		//CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 2, 1);
+		CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 2, 1);
 
 		set[0] = true;
 	}
@@ -2095,7 +2095,7 @@ void CGaussian2DBlurComputeShader::Dispatch(ID3D12GraphicsCommandList* pd3dComma
 	if (m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
 	UpdateShaderVariables(pd3dCommandList);
 
-	//for (int i{}; i < 5; ++i)
+	for (int i{}; i < 5; ++i)
 	{
 		pd3dCommandList->Dispatch(m_cxThreadGroups, m_cyThreadGroups, m_czThreadGroups);
 		/*cout << "m_cxThreadGroups : " << m_cxThreadGroups << endl;
@@ -2112,8 +2112,8 @@ void CGaussian2DBlurComputeShader::Dispatch(ID3D12GraphicsCommandList* pd3dComma
 
 void CGaussian2DBlurComputeShader::OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	/*if (m_pd3dCbvSrvDescriptorHeap)
-		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);*/
+	if (m_pd3dCbvSrvDescriptorHeap)
+		pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 void CGaussian2DBlurComputeShader::CreateComputeShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nTextureIndex, UINT nHandleIndex, UINT nDescriptorHeapIndex, UINT nDescriptors)
 {
@@ -2389,7 +2389,7 @@ void CTextureToFullScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12Gr
 	{
 		CGraphicsShader::CreateShader(pd3dDevice, pd3dCommandList, pd3dRootSignature, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat, 0);
 	
-		//CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 2, 0);
+		CreateCbvSrvUavDescriptorHeaps(pd3dDevice, 0, 2, 0);
 
 		set[0] = true;
 	}
@@ -2401,7 +2401,7 @@ void CTextureToFullScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandLi
 {
 	//if (0 == blur % 5 )
 	{
-		//OnPrepare(pd3dCommandList);
+		OnPrepare(pd3dCommandList);
 
 		if (m_pd3dPipelineState)
 			pd3dCommandList->SetPipelineState(m_pd3dPipelineState);

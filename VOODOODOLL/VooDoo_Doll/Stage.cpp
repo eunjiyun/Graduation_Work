@@ -160,7 +160,8 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 904, 1);
+	//CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 904, 1);
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 904, 0);
 	
 
 
@@ -171,13 +172,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature,nullptr);
 	m_ppComputeShaders[0] = pComputeShader;
 
-	pComputeShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
+	/*pComputeShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pComputeShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
 	pComputeShader->m_d3dCbvGPUDescriptorNextHandle = m_d3dCbvGPUDescriptorStartHandle;
 	pComputeShader->m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
 	pComputeShader->m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
 	pComputeShader->m_d3dUavCPUDescriptorNextHandle = m_d3dUavCPUDescriptorStartHandle;
-	pComputeShader->m_d3dUavGPUDescriptorNextHandle=m_d3dUavGPUDescriptorStartHandle;
+	pComputeShader->m_d3dUavGPUDescriptorNextHandle=m_d3dUavGPUDescriptorStartHandle;*/
 
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
@@ -189,13 +190,13 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
 	m_ppGraphicsShaders[0] = pGraphicsShader;
 
-	pGraphicsShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
+	/*pGraphicsShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pGraphicsShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
 	pGraphicsShader->m_d3dCbvGPUDescriptorNextHandle = m_d3dCbvGPUDescriptorStartHandle;
 	pGraphicsShader->m_d3dSrvCPUDescriptorNextHandle = m_d3dSrvCPUDescriptorStartHandle;
 	pGraphicsShader->m_d3dSrvGPUDescriptorNextHandle = m_d3dSrvGPUDescriptorStartHandle;
 	pGraphicsShader->m_d3dUavCPUDescriptorNextHandle = m_d3dUavCPUDescriptorStartHandle;
-	pGraphicsShader->m_d3dUavGPUDescriptorNextHandle = m_d3dUavGPUDescriptorStartHandle;
+	pGraphicsShader->m_d3dUavGPUDescriptorNextHandle = m_d3dUavGPUDescriptorStartHandle;*/
 
 
 	DXGI_FORMAT pdxgiRtvFormats[5] = { DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_R32_FLOAT };
