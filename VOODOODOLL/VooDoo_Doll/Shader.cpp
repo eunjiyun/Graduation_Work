@@ -1705,7 +1705,7 @@ void CMultiSpriteObjectsShader::AnimateObjects(float fTimeElapsed, ID3D12Device*
 	}
 }
 
-void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo, vector<CPlayer*> pl, int boss, void* pContext)
+void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> mon, short daMo, vector<CPlayer*> pl, int boss,bool game, void* pContext)
 {
 	for (int i{}; i < m_nObjects; ++i)
 	{
@@ -1829,7 +1829,10 @@ void CMultiSpriteObjectsShader::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsC
 			}
 			else if (4 == i)//화면
 			{
-				xmf3PlayerPosition.y -= 85.0f;
+				if(game)
+					xmf3PlayerPosition.y -= 79.0f;
+				else
+					xmf3PlayerPosition.y -= 85.0f;
 				
 				xmf3PlayerPosition.x = (xmf3PlayerPosition.x + 3.f * xmf3CameraPosition.x) / 4.f;
 				xmf3PlayerPosition.y = (xmf3PlayerPosition.y + 3.f * xmf3CameraPosition.y) / 4.f;

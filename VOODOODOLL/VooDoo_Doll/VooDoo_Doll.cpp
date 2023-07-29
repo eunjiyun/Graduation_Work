@@ -317,17 +317,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         if (gGameFramework.m_pPlayer->alive && gGameFramework.m_pPlayer->onAct == false && gGameFramework.m_pPlayer->onFloor == true)
         {
-            //if (wParam == 'Z' || wParam == 'z')
-            //{
-            //    gGameFramework.m_pPlayer->SetVelocity(XMFLOAT3(0, 0, 0));
-            //    CS_ATTACK_PACKET p;
-            //    p.size = sizeof(CS_ATTACK_PACKET);
-            //    p.type = CS_ATTACK;
-            //    OVER_EXP* attack_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-            //    int ErrorStatus = WSASend(s_socket, &attack_data->_wsabuf, 1, 0, 0, &attack_data->_over, &send_callback);
-            //    if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-            //    gGameFramework.m_pPlayer->onAct = true;
-            //}
             if (wParam == 'C' || wParam == 'c')
             {
                 CS_INTERACTION_PACKET p;
@@ -348,13 +337,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
                 gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
             }
-            /*else if ('z' == wParam|| 'Z' == wParam)
+            else if ('b' == wParam|| 'B' == wParam)
             {
-                if (gGameFramework.m_pStage->blur)
-                    gGameFramework.m_pStage->blur = false;
+                if (gGameFramework.blur)
+                    gGameFramework.blur = false;
                 else
-                    gGameFramework.m_pStage->blur = true;
-            }*/
+                    gGameFramework.blur = true;
+            }
         }
         break;
     case WM_KEYUP:

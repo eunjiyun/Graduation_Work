@@ -1058,13 +1058,13 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 			popUpTime = 0.f;
 		}
 	}
-	if (m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3])
-		//if (4800 > m_pPlayer->HP && 4500 > m_pPlayer->HP &&!m_pStage->blur)
+	if (m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
+		||blur)
 	{
 		m_pStage->blur = true;
-		//cout << "blur" << endl;
 	}
-	else
+	else if(!m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
+		&&!blur)
 		m_pStage->blur = false;
 }
 
@@ -1429,7 +1429,7 @@ void CGameFramework::FrameAdvance()
 
 
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m,gameEnd);
 
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)

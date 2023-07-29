@@ -423,7 +423,7 @@ public:
 	virtual void ReleaseObjects();
 
 	void AnimateObjects(float fTimeElapsed, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,vector<CMonster*>,short, vector<CPlayer*>,int, void* pContext=NULL);
+	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,vector<CMonster*>,short, vector<CPlayer*>,int,bool, void* pContext=NULL);
 
 	virtual void ReleaseUploadBuffers();
 
