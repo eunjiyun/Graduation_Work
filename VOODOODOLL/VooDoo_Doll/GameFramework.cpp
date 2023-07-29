@@ -383,6 +383,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
 			{
 				signIn = 1;
+				//loginSign[1] = true;
 			}
 		}
 		break;
@@ -1375,6 +1376,8 @@ void CGameFramework::FrameAdvance()
 
 	if (m_pStage)
 		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
+
+	WaitForGpuComplete();
 
 	if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
 		m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);

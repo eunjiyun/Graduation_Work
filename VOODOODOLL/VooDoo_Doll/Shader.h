@@ -525,7 +525,7 @@ public:
 
 	virtual void ReleaseUploadBuffers();
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext, int nPipelineState = 0);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext,int blur, int nPipelineState = 0);
 
 	void OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList);
 	void CreateGraphicsShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nTextureIndex, UINT nHandleIndex, UINT nDescriptorHeapIndex, UINT nDescriptors);

@@ -116,6 +116,7 @@ public:
 	static ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap;
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 	bool blur = false;
+	int softBlur = 0;
 	
 protected:
 	
