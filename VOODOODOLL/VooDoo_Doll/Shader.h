@@ -477,6 +477,7 @@ public:
 	CTexture* m_pTexture = NULL;
 	bool set[2] = { false,false };
 	int softBlur = 0;
+	bool blur = false;
 };
 
 class CGraphicsShader : public CShader

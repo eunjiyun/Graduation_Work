@@ -1991,8 +1991,14 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 	pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
 
 	++softBlur;
+	int temp = 0;
 
-	if (1 == softBlur % 3)
+	if (blur)
+		temp = softBlur % 3;
+	else
+		temp =  softBlur % 2;
+
+	if (1 == temp)
 	{
 		D3D12_RESOURCE_BARRIER d3dResourceBarrier2;
 		::ZeroMemory(&d3dResourceBarrier2, sizeof(D3D12_RESOURCE_BARRIER));

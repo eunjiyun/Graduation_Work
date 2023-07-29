@@ -179,7 +179,5 @@ public:
 	bool onFullScreen = false;
 
 	int curAtt[3] = { 0,0,0 };
-
-	bool blur = false;
 };
 

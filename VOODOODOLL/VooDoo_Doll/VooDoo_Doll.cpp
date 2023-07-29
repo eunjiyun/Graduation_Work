@@ -339,10 +339,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else if ('b' == wParam|| 'B' == wParam)
             {
-                if (gGameFramework.blur)
-                    gGameFramework.blur = false;
+                if (gGameFramework.m_pStage->pComputeShader->blur)
+                    gGameFramework.m_pStage->pComputeShader->blur = false;
                 else
-                    gGameFramework.blur = true;
+                    gGameFramework.m_pStage->pComputeShader->blur = true;
             }
         }
         break;
