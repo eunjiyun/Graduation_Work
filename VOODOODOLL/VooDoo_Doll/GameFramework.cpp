@@ -64,7 +64,7 @@ bool CGameFramework::OnCreate(HINSTANCE hInstance, HWND hMainWnd)
 	if (onFullScreen)
 		ChangeSwapChainState();
 	else
-		CreateRenderTargetViews();
+		CreateSwapChainRenderTargetViews();
 
 	BuildObjects();
 
@@ -335,12 +335,10 @@ void CGameFramework::ChangeSwapChainState()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	//???? ???
-	// hWnd?? ???? a?? ?????? ???????.
+
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
 
-	// rcWindow ???????? ?????? a?? ????? ??? ???????.
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
@@ -423,13 +421,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 		case VK_F3:
 			m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 			break;
-		case 'T': //84
 		case 'P': //80
+		case 'T': //84
 		case 'Y': //89
 		case 'U': //85
 		case 'I': //73
 		case 'O': //79
-		case 'L': //76
 		{
 			m_nDrawOptions = (int)wParam;
 			break;
@@ -713,7 +710,7 @@ void CGameFramework::BuildObjects()
 
 	m_pPostProcessingShader = new CTextureSampling();
 	m_pPostProcessingShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), 1, NULL, DXGI_FORMAT_D32_FLOAT);
-	m_pPostProcessingShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, &m_nDrawOptions);
+	m_pPostProcessingShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, NULL, NULL, &m_nDrawOptions);
 
 	m_pd3dCommandList->Close();
 
@@ -819,6 +816,9 @@ void CGameFramework::ReleaseObjects()
 
 	if (m_pLogin) m_pLogin->ReleaseObjects();
 	if (m_pLogin) delete m_pLogin;
+
+	if (m_pPostProcessingShader)m_pPostProcessingShader->ReleaseObjects();
+	if (m_pPostProcessingShader)m_pPostProcessingShader->Release();
 }
 
 void CGameFramework::CreateOtherPlayer(int p_id, XMFLOAT3 Pos)
@@ -1239,6 +1239,8 @@ void CGameFramework::FrameAdvance()
 		monster->Update(fTimeElapsed);
 	}
 	AnimateObjects(fTimeElapsed);
+
+
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
@@ -1392,14 +1394,37 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
 	}
 
+	if (m_nDrawOptions == DRAW_SCENE_COLOR)//'P'
+	{
+		m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+		// 오류 발생 지점
+		m_pPostProcessingShader->OnPrepareRenderTarget(m_pd3dCommandList, 1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], &m_d3dDsvDescriptorCPUHandle);
+
+		if (m_pStage)
+			m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0], m_pCamera);
+
+		if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
+			m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
 
 
-	if (m_pStage)
-		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
+		m_pPostProcessingShader->OnPostRenderTarget(m_pd3dCommandList);
+	}
 
-	if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
-		m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
 
+	//if (m_pStage)
+	//	m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
+
+	//if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
+	//	m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
+
+
+	//if (m_nDrawOptions != DRAW_SCENE_COLOR)
+	//{
+	//	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, NULL);
+
+	//	m_pPostProcessingShader->Render(m_pd3dCommandList, m_pCamera, &m_nDrawOptions);
+	//}
 	if (m_pStage->m_pShadowShader && lobby[2])
 	{
 		/*if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
