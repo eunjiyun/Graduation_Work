@@ -136,7 +136,7 @@ public:
 		cur_stage = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
-		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 10, 12));
+		m_xmOOBB = BoundingBox(m_xmf3Position, XMFLOAT3(15, 10, 15));
 		weapon_type = BLADE;
 		HP = 0;
 		clear_percentage = 0.f;

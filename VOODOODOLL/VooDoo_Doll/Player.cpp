@@ -439,7 +439,7 @@ CTerrainPlayer::CTerrainPlayer(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 
 	//m_xmOOBB = BoundingBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(10, 4, 10));
 
-	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 10, 12), XMFLOAT4(0, 0, 0, 1));
+	obBox = BoundingOrientedBox(XMFLOAT3(0.f, 0.f, 0.f), XMFLOAT3(15, 10, 15), XMFLOAT4(0, 0, 0, 1));
 
 
 

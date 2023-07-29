@@ -422,7 +422,7 @@ void process_packet(const int c_id, char* packet)
 		{
 		case BLADE:
 		{
-			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 10, false));
+			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 15, false));
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
@@ -447,7 +447,7 @@ void process_packet(const int c_id, char* packet)
 		break;
 		case GUN:
 		{
-			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 5, false));
+			//Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 5, false));
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
 			vector<Monster*> monstersInRange;
@@ -511,7 +511,7 @@ void process_packet(const int c_id, char* packet)
 		}
 		case PUNCH:
 		{
-			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 5, false));
+			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 10, false));
 			for (auto& monster : Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };

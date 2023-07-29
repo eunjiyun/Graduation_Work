@@ -822,19 +822,26 @@ void ProcessPacket(char* ptr)//몬스터 생성
                 (*iter)->Sound.LoadWave(gGameFramework.monster[packet->animation_track - 1],1);
                 (*iter)->Sound.Play();
             }
+
+            if (packet->animation_track > (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track) {
+                auto target = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->target_id == Pl->c_id; });
+                if (target != gGameFramework.Players.end()) {
+                    XMFLOAT3 pos = (*iter)->GetPosition();
+                    XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH((*iter)->GetPosition(), (*target)->GetPosition(), XMFLOAT3(0, 1, 0));
+                    mtkLookAt._11 = -mtkLookAt._11;
+                    mtkLookAt._21 = -mtkLookAt._21;
+                    mtkLookAt._31 = -mtkLookAt._31;
+                    (*iter)->m_xmf4x4ToParent = mtkLookAt;
+                    (*iter)->SetPosition(pos);
+                }
+            }
+
             (*iter)->m_pSkinnedAnimationController->SetTrackPosition((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, 0.0f);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track, false);
             (*iter)->m_pSkinnedAnimationController->SetTrackEnable(packet->animation_track, true);
         }
 
-        if ((*iter)->lock && Vector3::Compare((*iter)->recent_Pos, packet->Pos) == false) (*iter)->lock = false;
-
-        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1 && (*iter)->lock == false) {
-            if (Vector3::Compare((*iter)->recent_Pos, packet->Pos)) {
-                (*iter)->m_xmf3Velocity = XMFLOAT3(0, 0, 0);
-                (*iter)->lock = true;
-                break;
-            }
+        if ((*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 1) {
             XMFLOAT3 FROM = (*iter)->GetPosition();
             XMFLOAT3 TO = packet->Pos;
             XMFLOAT4X4 mtkLookAt = Matrix4x4::LookAtLH(FROM, TO, XMFLOAT3(0, 1, 0));
@@ -848,7 +855,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
             (*iter)->m_xmOOBB.Center = targetPos;
             (*iter)->m_xmf3Velocity = Vector3::ScalarProduct(Vector3::Normalize(deltaPos), (*iter)->speed, false);
             (*iter)->SetPosition(targetPos);
-            (*iter)->recent_Pos = packet->Pos;
         }
         else if ((*iter)->npc_type == 2 && (*iter)->m_pSkinnedAnimationController->Cur_Animation_Track == 2) {
             auto target = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* Pl) {return packet->target_id == Pl->c_id; });
