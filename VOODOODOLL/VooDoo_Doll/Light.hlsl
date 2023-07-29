@@ -226,7 +226,7 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 
 			float4 shadowColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
+			//if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
 				if (fShadowFactor != 0.f)//그림자 영역
 				{
@@ -236,7 +236,7 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 				else//그림자x
 					cColor = float4(0.15f, 0.15f, 0.15f, 1.0f);
 			}
-			else if (gLights[i].m_nType == POINT_LIGHT)
+			/*else if (gLights[i].m_nType == POINT_LIGHT)
 			{
 				if (fShadowFactor != 0.f)
 				{
@@ -255,7 +255,7 @@ float4 shadowLighting(float3 vPosition, float3 vNormal, bool bShadow, float4 uvs
 				}
 				else
 					cColor = float4(0.15f, 0.15f, 0.15f, 1.0f);
-			}
+			}*/
 			cColor += gLights[i].m_cAmbient * gMaterial.m_cAmbient;
 		}
 	}

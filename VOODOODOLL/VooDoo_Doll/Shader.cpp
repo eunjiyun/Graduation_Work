@@ -954,21 +954,17 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 
 			}
 		}
-	}
-	else
-	{
 
-
-		for (auto& player : Players)
+		for (int i{};i<Players.size();++i)
 		{
-			if (player->c_id > -1)
+			if (Players[i]->c_id > -1 && 0!=i)
 			{
 				//if (-70 < player->GetPosition().y)
 				{
 					//if (false == firFloor)//2��
 					{
-						player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
-						player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						Players[i]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						Players[i]->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
 					}
 				}
 				//else
@@ -982,8 +978,31 @@ void CShadowMapShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 			}
 		}
 	}
-
-
+	else
+	{
+		//for (auto& player : Players)
+		{
+			if (Players[0]->c_id > -1)
+			{
+				//if (-70 < player->GetPosition().y)
+				{
+					//if (false == firFloor)//2��
+					{
+						Players[0]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+						Players[0]->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+					}
+				}
+				//else
+				//{
+				//	if (true == firFloor)//1��
+				//	{
+				//		player->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				//		player->m_ppBullet->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, NULL, pCamera);
+				//	}
+				//}
+			}
+		}
+	}
 }
 //===================================================================================================================
 
@@ -1998,7 +2017,7 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 	else
 		temp =  softBlur % 2;
 
-	if (1 == temp)
+	//if (1 == temp)
 	{
 		D3D12_RESOURCE_BARRIER d3dResourceBarrier2;
 		::ZeroMemory(&d3dResourceBarrier2, sizeof(D3D12_RESOURCE_BARRIER));
