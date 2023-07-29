@@ -400,7 +400,7 @@ static float gfGaussianBlurMask2D[5][5] = {
 	{ 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
 };
 
-#define MotionBlurStrength 3.1f // 모션 블러 강도
+#define MotionBlurStrength 2.1f // 모션 블러 강도
 
 [numthreads(32, 32, 1)]
 //void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
@@ -454,7 +454,7 @@ void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchTh
 			for (int j = -2; j <= 2; ++j)
 			{
 				float2 offset = float2(i, j) * MotionBlurStrength;
-				f4Color += gfGaussianBlurMask2D[i + 2][j + 2] * gtxtInput[n3DispatchThreadID.xy + offset];
+				f4Color += gfGaussianBlurMask2D[i + 2][j + 2]/float(1.03) * gtxtInput[n3DispatchThreadID.xy + offset];
 			}
 		}
 
@@ -469,7 +469,7 @@ Texture2D gtxtOutput : register(t1);
 
 float4 PSTextureToFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
+	float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
 	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
 	//float4 cEdgeColor = gtxtPrevFrame.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
 
