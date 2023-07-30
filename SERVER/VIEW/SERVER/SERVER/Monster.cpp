@@ -117,7 +117,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     case 0: // 손에 칼
         type = 0;
         HP = 250;
-        power = 30;
+        power = 60;
         view_range = 400;
         speed = 24.f;
         attack_range = 21.f;
@@ -129,7 +129,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     case 1: // 뼈다귀 다리
         type = 1;
         HP = 150;
-        power = 30;
+        power = 60;
         view_range = 400;
         speed = 24.f;
         attack_range = 15.f;
@@ -141,7 +141,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     case 2: // 마술사
         type = 2;
         HP = 50;
-        power = 70;
+        power = 150;
         view_range = 400;
         speed = 24.f;
         attack_range = 150.f;
@@ -153,7 +153,7 @@ void Monster::Initialize(short _roomNum, short _id, short _type, XMFLOAT3 _pos)
     case 3: // 보스 몬스터
         type = 3;
         HP = 2000;
-        power = 100;
+        power = 200;
         view_range = 100;
         speed = 24.f;
         attack_range = 75.f;
