@@ -1124,6 +1124,13 @@ void CGameFramework::FrameAdvance()
 	m_GameTimer.Tick(30.0f);//30??????
 
 	float fTimeElapsed = m_GameTimer.GetTimeElapsed();
+
+	RECT rcWindow;
+	GetWindowRect(Get_HWND(), &rcWindow);
+
+	int windowX = rcWindow.left;
+	int windowY = rcWindow.top;
+
 	// Play sound
 	sound[1].Play();//??????
 
@@ -1149,14 +1156,6 @@ void CGameFramework::FrameAdvance()
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[0];
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 	}
-
-	// hWnd?? ???? a?? ?????? ???????.
-	RECT rcWindow;
-	GetWindowRect(Get_HWND(), &rcWindow);
-
-	// rcWindow ???????? ?????? a?? ????? ??? ???????.
-	int windowX = rcWindow.left;
-	int windowY = rcWindow.top;
 
 	if (loginSign[1] && !lobby[0])
 	{
@@ -1241,15 +1240,13 @@ void CGameFramework::FrameAdvance()
 		monster->Update(fTimeElapsed);
 	}
 	AnimateObjects(fTimeElapsed);
-
-
 	HRESULT hResult = m_pd3dCommandAllocator->Reset();
 	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
 
-//D3D12 ERROR: ID3D12CommandList::DrawIndexedInstanced: The render target format in slot 0 does not match that specified by the current pipeline state. (pipeline state = R8G8B8A8_UNORM, render target format = R32_FLOAT, RTV ID3D12Resource* = 0x000001B914EA31A0:'Unnamed ID3D12Resource Object') [ EXECUTION ERROR #613: RENDER_TARGET_FORMAT_MISMATCH_PIPELINE_STATE]
-	
+	//D3D12 ERROR: ID3D12CommandList::DrawIndexedInstanced: The render target format in slot 0 does not match that specified by the current pipeline state. (pipeline state = R8G8B8A8_UNORM, render target format = R32_FLOAT, RTV ID3D12Resource* = 0x000001B914EA31A0:'Unnamed ID3D12Resource Object') [ EXECUTION ERROR #613: RENDER_TARGET_FORMAT_MISMATCH_PIPELINE_STATE]
+
 	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, m_pStage->Monsters, Players);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -1269,235 +1266,427 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle, pfClearColor/*Colors::Azure*/, 0, NULL);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+	//m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
-
-
-	if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//??????? 
-	{
-		if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
-			m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
-		{
-			m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
-			m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
-			lobby[2] = false;
-			gameEnd = true;
-
-			sound[0].Stop();//�ΰ���
-			sound[2].Play();//Ŭ��¡
-
-		}
-	}
-
-	if (1 == gameButton && true == m_pPlayer->alive)
-	{
-
-		if (-64 > m_pPlayer->GetPosition().y)
-		{
-			m_pStage->hpUi[0]->SetPosition(50, -225, 178);
-			m_pStage->hpUi[1]->SetPosition(50, -225, 346);
-		}
-		else
-		{
-			m_pStage->hpUi[0]->SetPosition(50, -55, 178);
-			m_pStage->hpUi[1]->SetPosition(50, -55, 346);
-		}
-
-
-		if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
-			m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
-
-		if (m_pStage->m_ppShaders[0]->m_pd3dPipelineState)
-			m_pd3dCommandList->SetPipelineState(m_pStage->m_ppShaders[0]->m_pd3dPipelineState);
-
-		m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-		m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-	}
-
-	if (!loginSign[1])
-	{
-		if (!userId.empty() && !idSet && delUser)
-			userId.pop_back();
-
-		if (!userPw.empty() && idSet && delUser)
-			userPw.pop_back();
-
-		if (!userId.empty())
-		{
-			for (int u{}; u < 26; ++u)
-			{
-				if ('A' == userId[userId.size() - 1] - u)
-					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[113 + u]->m_ppMeshes[0]);
-				else if ('a' == userId[userId.size() - 1] - u)
-					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[139 + u]->m_ppMeshes[0]);
-				else if ('0' == userId[userId.size() - 1] - u)
-				{
-					if (9 > u)
-						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[167 + u]->m_ppMeshes[0]);
-				}
-				else if ('9' == userId[userId.size() - 1])
-				{
-					if (0 == u)
-						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[49]->m_ppMeshes[0]);
-				}
-				else if ('*' == userId[userId.size() - 1])
-				{
-					if (0 == u)
-						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
-				}
-				else if ('_' == userId[userId.size() - 1])
-				{
-					if (0 == u)
-						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
-				}
-
-			}
-
-			if (!gameEnd)
-				for (int i{}; i < userId.size(); ++i)
-					m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-
-
-
-		}
-		if (!userPw.empty())
-		{
-			m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
-
-			for (int i{}; i < userPw.size(); ++i)
-				m_pStage->userPw[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-		}
-	}
-
-
-	if (lobby[0] && !lobby[1] && !lobby[2] && !gameEnd)
-	{
-		for (int i{}; i < userId.size(); ++i)
-			m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-	}
-	else if (lobby[0] && lobby[1] && false == lobby[2] && !gameEnd)
-	{
-		for (int i{}; i < userId.size(); ++i)
-			m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
-	}
-	else if (lobby[0] && lobby[1] && lobby[2])
-		gameButton = 1;
-
-	m_pCamera->SetViewportsAndScissorRects(m_pd3dCommandList);
-	m_pCamera->UpdateShaderVariables(m_pd3dCommandList);
-
-	if (m_pStage->m_pShadowShader && lobby[2])
-	{
-		if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
-			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);
-
-		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
-	}
-
 	if (m_nDrawOptions == DRAW_SCENE_COLOR)//'P'
 	{
-		m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDescriptorCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+		m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 
-		// 오류 발생 지점
 		m_pPostProcessingShader->OnPrepareRenderTarget(m_pd3dCommandList, 1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], &m_d3dDsvDescriptorCPUHandle);
+
+
+		if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//??????? 
+		{
+			if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
+				m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
+			{
+				m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
+				m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+				lobby[2] = false;
+				gameEnd = true;
+
+				sound[0].Stop();//�ΰ���
+				sound[2].Play();//Ŭ��¡
+
+			}
+		}
+
+		if (1 == gameButton && true == m_pPlayer->alive)
+		{
+
+			if (-64 > m_pPlayer->GetPosition().y)
+			{
+				m_pStage->hpUi[0]->SetPosition(50, -225, 178);
+				m_pStage->hpUi[1]->SetPosition(50, -225, 346);
+			}
+			else
+			{
+				m_pStage->hpUi[0]->SetPosition(50, -55, 178);
+				m_pStage->hpUi[1]->SetPosition(50, -55, 346);
+			}
+
+
+			if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
+				m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
+
+			if (m_pStage->m_ppShaders[0]->m_pd3dPipelineState)
+				m_pd3dCommandList->SetPipelineState(m_pStage->m_ppShaders[0]->m_pd3dPipelineState);
+
+			m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		}
+
+		if (!loginSign[1])
+		{
+			if (!userId.empty() && !idSet && delUser)
+				userId.pop_back();
+
+			if (!userPw.empty() && idSet && delUser)
+				userPw.pop_back();
+
+			if (!userId.empty())
+			{
+				for (int u{}; u < 26; ++u)
+				{
+					if ('A' == userId[userId.size() - 1] - u)
+						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[113 + u]->m_ppMeshes[0]);
+					else if ('a' == userId[userId.size() - 1] - u)
+						m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[139 + u]->m_ppMeshes[0]);
+					else if ('0' == userId[userId.size() - 1] - u)
+					{
+						if (9 > u)
+							m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[167 + u]->m_ppMeshes[0]);
+					}
+					else if ('9' == userId[userId.size() - 1])
+					{
+						if (0 == u)
+							m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[49]->m_ppMeshes[0]);
+					}
+					else if ('*' == userId[userId.size() - 1])
+					{
+						if (0 == u)
+							m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
+					}
+					else if ('_' == userId[userId.size() - 1])
+					{
+						if (0 == u)
+							m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
+					}
+
+				}
+
+				if (!gameEnd)
+					for (int i{}; i < userId.size(); ++i)
+						m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+
+
+
+			}
+			if (!userPw.empty())
+			{
+				m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
+
+				for (int i{}; i < userPw.size(); ++i)
+					m_pStage->userPw[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+			}
+		}
+
+
+		if (lobby[0] && !lobby[1] && !lobby[2] && !gameEnd)
+		{
+			for (int i{}; i < userId.size(); ++i)
+				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		}
+		else if (lobby[0] && lobby[1] && false == lobby[2] && !gameEnd)
+		{
+			for (int i{}; i < userId.size(); ++i)
+				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+		}
+		else if (lobby[0] && lobby[1] && lobby[2])
+			gameButton = 1;
+
+		m_pCamera->SetViewportsAndScissorRects(m_pd3dCommandList);
+		m_pCamera->UpdateShaderVariables(m_pd3dCommandList);
+
+		if (m_pStage->m_pShadowShader && lobby[2])
+		{
+			if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+				m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);
+
+			m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
+		}
+
+
 
 		if (m_pStage)
 			m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0], m_pCamera);
 
+		WaitForGpuComplete();
+
 		if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
 			m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
 
+		if (m_pStage->m_pShadowShader && lobby[2])
+		{
+			/*if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+				m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);*/
 
-		m_pPostProcessingShader->OnPostRenderTarget(m_pd3dCommandList);
+			m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, false);
+		}
+
+
+		int m = -1;
+		if (!m_pStage->Monsters.empty())
+
+		{
+			if (-1 != damagedMon)
+				m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+
+			if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
+			{
+				for (m = 0; m < m_pStage->Monsters.size(); ++m)
+				{
+					if (59 == m_pStage->Monsters[m]->c_id)
+						//if (0 == Monsters[m]->c_id)//pat
+					{
+						if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
+						{
+							if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
+								m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
+								&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
+								m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+							{
+								m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+							}
+							else if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
+								m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+
+							{
+								m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+								m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
+							}
+						}
+
+
+						break;
+					}
+				}
+			}
+		}
+
+
+
+		m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
+
+
+		if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
+		{
+			m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
+
+			for (int i = 0; i < m_pStage->Monsters.size(); ++i)
+			{
+				auto& Mon = m_pStage->Monsters.at(i);
+				if (Mon->c_id == 59) continue;
+				try {
+					if (Mon->damaged) {
+						XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)), m_pCamera, 640, 480);
+						pos.x -= Mon->HP / 2.f;
+						m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, Mon->HP, pos);
+					}
+				}
+				catch (const exception& e) { cout << "MONSTER HP BAR LOAD ERROR\n"; }
+			}
+		}
 	}
+	//m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+
+	//m_pPostProcessingShader->OnPrepareRenderTarget(m_pd3dCommandList, 1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], &m_d3dDsvDescriptorCPUHandle);
+
+
+	//if (4 == m_pPlayer->m_pSkinnedAnimationController->Cur_Animation_Track)//??????? 
+	//{
+	//	if (m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_fPosition ==
+	//		m_pPlayer->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pPlayer->m_pSkinnedAnimationController->m_pAnimationTracks[4].m_nAnimationSet]->m_fLength)
+	//	{
+	//		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = m_pStage->m_ppShaders[0]->gameMat[2];
+	//		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+	//		lobby[2] = false;
+	//		gameEnd = true;
+
+	//		sound[0].Stop();//�ΰ���
+	//		sound[2].Play();//Ŭ��¡
+
+	//	}
+	//}
+
+	//if (1 == gameButton && true == m_pPlayer->alive)
+	//{
+
+	//	if (-64 > m_pPlayer->GetPosition().y)
+	//	{
+	//		m_pStage->hpUi[0]->SetPosition(50, -225, 178);
+	//		m_pStage->hpUi[1]->SetPosition(50, -225, 346);
+	//	}
+	//	else
+	//	{
+	//		m_pStage->hpUi[0]->SetPosition(50, -55, 178);
+	//		m_pStage->hpUi[1]->SetPosition(50, -55, 346);
+	//	}
+
+
+	//	if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
+	//		m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
+
+	//	if (m_pStage->m_ppShaders[0]->m_pd3dPipelineState)
+	//		m_pd3dCommandList->SetPipelineState(m_pStage->m_ppShaders[0]->m_pd3dPipelineState);
+
+	//	m_pStage->hpUi[0]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//	m_pStage->hpUi[1]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//}
+
+	//if (!loginSign[1])
+	//{
+	//	if (!userId.empty() && !idSet && delUser)
+	//		userId.pop_back();
+
+	//	if (!userPw.empty() && idSet && delUser)
+	//		userPw.pop_back();
+
+	//	if (!userId.empty())
+	//	{
+	//		for (int u{}; u < 26; ++u)
+	//		{
+	//			if ('A' == userId[userId.size() - 1] - u)
+	//				m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[113 + u]->m_ppMeshes[0]);
+	//			else if ('a' == userId[userId.size() - 1] - u)
+	//				m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[139 + u]->m_ppMeshes[0]);
+	//			else if ('0' == userId[userId.size() - 1] - u)
+	//			{
+	//				if (9 > u)
+	//					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[167 + u]->m_ppMeshes[0]);
+	//			}
+	//			else if ('9' == userId[userId.size() - 1])
+	//			{
+	//				if (0 == u)
+	//					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[49]->m_ppMeshes[0]);
+	//			}
+	//			else if ('*' == userId[userId.size() - 1])
+	//			{
+	//				if (0 == u)
+	//					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
+	//			}
+	//			else if ('_' == userId[userId.size() - 1])
+	//			{
+	//				if (0 == u)
+	//					m_pStage->userId[userId.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[166]->m_ppMeshes[0]);
+	//			}
+
+	//		}
+
+	//		if (!gameEnd)
+	//			for (int i{}; i < userId.size(); ++i)
+	//				m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+
+
+
+	//	}
+	//	if (!userPw.empty())
+	//	{
+	//		m_pStage->userPw[userPw.size() - 1]->SetMesh(0, m_pStage->m_ppShaders[0]->m_ppObjects[165]->m_ppMeshes[0]);
+
+	//		for (int i{}; i < userPw.size(); ++i)
+	//			m_pStage->userPw[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//	}
+	//}
+
+
+	//if (lobby[0] && !lobby[1] && !lobby[2] && !gameEnd)
+	//{
+	//	for (int i{}; i < userId.size(); ++i)
+	//		m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//}
+	//else if (lobby[0] && lobby[1] && false == lobby[2] && !gameEnd)
+	//{
+	//	for (int i{}; i < userId.size(); ++i)
+	//		m_pStage->userId[i]->Render(m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, m_pCamera);
+	//}
+	//else if (lobby[0] && lobby[1] && lobby[2])
+	//	gameButton = 1;
+
+	//m_pCamera->SetViewportsAndScissorRects(m_pd3dCommandList);
+	//m_pCamera->UpdateShaderVariables(m_pd3dCommandList);
+
+	//if (m_pStage->m_pShadowShader && lobby[2])
+	//{
+	//	if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+	//		m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);
+
+	//	m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
+	//}
+
 
 
 	//if (m_pStage)
-	//	m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
+	//	m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0], m_pCamera);
+
+	//WaitForGpuComplete();
 
 	//if (m_pStage->m_pd3dCbvSrvDescriptorHeap)
 	//	m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
 
-
-	//if (m_nDrawOptions != DRAW_SCENE_COLOR)
+	//if (m_pStage->m_pShadowShader && lobby[2])
 	//{
-	//	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dSwapChainBackBufferRTVCPUHandles[m_nSwapChainBufferIndex], TRUE, NULL);
+	//	/*if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
+	//		m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);*/
 
-	//	m_pPostProcessingShader->Render(m_pd3dCommandList, m_pCamera, &m_nDrawOptions);
+	//	m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, false);
 	//}
-	if (m_pStage->m_pShadowShader && lobby[2])
-	{
-		/*if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
-			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);*/
-
-		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, false);
-	}
 
 
-	int m = -1;
-	if (!m_pStage->Monsters.empty())
+	//int m = -1;
+	//if (!m_pStage->Monsters.empty())
 
-	{
-		if (-1 != damagedMon)
-			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+	//{
+	//	if (-1 != damagedMon)
+	//		m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-		if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
-		{
-			for (m = 0; m < m_pStage->Monsters.size(); ++m)
-			{
-				if (59 == m_pStage->Monsters[m]->c_id)
-					//if (0 == Monsters[m]->c_id)//pat
-				{
-					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
-					{
-						if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
-							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
-							&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
-							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
-						{
-							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
-						}
-						else if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
-							m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+	//	if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
+	//	{
+	//		for (m = 0; m < m_pStage->Monsters.size(); ++m)
+	//		{
+	//			if (59 == m_pStage->Monsters[m]->c_id)
+	//				//if (0 == Monsters[m]->c_id)//pat
+	//			{
+	//				if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
+	//				{
+	//					if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >
+	//						m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.15f
+	//						&& m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition <
+	//						m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
+	//					{
+	//						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
+	//					}
+	//					else if (m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_fPosition >=
+	//						m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationSets->m_pAnimationSets[m_pStage->Monsters[m]->m_pSkinnedAnimationController->m_pAnimationTracks[2].m_nAnimationSet]->m_fLength * 0.65f)
 
-						{
-							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
-							m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
-						}
-					}
+	//					{
+	//						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
+	//						m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nCol = m_pStage->pMultiSpriteObjectShader->obj[2]->m_ppMaterials[0]->m_ppTextures[0]->m_nRow = 0;
+	//					}
+	//				}
 
 
-					break;
-				}
-			}
-		}
-	}
+	//				break;
+	//			}
+	//		}
+	//	}
+	//}
 
 
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
+	//m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m);
 
 
-	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
-	{
-		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38,27));
+	//if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
+	//{
+	//	m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
 
-		for (int i = 0; i < m_pStage->Monsters.size(); ++i)
-		{
-			auto& Mon = m_pStage->Monsters.at(i);
-			if (Mon->c_id == 59) continue;
-			try {
-				if (Mon->damaged) {
-					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, 640, 480);
-					pos.x -= Mon->HP / 2.f;
-					m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, Mon->HP, pos);
-				}
-			}
-			catch (const exception& e) { cout << "MONSTER HP BAR LOAD ERROR\n"; }
-		}
-	}
+	//	for (int i = 0; i < m_pStage->Monsters.size(); ++i)
+	//	{
+	//		auto& Mon = m_pStage->Monsters.at(i);
+	//		if (Mon->c_id == 59) continue;
+	//		try {
+	//			if (Mon->damaged) {
+	//				XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)), m_pCamera, 640, 480);
+	//				pos.x -= Mon->HP / 2.f;
+	//				m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, Mon->HP, pos);
+	//			}
+	//		}
+	//		catch (const exception& e) { cout << "MONSTER HP BAR LOAD ERROR\n"; }
+	//	}
+	//}
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
@@ -1549,6 +1738,3 @@ void CGameFramework::FrameAdvance()
 	_stprintf_s(m_pszFrameRate + nLength, 70 - nLength, _T("(%4f, %4f, %4f)"), xmf3Position.x, xmf3Position.y, xmf3Position.z);
 	::SetWindowText(m_hWnd, m_pszFrameRate);
 }
-
-
-
