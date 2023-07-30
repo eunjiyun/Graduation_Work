@@ -883,6 +883,7 @@ void ProcessPacket(char* ptr)//몬스터 생성
     case SC_GAME_CLEAR: {
         gGameFramework.m_pPlayer->onAct = true;
         gGameFramework.m_pPlayer->alive = false;
+        gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
         //gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0;
         //gGameFramework.m_pCamera->SetPosition(XMFLOAT3(800, -150, 700));
         //gGameFramework.m_pCamera->SetLookAt(XMFLOAT3(800, -150, 800));
