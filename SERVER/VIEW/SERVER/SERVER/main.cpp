@@ -347,31 +347,32 @@ void process_packet(const int c_id, char* packet)
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		CL._state.store(ST_INGAME);
 		
+		cout << c_id << "LOGIN\n";
 		// 3인 매칭 후 시작해야 하는 경우
-		//for (auto& pl : Room) {
-		//	if (pl._state.load() != ST_INGAME) return;
-		//	pl.Initialize();
-		//}
-		//for (auto& pl : Room) {
-		//	pl.send_game_start_packet();
-		//	for (auto& session : Room) {
-		//		if (pl._id == session._id) continue;
-		//		pl.send_add_player_packet(&session);
-		//	}
-		//}
+		for (auto& pl : Room) {
+			if (pl._state.load() != ST_INGAME) return;
+			pl.Initialize();
+		}
+		for (auto& pl : Room) {
+			pl.send_game_start_packet();
+			for (auto& session : Room) {
+				if (pl._id == session._id) continue;
+				pl.send_add_player_packet(&session);
+			}
+		}
 
 		// 1인 게임 - 테스트용
-		CL.Initialize();
-		CL.send_game_start_packet();
-		for (auto& pl : Room) {
-			if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
-			pl.send_add_player_packet(&CL);
-			CL.send_add_player_packet(&pl);
-		}
-		for (auto& monster : getRoom_Monsters(c_id)) {
-			if (monster->alive.load() == false) continue;
-			CL.send_summon_monster_packet(monster);
-		}
+		//CL.Initialize();
+		//CL.send_game_start_packet();
+		//for (auto& pl : Room) {
+		//	if (pl._id == c_id || ST_INGAME != pl._state.load()) continue;
+		//	pl.send_add_player_packet(&CL);
+		//	CL.send_add_player_packet(&pl);
+		//}
+		//for (auto& monster : getRoom_Monsters(c_id)) {
+		//	if (monster->alive.load() == false) continue;
+		//	CL.send_summon_monster_packet(monster);
+		//}
 	}
 				 break;
 	case CS_SIGNUP: {
