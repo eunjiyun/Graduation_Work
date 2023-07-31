@@ -354,8 +354,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
-		cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
-		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;
+		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
+		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
 
 		if (false == onFullScreen)
 		{

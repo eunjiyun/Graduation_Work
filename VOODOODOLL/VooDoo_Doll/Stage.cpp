@@ -746,7 +746,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	{
 
-		cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
+		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
 
 
 
