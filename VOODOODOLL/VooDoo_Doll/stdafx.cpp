@@ -461,7 +461,7 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		strcpy_s(pstrFilePath + 7, 64 - 7, pstrGameObjectName);
 		strcpy_s(pstrFilePath + 7 + nObjectNameLength, 64 - 7 - nObjectNameLength, ".bin");
 		pGameObject->m_iObjID = iObjectID;
-		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath,i);
+		CMesh* pMesh = new CMesh(pd3dDevice, pd3dCommandList, pstrFilePath, i);
 
 
 		pGameObject->SetMesh(0, pMesh);
@@ -473,10 +473,10 @@ CGameObject** LoadGameObjectsFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 		/*printf("Orientation: (%f, %f, %f, %f)\n", pGameObject->m_ppMeshes[0]->OBBox.Orientation.x,
 			pGameObject->m_ppMeshes[0]->OBBox.Orientation.y, pGameObject->m_ppMeshes[0]->OBBox.Orientation.z, pGameObject->m_ppMeshes[0]->OBBox.Orientation.w);*/
 
-		//	cout << "\nCenter: " << pGameObject->m_ppMeshes[0]->OBBox.Center.x << ", " << pGameObject->m_ppMeshes[0]->OBBox.Center.y << ", " << pGameObject->m_ppMeshes[0]->OBBox.Center.z <<
-		//		"\nExtents: " << pGameObject->m_ppMeshes[0]->OBBox.Extents.x << ", " << pGameObject->m_ppMeshes[0]->OBBox.Extents.y << ", " << pGameObject->m_ppMeshes[0]->OBBox.Extents.z << endl << endl << endl;
-		//
-		
+			//	cout << "\nCenter: " << pGameObject->m_ppMeshes[0]->OBBox.Center.x << ", " << pGameObject->m_ppMeshes[0]->OBBox.Center.y << ", " << pGameObject->m_ppMeshes[0]->OBBox.Center.z <<
+			//		"\nExtents: " << pGameObject->m_ppMeshes[0]->OBBox.Extents.x << ", " << pGameObject->m_ppMeshes[0]->OBBox.Extents.y << ", " << pGameObject->m_ppMeshes[0]->OBBox.Extents.z << endl << endl << endl;
+			//
+
 		ppGameObjects[i] = pGameObject;
 		++iObjectID;
 	}
