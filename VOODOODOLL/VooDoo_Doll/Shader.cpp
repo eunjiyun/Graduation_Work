@@ -1530,7 +1530,9 @@ XMFLOAT2 CTextureToViewportShader::WorldToScreen(XMFLOAT3 worldPosition, CCamera
 void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp, XMFLOAT2 pos)
 {
 	hpBarSet(pd3dCommandList, pCamera, plHp);
-	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 30.f };
+
+	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 15.f };
+
 
 	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
 
@@ -2012,6 +2014,7 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 		m_pTexture->SetComputeSrvRootParameter(0, 0, 0, 1);
 		m_pTexture->SetComputeSrvRootParameter(1, 2, 1, 1);
 		m_pTexture->SetComputeUavRootParameter(0, 1, 0, 1);
+
 
 
 		m_cxThreadGroups = ceil(FRAME_BUFFER_WIDTH / 32.0f);

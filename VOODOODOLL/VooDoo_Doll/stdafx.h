@@ -72,8 +72,8 @@ extern HINSTANCE						ghAppInstance;
 
 #define _WITH_SWAPCHAIN_FULLSCREEN_STATE//full screen
 
-#define FRAME_BUFFER_WIDTH				640*2
-#define FRAME_BUFFER_HEIGHT				480*2
+#define FRAME_BUFFER_WIDTH				640
+#define FRAME_BUFFER_HEIGHT				480
 
 
 #define MAX_MATERIALS			8 

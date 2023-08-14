@@ -335,99 +335,105 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				int ErrorStatus = WSASend(s_socket, &weapon_data->_wsabuf, 1, 0, 0, &weapon_data->_over, &send_callback);
 				if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 
-				gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
-			}
-			else if ('b' == wParam || 'B' == wParam)
-			{
-				if (gGameFramework.m_pStage->pComputeShader->blur)
-					gGameFramework.m_pStage->pComputeShader->blur = false;
-				else
-					gGameFramework.m_pStage->pComputeShader->blur = true;
-			}
-		}
-		break;
-	case WM_KEYUP:
-		if (VK_BACK == wParam)
-		{
-			gGameFramework.delUser = false;
-			break;
-		}
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_SIZE:
-		if (gGameFramework.lobby[0])
-		{
-			if (false == gGameFramework.onFullScreen)
-			{
-				if (60 <= gGameFramework.m_ptOldCursorPos.x - windowX && 291 >= gGameFramework.m_ptOldCursorPos.x - windowX
-					&& 190 <= gGameFramework.m_ptOldCursorPos.y - windowY && 300 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
-				{
-					if (!gGameFramework.lobby[1])
-					{
-						gGameFramework.lobby[1] = true;
+
+                gGameFramework.m_pStage->m_pShadowMapToViewport->init = false;
+            }
+            else if ('b' == wParam|| 'B' == wParam)
+            {
+                if (gGameFramework.m_pStage->pComputeShader->blur)
+                    gGameFramework.m_pStage->pComputeShader->blur = false;
+                else
+                    gGameFramework.m_pStage->pComputeShader->blur = true;
+            }
+        }
+        break;
+    case WM_KEYUP:
+        if (VK_BACK == wParam)
+        {
+            gGameFramework.delUser = false;
+            break;
+        }
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_SIZE:
+        if (gGameFramework.lobby[0])
+        {
+            if (false == gGameFramework.onFullScreen)
+            {
+                if (31 <= gGameFramework.m_ptOldCursorPos.x - windowX && 146 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 103 <= gGameFramework.m_ptOldCursorPos.y - windowY && 162 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
+                {
+                    if (!gGameFramework.lobby[1])
+                    {
+                        gGameFramework.lobby[1] = true;
+
 
 						gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[5];
 						gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 						gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-						// 서버에게 자신의 정보를 패킷으로 전달
-						CS_LOGIN_PACKET p;
-						p.size = sizeof(CS_LOGIN_PACKET);
-						p.type = CS_LOGIN;
-						OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-						int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
-						if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-					}
-					else
-					{
-						//end search
-					}
-				}
-				else if (55 <= gGameFramework.m_ptOldCursorPos.x - windowX && 284 >= gGameFramework.m_ptOldCursorPos.x - windowX
-					&& 318 <= gGameFramework.m_ptOldCursorPos.y - windowY && 421 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
-				{
-					gGameFramework.gameButton = 2;
-					gGameFramework.m_pStage->exitGame = true;
-				}
-			}
-			else//full
-			{
-				if (53 <= gGameFramework.m_ptOldCursorPos.x - windowX && 277 >= gGameFramework.m_ptOldCursorPos.x - windowX
-					&& 164 <= gGameFramework.m_ptOldCursorPos.y - windowY && 264 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
-				{
-					if (!gGameFramework.lobby[1])
-					{
-						gGameFramework.lobby[1] = true;
+
+                        // 서버에게 자신의 정보를 패킷으로 전달
+                        CS_LOGIN_PACKET p;
+                        p.size = sizeof(CS_LOGIN_PACKET);
+                        p.type = CS_LOGIN;
+                        OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+                        int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+                        if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+                    }
+                    else
+                    {
+                        //end search
+                    }
+                }
+                else if (30 <= gGameFramework.m_ptOldCursorPos.x - windowX && 145 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 166 <= gGameFramework.m_ptOldCursorPos.y - windowY && 225 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
+                {
+                    gGameFramework.gameButton = 2;
+                    gGameFramework.m_pStage->exitGame = true;
+                }
+            }
+            else//full
+            {
+                if (22 <= gGameFramework.m_ptOldCursorPos.x - windowX && 139 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 72 <= gGameFramework.m_ptOldCursorPos.y - windowY && 133 >= gGameFramework.m_ptOldCursorPos.y - windowY)//match
+                {
+                    if (!gGameFramework.lobby[1])
+                    {
+                        gGameFramework.lobby[1] = true;
+
 
 						gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0] = gGameFramework.m_pStage->m_ppShaders[0]->gameMat[5];
 						gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 						gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[1]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-						// 서버에게 자신의 정보를 패킷으로 전달
-						CS_LOGIN_PACKET p;
-						p.size = sizeof(CS_LOGIN_PACKET);
-						p.type = CS_LOGIN;
-						OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
-						int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
-						if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
-					}
-					else
-					{
-						//end search
-					}
-				}
-				else if (52 <= gGameFramework.m_ptOldCursorPos.x - windowX && 275 >= gGameFramework.m_ptOldCursorPos.x - windowX
-					&& 289 <= gGameFramework.m_ptOldCursorPos.y - windowY && 392 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
-				{
-					gGameFramework.gameButton = 2;
-					gGameFramework.m_pStage->exitGame = true;
-					gGameFramework.ChangeSwapChainState();
-				}
-			}
-		}
-	case WM_RBUTTONUP:
-	case WM_MOUSEMOVE:
-		gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+
+                        // 서버에게 자신의 정보를 패킷으로 전달
+                        CS_LOGIN_PACKET p;
+                        p.size = sizeof(CS_LOGIN_PACKET);
+                        p.type = CS_LOGIN;
+                        OVER_EXP* start_data = new OVER_EXP{ reinterpret_cast<char*>(&p) };
+                        int ErrorStatus = WSASend(s_socket, &start_data->_wsabuf, 1, 0, 0, &start_data->_over, &send_callback);
+                        if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
+                    }
+                    else
+                    {
+                        //end search
+                    }
+                }
+                else if (22 <= gGameFramework.m_ptOldCursorPos.x - windowX && 139 >= gGameFramework.m_ptOldCursorPos.x - windowX
+                    && 136 <= gGameFramework.m_ptOldCursorPos.y - windowY && 194 >= gGameFramework.m_ptOldCursorPos.y - windowY)//quit
+                {
+                    gGameFramework.gameButton = 2;
+                    gGameFramework.m_pStage->exitGame = true;
+                    gGameFramework.ChangeSwapChainState();
+                }
+            }
+        }
+    case WM_RBUTTONUP:
+    case WM_MOUSEMOVE:
+        gGameFramework.OnProcessingWindowMessage(hWnd, message, wParam, lParam);
+
 
 		/*gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[5]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = false;
 		 gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[6]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[1] = false;
