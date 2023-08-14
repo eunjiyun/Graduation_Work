@@ -195,12 +195,10 @@ public:
 
 	//계산 셰이더
 	ID3D12RootSignature* m_pd3dComputeRootSignature = NULL;
-	CComputeShader** m_ppComputeShaders = NULL;
+
 	CGaussian2DBlurComputeShader* pComputeShader = nullptr;
 	CTextureToFullScreenShader* pGraphicsShader = nullptr;
-	int								m_nComputeShaders = 0;
-	CGraphicsShader** m_ppGraphicsShaders = NULL;
-	int								m_nGraphicsShaders = 0;
+	
 	DXGI_FORMAT compShaderFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
 
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환

@@ -163,11 +163,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 500, 0);//4 1
 
 	m_pd3dComputeRootSignature = CreateComputeRootSignature(pd3dDevice);
-	m_nComputeShaders = 1;
-	m_ppComputeShaders = new CComputeShader * [m_nComputeShaders];
+
+
 	pComputeShader = new CGaussian2DBlurComputeShader();
 	pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, nullptr);
-	m_ppComputeShaders[0] = pComputeShader;
 
 	/*pComputeShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pComputeShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
@@ -181,11 +180,8 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 
-	m_nGraphicsShaders = 1;
-	m_ppGraphicsShaders = new CGraphicsShader * [m_nGraphicsShaders];
 	pGraphicsShader = new CTextureToFullScreenShader(pComputeShader->m_pTexture);
 	pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
-	m_ppGraphicsShaders[0] = pGraphicsShader;
 
 	/*pGraphicsShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pGraphicsShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
@@ -397,7 +393,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	for (int a{}; a < 3; ++a)
 		CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
-	
+
 
 	for (int a{}; a < 2; ++a)
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
@@ -820,25 +816,24 @@ void CStage::ReleaseObjects()
 		}
 	}
 
-	if (m_ppGraphicsShaders)
+	if (pGraphicsShader)
 	{
-		for (int i{}; i < m_nGraphicsShaders; ++i)
-		{
-			m_ppGraphicsShaders[i]->ReleaseShaderVariables();
-			m_ppGraphicsShaders[i]->ReleaseObjects();
-			m_ppGraphicsShaders[i]->Release();
-		}
-		delete[] m_ppGraphicsShaders;
+
+		pGraphicsShader->ReleaseShaderVariables();
+		pGraphicsShader->ReleaseObjects();
+		pGraphicsShader->Release();
+
+		delete pGraphicsShader;
 	}
 
-	if (m_ppComputeShaders)
+	if (pComputeShader)
 	{
 		/*for (int i{}; i < m_nComputeShaders; ++i)
 		{
 			m_ppComputeShaders[i]->ReleaseShaderVariables();
 			m_ppComputeShaders[i]->Release();
 		}*/
-		delete[] m_ppComputeShaders;
+		delete pComputeShader;
 	}
 
 	ReleaseShaderVariables();
@@ -906,7 +901,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[8].RegisterSpace = 0;
 	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	
+
 
 
 	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
@@ -998,7 +993,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[6]; //Texture2D
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	
+
 
 
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];
@@ -1126,11 +1121,11 @@ void CStage::ReleaseUploadBuffers()
 		hpUi[1]->ReleaseUploadBuffers();
 	}
 
-	for (int i{}; i < m_nGraphicsShaders; ++i)
-		m_ppGraphicsShaders[i]->ReleaseUploadBuffers();
+	//for (int i{}; i < m_nGraphicsShaders; ++i)
+	pGraphicsShader->ReleaseUploadBuffers();
 
-	for (int i{}; i < m_nComputeShaders; ++i)
-		m_ppComputeShaders[i]->ReleaseUploadBuffers();
+	//for (int i{}; i < m_nComputeShaders; ++i)
+	pComputeShader->ReleaseUploadBuffers();
 }
 
 void CStage::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews)
@@ -1307,7 +1302,6 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 	}
 
 	if (login && blur)
-		//if (login && pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id])
 	{
 		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt);
 
@@ -1322,7 +1316,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 		if (m_pd3dComputeRootSignature) pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
 
-		m_ppComputeShaders[0]->Dispatch(pd3dCommandList, 0);
+		pComputeShader->Dispatch(pd3dCommandList, 0);
 
 		if (m_pd3dGraphicsRootSignature)
 			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
