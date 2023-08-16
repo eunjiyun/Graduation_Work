@@ -826,15 +826,15 @@ void CStage::ReleaseObjects()
 		delete pGraphicsShader;
 	}
 
-	if (pComputeShader)
-	{
-		/*for (int i{}; i < m_nComputeShaders; ++i)
-		{
-			m_ppComputeShaders[i]->ReleaseShaderVariables();
-			m_ppComputeShaders[i]->Release();
-		}*/
-		delete pComputeShader;
-	}
+	//if (pComputeShader)
+	//{
+	//	/*for (int i{}; i < m_nComputeShaders; ++i)
+	//	{
+	//		m_ppComputeShaders[i]->ReleaseShaderVariables();
+	//		m_ppComputeShaders[i]->Release();
+	//	}*/
+	//	delete pComputeShader;
+	//}
 
 	ReleaseShaderVariables();
 
@@ -1800,12 +1800,6 @@ ID3D12RootSignature* CStage::CreateComputeRootSignature(ID3D12Device* pd3dDevice
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	//pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-	//pd3dDescriptorRanges[2].NumDescriptors = 1;
-	//pd3dDescriptorRanges[2].BaseShaderRegister = 1; //u1: Texture2D
-	//pd3dDescriptorRanges[2].RegisterSpace = 0;
-	//pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
-
 	pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[2].NumDescriptors = 1;
 	pd3dDescriptorRanges[2].BaseShaderRegister = 11; //t11: Texture2D
@@ -1823,11 +1817,6 @@ ID3D12RootSignature* CStage::CreateComputeRootSignature(ID3D12Device* pd3dDevice
 	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //RWTexture2D
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	//pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;
-	//pd3dRootParameters[2].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //RWTexture2D
-	//pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;

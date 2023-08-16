@@ -1529,8 +1529,7 @@ XMFLOAT2 CTextureToViewportShader::WorldToScreen(XMFLOAT3 worldPosition, CCamera
 
 void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp, XMFLOAT2 pos)
 {
-	hpBarSet(pd3dCommandList, pCamera, plHp);
-
+	
 	D3D12_RECT d3dScissorRect = { pos.x,pos.y, pos.x + plHp, pos.y + 15.f };
 
 
@@ -1543,13 +1542,6 @@ void CTextureToViewportShader::Render(ID3D12GraphicsCommandList* pd3dCommandList
 }
 
 
-void CTextureToViewportShader::hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp)
-{
-	if (0 > plHp)
-		hpBar = 190.f;
-
-	hpBar = (maxHp - plHp) / (maxHp / 190);
-}
 
 //=======================================================================================================
 CMultiSpriteObjectsShader::CMultiSpriteObjectsShader()

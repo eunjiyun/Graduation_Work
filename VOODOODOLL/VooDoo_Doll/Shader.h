@@ -392,16 +392,12 @@ public:
 	virtual void ReleaseObjects();
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp, XMFLOAT2 pos);
-	void hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float);
 	XMFLOAT2 WorldToScreen(XMFLOAT3 worldPosition, CCamera* pCamera, int screenWidth, int screenHeight);
 	bool IsInPlayerView(XMFLOAT3 playerPosition, XMFLOAT3 playerLookVector, XMFLOAT3 monsterPosition, float fieldOfViewAngle);
 protected:
 	CTexture* m_pDepthTexture = NULL;
 public:
 	bool init = true;
-	int curPl = -1;
-	float hpBar = 0;
-	float maxHp = -1;
 	XMFLOAT2 test = XMFLOAT2(0, 0);
 };
 
