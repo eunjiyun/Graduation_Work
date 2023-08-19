@@ -1301,6 +1301,8 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 		}
 	}
 
+	
+
 	if (login && blur)
 	{
 		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt);
@@ -1320,9 +1322,9 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 		pComputeShader->Dispatch(pd3dCommandList, 0);
 		++softBlur;
 
-		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+		//D3D12_RESOURCE_BARRIER d3dResourceBarrier;
 
-		if (1 == softBlur % 30)
+		if (1== softBlur % 4)// || !pComputeShader->blur)
 		{
 			/*::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
 			d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
@@ -1335,7 +1337,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
 			pd3dCommandList->CopyResource(pGraphicsShader->m_pTexture->GetResource(2), pGraphicsShader->m_pTexture->GetResource(1));
-			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1),  D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 
 			/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
 			d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
@@ -1344,11 +1346,22 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 			cout << "copy" << endl;
 		}
+		
 
 		if (m_pd3dGraphicsRootSignature)
 			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 		pGraphicsShader->Render(pd3dCommandList, pCamera, NULL);
+	}
+	else if (0< softBlur)// || !pComputeShader->blur)
+	{
+		
+		::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		pd3dCommandList->CopyResource(pGraphicsShader->m_pTexture->GetResource(2), pGraphicsShader->m_pTexture->GetResource(1));
+		::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+
+		
+		//cout << "copy2" << endl;
 	}
 }
 

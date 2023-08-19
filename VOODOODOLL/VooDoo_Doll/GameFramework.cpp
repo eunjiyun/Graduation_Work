@@ -125,6 +125,7 @@ void CGameFramework::CreateSwapChain()
 #endif
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+	//cout << "buf : " << m_nSwapChainBufferIndex << endl;
 
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
@@ -329,6 +330,7 @@ void CGameFramework::ChangeSwapChainState()
 
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
+	//cout << "buf2 : " << m_nSwapChainBufferIndex << endl;
 
 	CreateSwapChainRenderTargetViews();
 }
@@ -1376,7 +1378,7 @@ void CGameFramework::FrameAdvance()
 
 
 	if (m_pStage)
-		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0], m_pCamera);
+		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_pCamera);
 
 	WaitForGpuComplete();
 

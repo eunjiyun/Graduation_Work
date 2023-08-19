@@ -395,7 +395,7 @@ static float gfGaussianBlurMask2D[5][5] = {
 	{ 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
 };
 
-#define MotionBlurStrength 2.1f // 모션 블러 강도
+#define MotionBlurStrength 5.1f // 모션 블러 강도
 
 [numthreads(32, 32, 1)]
 //void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)

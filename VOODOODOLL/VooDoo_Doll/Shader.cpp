@@ -2059,7 +2059,7 @@ void CGaussian2DBlurComputeShader::Dispatch(ID3D12GraphicsCommandList* pd3dComma
 	if (m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
 	UpdateShaderVariables(pd3dCommandList);
 
-	for (int i{}; i < 5; ++i)
+	//for (int i{}; i < 5; ++i)
 	{
 		pd3dCommandList->Dispatch(m_cxThreadGroups, m_cyThreadGroups, m_czThreadGroups);
 		ID3D12Resource* pd3dSource = m_pTexture->GetResource(0);
