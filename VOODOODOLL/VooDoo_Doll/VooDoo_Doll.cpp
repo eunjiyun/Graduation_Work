@@ -162,8 +162,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	}
 
 	string IP;
-	cout << "서버 IP 입력 : ";
-	cin >> IP;
+	//cout << "서버 IP 입력 : ";
+	//cin >> IP;
+	IP = "127.0.0.1";
 	// 서버와 연결
 	SOCKADDR_IN svr_addr;
 	memset(&svr_addr, 0, sizeof(svr_addr));

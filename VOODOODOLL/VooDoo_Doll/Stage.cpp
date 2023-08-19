@@ -1314,9 +1314,36 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 		}
 		pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
 
-		if (m_pd3dComputeRootSignature) pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
+		if (m_pd3dComputeRootSignature)
+			pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
 
 		pComputeShader->Dispatch(pd3dCommandList, 0);
+		++softBlur;
+
+		D3D12_RESOURCE_BARRIER d3dResourceBarrier;
+
+		if (1 == softBlur % 30)
+		{
+			/*::ZeroMemory(&d3dResourceBarrier, sizeof(D3D12_RESOURCE_BARRIER));
+			d3dResourceBarrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			d3dResourceBarrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			d3dResourceBarrier.Transition.pResource = pGraphicsShader->m_pTexture->GetResource(2);
+			d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+			d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
+
+			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
+			pd3dCommandList->CopyResource(pGraphicsShader->m_pTexture->GetResource(2), pGraphicsShader->m_pTexture->GetResource(1));
+			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1),  D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+
+			/*d3dResourceBarrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_SOURCE;
+			d3dResourceBarrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+			d3dResourceBarrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			pd3dCommandList->ResourceBarrier(1, &d3dResourceBarrier);*/
+
+			cout << "copy" << endl;
+		}
 
 		if (m_pd3dGraphicsRootSignature)
 			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
