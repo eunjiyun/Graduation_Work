@@ -1355,6 +1355,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 		pComputeShader[0]->Dispatch(pd3dCommandList, 0);
 
+		//pComputeShader[1]->Dispatch(pd3dCommandList,rt, abs(int(index - 1)), 0);
 		pComputeShader[1]->Dispatch(pd3dCommandList, 0);
 		++softBlur;
 

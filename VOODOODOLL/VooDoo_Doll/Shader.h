@@ -462,6 +462,7 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	virtual void Dispatch(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState = 0);
+	void Dispatch(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource** rt, UINT index, int nPipelineState = 0);
 
 	void OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList);
 	void CreateComputeShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nTextureIndex, UINT nHandleIndex, UINT nDescriptorHeapIndex, UINT nDescriptors);

@@ -2070,6 +2070,41 @@ void CGaussian2DBlurComputeShader::Dispatch(ID3D12GraphicsCommandList* pd3dComma
 	}
 }
 
+void CGaussian2DBlurComputeShader::Dispatch(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource** rt, UINT index, int nPipelineState)
+{
+	OnPrepare(pd3dCommandList);
+	if (m_pd3dPipelineState) pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+	UpdateShaderVariables(pd3dCommandList);
+
+	//for (int i{}; i < 5; ++i)
+	{
+		pd3dCommandList->Dispatch(m_cxThreadGroups, m_cyThreadGroups, m_czThreadGroups);
+		ID3D12Resource* pd3dSource = rt[index];
+		::SynchronizeResourceTransition(pd3dCommandList, pd3dSource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		ID3D12Resource* pd3dDestination = m_pTexture->GetResource(0);
+		pd3dCommandList->CopyResource(pd3dDestination, pd3dSource);
+		::SynchronizeResourceTransition(pd3dCommandList, pd3dSource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	}
+
+	{
+		pd3dCommandList->Dispatch(m_cxThreadGroups, m_cyThreadGroups, m_czThreadGroups);
+		ID3D12Resource* pd3dSource = m_pTexture->GetResource(0);
+		::SynchronizeResourceTransition(pd3dCommandList, pd3dSource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		ID3D12Resource* pd3dDestination = m_pTexture->GetResource(1);
+		pd3dCommandList->CopyResource(pd3dDestination, pd3dSource);
+		::SynchronizeResourceTransition(pd3dCommandList, pd3dSource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	}
+
+	/*{
+		pd3dCommandList->Dispatch(m_cxThreadGroups, m_cyThreadGroups, m_czThreadGroups);
+		ID3D12Resource* pd3dSource = m_pTexture->GetResource(0);
+		::SynchronizeResourceTransition(pd3dCommandList, pd3dSource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE);
+		ID3D12Resource* pd3dDestination = m_pTexture->GetResource(2);
+		pd3dCommandList->CopyResource(pd3dDestination, pd3dSource);
+		::SynchronizeResourceTransition(pd3dCommandList, pd3dSource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	}*/
+}
+
 void CGaussian2DBlurComputeShader::OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pd3dCbvSrvDescriptorHeap)
