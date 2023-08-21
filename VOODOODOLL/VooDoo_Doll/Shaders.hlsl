@@ -17,6 +17,7 @@ cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix					gmtxGameObject : packoffset(c0);
 	float3					texMat: packoffset(c4);
+	//uint						blurId: packoffset(c8);
 };
 
 cbuffer cbMaterialInfo : register(b3)
@@ -464,9 +465,29 @@ Texture2D gtxtOutput : register(t1);
 
 float4 PSTextureToFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
+	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
 	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
 	//float4 cEdgeColor = gtxtPrevFrame.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
+
+
+	return(cEdgeColor);
+	//return(cColor * cEdgeColor);
+	//return(cColor + cEdgeColor);
+}
+float4 PSTextureToFull(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
+	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
+	//float4 cEdgeColor = gtxtPrevFrame.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
+
+	//if (//texMat.x == 2&&
+	//	/*cEdgeColor.x >= 0.5 &&*/ cEdgeColor.x == 1 &&
+	//	/*cEdgeColor.y >= 0.5 &&*/ cEdgeColor.y == 1 &&
+	//	/*cEdgeColor.z >= 0.5 &&*/ cEdgeColor.z == 1
+	//	)//|| cEdgeColor.x==0&& cEdgeColor.y == 0 && cEdgeColor.z == 0 )
+	//	discard;
+
+	cEdgeColor.a = 0.7f;
 
 	return(cEdgeColor);
 	//return(cColor * cEdgeColor);

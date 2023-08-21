@@ -356,6 +356,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
+		move = true;
+		
 		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
 		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
 
@@ -392,6 +394,8 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
+
+		move = false;
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -1061,12 +1065,12 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 	if (m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
-		|| m_pStage->pComputeShader->blur)
+		|| m_pStage->pComputeShader[0]->blur)
 	{
 		m_pStage->blur = true;
 	}
 	else if (!m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
-		&& !m_pStage->pComputeShader->blur)
+		&& !m_pStage->pComputeShader[0]->blur)
 		m_pStage->blur = false;
 }
 
@@ -1375,10 +1379,12 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
 	}
 
-
+	m_pStage->move = move;
+	if (m_pPlayer->onAct)
+		m_pStage->move = true;
 
 	if (m_pStage)
-		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex], m_pCamera);
+		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers,m_nSwapChainBufferIndex, m_pCamera);
 
 	WaitForGpuComplete();
 

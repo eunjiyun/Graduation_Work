@@ -58,6 +58,7 @@ using namespace chrono;
 #include <DirectXCollision.h>
 #include <Mmsystem.h>
 #include <array>
+#include <cstdlib>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>

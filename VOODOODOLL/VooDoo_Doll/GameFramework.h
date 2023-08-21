@@ -152,6 +152,7 @@ public:
 
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;
+	bool move = false;
 
 
 	CLogin* m_pLogin = NULL;

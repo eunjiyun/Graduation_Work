@@ -50,6 +50,12 @@ void ProcessInput()
 			if (pKeysBuffer[0x20] & 0xF0) dwDirection |= DIR_JUMP; //space jump
 		}
 	}
+
+	if (0 != dwDirection)
+		gGameFramework.move = true;
+	else
+		gGameFramework.move = false;
+
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 
 	gGameFramework.m_pPlayer->cxDelta = gGameFramework.m_pPlayer->cyDelta = gGameFramework.m_pPlayer->czDelta = 0.0f;
@@ -298,6 +304,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (ErrorStatus == SOCKET_ERROR) err_display("WSASend()");
 			gGameFramework.m_pPlayer->onAct = true;
 		}
+
 		break;
 	case WM_KEYDOWN:
 		if (VK_CONTROL == wParam)//full screen
@@ -339,10 +346,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             else if ('b' == wParam|| 'B' == wParam)
             {
-                if (gGameFramework.m_pStage->pComputeShader->blur)
-                    gGameFramework.m_pStage->pComputeShader->blur = false;
+                if (gGameFramework.m_pStage->pComputeShader[0]->blur)
+                    gGameFramework.m_pStage->pComputeShader[0]->blur = false;
                 else
-                    gGameFramework.m_pStage->pComputeShader->blur = true;
+                    gGameFramework.m_pStage->pComputeShader[0]->blur = true;
             }
         }
         break;

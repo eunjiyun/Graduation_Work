@@ -1946,8 +1946,8 @@ void CGaussian2DBlurComputeShader::CreateShaderVariables(ID3D12Device* pd3dDevic
 		m_pTexture = new CTexture(3, RESOURCE_TEXTURE2D, 0, 3);
 		m_pTexture->m_pnResourceTypes[0] = RESOURCE_TEXTURE2D;
 		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 0, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, NULL);
-		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 1, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
-		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 2, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 1, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT , 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
+		m_pTexture->CreateTexture(pd3dDevice, pd3dCommandList, 2, RESOURCE_TEXTURE2D, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT , 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, NULL);
 	}
 
 	/*D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -2039,7 +2039,7 @@ void CGaussian2DBlurComputeShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12
 void CGaussian2DBlurComputeShader::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (m_pTexture) m_pTexture->UpdateComputeSrvShaderVariable(pd3dCommandList, 0);
-	if (m_pTexture) m_pTexture->UpdateComputeSrvShaderVariable(pd3dCommandList, 1);
+	//if (m_pTexture) m_pTexture->UpdateComputeSrvShaderVariable(pd3dCommandList, 1);
 	if (m_pTexture) m_pTexture->UpdateComputeUavShaderVariable(pd3dCommandList, 0);
 }
 
@@ -2273,6 +2273,8 @@ CTextureToFullScreenShader::~CTextureToFullScreenShader()
 {
 }
 
+
+
 D3D12_DEPTH_STENCIL_DESC CTextureToFullScreenShader::CreateDepthStencilState(int nPipelineState)
 {
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
@@ -2303,6 +2305,10 @@ D3D12_SHADER_BYTECODE CTextureToFullScreenShader::CreateVertexShader(ID3DBlob** 
 D3D12_SHADER_BYTECODE CTextureToFullScreenShader::CreatePixelShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState)
 {
 	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextureToFullScreen", "ps_5_1", ppd3dShaderBlob));
+}
+D3D12_SHADER_BYTECODE CTextureToFullScreenShader2::CreatePixelShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState)
+{
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSTextureToFull", "ps_5_1", ppd3dShaderBlob));
 }
 
 void CTextureToFullScreenShader::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
@@ -2353,6 +2359,28 @@ void CTextureToFullScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12Gr
 
 void CTextureToFullScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext,  int nPipelineState)
 {
+
+	/*D3D12_RECT d3dScissorRect = {220,120, 420, 320 };
+	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);*/
+
+
+	OnPrepare(pd3dCommandList);
+
+	if (m_pd3dPipelineState)
+		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
+
+	UpdateShaderVariables(pd3dCommandList, NULL);
+	
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+}
+void CTextureToFullScreenShader2::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext, int nPipelineState)
+{
+
+	D3D12_RECT d3dScissorRect = { 220,120, 420, 320 };
+	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);
+
+
 	OnPrepare(pd3dCommandList);
 
 	if (m_pd3dPipelineState)
