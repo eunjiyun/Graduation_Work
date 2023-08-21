@@ -200,7 +200,7 @@ public:
 
 	CGaussian2DBlurComputeShader** pComputeShader = nullptr;
 	CTextureToFullScreenShader** pGraphicsShader = nullptr;
-	CTextureToFullScreenShader* pGraphicsShader2 = nullptr;
+	CTextureToFullScreenShader2* pGraphicsShader2 = nullptr;
 
 	
 	int								m_nComputeShaders = 0;

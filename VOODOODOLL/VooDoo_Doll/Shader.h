@@ -49,8 +49,7 @@ public:
 	CTexture* gameScreen[6];
 	CMaterial* gameMat[6];
 	CMaterial* popUpMat[4];
-	int m_nBoxObj = 0;
-
+	
 	CMultiSpriteObject** obj = nullptr;
 
 	int								m_nPipelineStates = 0;
@@ -77,9 +76,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dUavCPUDescriptorNextHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dUavGPUDescriptorNextHandle;
-	//public:
-		//ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
-
+	
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
@@ -537,28 +534,8 @@ public:
 	CTextureToFullScreenShader2(CTexture* pTexture):CTextureToFullScreenShader(pTexture) {}
 	virtual ~CTextureToFullScreenShader2(){}
 
-	/*virtual D3D12_DEPTH_STENCIL_DESC CreateDepthStencilState(int nPipelineState = 0);
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState = 0);*/
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState = 0);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext, int nPipelineState = 0);
-
-	/*virtual void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat, int nPipelineState = 0);
-
-	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
-	virtual void ReleaseShaderVariables();
-
-	virtual void ReleaseUploadBuffers();
-
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext, int nPipelineState = 0);
-
-	void OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList);
-	void CreateGraphicsShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nTextureIndex, UINT nHandleIndex, UINT nDescriptorHeapIndex, UINT nDescriptors);*/
-
-//public:
-//	CTexture* m_pTexture = NULL;
-//	bool set[3] = { false,false,false };
-//	UINT blurId;
 };
 
 

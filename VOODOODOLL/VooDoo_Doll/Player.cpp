@@ -604,7 +604,7 @@ HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename)
 	}
 
 	// WAV 파일 검증
-	if (memcmp(header.chunkId, "RIFF", 4) != 0 ||//0501
+	if (memcmp(header.chunkId, "RIFF", 4) != 0 ||
 		memcmp(header.format, "WAVE", 4) != 0 ||
 		memcmp(header.subchunk1Id, "fmt ", 4) != 0 ||
 		memcmp(header.subchunk2Id, "data", 4) != 0)
@@ -686,7 +686,7 @@ bool SoundPlayer::LoadWave(const wchar_t* filename, int type = 0)
 			// 소스 보이스 생성
 			hr = xAudio2_->CreateSourceVoice(&sourceVoice_, &waveFormat_);
 			if (FAILED(hr)) {
-				cout << "323호에서 오류나면 소스 보이스 생성" << endl;
+				cout << "error" << endl;
 				return false;
 			}
 		}
@@ -695,7 +695,7 @@ bool SoundPlayer::LoadWave(const wchar_t* filename, int type = 0)
 	}
 
 	// 소스 보이스에 버퍼 설정
-	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);//0504
+	hr = sourceVoice_->SubmitSourceBuffer(&buffer_);
 	if (FAILED(hr)) {
 		return false;
 	}

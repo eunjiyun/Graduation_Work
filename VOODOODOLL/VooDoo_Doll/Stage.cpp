@@ -169,10 +169,10 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	pComputeShader[0] = new CGaussian2DBlurComputeShader();
 	pComputeShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, nullptr);
-	
+
 	pComputeShader[1] = new CGaussian2DBlurComputeShader();
 	pComputeShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, nullptr);
-	
+
 	/*pComputeShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pComputeShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
 	pComputeShader->m_d3dCbvGPUDescriptorNextHandle = m_d3dCbvGPUDescriptorStartHandle;
@@ -189,11 +189,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	pGraphicsShader[0] = new CTextureToFullScreenShader(pComputeShader[0]->m_pTexture);
 	pGraphicsShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
-	//pGraphicsShader[0]->blurId = 1;
-
-	/*pGraphicsShader[1] = new CTextureToFullScreenShader(pComputeShader[1]->m_pTexture);
-	pGraphicsShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
-	pGraphicsShader[1]->blurId = 2;*/
 
 	pGraphicsShader2 = new CTextureToFullScreenShader2(pComputeShader[1]->m_pTexture);
 	pGraphicsShader2->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
@@ -832,15 +827,7 @@ void CStage::ReleaseObjects()
 		}
 	}
 
-	/*if (pGraphicsShader)
-	{
 
-		pGraphicsShader->ReleaseShaderVariables();
-		pGraphicsShader->ReleaseObjects();
-		pGraphicsShader->Release();
-
-		delete pGraphicsShader;
-	}*/
 	if (pGraphicsShader)
 	{
 		for (int i{}; i < m_nGraphicsShaders; ++i)
@@ -853,12 +840,10 @@ void CStage::ReleaseObjects()
 	}
 	if (pGraphicsShader2)
 	{
-		//for (int i{}; i < m_nGraphicsShaders; ++i)
-		{
-			pGraphicsShader2->ReleaseShaderVariables();
-			pGraphicsShader2->ReleaseObjects();
-			pGraphicsShader2->Release();
-		}
+		pGraphicsShader2->ReleaseShaderVariables();
+		pGraphicsShader2->ReleaseObjects();
+		pGraphicsShader2->Release();
+
 		delete pGraphicsShader2;
 	}
 
@@ -1265,8 +1250,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_bEnable = false;
 	}
 
-	//for (int i{}; i < m_nGraphicsShaders; ++i)
-		//m_ppGraphicsShaders[i]->AnimateObjects(fTimeElapsed);
 
 	static float fAngle = 0.0f;
 	fAngle += 1.50f;
@@ -1297,7 +1280,7 @@ void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 
-void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, ID3D12Resource** rt,UINT index, CCamera* pCamera)//ID3D12Resource*
+void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, ID3D12Resource** rt, UINT index, CCamera* pCamera)//ID3D12Resource*
 {
 	if (m_pd3dGraphicsRootSignature)
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
@@ -1354,16 +1337,6 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 		pGraphicsShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
 
 
-		/*pComputeShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt[UINT(abs(int(index - 1)))]);
-
-		if (!pGraphicsShader[1]->set[2])
-		{
-			pGraphicsShader[1]->m_pTexture = pComputeShader[1]->m_pTexture;
-			if (pGraphicsShader[1]->m_pTexture) pGraphicsShader[1]->m_pTexture->AddRef();
-
-			pGraphicsShader[1]->set[2] = true;
-		}
-		pGraphicsShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);*/
 
 		pComputeShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt[UINT(abs(int(index - 1)))]);
 
@@ -1382,22 +1355,17 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 
 		pComputeShader[0]->Dispatch(pd3dCommandList, 0);
 
-		//if (1 >= softBlur)
 		pComputeShader[1]->Dispatch(pd3dCommandList, 0);
 		++softBlur;
 
-		//D3D12_RESOURCE_BARRIER d3dResourceBarrier;
-
-		if (1 == softBlur % 4)// || !pComputeShader->blur)
+		if (1 == softBlur % 4)
 		{
-			
 
 			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
 			pd3dCommandList->CopyResource(pGraphicsShader[0]->m_pTexture->GetResource(2), pGraphicsShader[0]->m_pTexture->GetResource(1));
 			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 
-			//if (1 == softBlur)// % 20)
-			if(move|| 1 == softBlur)
+			if (move || 1 == softBlur)
 			{
 				::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader2->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
 				pd3dCommandList->CopyResource(pGraphicsShader2->m_pTexture->GetResource(2), pGraphicsShader2->m_pTexture->GetResource(1));
@@ -1411,29 +1379,18 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 				pd3dCommandList->CopyResource(pGraphicsShader2->m_pTexture->GetResource(2), pGraphicsShader[0]->m_pTexture->GetResource(1));
 				::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
 			}
-			
-			//cout << "copy" << endl;
 		}
 
 
 		if (m_pd3dGraphicsRootSignature)
 			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-		
+
 		pGraphicsShader[0]->Render(pd3dCommandList, pCamera, NULL);
-		pGraphicsShader2->Render(pd3dCommandList, pCamera, NULL);
-		
+
+		if (pComputeShader[0]->blur)
+			pGraphicsShader2->Render(pd3dCommandList, pCamera, NULL);
 	}
-	//else if (0 < softBlur)// || !pComputeShader->blur)
-	//{
-
-	//	::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
-	//	pd3dCommandList->CopyResource(pGraphicsShader->m_pTexture->GetResource(2), pGraphicsShader->m_pTexture->GetResource(1));
-	//	::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
-
-
-	//	//cout << "copy2" << endl;
-	//}
 }
 
 
@@ -1625,7 +1582,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			for (int i = 0; i < 7; i++)
+			for (int i{}; i < 7; ++i)
 			{
 				if (m_ppShaders[0]->door[i]->obBox.Contains(XMLoadFloat3(&xmf3Position)))
 				{
@@ -1665,7 +1622,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+			for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 			{
 				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
@@ -1677,7 +1634,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			for (int i = 0; i < 7; i++)
+			for (int i{}; i < 7; ++i)
 			{
 				if (m_ppShaders[0]->door[i]->obBox.Contains(_Pos))
 				{
@@ -1709,7 +1666,7 @@ void CStage::Pushing_Button(CPlayer*& pl)
 	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
 	int iResult = 0; // 틀릴 경우 -1
 
-	for (int i = 0; i < 5; i++)
+	for (int i{}; i < 5; ++i)
 	{
 		BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
 
@@ -1726,7 +1683,7 @@ void CStage::Pushing_Button(CPlayer*& pl)
 
 		if (5 == m_iHitNum)
 		{
-			for (int k = 0; k < 5; k++)
+			for (int k{}; k < 5; ++k)
 			{
 				if (iAnswer[k] == m_iHit[k])
 				{
@@ -1751,7 +1708,7 @@ void CStage::Pushing_Button(CPlayer*& pl)
 			cout << "Lose" << endl;
 
 
-			for (int i = 0; i < 5; i++)
+			for (int i{}; i < 5; ++i)
 			{
 				pPuzzles[5][i]->m_bGetItem = false;
 			}
@@ -1771,7 +1728,7 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 
 	pl->onFloor = false;
-	for (int i = 0; i < 6; i++)
+	for (int i{}; i < 6; ++i)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->door[i]->obBox;
 		if (pl->obBox.Intersects(oBox))

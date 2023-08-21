@@ -30,11 +30,6 @@ protected:
 	XMFLOAT3						m_xmf3Offset;
 	float           				m_fTimeLag;
 
-	/*XMFLOAT4X4						m_xmf4x4View;
-	XMFLOAT4X4						m_xmf4x4Projection;*/
-
-
-
 	CPlayer* m_pPlayer = NULL;
 
 	ID3D12Resource* m_pd3dcbCamera = NULL;

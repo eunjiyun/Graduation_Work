@@ -165,7 +165,6 @@ public:
 
 	float bloodTime = 0.0f;
 	float plTime[3] = { 0.0f,0.0f,0.0f };
-	float blurTime = 0.f;
 	float popUpTime = 0.0f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };
 
@@ -173,8 +172,6 @@ public:
 
 	_TCHAR						m_pszFrameRate[70];
 
-	CGameObject** m_ppBullets = NULL;
-	CGameObject** m_ppCap = NULL;
 	CPostProcessingShader* m_pPostProcessingShader = NULL;
 
 	bool onFullScreen = false;

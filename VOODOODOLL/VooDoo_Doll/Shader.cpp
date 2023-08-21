@@ -2359,11 +2359,6 @@ void CTextureToFullScreenShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12Gr
 
 void CTextureToFullScreenShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext,  int nPipelineState)
 {
-
-	/*D3D12_RECT d3dScissorRect = {220,120, 420, 320 };
-	pd3dCommandList->RSSetScissorRects(1, &d3dScissorRect);*/
-
-
 	OnPrepare(pd3dCommandList);
 
 	if (m_pd3dPipelineState)

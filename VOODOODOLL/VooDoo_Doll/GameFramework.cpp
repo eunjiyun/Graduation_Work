@@ -125,8 +125,7 @@ void CGameFramework::CreateSwapChain()
 #endif
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-	//cout << "buf : " << m_nSwapChainBufferIndex << endl;
-
+	
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 	//full screen
@@ -251,7 +250,7 @@ void CGameFramework::CreateSwapChainRenderTargetViews()
 
 	m_d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+	for (UINT i{}; i < m_nSwapChainBuffers; ++i)
 	{
 		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dSwapChainBackBuffers[i]);
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], &d3dRenderTargetViewDesc, m_d3dRtvCPUDescriptorHandle);
@@ -330,8 +329,7 @@ void CGameFramework::ChangeSwapChainState()
 
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-	//cout << "buf2 : " << m_nSwapChainBufferIndex << endl;
-
+	
 	CreateSwapChainRenderTargetViews();
 }
 
@@ -1033,27 +1031,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		bloodTime = 0.f;
 	}
 
-	//for (int i{}; i < 3; ++i)
-	//{
-	//	if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
-	//	{
-	//		plTime[i] += fTimeElapsed;
-	//		if (0.1f < plTime[i])
-	//		{
-	//			if (i == m_pPlayer->c_id % 3) m_pStage->blur = false;
-	//			m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//??
-	//			plTime[i] = 0.f;
-	//		}
-	//	}
-	//}
-
-	/*if (m_pStage->blur) {
-		blurTime += fTimeElapsed;
-		if (0.9f < blurTime)
-		{
-			m_pStage->blur = false;
-		}
-	}*/
 
 
 	if (m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]) {
@@ -1401,12 +1378,11 @@ void CGameFramework::FrameAdvance()
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-		if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
+		if (5 == m_pStage->Monsters[0]->c_id / 10)//particle
 		{
-			for (m = 0; m < m_pStage->Monsters.size(); ++m)
+			for (m=0; m < m_pStage->Monsters.size(); ++m)
 			{
 				if (59 == m_pStage->Monsters[m]->c_id)
-					//if (0 == Monsters[m]->c_id)//pat
 				{
 					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
@@ -1442,7 +1418,7 @@ void CGameFramework::FrameAdvance()
 	{
 		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
 
-		for (int i = 0; i < m_pStage->Monsters.size(); ++i)
+		for (int i{}; i < m_pStage->Monsters.size(); ++i)
 		{
 			auto& Mon = m_pStage->Monsters.at(i);
 			if (Mon->c_id == 59) continue;

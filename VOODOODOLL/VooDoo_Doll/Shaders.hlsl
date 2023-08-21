@@ -17,7 +17,6 @@ cbuffer cbGameObjectInfo : register(b2)
 {
 	matrix					gmtxGameObject : packoffset(c0);
 	float3					texMat: packoffset(c4);
-	//uint						blurId: packoffset(c8);
 };
 
 cbuffer cbMaterialInfo : register(b3)
@@ -465,14 +464,9 @@ Texture2D gtxtOutput : register(t1);
 
 float4 PSTextureToFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
-	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
-	//float4 cEdgeColor = gtxtPrevFrame.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
-
-
+	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;
+	
 	return(cEdgeColor);
-	//return(cColor * cEdgeColor);
-	//return(cColor + cEdgeColor);
 }
 float4 PSTextureToFull(VS_TEXTURED_OUTPUT input) : SV_Target
 {
