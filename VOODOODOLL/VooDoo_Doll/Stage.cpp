@@ -1359,7 +1359,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 		pComputeShader[1]->Dispatch(pd3dCommandList, 0);
 		++softBlur;
 
-		if (1 == softBlur % 4)
+		if (1 == softBlur % 4 || !pComputeShader[0]->blur)
 		{
 
 			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
