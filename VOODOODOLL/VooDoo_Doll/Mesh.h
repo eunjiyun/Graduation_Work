@@ -52,9 +52,9 @@ public:
 class CMesh
 {
 public:
-	CMesh(){}
+	CMesh() {}
 	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName,int);
+	CMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int);
 	virtual ~CMesh();
 
 private:
@@ -71,8 +71,8 @@ public:
 	CTexturedVertex pVertices[6];
 	XMFLOAT2* m_pxmf2TextureCoords = NULL;
 
-	ID3D12Resource*									m_pd3dTextureCoordsBuffer = NULL;
-	ID3D12Resource*									m_pd3dTextureCoordUploadBuffer;
+	ID3D12Resource* m_pd3dTextureCoordsBuffer = NULL;
+	ID3D12Resource* m_pd3dTextureCoordUploadBuffer;
 
 	UINT* m_pnIndices = NULL;
 	UINT							m_nSubsets = 0;
@@ -101,7 +101,7 @@ public:
 	UINT							m_nStride = 0;
 	ID3D12Resource* m_pd3dVertexBuffer = NULL;
 	ID3D12Resource* m_pd3dVertexUploadBuffer = NULL;
-	
+
 
 protected:
 	UINT							m_nType = 0x00;
@@ -114,7 +114,7 @@ protected:
 	UINT							m_nOffset = 0;
 
 protected:
-	
+
 	D3D12_VERTEX_BUFFER_VIEW		m_d3dPositionBufferView;
 
 	int								m_nSubMeshes = 0;
@@ -133,12 +133,12 @@ public:
 
 	virtual void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT nSubset);
-	
+
 
 	virtual void OnPostRender(ID3D12GraphicsCommandList* pd3dCommandList, void* pContext);
 
-	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName,int);
-	
+	void LoadMeshFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, char* pstrFileName, int);
+
 	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList);
 
 public:
@@ -151,7 +151,7 @@ public:
 class CStandardMesh : public CMesh
 {
 public:
-	CStandardMesh(){}
+	CStandardMesh() {}
 	CStandardMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual ~CStandardMesh();
 
@@ -199,37 +199,37 @@ public:
 class CSkinnedMesh : public CStandardMesh
 {
 public:
-	CSkinnedMesh(){}
+	CSkinnedMesh() {}
 	CSkinnedMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual ~CSkinnedMesh();
 
 protected:
-	int								m_nBonesPerVertex = 4;//
+	int								m_nBonesPerVertex = 4;
 
-	XMINT4* m_pxmn4BoneIndices = NULL;//
-	XMFLOAT4* m_pxmf4BoneWeights = NULL;//
+	XMINT4* m_pxmn4BoneIndices = NULL;
+	XMFLOAT4* m_pxmf4BoneWeights = NULL;
 
-	ID3D12Resource* m_pd3dBoneIndexBuffer = NULL;// //
-	ID3D12Resource* m_pd3dBoneIndexUploadBuffer = NULL;// //
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneIndexBufferView;// //
+	ID3D12Resource* m_pd3dBoneIndexBuffer = NULL;
+	ID3D12Resource* m_pd3dBoneIndexUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneIndexBufferView;
 
-	ID3D12Resource* m_pd3dBoneWeightBuffer = NULL;// //
-	ID3D12Resource* m_pd3dBoneWeightUploadBuffer = NULL;// //
-	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneWeightBufferView;// 
+	ID3D12Resource* m_pd3dBoneWeightBuffer = NULL;
+	ID3D12Resource* m_pd3dBoneWeightUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW		m_d3dBoneWeightBufferView;
 
 public:
-	int								m_nSkinningBones = 0;//
+	int								m_nSkinningBones = 0;
 
-	char(*m_ppstrSkinningBoneNames)[64];// //
-	CGameObject** m_ppSkinningBoneFrameCaches = NULL; //[m_nSkinningBones] //
+	char(*m_ppstrSkinningBoneNames)[64];
+	CGameObject** m_ppSkinningBoneFrameCaches = NULL; //[m_nSkinningBones] 
 
-	XMFLOAT4X4* m_pxmf4x4BindPoseBoneOffsets = NULL; //Transposed // //
+	XMFLOAT4X4* m_pxmf4x4BindPoseBoneOffsets = NULL; //Transposed 
 
-	ID3D12Resource* m_pd3dcbBindPoseBoneOffsets = NULL;//
-	XMFLOAT4X4* m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL;//
+	ID3D12Resource* m_pd3dcbBindPoseBoneOffsets = NULL;
+	XMFLOAT4X4* m_pcbxmf4x4MappedBindPoseBoneOffsets = NULL;
 
-	ID3D12Resource* m_pd3dcbSkinningBoneTransforms = NULL; //Pointer Only //
-	XMFLOAT4X4* m_pcbxmf4x4MappedSkinningBoneTransforms = NULL;//
+	ID3D12Resource* m_pd3dcbSkinningBoneTransforms = NULL; 
+	XMFLOAT4X4* m_pcbxmf4x4MappedSkinningBoneTransforms = NULL;
 
 public:
 	void PrepareSkinning(CGameObject* pModelRootObject);

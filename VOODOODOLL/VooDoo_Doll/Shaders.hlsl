@@ -63,7 +63,6 @@ Texture2D gtxtNormalTexture : register(t8);
 Texture2D gtxtMetallicTexture : register(t9);
 Texture2D gtxtEmissionTexture : register(t10);
 Texture2D gtxtPrevFrame : register(t11);
-Texture2D gtxtDetailNormalTexture : register(t12);
 Texture2D gtxtIlluminationTexture : register(t13);
 Texture2D gtxtzDepthTexture : register(t14);
 Texture2D gtxtDepthTexture : register(t15);
@@ -118,10 +117,7 @@ float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 
 	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
-	////메탈릭 속성 값을 수정
-	//float metallicFactor = 0.1f; // 낮은 값으로 변경하려면 0.0f ~ 1.0f 사이의 값을 설정
-	//cMetallicColor *= metallicFactor;
-
+	
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 
@@ -179,7 +175,6 @@ VS_STANDARD_OUTPUT VSSkinnedAnimationStandard(VS_SKINNED_STANDARD_INPUT input)
 	float4x4 mtxVertexToBoneWorld = (float4x4)0.0f;
 	for (int i=0; i < MAX_VERTEX_INFLUENCES; ++i)
 	{
-		//		mtxVertexToBoneWorld += input.weights[i] * gpmtxBoneTransforms[input.indices[i]];
 		mtxVertexToBoneWorld += input.weights[i] * mul(gpmtxBoneOffsets[input.indices[i]], gpmtxBoneTransforms[input.indices[i]]);
 	}
 
@@ -400,7 +395,7 @@ static float gfGaussianBlurMask2D[5][5] = {
 	{ 1.0f / 273.0f, 4.0f / 273.0f, 7.0f / 273.0f, 4.0f / 273.0f, 1.0f / 273.0f }
 };
 
-#define MotionBlurStrength 2.1f // 모션 블러 강도
+#define MotionBlurStrength 5.1f // 모션 블러 강도
 
 [numthreads(32, 32, 1)]
 //void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
@@ -469,9 +464,24 @@ Texture2D gtxtOutput : register(t1);
 
 float4 PSTextureToFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-	float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
+	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;
+	
+	return(cEdgeColor);
+}
+float4 PSTextureToFull(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+	//float4 cColor = gtxtInput.Sample(gssWrap, input.uv);
 	float4 cEdgeColor = gtxtOutput.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
 	//float4 cEdgeColor = gtxtPrevFrame.Sample(gssWrap, input.uv) * 1.25f;//gtxtPrevFrame
+
+	//if (//texMat.x == 2&&
+	//	/*cEdgeColor.x >= 0.5 &&*/ cEdgeColor.x == 1 &&
+	//	/*cEdgeColor.y >= 0.5 &&*/ cEdgeColor.y == 1 &&
+	//	/*cEdgeColor.z >= 0.5 &&*/ cEdgeColor.z == 1
+	//	)//|| cEdgeColor.x==0&& cEdgeColor.y == 0 && cEdgeColor.z == 0 )
+	//	discard;
+
+	cEdgeColor.a = 0.7f;
 
 	return(cEdgeColor);
 	//return(cColor * cEdgeColor);

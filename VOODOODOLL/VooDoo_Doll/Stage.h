@@ -83,9 +83,9 @@ public:
 
 	bool ProcessInput(UCHAR* pKeysBuffer);
 	void AnimateObjects(float fTimeElapsed);
-	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players);
+	void OnPreRender(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT*, ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap, vector<CMonster*> Monsters, vector<CPlayer*> Players);
 	void OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool, ID3D12Resource* ,CCamera* pCamera = NULL);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool, ID3D12Resource**,UINT, CCamera* pCamera = NULL);
 
 
 	void ReleaseUploadBuffers();
@@ -117,11 +117,12 @@ public:
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
 	bool blur = false;
 	int softBlur = 0;
+	bool move = false;
 	
 protected:
-	
 
-	
+
+
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dCbvCPUDescriptorStartHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dCbvGPUDescriptorStartHandle;
@@ -138,7 +139,7 @@ protected:
 	static D3D12_CPU_DESCRIPTOR_HANDLE	m_d3dUavCPUDescriptorNextHandle;
 	static D3D12_GPU_DESCRIPTOR_HANDLE	m_d3dUavGPUDescriptorNextHandle;
 
-	
+
 
 public:
 	static void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews);
@@ -160,34 +161,34 @@ public:
 
 	XMFLOAT3					m_xmf3RotatePosition = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	LIGHT*						m_pLights = NULL;
-	
-	int								m_nLights = 0;
-	MATERIALS*				m_pMaterials = NULL;
-	ID3D12Resource*		m_pd3dcbMaterials = NULL;
-	MATERIAL*				m_pcbMappedMaterials = NULL;
+	LIGHT* m_pLights = NULL;
 
-	CShader**					m_ppShaders = NULL;
+	int								m_nLights = 0;
+	MATERIALS* m_pMaterials = NULL;
+	ID3D12Resource* m_pd3dcbMaterials = NULL;
+	MATERIAL* m_pcbMappedMaterials = NULL;
+
+	CShader** m_ppShaders = NULL;
 	int								m_nShaders = 0;
 	CObjectsShader* pObjectShader = nullptr;
 
-	ID3D12PipelineState*								m_pd3dPipelineState = NULL;
+	ID3D12PipelineState* m_pd3dPipelineState = NULL;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dCbvGPUDescriptorHandle;
 
 	XMFLOAT4					m_xmf4GlobalAmbient;
 
-	ID3D12Resource*		m_pd3dcbLights = NULL;
-	LIGHTS*						m_pcbMappedLights = NULL;
-	
+	ID3D12Resource* m_pd3dcbLights = NULL;
+	LIGHTS* m_pcbMappedLights = NULL;
+
 
 public:
 	vector<XMFLOAT3> mpObjVec;
 	float							mpTime = 0.f;
 	XMFLOAT4X4				m_xmf4x4World = Matrix4x4::Identity();
 
-	CBoxShader*							pBoxShader = NULL;
-	CShadowMapShader*			m_pShadowShader = NULL;
-	CDepthRenderShader*		m_pDepthRenderShader = NULL;
+	CBoxShader* pBoxShader = NULL;
+	CShadowMapShader* m_pShadowShader = NULL;
+	CDepthRenderShader* m_pDepthRenderShader = NULL;
 	CTextureToViewportShader* m_pShadowMapToViewport = NULL;
 	CGameObject** hpUi = nullptr;
 	CGameObject** userId = nullptr;
@@ -196,14 +197,18 @@ public:
 
 	//계산 셰이더
 	ID3D12RootSignature* m_pd3dComputeRootSignature = NULL;
-	CComputeShader** m_ppComputeShaders = NULL;
-	CGaussian2DBlurComputeShader* pComputeShader = nullptr;
-	CTextureToFullScreenShader* pGraphicsShader = nullptr;
-	int								m_nComputeShaders = 0;
-	CGraphicsShader** m_ppGraphicsShaders = NULL;
-	int								m_nGraphicsShaders = 0;
-	DXGI_FORMAT compShaderFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
+
+	CGaussian2DBlurComputeShader** pComputeShader = nullptr;
+	CTextureToFullScreenShader** pGraphicsShader = nullptr;
+	CTextureToFullScreenShader2* pGraphicsShader2 = nullptr;
+
 	
+	int								m_nComputeShaders = 0;
+
+	int								m_nGraphicsShaders = 0;
+	
+	DXGI_FORMAT compShaderFormats[1] = { DXGI_FORMAT_R8G8B8A8_UNORM };
+
 	// 각 문마다 열리는 조건을 달성했을 경우 true로 전환
 	bool										b1stDoorPass = false;
 	bool										b2ndDoorPass = false;
@@ -215,16 +220,16 @@ public:
 	int											iGetItem = 0;
 	int											iGetCoin = 0;
 
-	CTexture*								pCandleTextures[6] = {};
-	CTexture*								pButtonTextures[2] = {};
+	CTexture* pCandleTextures[3] = {};
+	CTexture* pButtonTextures[2] = {};
 	int											m_iHitNum = 0;
 	int											m_iHit[5] = {};
 	bool exitGame = false;
 
-	public:
-		/*vector<CGameObject*>		p1stRoomPuzzle;
-		vector<CGameObject*>		p2ndRoomPuzzle;*/
-		array<vector<CGameObject*>, 7> pPuzzles;
-		vector<CMonster*> Monsters;
+public:
+	/*vector<CGameObject*>		p1stRoomPuzzle;
+	vector<CGameObject*>		p2ndRoomPuzzle;*/
+	array<vector<CGameObject*>, 7> pPuzzles;
+	vector<CMonster*> Monsters;
 };
 

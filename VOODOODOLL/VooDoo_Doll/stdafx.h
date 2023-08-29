@@ -58,6 +58,7 @@ using namespace chrono;
 #include <DirectXCollision.h>
 #include <Mmsystem.h>
 #include <array>
+#include <cstdlib>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
@@ -72,8 +73,8 @@ extern HINSTANCE						ghAppInstance;
 
 #define _WITH_SWAPCHAIN_FULLSCREEN_STATE//full screen
 
-#define FRAME_BUFFER_WIDTH				640*2
-#define FRAME_BUFFER_HEIGHT				480*2
+#define FRAME_BUFFER_WIDTH				640
+#define FRAME_BUFFER_HEIGHT				480
 
 
 #define MAX_MATERIALS			8 
@@ -97,8 +98,8 @@ extern HINSTANCE						ghAppInstance;
 #define MAX_SHADOW_LIGHTS				4 
 #define MAX_DEPTH_TEXTURES		MAX_SHADOW_LIGHTS
 
-#define _PLANE_WIDTH			4307//1330 1024 4307
-#define _PLANE_HEIGHT			474//1330 1024
+#define _PLANE_WIDTH			4307
+#define _PLANE_HEIGHT			474
 
 #define _DEPTH_BUFFER_WIDTH		(FRAME_BUFFER_WIDTH * 8)
 #define _DEPTH_BUFFER_HEIGHT	(FRAME_BUFFER_HEIGHT * 4)

@@ -125,7 +125,7 @@ void CGameFramework::CreateSwapChain()
 #endif
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-
+	
 	hResult = m_pdxgiFactory->MakeWindowAssociation(m_hWnd, DXGI_MWA_NO_ALT_ENTER);
 
 	//full screen
@@ -250,7 +250,7 @@ void CGameFramework::CreateSwapChainRenderTargetViews()
 
 	m_d3dRtvCPUDescriptorHandle = m_pd3dRtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 
-	for (UINT i = 0; i < m_nSwapChainBuffers; i++)
+	for (UINT i{}; i < m_nSwapChainBuffers; ++i)
 	{
 		m_pdxgiSwapChain->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_ppd3dSwapChainBackBuffers[i]);
 		m_pd3dDevice->CreateRenderTargetView(m_ppd3dSwapChainBackBuffers[i], &d3dRenderTargetViewDesc, m_d3dRtvCPUDescriptorHandle);
@@ -329,7 +329,7 @@ void CGameFramework::ChangeSwapChainState()
 
 
 	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
-
+	
 	CreateSwapChainRenderTargetViews();
 }
 
@@ -354,24 +354,26 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 		::SetCapture(hWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
 
+		move = true;
+		
 		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
 		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
 
 		if (false == onFullScreen)
 		{
-			sign[0].x = 505; sign[1].x = 726;
-			sign[0].y = 739; sign[1].y = 812;
+			sign[0].x = 253; sign[1].x = 365;
+			sign[0].y = 381; sign[1].y = 422;
 
-			sign[2].x = 836; sign[3].x = 1055;
-			sign[2].y = 740; sign[3].y = 819;
+			sign[2].x = 421; sign[3].x = 531;
+			sign[2].y = 379; sign[3].y = 425;
 		}
 		else
 		{
-			sign[0].x = 496; sign[1].x = 712;
-			sign[0].y = 708; sign[1].y = 783;
+			sign[0].x = 245; sign[1].x = 356;
+			sign[0].y = 346; sign[1].y = 392;
 
-			sign[2].x = 832; sign[3].x = 1046;
-			sign[2].y = 715; sign[3].y = 781;
+			sign[2].x = 413; sign[3].x = 522;
+			sign[2].y = 345; sign[3].y = 392;
 		}
 
 		if (1 != gameButton)
@@ -383,14 +385,15 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 				&& sign[2].y <= m_ptOldCursorPos.y - windowY && sign[3].y >= m_ptOldCursorPos.y - windowY)
 			{
 				signIn = 1;
-
+				//loginSign[1] = true;//yej
 			}
 		}
 		break;
 	case WM_LBUTTONUP:
-		//gGameFramework.m_pStage->blur = false;
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
+
+		move = false;
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -515,8 +518,8 @@ void CGameFramework::OnDestroy()
 	if (m_pd3dDepthStencilBuffer) m_pd3dDepthStencilBuffer->Release();
 	if (m_pd3dDsvDescriptorHeap) m_pd3dDsvDescriptorHeap->Release();
 
-	for (int i{}; i < m_nSwapChainBuffers; ++i) 
-		if (m_ppd3dSwapChainBackBuffers[i]) 
+	for (int i{}; i < m_nSwapChainBuffers; ++i)
+		if (m_ppd3dSwapChainBackBuffers[i])
 			m_ppd3dSwapChainBackBuffers[i]->Release();
 
 	if (m_pd3dRtvDescriptorHeap) m_pd3dRtvDescriptorHeap->Release();
@@ -560,7 +563,7 @@ void CGameFramework::BuildObjects()
 	for (int i{}; i < 10; ++i)
 		m_pStage->userPw[i] = new CGameObject(1);
 
-	
+
 	if (m_pLogin) m_pStage->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 	if (m_pStage)
 	{
@@ -587,19 +590,19 @@ void CGameFramework::BuildObjects()
 
 	// Initialize SoundPlayer
 	sound[0].Initialize();
-	sound[0].LoadWave(inGame,0);
+	sound[0].LoadWave(inGame, 0);
 
 
 	sound[1].Initialize();
-	sound[1].LoadWave(opening,0);
+	sound[1].LoadWave(opening, 0);
 
 
 	sound[2].Initialize();
-	sound[2].LoadWave(closing,0);
+	sound[2].LoadWave(closing, 0);
 
 
 	sound[3].Initialize();
-	sound[3].LoadWave(win,1);
+	sound[3].LoadWave(win, 1);
 
 	hitSound.Initialize();
 
@@ -725,7 +728,8 @@ void CGameFramework::BuildObjects()
 
 	m_pStage->m_pShadowMapToViewport = new CTextureToViewportShader();
 	m_pStage->m_pShadowMapToViewport->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 1, NULL, DXGI_FORMAT_D24_UNORM_S8_UINT);
-	
+
+
 	m_pd3dCommandList->Close();
 	ID3D12CommandList* ppd3dCommandLists[] = { m_pd3dCommandList };
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
@@ -936,7 +940,7 @@ void CGameFramework::SummonMonster(int npc_id, int type, XMFLOAT3 Pos)
 		m_pStage->Monsters.push_back(Mon);
 
 		Mon->Sound.Initialize();
-		Mon->Sound.LoadWave(monster[0],1);
+		Mon->Sound.LoadWave(monster[0], 1);
 		Mon->Sound.Play();
 
 		//if (0 == Mon->c_id % 10)
@@ -1004,7 +1008,7 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 					if (false == checkDoor[i])
 					{
 						doorSound.Initialize();
-						doorSound.LoadWave(door,1);
+						doorSound.LoadWave(door, 1);
 						doorSound.Play();
 						checkDoor[i] = true;
 						checkDoorSound = false;
@@ -1027,27 +1031,6 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		bloodTime = 0.f;
 	}
 
-	//for (int i{}; i < 3; ++i)
-	//{
-	//	if (m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i])
-	//	{
-	//		plTime[i] += fTimeElapsed;
-	//		if (0.1f < plTime[i])
-	//		{
-	//			if (i == m_pPlayer->c_id % 3) m_pStage->blur = false;
-	//			m_pStage->pMultiSpriteObjectShader->obj[5 + i]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[i] = false;//??
-	//			plTime[i] = 0.f;
-	//		}
-	//	}
-	//}
-
-	/*if (m_pStage->blur) {
-		blurTime += fTimeElapsed;
-		if (0.9f < blurTime)
-		{
-			m_pStage->blur = false;
-		}
-	}*/
 
 
 	if (m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0]) {
@@ -1059,12 +1042,12 @@ void CGameFramework::AnimateObjects(float fTimeElapsed)
 		}
 	}
 	if (m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
-		|| m_pStage->pComputeShader->blur)
+		|| m_pStage->pComputeShader[0]->blur)
 	{
 		m_pStage->blur = true;
 	}
-	else if(!m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
-		&&!m_pStage->pComputeShader->blur)
+	else if (!m_pStage->pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id % 3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id % 3]
+		&& !m_pStage->pComputeShader[0]->blur)
 		m_pStage->blur = false;
 }
 
@@ -1139,8 +1122,8 @@ void CGameFramework::FrameAdvance()
 	{
 		if (false == onFullScreen)
 		{
-			if (1058 <= m_ptOldCursorPos.x - windowX && 1184 >= m_ptOldCursorPos.x - windowX
-				&& 563 <= m_ptOldCursorPos.y - windowY && 620 >= m_ptOldCursorPos.y - windowY)//play
+			if (530 <= m_ptOldCursorPos.x - windowX && 594 >= m_ptOldCursorPos.x - windowX
+				&& 290 <= m_ptOldCursorPos.y - windowY && 325 >= m_ptOldCursorPos.y - windowY)//play
 			{
 				if (!lobby[0])
 				{
@@ -1156,20 +1139,20 @@ void CGameFramework::FrameAdvance()
 
 
 			}
-			else if (1063 <= m_ptOldCursorPos.x - windowX && 1186 >= m_ptOldCursorPos.x - windowX
-				&& 686 <= m_ptOldCursorPos.y - windowY && 740 >= m_ptOldCursorPos.y - windowY)//exit
+			else if (532 <= m_ptOldCursorPos.x - windowX && 595 >= m_ptOldCursorPos.x - windowX
+				&& 348 <= m_ptOldCursorPos.y - windowY && 385 >= m_ptOldCursorPos.y - windowY)//exit
 			{
 				gameButton = 2;
 				m_pStage->exitGame = true;
 			}
-			else if (1007 <= m_ptOldCursorPos.x - windowX && 1245 >= m_ptOldCursorPos.x - windowX
-				&& 807 <= m_ptOldCursorPos.y - windowY && 861 >= m_ptOldCursorPos.y - windowY)//settings
+			else if (504 <= m_ptOldCursorPos.x - windowX && 625 >= m_ptOldCursorPos.x - windowX
+				&& 410 <= m_ptOldCursorPos.y - windowY && 446 >= m_ptOldCursorPos.y - windowY)//settings
 				gameButton = 3;
 		}
 		else
 		{
-			if (1047 <= m_ptOldCursorPos.x - windowX && 1177 >= m_ptOldCursorPos.x - windowX
-				&& 527 <= m_ptOldCursorPos.y - windowY && 587 >= m_ptOldCursorPos.y - windowY)
+			if (523 <= m_ptOldCursorPos.x - windowX && 587 >= m_ptOldCursorPos.x - windowX
+				&& 257 <= m_ptOldCursorPos.y - windowY && 293 >= m_ptOldCursorPos.y - windowY)
 			{
 				if (!lobby[0])
 				{
@@ -1184,15 +1167,17 @@ void CGameFramework::FrameAdvance()
 					m_pStage->userId[i]->SetPosition(50, -52, 554 + 12 * i);
 
 			}
-			else if (1056 <= m_ptOldCursorPos.x - windowX && 1178 >= m_ptOldCursorPos.x - windowX
-				&& 651 <= m_ptOldCursorPos.y - windowY && 703>= m_ptOldCursorPos.y - windowY)
+
+			else if (525 <= m_ptOldCursorPos.x - windowX && 588 >= m_ptOldCursorPos.x - windowX
+				&& 318 <= m_ptOldCursorPos.y - windowY && 353 >= m_ptOldCursorPos.y - windowY)
 			{
 				gameButton = 2;
 				m_pStage->exitGame = true;
 				ChangeSwapChainState();
 			}
-			else if (999 <= m_ptOldCursorPos.x - windowX && 1236>= m_ptOldCursorPos.x - windowX
-				&& 775<= m_ptOldCursorPos.y - windowY && 828 >= m_ptOldCursorPos.y - windowY)
+
+			else if (495 <= m_ptOldCursorPos.x - windowX && 618 >= m_ptOldCursorPos.x - windowX
+				&& 377 <= m_ptOldCursorPos.y - windowY && 415 >= m_ptOldCursorPos.y - windowY)
 				gameButton = 3;
 		}
 	}
@@ -1223,8 +1208,8 @@ void CGameFramework::FrameAdvance()
 
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
 
-//D3D12 ERROR: ID3D12CommandList::DrawIndexedInstanced: The render target format in slot 0 does not match that specified by the current pipeline state. (pipeline state = R8G8B8A8_UNORM, render target format = R32_FLOAT, RTV ID3D12Resource* = 0x000001B914EA31A0:'Unnamed ID3D12Resource Object') [ EXECUTION ERROR #613: RENDER_TARGET_FORMAT_MISMATCH_PIPELINE_STATE]
-	
+	//D3D12 ERROR: ID3D12CommandList::DrawIndexedInstanced: The render target format in slot 0 does not match that specified by the current pipeline state. (pipeline state = R8G8B8A8_UNORM, render target format = R32_FLOAT, RTV ID3D12Resource* = 0x000001B914EA31A0:'Unnamed ID3D12Resource Object') [ EXECUTION ERROR #613: RENDER_TARGET_FORMAT_MISMATCH_PIPELINE_STATE]
+
 	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, m_pStage->Monsters, Players);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;
@@ -1371,10 +1356,12 @@ void CGameFramework::FrameAdvance()
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, true);
 	}
 
-
+	m_pStage->move = move;
+	if (m_pPlayer->onAct)
+		m_pStage->move = true;
 
 	if (m_pStage)
-		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers[0],m_pCamera);
+		m_pStage->Render(m_pd3dCommandList, m_pd3dDevice, lobby[2], m_ppd3dSwapChainBackBuffers,m_nSwapChainBufferIndex, m_pCamera);
 
 	WaitForGpuComplete();
 
@@ -1382,14 +1369,8 @@ void CGameFramework::FrameAdvance()
 		m_pd3dCommandList->SetDescriptorHeaps(1, &m_pStage->m_pd3dCbvSrvDescriptorHeap);
 
 	if (m_pStage->m_pShadowShader && lobby[2])
-	{
-		/*if (m_pStage->m_pShadowShader->m_pd3dPipelineState)
-			m_pd3dCommandList->SetPipelineState(m_pStage->m_pShadowShader->m_pd3dPipelineState);*/
-
 		m_pStage->m_pShadowShader->Render(m_pd3dCommandList, m_pCamera, m_pStage->Monsters, Players, m_pLights, false);
-	}
-
-
+	
 	int m = -1;
 	if (!m_pStage->Monsters.empty())
 
@@ -1397,12 +1378,11 @@ void CGameFramework::FrameAdvance()
 		if (-1 != damagedMon)
 			m_pStage->pMultiSpriteObjectShader->obj[3]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 
-		if (5 == m_pStage->Monsters[0]->c_id / 10)//pat
+		if (5 == m_pStage->Monsters[0]->c_id / 10)//particle
 		{
-			for (m = 0; m < m_pStage->Monsters.size(); ++m)
+			for (m=0; m < m_pStage->Monsters.size(); ++m)
 			{
 				if (59 == m_pStage->Monsters[m]->c_id)
-					//if (0 == Monsters[m]->c_id)//pat
 				{
 					if (2 == m_pStage->Monsters[m]->m_pSkinnedAnimationController->Cur_Animation_Track)
 					{
@@ -1431,20 +1411,22 @@ void CGameFramework::FrameAdvance()
 
 
 
-	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m,gameEnd);
+	m_pStage->pMultiSpriteObjectShader->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pStage->Monsters, damagedMon, Players, m, gameEnd);
 
 
 	if (m_pStage->m_pShadowMapToViewport && 1 == gameButton && true == m_pPlayer->alive)
 	{
-		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 13.f, XMFLOAT2(76,54));
+		m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, m_pPlayer->HP / 25.f, XMFLOAT2(38, 27));
 
-		for (int i = 0; i < m_pStage->Monsters.size(); ++i)
+		for (int i{}; i < m_pStage->Monsters.size(); ++i)
 		{
 			auto& Mon = m_pStage->Monsters.at(i);
 			if (Mon->c_id == 59) continue;
 			try {
 				if (Mon->damaged) {
-					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)) , m_pCamera, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+
+					XMFLOAT2 pos = m_pStage->m_pShadowMapToViewport->WorldToScreen(Vector3::Add(Mon->GetPosition(), XMFLOAT3(0, 50, 0)), m_pCamera, FRAME_BUFFER_WIDTH, FRAME_BUFFER_HEIGHT);
+
 					pos.x -= Mon->HP / 2.f;
 					m_pStage->m_pShadowMapToViewport->Render(m_pd3dCommandList, m_pCamera, Mon->HP, pos);
 				}

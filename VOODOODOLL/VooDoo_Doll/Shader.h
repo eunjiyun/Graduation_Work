@@ -36,21 +36,20 @@ protected:
 	ID3DBlob* m_pd3dVertexShaderBlob = NULL;
 	ID3DBlob* m_pd3dPixelShaderBlob = NULL;
 
-	
+
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC	m_d3dPipelineStateDesc;
 	float								m_fElapsedTime = 0.0f;
 
 public:
-	CGameObject**	m_ppObjects = 0;
+	CGameObject** m_ppObjects = 0;
 	int							m_nObjects = 0;
-	CGameObject**	door = NULL;
+	CGameObject** door = NULL;
 	int							m_nDoor = 0;
-	CTexture*				gameScreen[6];
-	CMaterial*				gameMat[6];
+	CTexture* gameScreen[6];
+	CMaterial* gameMat[6];
 	CMaterial* popUpMat[4];
-	int m_nBoxObj = 0;
-
+	
 	CMultiSpriteObject** obj = nullptr;
 
 	int								m_nPipelineStates = 0;
@@ -77,9 +76,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGPUDescriptorNextHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dUavCPUDescriptorNextHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dUavGPUDescriptorNextHandle;
-//public:
-	//ID3D12PipelineState** m_ppd3dPipelineStates = NULL;
-
+	
 public:
 	void AddRef() { m_nReferences++; }
 	void Release() { if (--m_nReferences <= 0) delete this; }
@@ -108,7 +105,7 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, CLoadedModelInfo* pModel, void* pContext = NULL) { }
 	virtual void AnimateObjects(float fTimeElapsed) { }
 	virtual void ReleaseObjects() { }
-	void CreateCbvSrvUavDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews,int nUnorderedAccessViews);
+	void CreateCbvSrvUavDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews);
 	void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
 	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
@@ -244,7 +241,7 @@ public:
 public:
 	vector<XMFLOAT3> mpObjVec;
 	XMFLOAT3 tmp;
-	
+
 protected:
 	ID3D12Resource* m_pd3dcbGameObjects = NULL;
 	CB_GAMEOBJECT_INFO* m_pcbMappedGameObjects = NULL;
@@ -269,8 +266,8 @@ public:
 class CBoxShader : public CIlluminatedShader
 {
 public:
-	CBoxShader(){}
-	virtual ~CBoxShader(){}
+	CBoxShader() {}
+	virtual ~CBoxShader() {}
 
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void ReleaseObjects();
@@ -288,7 +285,7 @@ public:
 class CDepthRenderShader : public CIlluminatedShader
 {
 public:
-	CDepthRenderShader(){}
+	CDepthRenderShader() {}
 	CDepthRenderShader(CBoxShader* pObjectsShader, LIGHT* pLights);
 	virtual ~CDepthRenderShader();
 
@@ -304,9 +301,9 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 
-	void PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList,LIGHT*, vector<CMonster*> Monsters, vector<CPlayer*> Players);
+	void PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommandList, LIGHT*, vector<CMonster*> Monsters, vector<CPlayer*> Players);
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,  vector<CMonster*> Monsters, vector<CPlayer*> Players);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players);
 
 protected:
 	CTexture* m_pDepthTexture = NULL;
@@ -345,7 +342,7 @@ protected:
 class CShadowMapShader : public CIlluminatedShader
 {
 public:
-	CShadowMapShader(){}
+	CShadowMapShader() {}
 	CShadowMapShader(CBoxShader* pObjectsShader);
 	virtual ~CShadowMapShader();
 
@@ -364,7 +361,7 @@ public:
 
 	virtual void ReleaseUploadBuffers();
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players, LIGHT*,bool);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*> Monsters, vector<CPlayer*> Players, LIGHT*, bool);
 
 public:
 	CBoxShader* m_pObjectsShader = NULL;
@@ -391,24 +388,20 @@ public:
 	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, void* pContext = NULL);
 	virtual void ReleaseObjects();
 
-	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,float plHp, XMFLOAT2 pos);
-	void hpBarSet(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, float plHp, XMFLOAT2 pos);
 	XMFLOAT2 WorldToScreen(XMFLOAT3 worldPosition, CCamera* pCamera, int screenWidth, int screenHeight);
 	bool IsInPlayerView(XMFLOAT3 playerPosition, XMFLOAT3 playerLookVector, XMFLOAT3 monsterPosition, float fieldOfViewAngle);
 protected:
 	CTexture* m_pDepthTexture = NULL;
 public:
 	bool init = true;
-	int curPl = -1;
-	float hpBar = 0;
-	float maxHp = -1;
 	XMFLOAT2 test = XMFLOAT2(0, 0);
 };
 
 class CMultiSpriteObjectsShader : public CShader
 {
 public:
-	
+
 	CMultiSpriteObjectsShader();
 	virtual ~CMultiSpriteObjectsShader();
 
@@ -423,7 +416,7 @@ public:
 	virtual void ReleaseObjects();
 
 	void AnimateObjects(float fTimeElapsed, ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
-	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera,vector<CMonster*>,short, vector<CPlayer*>,int,bool, void* pContext=NULL);
+	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, vector<CMonster*>, short, vector<CPlayer*>, int, bool, void* pContext = NULL);
 
 	virtual void ReleaseUploadBuffers();
 
@@ -460,7 +453,7 @@ public:
 public:
 	virtual D3D12_SHADER_BYTECODE CreateComputeShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState = 0);
 
-	void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature,  ID3D12Resource* ,UINT cxThreadGroups = 1, UINT cyThreadGroups = 1, UINT czThreadGroups = 1, int nPipelineState = 0);
+	void CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dRootSignature, ID3D12Resource*, UINT cxThreadGroups = 1, UINT cyThreadGroups = 1, UINT czThreadGroups = 1, int nPipelineState = 0);
 
 	void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource*);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
@@ -469,10 +462,11 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	virtual void Dispatch(ID3D12GraphicsCommandList* pd3dCommandList, int nPipelineState = 0);
+	void Dispatch(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Resource** rt, UINT index, int nPipelineState = 0);
 
 	void OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList);
 	void CreateComputeShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nTextureIndex, UINT nHandleIndex, UINT nDescriptorHeapIndex, UINT nDescriptors);
-	
+
 public:
 	CTexture* m_pTexture = NULL;
 	bool set[2] = { false,false };
@@ -525,7 +519,7 @@ public:
 
 	virtual void ReleaseUploadBuffers();
 
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext,int blur, int nPipelineState = 0);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext,  int nPipelineState = 0);
 
 	void OnPrepare(ID3D12GraphicsCommandList* pd3dCommandList);
 	void CreateGraphicsShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nTextureIndex, UINT nHandleIndex, UINT nDescriptorHeapIndex, UINT nDescriptors);
@@ -533,6 +527,16 @@ public:
 public:
 	CTexture* m_pTexture = NULL;
 	bool set[3] = { false,false,false };
+};
+
+class CTextureToFullScreenShader2 : public CTextureToFullScreenShader
+{
+public:
+	CTextureToFullScreenShader2(CTexture* pTexture):CTextureToFullScreenShader(pTexture) {}
+	virtual ~CTextureToFullScreenShader2(){}
+
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob** ppd3dShaderBlob, int nPipelineState = 0);
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, void* pContext, int nPipelineState = 0);
 };
 
 

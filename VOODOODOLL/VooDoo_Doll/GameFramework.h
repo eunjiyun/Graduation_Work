@@ -1,7 +1,7 @@
 #pragma once
 
-#define FRAME_BUFFER_WIDTH		640*2
-#define FRAME_BUFFER_HEIGHT		480*2
+#define FRAME_BUFFER_WIDTH		640
+#define FRAME_BUFFER_HEIGHT		480
 
 #include "Timer.h"
 #include "Player.h"
@@ -52,8 +52,8 @@ public:
 	void			Change_Scene(SCENEID _eSceneid);
 	LONG		Get_OldCursorPointX() { return m_ptOldCursorPos.x; }
 	LONG		Get_OldCursorPointY() { return m_ptOldCursorPos.y; }
-	void		Set_OldCursorPoint(LONG in_x, LONG in_y) {m_ptOldCursorPos.x = in_x; m_ptOldCursorPos.y = in_y;}
-	
+	void		Set_OldCursorPoint(LONG in_x, LONG in_y) { m_ptOldCursorPos.x = in_x; m_ptOldCursorPos.y = in_y; }
+
 
 	void AnimateObjects(float fTimeElapsed);
 	void FrameAdvance();
@@ -86,7 +86,7 @@ private:
 	static const UINT			m_nSwapChainBuffers = 2;
 	UINT						m_nSwapChainBufferIndex;
 
-	
+
 	ID3D12DescriptorHeap* m_pd3dRtvDescriptorHeap = NULL;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE		m_d3dRtvCPUDescriptorHandle;
@@ -112,17 +112,17 @@ public:
 
 	int signIn = -1;
 	bool loginSign[2] = { false,false };
-	
+
 	int gameButton = -1;
 	bool lobby[3] = { false,false,false };
-	
+
 	vector<CGameObject*> findItem;
-	bool idSet=false;
-	
+	bool idSet = false;
+
 	queue<CLoadedModelInfo*> pMonsterModel[4];// , pMonsterModel2, pMonsterModel3, pMonsterModel4, pMonsterModel5, pMonsterModel6 = NULL;
 	queue<CLoadedModelInfo*> MagiciansHat;
 	array<char*, 4> binFileNames = { "Model/Voodoo1.bin", "Model/Voodoo2.bin", "Model/Voodoo5.bin", "Model/boss.bin" };
-	
+
 #if defined(_DEBUG)
 	ID3D12Debug* m_pd3dDebugController;
 #endif
@@ -138,7 +138,7 @@ public:
 	int checkJump = 0;
 	int curStage = -1;
 	bool gameEnd = false;
-	
+
 	const wchar_t* inGame = _T("Sound/inGame.wav");
 	const wchar_t* opening = _T("Sound/opening.wav");
 	const wchar_t* closing = _T("Sound/closing.wav");
@@ -152,6 +152,7 @@ public:
 
 	CStage* m_pStage = NULL;
 	LIGHT* m_pLights = NULL;
+	bool move = false;
 
 
 	CLogin* m_pLogin = NULL;
@@ -162,9 +163,8 @@ public:
 	CCamera* m_pCamera = NULL;
 	float beforeHp[3] = { 5000,5000,5000 };
 
-	float bloodTime=0.0f;
+	float bloodTime = 0.0f;
 	float plTime[3] = { 0.0f,0.0f,0.0f };
-	float blurTime = 0.f;
 	float popUpTime = 0.0f;
 	bool openDoor[7] = { false,false,false,false,false,false,false };
 
@@ -172,8 +172,6 @@ public:
 
 	_TCHAR						m_pszFrameRate[70];
 
-	CGameObject** m_ppBullets = NULL;
-	CGameObject** m_ppCap = NULL;
 	CPostProcessingShader* m_pPostProcessingShader = NULL;
 
 	bool onFullScreen = false;

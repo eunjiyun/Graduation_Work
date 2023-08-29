@@ -160,17 +160,18 @@ void CStage::BuildDefaultLightsAndMaterials()
 
 void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	//CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 904, 1);
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 904, 0);
-	
-
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 500, 0);//4 1
 
 	m_pd3dComputeRootSignature = CreateComputeRootSignature(pd3dDevice);
-	m_nComputeShaders = 1;
-	m_ppComputeShaders = new CComputeShader * [m_nComputeShaders];
-	pComputeShader = new CGaussian2DBlurComputeShader();
-	pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature,nullptr);
-	m_ppComputeShaders[0] = pComputeShader;
+
+	m_nComputeShaders = 2;
+	pComputeShader = new CGaussian2DBlurComputeShader * [m_nComputeShaders];
+
+	pComputeShader[0] = new CGaussian2DBlurComputeShader();
+	pComputeShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, nullptr);
+
+	pComputeShader[1] = new CGaussian2DBlurComputeShader();
+	pComputeShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, nullptr);
 
 	/*pComputeShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pComputeShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
@@ -183,12 +184,15 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
-
 	m_nGraphicsShaders = 1;
-	m_ppGraphicsShaders = new CGraphicsShader * [m_nGraphicsShaders];
-	pGraphicsShader = new CTextureToFullScreenShader(pComputeShader->m_pTexture);
-	pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
-	m_ppGraphicsShaders[0] = pGraphicsShader;
+	pGraphicsShader = new CTextureToFullScreenShader * [m_nGraphicsShaders];
+
+	pGraphicsShader[0] = new CTextureToFullScreenShader(pComputeShader[0]->m_pTexture);
+	pGraphicsShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
+
+	pGraphicsShader2 = new CTextureToFullScreenShader2(pComputeShader[1]->m_pTexture);
+	pGraphicsShader2->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
+
 
 	/*pGraphicsShader->m_pd3dCbvSrvDescriptorHeap = m_pd3dCbvSrvDescriptorHeap;
 	pGraphicsShader->m_d3dCbvCPUDescriptorNextHandle = m_d3dCbvCPUDescriptorStartHandle;
@@ -230,17 +234,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_ground_whole_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
 
-	/*ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
-
 	ppTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup1.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/wall_03_BaseMap.dds", RESOURCE_TEXTURE2D, 0);
-
-	/*ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/ceiling_wood_02_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	ppTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup2.dds", RESOURCE_TEXTURE2D, 0);
@@ -250,9 +248,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 	ppTextures[6] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[6]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Box_Wood_3_AlbedoTransparency.dds", RESOURCE_TEXTURE2D, 0);
-
-	/*ppTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Boxes_mat_BaseMap.dds", RESOURCE_TEXTURE2D, 0);*/
 
 	ppTextures[7] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[7]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup3.dds", RESOURCE_TEXTURE2D, 0);
@@ -347,7 +342,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	ppTextures[33]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/UI_LOADING.dds", RESOURCE_TEXTURE2D, 0);
 
 	ppTextures[34] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/particle.dds", RESOURCE_TEXTURE2D, 0);//bossPat
+	ppTextures[34]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/particle.dds", RESOURCE_TEXTURE2D, 0);//boss
 
 	ppTextures[35] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	ppTextures[35]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/blood.dds", RESOURCE_TEXTURE2D, 0);
@@ -366,35 +361,23 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	pButtonTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pButtonTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_8_Albedo.dds", RESOURCE_TEXTURE2D, 0);
 
-	/*pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Wood_9_Occlusion.dds", RESOURCE_TEXTURE2D, 0);*/
-
 	pButtonTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	pButtonTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/popup4.dds", RESOURCE_TEXTURE2D, 0);
 
 
 	// 캔들 오브젝트
-	/*pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_ON.dds", RESOURCE_TEXTURE2D, 0);
+	pCandleTextures[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_Off.dds", RESOURCE_TEXTURE2D, 0);
 
 	pCandleTextures[1] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_ON.dds", RESOURCE_TEXTURE2D, 0);*/
+	pCandleTextures[1]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_Off.dds", RESOURCE_TEXTURE2D, 0);
 
-	/*pCandleTextures[2] = new CTexture(3, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_ON.dds", RESOURCE_TEXTURE2D, 0);*/
-
-	pCandleTextures[3] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[3]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle1_Off.dds", RESOURCE_TEXTURE2D, 0);
-
-	pCandleTextures[4] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[4]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle2_Off.dds", RESOURCE_TEXTURE2D, 0);
-
-	pCandleTextures[5] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
-	pCandleTextures[5]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_Off.dds", RESOURCE_TEXTURE2D, 0);
+	pCandleTextures[2] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
+	pCandleTextures[2]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/Candle3_Off.dds", RESOURCE_TEXTURE2D, 0);
 
 
-	
-	
+
+
 
 	m_ppShaders[0]->gameScreen[0] = new CTexture(1, RESOURCE_TEXTURE2D, 0, 3);
 	m_ppShaders[0]->gameScreen[0]->LoadTextureFromDDSFile(pd3dDevice, pd3dCommandList, L"Models/Texture/gameStart.dds", RESOURCE_TEXTURE2D, 0);
@@ -417,15 +400,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 
 
 	for (int a{}; a < 39; ++a)
-	{
-
 		CreateShaderResourceViews(pd3dDevice, ppTextures[a], 0, 3);
-	}
-	for (int a{}; a < 6; ++a)
-	{
-		if (2 < a)
-			CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
-	}
+
+	for (int a{}; a < 3; ++a)
+		CreateShaderResourceViews(pd3dDevice, pCandleTextures[a], 0, 3);
+
 
 	for (int a{}; a < 2; ++a)
 		CreateShaderResourceViews(pd3dDevice, pButtonTextures[a], 0, 3);
@@ -583,11 +562,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				0 == strncmp("Book_03_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName, 12) || 0 == strcmp("Book_03_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) ||//Book_03_mesh_(1)
 				0 == strcmp("Book_04_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName) || 0 == strcmp("Book_04_alt_mesh", m_ppShaders[0]->m_ppObjects[i]->m_pstrName))
 			{
-
-
 				pMaterial->SetTexture(ppTextures[22]);
-
-
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
 
@@ -637,7 +612,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				pMaterial->SetTexture(pButtonTextures[0]);
 				m_ppShaders[0]->m_ppObjects[i]->SetMaterial(k, pMaterial);
 			}
-			
+
 			++iMaterialCheck;
 		}
 		iMaterialCheck = 0;
@@ -742,13 +717,9 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	}
 
 
-	for (int i = 0; i < m_ppShaders[0]->m_nObjects; ++i)
-
+	for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 	{
-
 		//cout << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << "	|	" << m_ppShaders[0]->m_ppObjects[i]->m_iObjID << endl;
-
-
 
 		m_ppShaders[0]->m_ppObjects[i]->Boundingbox_Transform();
 
@@ -759,8 +730,6 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		}
 
 
-	
-
 		if (11 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 388 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			389 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 390 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			391 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 392 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
@@ -769,7 +738,7 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 			//cout << "p2ndRoomPuzzle		: " << m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
 		}
 
-		
+
 		if (409 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 411 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			413 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID || 415 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID ||
 			417 == m_ppShaders[0]->m_ppObjects[i]->m_iObjID)
@@ -780,11 +749,11 @@ void CStage::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 		}
 
 
-				//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
-				/*cout << "Center: ";
-				Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
-				cout << "Extents: ";
-				Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
+		//cout << "Name: " <<i<< m_ppShaders[0]->m_ppObjects[i]->m_pstrName << endl;
+		/*cout << "Center: ";
+		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Center);
+		cout << "Extents: ";
+		Vector3::Print(m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox.Extents);*/
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -858,26 +827,35 @@ void CStage::ReleaseObjects()
 		}
 	}
 
-	if (m_ppGraphicsShaders)
+
+	/*if (pGraphicsShader)
 	{
 		for (int i{}; i < m_nGraphicsShaders; ++i)
 		{
-			m_ppGraphicsShaders[i]->ReleaseShaderVariables();
-			m_ppGraphicsShaders[i]->ReleaseObjects();
-			m_ppGraphicsShaders[i]->Release();
+			pGraphicsShader[i]->ReleaseShaderVariables();
+			pGraphicsShader[i]->ReleaseObjects();
+			pGraphicsShader[i]->Release();
 		}
-		delete[] m_ppGraphicsShaders;
+		delete[] pGraphicsShader;
+	}
+	if (pGraphicsShader2)
+	{
+		pGraphicsShader2->ReleaseShaderVariables();
+		pGraphicsShader2->ReleaseObjects();
+		pGraphicsShader2->Release();
+
+		delete pGraphicsShader2;
 	}
 
-	if (m_ppComputeShaders)
+	if (pComputeShader)
 	{
-		/*for (int i{}; i < m_nComputeShaders; ++i)
+		for (int i{}; i < m_nComputeShaders; ++i)
 		{
-			m_ppComputeShaders[i]->ReleaseShaderVariables();
-			m_ppComputeShaders[i]->Release();
-		}*/
-		delete[] m_ppComputeShaders;
-	}
+			pComputeShader[i]->ReleaseShaderVariables();
+			pComputeShader[i]->Release();
+		}
+		delete[] pComputeShader;
+	}*/
 
 	ReleaseShaderVariables();
 
@@ -888,7 +866,7 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 {
 	ID3D12RootSignature* pd3dGraphicsRootSignature = NULL;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[10];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -922,19 +900,13 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	pd3dDescriptorRanges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[5].NumDescriptors = 1;
-	pd3dDescriptorRanges[5].BaseShaderRegister = 11; //t11: gtxtEmissionTexture
+	pd3dDescriptorRanges[5].BaseShaderRegister = 11; //t11: gtxtPrevFrame
 	pd3dDescriptorRanges[5].RegisterSpace = 0;
 	pd3dDescriptorRanges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//pd3dDescriptorRanges[5].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[5].NumDescriptors = 1;
-	//pd3dDescriptorRanges[5].BaseShaderRegister = 2; //t2: Texture2D
-	//pd3dDescriptorRanges[5].RegisterSpace = 0;
-	//pd3dDescriptorRanges[5].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-	pd3dDescriptorRanges[6].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[6].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;//9->6
 	pd3dDescriptorRanges[6].NumDescriptors = 1;
-	pd3dDescriptorRanges[6].BaseShaderRegister = 12; //t12: gtxtEmissionTexture
+	pd3dDescriptorRanges[6].BaseShaderRegister = 1; //t1: Texture2D
 	pd3dDescriptorRanges[6].RegisterSpace = 0;
 	pd3dDescriptorRanges[6].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
@@ -950,14 +922,10 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dDescriptorRanges[8].RegisterSpace = 0;
 	pd3dDescriptorRanges[8].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	pd3dDescriptorRanges[9].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	pd3dDescriptorRanges[9].NumDescriptors = 1;
-	pd3dDescriptorRanges[9].BaseShaderRegister = 1; //t1: Texture2D
-	pd3dDescriptorRanges[9].RegisterSpace = 0;
-	pd3dDescriptorRanges[9].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	
-	D3D12_ROOT_PARAMETER pd3dRootParameters[18];
+
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[17];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -1005,15 +973,10 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[8].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[5]);
 	pd3dRootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	//pd3dRootParameters[8].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//pd3dRootParameters[8].DescriptorTable.NumDescriptorRanges = 1;
-	//pd3dRootParameters[8].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[5]; //Texture2D
-	//pd3dRootParameters[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	pd3dRootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[9].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[9].DescriptorTable.pDescriptorRanges = &(pd3dDescriptorRanges[6]);
-	pd3dRootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	pd3dRootParameters[9].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;//17->9
+	pd3dRootParameters[9].Descriptor.ShaderRegister = 5; //DrawOptions
+	pd3dRootParameters[9].Constants.RegisterSpace = 0;
+	pd3dRootParameters[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[10].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[10].DescriptorTable.NumDescriptorRanges = 1;
@@ -1048,15 +1011,12 @@ ID3D12RootSignature* CStage::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 
 	pd3dRootParameters[16].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[16].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[9]; //Texture2D
+	pd3dRootParameters[16].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[6]; //Texture2D
 	pd3dRootParameters[16].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	pd3dRootParameters[17].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[17].Descriptor.ShaderRegister = 5; //DrawOptions
-	pd3dRootParameters[17].Constants.RegisterSpace = 0;
-	pd3dRootParameters[17].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	
+
+
 	D3D12_STATIC_SAMPLER_DESC pd3dSamplerDescs[4];
 
 	pd3dSamplerDescs[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -1183,10 +1143,11 @@ void CStage::ReleaseUploadBuffers()
 	}
 
 	for (int i{}; i < m_nGraphicsShaders; ++i)
-		m_ppGraphicsShaders[i]->ReleaseUploadBuffers();
+		pGraphicsShader[i]->ReleaseUploadBuffers();
+	pGraphicsShader2->ReleaseUploadBuffers();
 
 	for (int i{}; i < m_nComputeShaders; ++i)
-		m_ppComputeShaders[i]->ReleaseUploadBuffers();
+		pComputeShader[i]->ReleaseUploadBuffers();
 }
 
 void CStage::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews)
@@ -1289,8 +1250,6 @@ void CStage::AnimateObjects(float fTimeElapsed)
 		m_pLights[1].m_bEnable = false;
 	}
 
-	//for (int i{}; i < m_nGraphicsShaders; ++i)
-		//m_ppGraphicsShaders[i]->AnimateObjects(fTimeElapsed);
 
 	static float fAngle = 0.0f;
 	fAngle += 1.50f;
@@ -1321,13 +1280,13 @@ void CStage::OnPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList)
 }
 
 
-void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, ID3D12Resource* rt, CCamera* pCamera)//ID3D12Resource*
+void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd3dDevice, bool login, ID3D12Resource** rt, UINT index, CCamera* pCamera)//ID3D12Resource*
 {
 	if (m_pd3dGraphicsRootSignature)
 		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
 	if (m_pd3dCbvSrvDescriptorHeap) pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
-	
+
 
 	if (m_pDepthRenderShader)
 		m_pDepthRenderShader->UpdateShaderVariables(pd3dCommandList);
@@ -1337,7 +1296,7 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_LIGHT, d3dcbLightsGpuVirtualAddress); //Lights
 
-	
+
 
 	if (login)
 	{
@@ -1357,38 +1316,81 @@ void CStage::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12Device* pd
 		}
 
 		for (int j{}; j < m_ppShaders[0]->m_nDoor; ++j)
+		{
 			m_ppShaders[0]->door[j]->Render(pd3dCommandList, m_pd3dGraphicsRootSignature, m_pd3dPipelineState, pCamera);
+		}
 	}
 
+
+
 	if (login && blur)
-	//if (login && pMultiSpriteObjectShader->obj[5 + m_pPlayer->c_id]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[m_pPlayer->c_id])
 	{
-		
+		pComputeShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt[index]);
 
-		pComputeShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt);
-
-		if (!pGraphicsShader->set[2])
+		if (!pGraphicsShader[0]->set[2])
 		{
-			pGraphicsShader->m_pTexture = pComputeShader->m_pTexture;
-			if (pGraphicsShader->m_pTexture) pGraphicsShader->m_pTexture->AddRef();
+			pGraphicsShader[0]->m_pTexture = pComputeShader[0]->m_pTexture;
+			if (pGraphicsShader[0]->m_pTexture) pGraphicsShader[0]->m_pTexture->AddRef();
 
-			pGraphicsShader->set[2] = true;
+			pGraphicsShader[0]->set[2] = true;
 		}
-		pGraphicsShader->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
-
-		if (m_pd3dComputeRootSignature) pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
-		m_ppComputeShaders[0]->Dispatch(pd3dCommandList, 0);
+		pGraphicsShader[0]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
 
 
-		//if (0 == softBlur % 5)
+
+		pComputeShader[1]->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dComputeRootSignature, rt[UINT(abs(int(index - 1)))]);
+
+		if (!pGraphicsShader2->set[2])
+		{
+			pGraphicsShader2->m_pTexture = pComputeShader[1]->m_pTexture;
+			if (pGraphicsShader2->m_pTexture) pGraphicsShader2->m_pTexture->AddRef();
+
+			pGraphicsShader2->set[2] = true;
+		}
+		pGraphicsShader2->CreateShader(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, 1, compShaderFormats, DXGI_FORMAT_D32_FLOAT);
+
+
+		if (m_pd3dComputeRootSignature)
+			pd3dCommandList->SetComputeRootSignature(m_pd3dComputeRootSignature);
+
+		pComputeShader[0]->Dispatch(pd3dCommandList, 0);
+
+		//pComputeShader[1]->Dispatch(pd3dCommandList,rt, abs(int(index - 1)), 0);
+		pComputeShader[1]->Dispatch(pd3dCommandList, 0);
+		++softBlur;
+
+		if (1 == softBlur % 4 || !pComputeShader[0]->blur)
+		{
+
+			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
+			pd3dCommandList->CopyResource(pGraphicsShader[0]->m_pTexture->GetResource(2), pGraphicsShader[0]->m_pTexture->GetResource(1));
+			::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+
+			if (move || 1 == softBlur)
+			{
+				::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader2->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				pd3dCommandList->CopyResource(pGraphicsShader2->m_pTexture->GetResource(2), pGraphicsShader2->m_pTexture->GetResource(1));
+				::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader2->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+
+				move = false;
+			}
+			else
+			{
+				::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COPY_SOURCE);
+				pd3dCommandList->CopyResource(pGraphicsShader2->m_pTexture->GetResource(2), pGraphicsShader[0]->m_pTexture->GetResource(1));
+				::SynchronizeResourceTransition(pd3dCommandList, pGraphicsShader[0]->m_pTexture->GetResource(1), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+			}
+		}
+
+
 		if (m_pd3dGraphicsRootSignature)
 			pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);
 
-		//if(0==softBlur%5)
-		//m_ppGraphicsShaders[0]->Render(pd3dCommandList, pCamera, NULL, softBlur);//pGraphicsShader
-		pGraphicsShader->Render(pd3dCommandList, pCamera, NULL, softBlur);//pGraphicsShader
 
-		++softBlur;
+		pGraphicsShader[0]->Render(pd3dCommandList, pCamera, NULL);
+
+		if (pComputeShader[0]->blur)
+			pGraphicsShader2->Render(pd3dCommandList, pCamera, NULL);
 	}
 }
 
@@ -1581,7 +1583,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			for (int i = 0; i < 7; i++)
+			for (int i{}; i < 7; ++i)
 			{
 				if (m_ppShaders[0]->door[i]->obBox.Contains(XMLoadFloat3(&xmf3Position)))
 				{
@@ -1605,7 +1607,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 	cm->RegenerateViewMatrix();
 
 	{
-		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0,20,0),pl->obBox.Center);
+		XMFLOAT3 xmf3Position = Vector3::Add(XMFLOAT3(0, 20, 0), pl->obBox.Center);
 		pl->Aiming_Position = Vector3::Add(XMFLOAT3(0, 80, 0), Vector3::Add(cm->GetPosition(), Vector3::ScalarProduct(cm->GetLookVector(), 300, false)));
 		XMFLOAT3 dir = Vector3::Normalize(Vector3::Subtract(pl->Aiming_Position, xmf3Position));
 		//pl->aimSize = 0.7f;
@@ -1621,7 +1623,7 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			for (int i = 0; i < m_ppShaders[0]->m_nObjects; i++)
+			for (int i{}; i < m_ppShaders[0]->m_nObjects; ++i)
 			{
 				if (0 == strcmp(m_ppShaders[0]->m_ppObjects[i]->m_pstrName, "Bedroom_wall_b_06_mesh")) continue;
 				BoundingOrientedBox oBox = m_ppShaders[0]->m_ppObjects[i]->m_ppMeshes[0]->OBBox;
@@ -1633,13 +1635,13 @@ void CStage::CheckCameraCollisions(float fTimeElapsed, CPlayer*& pl, CCamera*& c
 				}
 			}
 
-			for (int i = 0; i < 7; i++)
+			for (int i{}; i < 7; ++i)
 			{
 				if (m_ppShaders[0]->door[i]->obBox.Contains(_Pos))
 				{
 					xmf3Position = Vector3::Add(xmf3Position, Vector3::ScalarProduct(dir, -10, false));
-						pl->Aiming_Position = xmf3Position;
-						return;
+					pl->Aiming_Position = xmf3Position;
+					return;
 				}
 			}
 
@@ -1665,7 +1667,7 @@ void CStage::Pushing_Button(CPlayer*& pl)
 	int iAnswer[5] = { 417, 409, 415, 411, 413 }; // 5. 1. 4. 2. 3
 	int iResult = 0; // 틀릴 경우 -1
 
-	for (int i = 0; i < 5; i++)
+	for (int i{}; i < 5; ++i)
 	{
 		BoundingOrientedBox oBox = pPuzzles[5][i]->obBox;
 
@@ -1682,7 +1684,7 @@ void CStage::Pushing_Button(CPlayer*& pl)
 
 		if (5 == m_iHitNum)
 		{
-			for (int k = 0; k < 5; k++)
+			for (int k{}; k < 5; ++k)
 			{
 				if (iAnswer[k] == m_iHit[k])
 				{
@@ -1707,7 +1709,7 @@ void CStage::Pushing_Button(CPlayer*& pl)
 			cout << "Lose" << endl;
 
 
-			for (int i = 0; i < 5; i++)
+			for (int i{}; i < 5; ++i)
 			{
 				pPuzzles[5][i]->m_bGetItem = false;
 			}
@@ -1727,7 +1729,7 @@ void CStage::CheckDoorCollisions(float fTimeElapsed, CPlayer*& pl)
 	XMFLOAT3 MovVec = Vector3::ScalarProduct(Vel, fTimeElapsed, false);
 
 	pl->onFloor = false;
-	for (int i = 0; i < 6; i++)
+	for (int i{}; i < 6; ++i)
 	{
 		BoundingOrientedBox oBox = m_ppShaders[0]->door[i]->obBox;
 		if (pl->obBox.Intersects(oBox))
@@ -1867,12 +1869,6 @@ ID3D12RootSignature* CStage::CreateComputeRootSignature(ID3D12Device* pd3dDevice
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	//pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
-	//pd3dDescriptorRanges[2].NumDescriptors = 1;
-	//pd3dDescriptorRanges[2].BaseShaderRegister = 1; //u1: Texture2D
-	//pd3dDescriptorRanges[2].RegisterSpace = 0;
-	//pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
-
 	pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[2].NumDescriptors = 1;
 	pd3dDescriptorRanges[2].BaseShaderRegister = 11; //t11: Texture2D
@@ -1890,11 +1886,6 @@ ID3D12RootSignature* CStage::CreateComputeRootSignature(ID3D12Device* pd3dDevice
 	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //RWTexture2D
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	//pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;
-	//pd3dRootParameters[2].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //RWTexture2D
-	//pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;

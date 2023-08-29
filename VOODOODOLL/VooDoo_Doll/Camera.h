@@ -18,7 +18,7 @@ class CPlayer;
 class CCamera
 {
 protected:
-	
+
 
 	float           				m_fPitch;
 	float           				m_fRoll;
@@ -29,11 +29,6 @@ protected:
 	XMFLOAT3						m_xmf3LookAtWorld;
 	XMFLOAT3						m_xmf3Offset;
 	float           				m_fTimeLag;
-
-	/*XMFLOAT4X4						m_xmf4x4View;
-	XMFLOAT4X4						m_xmf4x4Projection;*/
-
-	
 
 	CPlayer* m_pPlayer = NULL;
 

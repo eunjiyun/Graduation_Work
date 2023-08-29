@@ -96,8 +96,8 @@ CTexture::~CTexture()
 {
 	if (m_ppd3dTextures)
 	{
-		for (int i{}; i < m_nTextures; ++i) 
-			if (m_ppd3dTextures[i]) 
+		for (int i{}; i < m_nTextures; ++i)
+			if (m_ppd3dTextures[i])
 				m_ppd3dTextures[i]->Release();
 
 		delete[] m_ppd3dTextures;
@@ -422,7 +422,6 @@ void CMaterial::ReleaseUploadBuffers()
 
 CShader* CMaterial::m_pSkinnedAnimationShader = NULL;
 CShader* CMaterial::m_pStandardShader = NULL;
-CShader* CMaterial::depthShader = NULL;
 
 void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature
 	, UINT nRenderTargets, DXGI_FORMAT* pdxgiRtvFormats, DXGI_FORMAT dxgiDsvFormat)
@@ -434,10 +433,6 @@ void CMaterial::PrepareShaders(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandLi
 	m_pSkinnedAnimationShader = new CSkinnedAnimationStandardShader();
 	m_pSkinnedAnimationShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, nRenderTargets, pdxgiRtvFormats, dxgiDsvFormat);
 	m_pSkinnedAnimationShader->CreateShaderVariables(pd3dDevice, pd3dCommandList);
-
-	depthShader = new CShadowMapShader();
-	DXGI_FORMAT RtvFormats[5] = { DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT,DXGI_FORMAT_R32_FLOAT };
-	depthShader->CreateShader(pd3dDevice, pd3dGraphicsRootSignature, D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, RtvFormats, DXGI_FORMAT_D32_FLOAT);
 }
 
 void CMaterial::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -564,7 +559,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 			if (*ppTexture) (*ppTexture)->AddRef();
 
 			CStage::CreateShaderResourceViews(pd3dDevice, *ppTexture, 0, nRootParameter);
-		}
+	}
 		else
 		{
 			if (pParent)
@@ -579,7 +574,7 @@ void CMaterial::LoadTextureFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 				if (*ppTexture) (*ppTexture)->AddRef();
 			}
 		}
-	}
+}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1203,9 +1198,6 @@ void CGameObject::onPrepareRender(ID3D12GraphicsCommandList* pd3dCommandList, ID
 
 	if (m_pd3dPipelineState)
 		pd3dCommandList->SetPipelineState(m_pd3dPipelineState);
-
-	//if (m_pd3dCbvSrvDescriptorHeap)
-		//pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* m_pd3dGraphicsRootSignature, ID3D12PipelineState* m_pd3dPipelineState,
@@ -1227,13 +1219,7 @@ void CGameObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootS
 					if (m_ppMaterials[i])
 					{
 						if (m_ppMaterials[i]->m_pShader)
-						{
 							m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-							//m_ppMaterials[i]->depthShader->Render(pd3dCommandList, pCamera);
-						}
-						/*else if(m_ppMaterials[i]->m_pStandardShader)
-							if (strcmp(m_pstrName, "Dense_Floor_mesh"))
-								m_ppMaterials[i]->m_pStandardShader->Render(pd3dCommandList, pCamera);*/
 
 						m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);//조명 관련
 						pd3dCommandList->SetGraphicsRoot32BitConstants(1, 3, &texMat, 16);
@@ -1268,8 +1254,6 @@ void CGameObject::UpdateShaderVariable(ID3D12GraphicsCommandList* pd3dCommandLis
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
 	pd3dCommandList->SetGraphicsRoot32BitConstants(1, 16, &xmf4x4World, 0);
-
-	//if (m_pMaterial) pd3dCommandList->SetGraphicsRoot32BitConstants(1, 1, &m_pMaterial->m_nReflection, 16);
 }
 
 
@@ -1614,10 +1598,6 @@ void CGameObject::LoadMaterialsFromFile(ID3D12Device* pd3dDevice, ID3D12Graphics
 		{
 			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_ALBEDO_MAP, 8, pMaterial->m_ppstrTextureNames[5], &(pMaterial->m_ppTextures[5]), pParent, pInFile, pShader, choose, 1);
 		}
-		else if (!strcmp(pstrToken, "<DetailNormalMap>:"))
-		{
-			m_ppMaterials[nMaterial]->LoadTextureFromFile(pd3dDevice, pd3dCommandList, MATERIAL_DETAIL_NORMAL_MAP, 9, pMaterial->m_ppstrTextureNames[6], &(pMaterial->m_ppTextures[6]), pParent, pInFile, pShader, choose, 2);
-		}
 		else if (!strcmp(pstrToken, "</Materials>"))
 		{
 			break;
@@ -1796,8 +1776,8 @@ void CGameObject::LoadAnimationFromFile(FILE* pInFile, CLoadedModelInfo* pLoaded
 		{
 			break;
 		}
-	}
-}
+				}
+			}
 
 CLoadedModelInfo* CGameObject::LoadGeometryAndAnimationFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature,
 	char* pstrFileName, CShader* pShader, int choose)
