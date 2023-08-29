@@ -644,7 +644,7 @@ HRESULT SoundPlayer::LoadWaveFile(const wchar_t* filename)
 		//free(pWaveFormat);
 		//free(pData);
 		//fclose(file);
-		//return E_FAIL;//0506
+		//return E_FAIL;
 	}
 
 	// 반환값 설정

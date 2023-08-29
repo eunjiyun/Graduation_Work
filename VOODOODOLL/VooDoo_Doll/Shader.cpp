@@ -1251,7 +1251,6 @@ void CDepthRenderShader::PrepareShadowMap(ID3D12GraphicsCommandList* pd3dCommand
 
 			::SynchronizeResourceTransition(pd3dCommandList, m_pDepthTexture->GetResource(j), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-			//FLOAT pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 			FLOAT pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 			pd3dCommandList->ClearRenderTargetView(m_pd3dRtvCPUDescriptorHandles[j], pfClearColor, 0, NULL);
 

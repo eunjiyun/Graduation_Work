@@ -335,12 +335,9 @@ void CGameFramework::ChangeSwapChainState()
 
 void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
-	//???? ???
-	// hWnd?? ???? a?? ?????? ???????.
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
 
-	// rcWindow ???????? ?????? a?? ????? ??? ???????.
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
@@ -356,9 +353,6 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 		move = true;
 		
-		/*cout << "x : " << m_ptOldCursorPos.x - windowX << endl;
-		cout << "y : " << m_ptOldCursorPos.y - windowY << endl;*/
-
 		if (false == onFullScreen)
 		{
 			sign[0].x = 253; sign[1].x = 365;
@@ -714,9 +708,7 @@ void CGameFramework::BuildObjects()
 		CTerrainPlayer* pAirplanePlayer = new CTerrainPlayer(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), 1);
 		Players.push_back(pAirplanePlayer);
 	}
-	//CGameObject* t = new CBulletObject(m_pd3dDevice, m_pd3dCommandList, m_pStage->GetGraphicsRootSignature(), NULL, 1, 1);
-
-
+	
 	m_pStage->m_pDepthRenderShader = new CDepthRenderShader(m_pStage->pBoxShader, m_pLights);
 	m_pStage->m_pDepthRenderShader->CreateShader(m_pd3dDevice, m_pStage->GetGraphicsRootSignature(), D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, 5, RtvFormats, DXGI_FORMAT_D32_FLOAT);
 	m_pStage->m_pDepthRenderShader->BuildObjects(m_pd3dDevice, m_pd3dCommandList, NULL);
@@ -1110,11 +1102,9 @@ void CGameFramework::FrameAdvance()
 		m_pStage->pMultiSpriteObjectShader->obj[4]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 	}
 
-	// hWnd?? ???? a?? ?????? ???????.
 	RECT rcWindow;
 	GetWindowRect(Get_HWND(), &rcWindow);
 
-	// rcWindow ???????? ?????? a?? ????? ??? ???????.
 	int windowX = rcWindow.left;
 	int windowY = rcWindow.top;
 
@@ -1209,7 +1199,6 @@ void CGameFramework::FrameAdvance()
 	m_pStage->OnPrepareRender(m_pd3dCommandList);
 
 	//D3D12 ERROR: ID3D12CommandList::DrawIndexedInstanced: The render target format in slot 0 does not match that specified by the current pipeline state. (pipeline state = R8G8B8A8_UNORM, render target format = R32_FLOAT, RTV ID3D12Resource* = 0x000001B914EA31A0:'Unnamed ID3D12Resource Object') [ EXECUTION ERROR #613: RENDER_TARGET_FORMAT_MISMATCH_PIPELINE_STATE]
-
 	m_pStage->OnPreRender(m_pd3dCommandList, m_pLights, m_pStage->m_pd3dCbvSrvDescriptorHeap, m_pStage->Monsters, Players);
 
 	D3D12_RESOURCE_BARRIER d3dResourceBarrier;

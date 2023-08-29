@@ -398,43 +398,7 @@ static float gfGaussianBlurMask2D[5][5] = {
 #define MotionBlurStrength 5.1f // 모션 블러 강도
 
 [numthreads(32, 32, 1)]
-//void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
-//{
-//	if ((n3DispatchThreadID.x < 2) || (n3DispatchThreadID.x >= int(gtxtInput.Length.x - 2)) || (n3DispatchThreadID.y < 2) || (n3DispatchThreadID.y >= int(gtxtInput.Length.y - 2)))
-//	{
-//		gtxtRWOutput[n3DispatchThreadID.xy] = gtxtInput[n3DispatchThreadID.xy];
-//	}
-//	else
-//	{
-//		// 모션 벡터 계산
-//		float2 motionVector = gtxtInput[n3DispatchThreadID.xy].xy - gtxtPrevFrame[n3DispatchThreadID.xy].xy;
-//		//normalize(round(motionVector));
-//		motionVector *= MotionBlurStrength;
-//
-//		float4 f4Color = float4(0, 0, 0, 0);
-//		
-//		for (int i =-2; i <= 2; i++)
-//		{
-//			for (int j = -2; j <= 2; j++)
-//			{
-//				//float2 offset = float2(0, 0);
-//				//if(motionVector.x>0 && motionVector.y>0)
-//				//	offset = float2(i + 1, j + 1);// *motionVector;
-//				//else if (motionVector.x <= 0 && motionVector.y <= 0)
-//				//	offset = float2(i - 1, j - 1);// *motionVector;
-//				//else if (motionVector.x > 0 && motionVector.y <= 0)
-//				//	offset = float2(i + 1, j -1);// *motionVector;
-//				//else if (motionVector.x <= 0 && motionVector.y > 0)
-//				//	offset = float2(i - 1, j + 1);// *motionVector;
-//				float2 offset = float2(i, j) * motionVector;
-//				//float2 offset = float2( motionVector.x, motionVector.y);// *motionVector;
-//				f4Color += gfGaussianBlurMask2D[i+2 ][j +2] * gtxtInput[n3DispatchThreadID.xy + offset];
-//				//f4Color += gfGaussianBlurMask2D[i + 2][j + 2] * gtxtInput.Sample(gssWrap, gtxtInput[n3DispatchThreadID.xy].xy + offset);
-//			}
-//		}
-//		gtxtRWOutput[n3DispatchThreadID.xy] = f4Color;
-//	}
-//}
+
 void CSGaussian2DBlur(int3 n3GroupThreadID : SV_GroupThreadID, int3 n3DispatchThreadID : SV_DispatchThreadID)
 {
 	if ((n3DispatchThreadID.x < 2) || (n3DispatchThreadID.x >= int(gtxtInput.Length.x - 2)) || (n3DispatchThreadID.y < 2) || (n3DispatchThreadID.y >= int(gtxtInput.Length.y - 2)))
