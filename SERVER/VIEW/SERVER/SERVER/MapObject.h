@@ -32,19 +32,6 @@ public:
     {
         return(Vector3::Normalize(XMFLOAT3(m_xmf4x4World._11, m_xmf4x4World._12, m_xmf4x4World._13)));
     }
-    void SetMaterial(UINT nIndex, UINT nReflection)
-    {
-
-    }
-    void SetAlbedoColor(UINT nIndex, XMFLOAT4 xmf4Color)
-    {
-
-    }
-    void SetEmissionColor(UINT nIndex, XMFLOAT4 xmf4Color)
-    {
-
-    }
-
 };
 
 class Key_Object

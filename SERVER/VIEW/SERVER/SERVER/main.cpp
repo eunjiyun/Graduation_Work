@@ -94,7 +94,6 @@ void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCod
 	while (SQLGetDiagRec(hType, hHandle, ++iRec, wszState, &iError, wszMessage,
 		(SQLSMALLINT)(sizeof(wszMessage) / sizeof(WCHAR)), (SQLSMALLINT*)NULL) == SQL_SUCCESS)
 	{
-		// Hide data truncated.. 
 		if (wcsncmp(wszState, L"01004", 5))
 		{
 			fwprintf(stderr, L"[%5.5s] %s (%d)\n", wszState, wszMessage, iError);
@@ -134,7 +133,7 @@ void DB_Thread()
 				//retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VooDooDoll_DB", SQL_NTS, (SQLWCHAR*)L"dbAdmin", SQL_NTS, (SQLWCHAR*)L"2018180005", SQL_NTS);
 
 
-				SQLWCHAR* connectionString = (SQLWCHAR*)L"DRIVER=SQL Server;SERVER=220.120.240.92;DATABASE=VooDooDoll_DB; UID=dbAdmin; PWD=2018180005;";
+				SQLWCHAR* connectionString = (SQLWCHAR*)L"DRIVER=SQL Server;SERVER=58.229.106.16;DATABASE=VooDooDoll_DB; UID=dbAdmin; PWD=2018180005;";
 
 				retcode = SQLDriverConnect(hdbc, NULL, connectionString, SQL_NTS, NULL, 1024, NULL, SQL_DRIVER_NOPROMPT);
 
@@ -156,7 +155,6 @@ void DB_Thread()
 						SQLINTEGER param3 = ev.session_id;
 						SQLINTEGER param4 = ev.cur_stage;
 						auto& requested_session = getClient(ev.session_id);
-						//if (param1[0] == L'\0' || param2[0] == L'\0') continue;
 						switch (ev._event) {
 						case EV_SIGNUP: {
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_up(?, ?)}", SQL_NTS);
@@ -204,7 +202,6 @@ void DB_Thread()
 							//p.type = SC_SIGNIN;
 							//p.size = sizeof(p);
 							//requested_session.do_send(&p);
-
 							//wcout << "SIGNIN SUCCEED\n";
 
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
@@ -339,9 +336,6 @@ void process_packet(const int c_id, char* packet)
 {
 	SESSION& CL = getClient(c_id);
 	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom_Clients(c_id);
-	//if (CL._state.load() == ST_DEAD) {
-	//	return;
-	//}
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
@@ -448,7 +442,6 @@ void process_packet(const int c_id, char* packet)
 		break;
 		case GUN:
 		{
-			//Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 5, false));
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
 			vector<Monster*> monstersInRange;
@@ -555,7 +548,7 @@ void process_packet(const int c_id, char* packet)
 				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
 					cl.send_open_door_packet(CL.cur_stage);
 				cl.clear_percentage = 0.f;
-				if (cl.cur_stage >= 0) cl.clear_percentage = 1.f; // 3번째(코드에선 2번 인덱스) 스테이지부터 퍼즐 미구현이라 임의의 코드로 percent를 100%로 조정함
+				if (cl.cur_stage >= 0) cl.clear_percentage = 1.f; 
 			}
 		}
 	}
@@ -587,7 +580,6 @@ void worker_thread(HANDLE h_iocp)
 				disconnect(static_cast<int>(key));
 				if (ex_over->_comp_type == OP_SEND)
 					delete ex_over;
-				//OverPool.ReturnMemory(ex_over);
 				continue;
 			}
 		}
@@ -596,7 +588,6 @@ void worker_thread(HANDLE h_iocp)
 			disconnect(static_cast<int>(key));
 			if (ex_over->_comp_type == OP_SEND)
 				delete ex_over;
-			//OverPool.ReturnMemory(ex_over);
 			continue;
 		}
 
@@ -647,7 +638,6 @@ void worker_thread(HANDLE h_iocp)
 			break;
 		case OP_SEND: {
 			delete ex_over;
-			//OverPool.ReturnMemory(ex_over);
 		}
 			break;
 		case OP_NPC_UPDATE: {
@@ -667,9 +657,7 @@ void worker_thread(HANDLE h_iocp)
 				TIMER_EVENT ev{ roomNum, mon_id, monster->recent_updateTime + 100ms, EV_MONSTER_UPDATE };
 				timer_queue.push(ev);
 			}
-
 			delete ex_over;
-			//OverPool.ReturnMemory(ex_over);
 		}
 		break;
 		}
@@ -686,7 +674,6 @@ void Timer_Thread()
 		auto current_time = high_resolution_clock::now();
 		if (timer_queue.try_pop(ev)) {
 			if (ev.wakeup_time > current_time) {
-				//this_thread::sleep_for(duration_cast<milliseconds>(ev.wakeup_time - current_time));
 				timer_queue.push(ev);
 				this_thread::sleep_for(1ms);
 				continue;
@@ -694,13 +681,11 @@ void Timer_Thread()
 			switch (ev.event_id) {
 			case EV_MONSTER_UPDATE: {
 				OVER_EXP* ov = new OVER_EXP();
-				//OVER_EXP* ov = OverPool.GetMemory();
 				ov->_comp_type = OP_NPC_UPDATE;
 				PostQueuedCompletionStatus(h_iocp, 1, ev.room_id * 100 + ev.obj_id, &ov->_over);
 			}
 								  break;
 			}
-			//EventPool.ReturnMemory(ev);
 		}
 		else this_thread::sleep_for(1ms);
 	}

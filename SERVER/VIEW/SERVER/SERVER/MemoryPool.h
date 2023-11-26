@@ -39,7 +39,6 @@ public:
                     if (oldTail->next.compare_exchange_strong(oldNext, newNode)) {
                         tail.compare_exchange_strong(oldTail, newNode);
                         size.fetch_add(1);
-                        //cout << size.load() << endl;
                         return true;
                     }
                 }
@@ -70,7 +69,6 @@ public:
                         }
                         value = oldNext->data;
                         size.fetch_sub(1);
-                        //cout << size.load() << endl;
                         return true;
                     }
                 }
@@ -78,7 +76,7 @@ public:
         }
     }
 
-    size_t get_size() const { // 추가된 부분
+    size_t get_size() const { 
         return size.load();
     }
 

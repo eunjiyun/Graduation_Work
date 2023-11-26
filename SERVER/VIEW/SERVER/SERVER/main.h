@@ -28,21 +28,12 @@ struct DB_EVENT {
 	short		cur_stage = -1;
 };
 
-//wstring ConverttoWchar(const char* str)
-//{
-//	int length = static_cast<int>(strlen(str)) + 1;
-//	wstring wstr(length, L'\0');
-//	size_t converted = 0;
-//	mbstowcs_s(&converted, &wstr[0], length, str, _TRUNCATE);
-//	return wstr;
-//}
 
 constexpr int GRID_SIZE_X = 150;  
 constexpr int GRID_SIZE_Y = 2;
 constexpr int GRID_SIZE_Z = 1200;
 constexpr int CELL_SIZE = 4; 
 
-//bool ObstacleGrid[GRID_SIZE_Y][GRID_SIZE_X][GRID_SIZE_Z] = { true };  // Grid to store obstacle information
 
 array<array<array<bool, GRID_SIZE_Z>, GRID_SIZE_X>,GRID_SIZE_Y> ObstacleGrid = { false };
 
@@ -50,15 +41,11 @@ concurrent_priority_queue<TIMER_EVENT> timer_queue;
 concurrent_queue<DB_EVENT> db_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
-//array<concurrent_unordered_map<short, shared_ptr<SESSION>>, MAX_ROOM> sessions;
-//array<threadsafe_vector<Monster*>, MAX_ROOM> monsters;
 array<array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>, MAX_ROOM> monsters;
 
-//CObjectPool<TIMER_EVENT> EventPool(30'000);
-//CObjectPool<Monster> MonsterPool(20'000);
 vector<MonsterInfo> StagesInfo;
 
-array<vector< MapObject*>, OBJECT_ARRAY_SIZE> Obstacles;
+array<vector<MapObject*>, OBJECT_ARRAY_SIZE> Obstacles;
 array<vector<Key_Object>, 7> Key_Items;
 
 SESSION& getClient(int c_id)
@@ -132,31 +119,15 @@ void disconnect(int c_id)
 
 	if (game_in_progress) {
 		CL._state.store(ST_CRASHED);
-		//DB_EVENT ev;
-		//ev._event = EV_SAVE;
-		//wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), CL._name);
-		//ev.cur_stage = CL.cur_stage.load();
-		//ev.session_id = CL._id;
-		//db_queue.push(ev);
-		//wcout << ev.user_id << " CALLED EV_SAVE\n";
 	}
 
 	else {
 		for (auto& pl : getRoom_Clients(c_id)) {
 			if (pl._state.load() == ST_FREE) continue;
 			pl._state = ST_FREE;
-			//DB_EVENT ev;
-			//ev._event = EV_RESET;
-			//wcscpy_s(ev.user_id, sizeof(ev.user_id) / sizeof(ev.user_id[0]), pl._name);
-			//ev.session_id = pl._id;
-			//db_queue.push(ev);
-			//wcout << ev.user_id << " CALLED EV_RESET\n";
 		}
 
 		for (auto& mon : getRoom_Monsters(c_id)) {
-			//bool old_state = true;
-			//if (false == atomic_compare_exchange_strong(&mon->alive, &old_state, false))
-			//	continue;
 			mon->Re_Initialize(StagesInfo[mon->m_id].type, StagesInfo[mon->m_id].Pos);
 		}
 	}
@@ -186,9 +157,9 @@ void Summon_Monster(int roomNum, int stageNum)
 void SESSION::CheckPosition(XMFLOAT3 newPos)
 {
 
-	XMFLOAT3 newCenter = Vector3::Add(newPos, XMFLOAT3(0,10.f,0));			// ĳ������ ��ġ�� �浹�ڽ��� ��ġ�� ���� ������ �浹üũ�� y�� +10�ؼ� ����ؾ���
+	XMFLOAT3 newCenter = Vector3::Add(newPos, XMFLOAT3(0,10.f,0));			
 	try {
-		for (const auto& object : Obstacles.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	// array�� ����Լ� at�� �߸��� �ε����� �����ϸ� exception�� ȣ��
+		for (const auto& object : Obstacles.at(static_cast<int>(newCenter.z) / AREA_SIZE)) {	
 			if (object->m_xmOOBB.Contains(XMLoadFloat3(&newCenter))) {
 				SetVelocity(XMFLOAT3{ 0,0,0 });
 				return;
@@ -206,7 +177,7 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 	SetPosition(newPos);
 	UpdateBoundingBox();
 	short stage = 0;
-	if (GetPosition().y >= -100.f)	// 1�� 2�� ����
+	if (GetPosition().y >= -100.f)	
 		stage = static_cast<short>((GetPosition().z - 300.f) / STAGE_SIZE);
 	else
 		stage = 3 + static_cast<short>((MAP_Z_SIZE - GetPosition().z) / STAGE_SIZE);
@@ -309,7 +280,6 @@ XMFLOAT3 Monster::Find_Direction(float fTimeElapsed, XMFLOAT3 start, XMFLOAT3 de
 		if (duration_cast<milliseconds>(high_resolution_clock::now() - start_time).count() > 3) break;
 		shared_ptr<A_star_Node> S_Node = pq.top();
 		pq.pop();
-		//if (S_Node == nullptr) break;
 
 		if (Vector3::Length(Vector3::Subtract(dest, S_Node->Pos)) < min(attack_range,MELEE_ATTACK_RANGE))
 		{
@@ -505,8 +475,6 @@ void Monster::Update(float fTimeElapsed)
 				lock_guard <mutex> ll{ targetPlayer->_s_lock };
 				targetPlayer->HP -= GetPower();
 				if (targetPlayer->HP <= 0) {
-
-					//player.direction.store(DIR_DIE);
 					targetPlayer->_state.store(ST_DEAD);
 					for (auto& cl : clients[room_num]) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
@@ -1048,11 +1016,9 @@ void InitializeMonsterInfo()
 	mt19937 gen(rd());
 	uniform_int_distribution<int> x_dis(130, 550);
 	uniform_int_distribution<int> z_dis(1300, 2500);
-	//uniform_int_distribution<int> type_dis(0, 2);
 	int t = -1;
 
 	{   // 1stage
-	   //while (ID_constructor < 1) {//pat
 		while (ID_constructor < 10) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -1078,7 +1044,6 @@ void InitializeMonsterInfo()
 			else if (10 > ID_constructor % 10)
 				t = 2;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), t, ID_constructor);//pat
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);
@@ -1088,7 +1053,6 @@ void InitializeMonsterInfo()
 	{   // 2stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		//while (ID_constructor < 11) {
 		while (ID_constructor < 20) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -1116,7 +1080,6 @@ void InitializeMonsterInfo()
 				t = 1;
 			else if (10 > ID_constructor % 10)
 				t = 2;
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), type_dis(gen), ID_constructor);
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -63, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
@@ -1128,7 +1091,6 @@ void InitializeMonsterInfo()
 		gen.seed(rd());
 		x_dis.param(uniform_int_distribution<int>::param_type(130, 320));
 		z_dis.param(uniform_int_distribution<int>::param_type(3700, 4400));
-		//while (ID_constructor < 21) {
 		while (ID_constructor < 30) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -1153,7 +1115,6 @@ void InitializeMonsterInfo()
 				t = 1;
 			else if (10 > ID_constructor % 10)
 				t = 2;
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
@@ -1165,7 +1126,6 @@ void InitializeMonsterInfo()
 		gen.seed(rd());
 		x_dis.param(uniform_int_distribution<int>::param_type(130, 550));
 		z_dis.param(uniform_int_distribution<int>::param_type(2600, 3500));
-		//while (ID_constructor < 31) {
 		while (ID_constructor < 40) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -1190,7 +1150,6 @@ void InitializeMonsterInfo()
 				t = 1;
 			else if (10 > ID_constructor % 10)
 				t = 2;
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
@@ -1201,7 +1160,6 @@ void InitializeMonsterInfo()
 	{   // 5stage
 		gen.seed(rd());
 		z_dis.param(uniform_int_distribution<int>::param_type(1300, 2450));
-		//while (ID_constructor < 41) {
 		while (ID_constructor < 50) {
 			float _x = static_cast<float>(x_dis(gen));
 			float _z = static_cast<float>(z_dis(gen));
@@ -1226,7 +1184,6 @@ void InitializeMonsterInfo()
 				t = 1;
 			else if (10 > ID_constructor % 10)
 				t = 2;
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
@@ -1263,7 +1220,6 @@ void InitializeMonsterInfo()
 			else if (10 > ID_constructor % 10)
 				t = 2;
 			MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), t, ID_constructor);
-			//MonsterInfo MI = MonsterInfo(XMFLOAT3(_x, -304, _z), type_dis(gen), ID_constructor);
 			StagesInfo.push_back(MI);
 			//cout << ID_constructor << " - " << MI.type << endl;
 			//Vector3::Print(MI.Pos);

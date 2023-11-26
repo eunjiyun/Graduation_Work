@@ -569,7 +569,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 //    }
 //}
 
-void ProcessPacket(char* ptr)//몬스터 생성
+void ProcessPacket(char* ptr)
 {
 	switch (ptr[1]) {
 	case SC_GAME_START: {
@@ -635,7 +635,6 @@ void ProcessPacket(char* ptr)//몬스터 생성
 		gGameFramework.m_pStage->pMultiSpriteObjectShader->obj[10]->m_ppMaterials[0]->m_ppTextures[0]->m_bActive[0] = true;
 		break;
 	}
-
 	case SC_REMOVE_PLAYER: {
 		SC_REMOVE_PLAYER_PACKET* packet = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(ptr);
 		auto iter = find_if(gGameFramework.Players.begin(), gGameFramework.Players.end(), [packet](CPlayer* pl) {return packet->id == pl->c_id; });
@@ -946,7 +945,6 @@ void CALLBACK recv_callback(DWORD err, DWORD num_bytes, LPWSAOVERLAPPED over, DW
 			ProcessPacket(packet_buffer);
 
 			ptr += in_packet_size - saved_packet_size;
-			//ptr += in_packet_size;
 			num_bytes -= int(in_packet_size - saved_packet_size);
 			in_packet_size = 0;
 			saved_packet_size = 0;
