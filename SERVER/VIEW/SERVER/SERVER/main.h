@@ -5,39 +5,45 @@
 #include "MapObject.h"
 #include "Monster.h"
 
-
+// 게임 로직 이벤트 타입
 enum EVENT_TYPE { EV_MONSTER_UPDATE };
+
+// DB I/O 이벤트 타입
 enum DB_EVENT_TYPE { EV_SIGNIN, EV_SIGNUP, EV_SAVE, EV_RESET };
 
+// 타이머 이벤트
 struct TIMER_EVENT {
-	int room_id;
-	int obj_id;
-	high_resolution_clock::time_point wakeup_time;
-	int event_id;
-	constexpr bool operator < (const TIMER_EVENT& _Left) const
+	int room_id;	// 이벤트가 발생하는 방 ID
+	int obj_id;		// 이벤트와 관련된 객체 ID
+	high_resolution_clock::time_point wakeup_time;	// 이벤트가 발생할 시간
+	EVENT_TYPE event_id; 
+	constexpr bool operator < (const TIMER_EVENT& _Left) const // 우선순위 큐에서 타이머 이벤트를 wakeup_time 기준으로 정렬하기 위해 < 연산자 오버로딩
 	{
 		return (wakeup_time > _Left.wakeup_time);
 	}
 };
 
+// DB 이벤트
 struct DB_EVENT {
-	unsigned short session_id = -1;
-	wchar_t user_id[IDPW_SIZE]{};
+	unsigned short session_id = -1; // 해당 작업과 연관된 세션 ID
+	wchar_t user_id[IDPW_SIZE]{}; // 사용자 계정 정보
 	wchar_t user_password[IDPW_SIZE]{};
 	DB_EVENT_TYPE _event;
-	short		cur_stage = -1;
 };
 
-
+// 맵의 그리드의 크기
 constexpr int GRID_SIZE_X = 150;  
 constexpr int GRID_SIZE_Y = 2;
 constexpr int GRID_SIZE_Z = 1200;
-constexpr int CELL_SIZE = 4; 
 
+constexpr int CELL_SIZE = 4; // 각 그리드 셀의 크기
 
+// 맵의 장애물 정보를 저장하는 3차원 배열
 array<array<array<bool, GRID_SIZE_Z>, GRID_SIZE_X>,GRID_SIZE_Y> ObstacleGrid = { false };
 
+// 타이머 기반 이벤트 처리
 concurrent_priority_queue<TIMER_EVENT> timer_queue;
+// 데이터베이스 작업 처리
 concurrent_queue<DB_EVENT> db_queue;
 
 array<array<SESSION, MAX_USER_PER_ROOM>, MAX_ROOM> clients;
@@ -48,56 +54,61 @@ vector<MonsterInfo> StagesInfo;
 array<vector<MapObject*>, OBJECT_ARRAY_SIZE> Obstacles;
 array<vector<Key_Object>, 7> Key_Items;
 
-SESSION& getClient(int c_id)
+SESSION* getClient(int c_id)
 {
 	try {
-		return clients[c_id / MAX_USER_PER_ROOM][c_id % MAX_USER_PER_ROOM];
+		return &clients[c_id / MAX_USER_PER_ROOM][c_id % MAX_USER_PER_ROOM];
 	}
 	catch (const exception& e) {
 		cout << "getClient catched error -" << e.what() << endl;
-		exit(0);
+		return nullptr;
 	}
 }
 
-array<SESSION, MAX_USER_PER_ROOM>& getRoom_Clients(int c_id)
+array<SESSION, MAX_USER_PER_ROOM>* getRoom_Clients(int c_id)
 {
 	try {
-		return clients[c_id / MAX_USER_PER_ROOM];
+		return &clients[c_id / MAX_USER_PER_ROOM];
 	}
 	catch (const exception& e) {
 		cout << "getRoom_Clients catched error -" << e.what() << endl;
-		exit(0);
+		return nullptr;
 	}
 }
 
-array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>& getRoom_Monsters(int c_id)
+array<Monster*, MONSTER_PER_STAGE* STAGE_NUMBERS>* getRoom_Monsters(int c_id)
 {
 	try {
-		return monsters[c_id / MAX_USER_PER_ROOM];
+		return &monsters[c_id / MAX_USER_PER_ROOM];
 	}
 	catch (const exception& e) {
 		cout << "getRoom_Monsters catched error -" << e.what() << endl;
-		exit(0);
+		return nullptr;
 	}
 }
 
-vector<MapObject*>& getRoom_Obstacles(XMFLOAT3 Pos)
+vector<MapObject*>* getRoom_Obstacles(XMFLOAT3 Pos)
 {
 	try {
-		return Obstacles[static_cast<int>(Pos.z) / STAGE_SIZE];
+		return &Obstacles[static_cast<int>(Pos.z) / STAGE_SIZE];
 	}
 	catch (const exception& e) {
 		cout << "getRoom_Obstacles catched error -" << e.what() << endl;
-		exit(0);
+		return nullptr;
 	}
 }
 
 short get_remain_Monsters(int c_id)
 {
 	short cnt = 0;
-	auto& room_Monsters = getRoom_Monsters(c_id);
-	for (auto& monster : room_Monsters) {
-		if (monster->alive) cnt++;
+	auto room_Monsters = getRoom_Monsters(c_id);
+	if (room_Monsters == nullptr) {
+		cout << "wrong session_id - get_remain_Monsters" << endl;
+	}
+	else {
+		for (auto& monster : *room_Monsters) {
+			if (monster->alive) cnt++;
+		}
 	}
 	return cnt;
 }
@@ -106,28 +117,37 @@ short get_remain_Monsters(int c_id)
 void disconnect(int c_id)
 {
 	bool game_in_progress = false;
-	auto& Monsters = getRoom_Monsters(c_id);
-	for (auto& pl : getRoom_Clients(c_id)) {
+	auto Monsters = getRoom_Monsters(c_id);
+	auto Room_Clients = getRoom_Clients(c_id);
+	if (Room_Clients == nullptr || Monsters == nullptr) {
+		cout << "wrong session_id - disconnect" << endl;
+		return;
+	}
+	for (auto& pl : *Room_Clients) {
 
 		if ((ST_INGAME != pl._state.load() && ST_DEAD != pl._state.load()) || pl._id == c_id) continue;
 
 		pl.send_remove_player_packet(c_id);
 		game_in_progress = true;
 	}
-	SESSION& CL = getClient(c_id);
-	closesocket(CL._socket);
+	SESSION* CL = getClient(c_id);
+	if (CL == nullptr) {
+		cout << "wrong session_id - disconnect" << endl;
+		return;
+	}
+	closesocket(CL->_socket);
 
 	if (game_in_progress) {
-		CL._state.store(ST_CRASHED);
+		CL->_state.store(ST_CRASHED);
 	}
 
 	else {
-		for (auto& pl : getRoom_Clients(c_id)) {
+		for (auto& pl : *Room_Clients) {
 			if (pl._state.load() == ST_FREE) continue;
 			pl._state = ST_FREE;
 		}
 
-		for (auto& mon : getRoom_Monsters(c_id)) {
+		for (auto& mon : *getRoom_Monsters(c_id)) {
 			mon->Re_Initialize(StagesInfo[mon->m_id].type, StagesInfo[mon->m_id].Pos);
 		}
 	}
@@ -183,7 +203,12 @@ void SESSION::CheckPosition(XMFLOAT3 newPos)
 		stage = 3 + static_cast<short>((MAP_Z_SIZE - GetPosition().z) / STAGE_SIZE);
 
 	if (stage == 6 && GetPosition().z < 400.f && get_remain_Monsters(_id) == 0) {
-		for (auto& cl : getRoom_Clients(_id)) {
+		auto Room_Clients = getRoom_Clients(_id);
+		if (Room_Clients == nullptr) {
+			cout << "wrong session_id - processing game clear" << endl;
+			return;
+		}
+		for (auto& cl : *Room_Clients) {
 			if (cl._state.load() != ST_INGAME) continue;
 			cl.send_clear_packet();
 		}
@@ -863,7 +888,7 @@ void FinalizeMonsters()
 {
 	for (int i = 0; i < monsters.size(); ++i)
 	{
-		for (int j = 0; j < monsters[i].size(); ++i)
+		for (int j = 0; j < monsters[i].size(); ++j)
 			delete monsters[i][j];
 	}
 }

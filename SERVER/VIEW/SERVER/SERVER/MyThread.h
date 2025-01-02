@@ -88,8 +88,12 @@ void DB_Thread()
 						SQLWCHAR* param1 = ev.user_id;
 						SQLWCHAR* param2 = ev.user_password;
 						SQLINTEGER param3 = ev.session_id;
-						SQLINTEGER param4 = ev.cur_stage;
-						auto& requested_session = getClient(ev.session_id);
+						// SQLINTEGER param4 = ev.cur_stage;
+						auto requested_session = getClient(ev.session_id);
+						if (requested_session == nullptr) {
+							cout << "wrong session_id - DB Request\n";
+							continue;
+						}
 						switch (ev._event) {
 						case EV_SIGNUP: {
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_up(?, ?)}", SQL_NTS);
@@ -103,7 +107,7 @@ void DB_Thread()
 									p.success = true;
 									p.type = SC_SIGNUP;
 									p.size = sizeof(p);
-									requested_session.do_send(&p);
+									requested_session->do_send(&p);
 									wcout << "SIGNUP SUCCEED \n";
 								}
 								else {
@@ -111,7 +115,7 @@ void DB_Thread()
 									p.success = false;
 									p.type = SC_SIGNUP;
 									p.size = sizeof(p);
-									requested_session.do_send(&p);
+									requested_session->do_send(&p);
 									wcout << "SIGNUP FAILED \n";
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
@@ -121,7 +125,7 @@ void DB_Thread()
 								p.success = false;
 								p.type = SC_SIGNUP;
 								p.size = sizeof(p);
-								requested_session.do_send(&p);
+								requested_session->do_send(&p);
 								printf("SQLPrepare failed\n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
@@ -129,14 +133,14 @@ void DB_Thread()
 							break;
 						}
 						case EV_SIGNIN: {
-							wcscpy_s(requested_session._name, sizeof(ev.user_id) / sizeof(ev.user_id[0]), ev.user_id);
+							wcscpy_s(requested_session->_name, sizeof(ev.user_id) / sizeof(ev.user_id[0]), ev.user_id);
 
 
 							SC_SIGN_PACKET p;
 							p.success = true;
 							p.type = SC_SIGNIN;
 							p.size = sizeof(p);
-							requested_session.do_send(&p);
+							requested_session->do_send(&p);
 							wcout << "SIGNIN SUCCEED\n";
 
 							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL sign_in(?, ?)}", SQL_NTS);
@@ -146,14 +150,14 @@ void DB_Thread()
 
 								retcode = SQLExecute(hstmt);
 								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									SQLBindCol(hstmt, 4, SQL_C_LONG, &requested_session.cur_stage, sizeof(requested_session.cur_stage), &OutSize);
+									SQLBindCol(hstmt, 4, SQL_C_LONG, &requested_session->cur_stage, sizeof(requested_session->cur_stage), &OutSize);
 									retcode = SQLFetch(hstmt);
 									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
 										SC_SIGN_PACKET p;
 										p.success = true;
 										p.type = SC_SIGNIN;
 										p.size = sizeof(p);
-										requested_session.do_send(&p);
+										requested_session->do_send(&p);
 										wcout << "SIGNIN SUCCEED\n";
 									}
 									else {
@@ -161,7 +165,7 @@ void DB_Thread()
 										p.success = false;
 										p.type = SC_SIGNIN;
 										p.size = sizeof(p);
-										requested_session.do_send(&p);
+										requested_session->do_send(&p);
 										printf("SIGNIN FAILED - The ID does not exist.  \n");
 									}
 								}
@@ -170,7 +174,7 @@ void DB_Thread()
 									p.success = false;
 									p.type = SC_SIGNIN;
 									p.size = sizeof(p);
-									requested_session.do_send(&p);
+									requested_session->do_send(&p);
 									printf("SIGNIN FAILED - The query has not been performed.  \n");
 									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 								}
@@ -180,77 +184,77 @@ void DB_Thread()
 								p.success = false;
 								p.type = SC_SIGNIN;
 								p.size = sizeof(p);
-								requested_session.do_send(&p);
+								requested_session->do_send(&p);
 								printf("SQLPrepare failed\n");
 								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
 							}
 							SQLFreeStmt(hstmt, SQL_CLOSE);
 							break;
 						}
-						case EV_SAVE: {
-							wcout << "DB THREAD RECVED SAVE EVENT\n";
-							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
-							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
-								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
-								SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
-								retcode = SQLExecute(hstmt);
-								wcout << param1 << ", " << param3 << ", " << param4 << endl;
-								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
-									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-										std::cout << "COMMIT OK\n";
-									}
-									else {
-										std::cout << "COMMIT FAILED\n";
-										HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-									}
-								}
-								else {
-									std::cout << "UPDATE FAILED \n";
-									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-								}
-							}
-							else {
-								wcout << "SQLPrepare failed \n";
-								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							}
-							SQLFreeStmt(hstmt, SQL_UNBIND);
-							break;
-						}
-						case EV_RESET: {
-							param3 = -1;
-							param4 = 0;
-							wcout << "DB THREAD RECVED RESET EVENT\n";
-							retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
-							if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-								SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
-								SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
-								SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
-								retcode = SQLExecute(hstmt);
-								wcout << param1 << ", " << param3 << ", " << param4 << endl;
-								if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-									retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
-									if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-										std::cout << "COMMIT OK\n";
-									}
-									else {
-										std::cout << "COMMIT FAILED\n";
-										HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-									}
-								}
-								else {
-									std::cout << "UPDATE FAILED \n";
-									HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-								}
-							}
-							else {
-								wcout << "SQLPrepare failed \n";
-								HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-							}
-							SQLFreeStmt(hstmt, SQL_UNBIND);
-							break;
-						}
+						//case EV_SAVE: {
+						//	wcout << "DB THREAD RECVED SAVE EVENT\n";
+						//	retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
+						//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						//		SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
+						//		SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
+						//		SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
+						//		retcode = SQLExecute(hstmt);
+						//		wcout << param1 << ", " << param3 << ", " << param4 << endl;
+						//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						//			retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
+						//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						//				std::cout << "COMMIT OK\n";
+						//			}
+						//			else {
+						//				std::cout << "COMMIT FAILED\n";
+						//				HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+						//			}
+						//		}
+						//		else {
+						//			std::cout << "UPDATE FAILED \n";
+						//			HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+						//		}
+						//	}
+						//	else {
+						//		wcout << "SQLPrepare failed \n";
+						//		HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+						//	}
+						//	SQLFreeStmt(hstmt, SQL_UNBIND);
+						//	break;
+						//}
+						//case EV_RESET: {
+						//	param3 = -1;
+						//	param4 = 0;
+						//	wcout << "DB THREAD RECVED RESET EVENT\n";
+						//	retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
+						//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						//		SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
+						//		SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
+						//		SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
+						//		retcode = SQLExecute(hstmt);
+						//		wcout << param1 << ", " << param3 << ", " << param4 << endl;
+						//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						//			retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
+						//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
+						//				std::cout << "COMMIT OK\n";
+						//			}
+						//			else {
+						//				std::cout << "COMMIT FAILED\n";
+						//				HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+						//			}
+						//		}
+						//		else {
+						//			std::cout << "UPDATE FAILED \n";
+						//			HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+						//		}
+						//	}
+						//	else {
+						//		wcout << "SQLPrepare failed \n";
+						//		HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
+						//	}
+						//	SQLFreeStmt(hstmt, SQL_UNBIND);
+						//	break;
+						//}
 						}
 					}
 					else this_thread::sleep_for(100ms);
@@ -295,21 +299,25 @@ void Timer_Thread()
 
 void process_packet(const int c_id, char* packet)
 {
-	SESSION& CL = getClient(c_id);
-	array<SESSION, MAX_USER_PER_ROOM>& Room = getRoom_Clients(c_id);
+	SESSION* CL = getClient(c_id);
+	array<SESSION, MAX_USER_PER_ROOM>* Room = getRoom_Clients(c_id);
+	if (CL == nullptr || Room == nullptr) {
+		cout << "Wrong session_id - process_packet" << endl;
+		return;
+	}
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		CL._state.store(ST_INGAME);
+		CL->_state.store(ST_INGAME);
 
 		// 3인 매칭 후 시작해야 하는 경우
-		for (auto& pl : Room) {
+		for (auto& pl : *Room) {
 			if (pl._state.load() != ST_INGAME) return;
 			pl.Initialize();
 		}
-		for (auto& pl : Room) {
+		for (auto& pl : *Room) {
 			pl.send_game_start_packet();
-			for (auto& session : Room) {
+			for (auto& session : *Room) {
 				if (pl._id == session._id) continue;
 				pl.send_add_player_packet(&session);
 			}
@@ -351,45 +359,49 @@ void process_packet(const int c_id, char* packet)
 				  break;
 	case CS_HEARTBEAT: {
 		CS_HEARTBEAT_PACKET* p = reinterpret_cast<CS_HEARTBEAT_PACKET*>(packet);
-		CL.Update(p);
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_update_packet(&CL);
+		CL->Update(p);
+		for (auto& cl : *Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_update_packet(CL);
 		}
 	}
 					 break;
 	case CS_ROTATE: {
 		CS_ROTATE_PACKET* p = reinterpret_cast<CS_ROTATE_PACKET*>(packet);
-		CL.Rotate(p->cxDelta, p->cyDelta, p->czDelta);
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_rotate_packet(&CL);
+		CL->Rotate(p->cxDelta, p->cyDelta, p->czDelta);
+		for (auto& cl : *Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_rotate_packet(CL);
 		}
 	}
 				  break;
 	case CS_ATTACK: {
-		auto& Monsters = getRoom_Monsters(CL._id);
-		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(&CL);
+		auto Monsters = getRoom_Monsters(CL->_id);
+		if (Monsters == nullptr) {
+			cout << "wrong session_id - processing attack" << endl;
+			break;
 		}
-		XMFLOAT3 Cur_LookVector = CL.GetLookVector();
-		XMFLOAT3 Cur_Pos = CL.GetPosition();
-		switch (CL.weapon_type)
+		CS_ATTACK_PACKET* p = reinterpret_cast<CS_ATTACK_PACKET*>(packet);
+		for (auto& cl : *Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_attack_packet(CL);
+		}
+		XMFLOAT3 Cur_LookVector = CL->GetLookVector();
+		XMFLOAT3 Cur_Pos = CL->GetPosition();
+		switch (CL->weapon_type)
 		{
 		case BLADE:
 		{
 			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 15, false));
-			for (auto& monster : Monsters) {
+			for (auto& monster : *Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 30)
 				{
 					monster->HP -= 100;
-					monster->target_id = CL._id;
+					monster->target_id = CL->_id;
 					if (monster->GetState() == NPC_State::Idle)
 					{
 						monster->SetState(NPC_State::Chase);
 					}
-					for (auto& cl : Room) {
+					for (auto& cl : *Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(c_id, monster->m_id, monster->HP);
 					}
 					if (monster->HP <= 0) {
@@ -406,7 +418,7 @@ void process_packet(const int c_id, char* packet)
 			XMVECTOR Bullet_Direction = XMLoadFloat3(&Cur_LookVector);
 			vector<Monster*> monstersInRange;
 
-			for (auto& monster : Monsters) {
+			for (auto& monster : *Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> monster_lock{ monster->m_lock };
 				float bullet_monster_distance = Vector3::Length(Vector3::Subtract(monster->BB.Center, Cur_Pos));
@@ -447,12 +459,12 @@ void process_packet(const int c_id, char* packet)
 						}
 					}
 					closestMonster->HP -= 100;
-					closestMonster->target_id = CL._id;
+					closestMonster->target_id = CL->_id;
 					if (closestMonster->GetState() == NPC_State::Idle)
 					{
 						closestMonster->SetState(NPC_State::Chase);
 					}
-					for (auto& cl : Room) {
+					for (auto& cl : *Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(c_id, closestMonster->m_id, closestMonster->HP);
 					}
 					if (closestMonster->HP <= 0) {
@@ -466,18 +478,18 @@ void process_packet(const int c_id, char* packet)
 		case PUNCH:
 		{
 			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 10, false));
-			for (auto& monster : Monsters) {
+			for (auto& monster : *Monsters) {
 				if (monster->alive == false) continue;
 				lock_guard<mutex> mm{ monster->m_lock };
 				if (monster->HP > 0 && Vector3::Length(Vector3::Subtract(Cur_Pos, monster->GetPosition())) < 20)
 				{
 					monster->HP -= 50;
-					monster->target_id = CL._id;
+					monster->target_id = CL->_id;
 					if (monster->GetState() == NPC_State::Idle)
 					{
 						monster->SetState(NPC_State::Chase);
 					}
-					for (auto& cl : Room) {
+					for (auto& cl : *Room) {
 						if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_monster_damaged_packet(c_id, monster->m_id, monster->HP);
 					}
 					if (monster->HP <= 0) {
@@ -493,20 +505,20 @@ void process_packet(const int c_id, char* packet)
 				  break;
 	case CS_INTERACTION: {
 		CS_INTERACTION_PACKET* p = reinterpret_cast<CS_INTERACTION_PACKET*>(packet);
-		int cur_stage = CL.cur_stage.load();
+		int cur_stage = CL->cur_stage.load();
 		for (int i = 0; i < Key_Items[cur_stage].size(); i++) {
-			if (Key_Items[cur_stage][i].m_xmOOBB.Intersects(CL.m_xmOOBB)) {
-				for (auto& cl : Room) {
+			if (Key_Items[cur_stage][i].m_xmOOBB.Intersects(CL->m_xmOOBB)) {
+				for (auto& cl : *Room) {
 					cl.clear_percentage += Key_Items[cur_stage][i].percent;
 					if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_interaction_packet(cur_stage, i);
 				}
 			}
 		}
 
-		if (CL.clear_percentage >= 1.f && get_remain_Monsters(CL._id) == 0) {
-			for (auto& cl : Room) {
+		if (CL->clear_percentage >= 1.f && get_remain_Monsters(CL->_id) == 0) {
+			for (auto& cl : *Room) {
 				if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)
-					cl.send_open_door_packet(CL.cur_stage);
+					cl.send_open_door_packet(CL->cur_stage);
 				cl.clear_percentage = 0.f;
 				if (cl.cur_stage >= 0) cl.clear_percentage = 1.f;
 			}
@@ -515,9 +527,9 @@ void process_packet(const int c_id, char* packet)
 					   break;
 	case CS_CHANGEWEAPON: {
 		CS_CHANGEWEAPON_PACKET* p = reinterpret_cast<CS_CHANGEWEAPON_PACKET*>(packet);
-		CL.weapon_type = static_cast<WEAPON_TYPE>((CL.weapon_type + 1) % 3);
-		for (auto& cl : Room) {
-			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(&CL);
+		CL->weapon_type = static_cast<WEAPON_TYPE>((CL->weapon_type + 1) % 3);
+		for (auto& cl : *Room) {
+			if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)   cl.send_changeweapon_packet(CL);
 		}
 	}
 						break;
@@ -533,14 +545,16 @@ void worker_thread(HANDLE h_iocp)
 		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &key, &over, INFINITE);
 		OVER_EXP* ex_over = reinterpret_cast<OVER_EXP*>(over);
 		if (FALSE == ret) {
-			if (ex_over->_comp_type == OP_ACCEPT) { cout << "Accept Error"; exit(-1); }
+			if (ex_over->_comp_type == OP_ACCEPT) {
+				cout << "Accept Error" << endl;
+			}
 			else {
 				cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
 				if (ex_over->_comp_type == OP_SEND)
 					delete ex_over;
-				continue;
 			}
+			continue;
 		}
 
 		if ((0 == num_bytes) && ((ex_over->_comp_type == OP_RECV) || (ex_over->_comp_type == OP_SEND))) {
@@ -554,13 +568,17 @@ void worker_thread(HANDLE h_iocp)
 		case OP_ACCEPT: {
 			int client_id = get_new_client_id();
 			if (client_id != -1) {
-				SESSION& CL = getClient(client_id);
-				CL._state.store(ST_ALLOC);
-				CL._socket = g_c_socket;
-				CL._id = client_id;
+				SESSION* CL = getClient(client_id);
+				if (CL == nullptr) {
+					cout << "wrong session_id - Accept Session" << endl;
+					break;
+				}
+				CL->_state.store(ST_ALLOC);
+				CL->_socket = g_c_socket;
+				CL->_id = client_id;
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_c_socket),
 					h_iocp, client_id, 0);
-				CL.do_recv();
+				CL->do_recv();
 			}
 			else {
 				cout << "Max user exceeded.\n";
@@ -573,11 +591,15 @@ void worker_thread(HANDLE h_iocp)
 		}
 					  break;
 		case OP_RECV: {
-			SESSION& CL = getClient(static_cast<int>(key));
-			if (CL._state.load() == ST_DEAD) {
+			SESSION* CL = getClient(static_cast<int>(key));
+			if (CL == nullptr) {
+				cout << "wrong session_id - Recv Packet" << endl;
 				break;
 			}
-			int remain_data = num_bytes + CL._prev_remain;
+			if (CL->_state.load() == ST_DEAD) {
+				break;
+			}
+			int remain_data = num_bytes + CL->_prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
 				int packet_size = p[0];
@@ -588,11 +610,11 @@ void worker_thread(HANDLE h_iocp)
 				}
 				else break;
 			}
-			CL._prev_remain = remain_data;
+			CL->_prev_remain = remain_data;
 			if (remain_data > 0) {
 				memcpy(ex_over->_send_buf, p, remain_data);
 			}
-			CL.do_recv();
+			CL->do_recv();
 		}
 					break;
 		case OP_SEND: {

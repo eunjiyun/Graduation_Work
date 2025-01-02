@@ -162,9 +162,6 @@ struct SC_SUMMON_MONSTER_PACKET {
 	unsigned char size;
 	char	type;
 	short	id;
-#ifdef _STRESS_TEST
-	short room_num; // stress test를 위해 사용하는 임시 변수(추후 삭제 예정)
-#endif
 	short monster_type;
 	XMFLOAT3 Pos;
 };
