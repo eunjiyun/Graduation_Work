@@ -41,7 +41,7 @@ constexpr char SC_MONSTER_DAMAGED = 22;
 
 #include "stdafx.h"
 
-#define _STRESS_TEST
+// #define _STRESS_TEST
 
 #pragma pack (push, 1)
 struct CS_LOGIN_PACKET {

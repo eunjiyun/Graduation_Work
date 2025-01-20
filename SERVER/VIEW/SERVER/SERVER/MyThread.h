@@ -3,8 +3,6 @@
 #include <sql.h>
 #include <sqltypes.h>
 
-
-
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
 HANDLE h_iocp;
@@ -15,7 +13,14 @@ void process_packet(const int c_id, char* packet);
 void worker_thread(HANDLE h_iocp);
 void Timer_Thread();
 
-
+/**
+ * @brief SQL 에러 진단 정보를 처리하고 출력하는 함수
+ * @param hHandle SQL 핸들
+ * @param hType 핸들 타입
+ * @param RetCode 반환 코드
+ *
+ * SQL 작업 수행 중 발생한 에러에 대한 상세 정보를 출력합니다.
+ */
 void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCode) {
 	SQLSMALLINT iRec = 0;
 	SQLINTEGER  iError;
@@ -37,6 +42,16 @@ void HandleDiagnosticRecord(SQLHANDLE hHandle, SQLSMALLINT hType, RETCODE RetCod
 	}
 }
 
+/**
+ * @brief 데이터베이스 연결 및 쿼리 처리를 담당하는 스레드 함수
+ *
+ * 주요 기능:
+ * - ODBC를 통한 데이터베이스 연결 
+ * - 회원가입(sign_up) 및 로그인(sign_in) 프로시저 처리
+ * - 데이터베이스 이벤트 큐 모니터링 및 처리
+ *
+ * @note 데이터베이스 연결은 5초 타임아웃으로 설정됩니다.
+ */
 void DB_Thread()
 {
 	SQLHENV henv;
@@ -45,6 +60,7 @@ void DB_Thread()
 	SQLRETURN retcode;
 	SQLLEN OutSize{};
 
+	// 한글 처리를 위한 로케일 설정
 	setlocale(LC_ALL, "korean");
 
 	SQLLEN cbID = 0, cbPWD = 0, cbClearTime = 0, cbCurStage = 0;
@@ -66,8 +82,6 @@ void DB_Thread()
 				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
 
 				// Connect to data source  
-				//retcode = SQLConnect(hdbc, (SQLWCHAR*)L"VooDooDoll_DB", SQL_NTS, (SQLWCHAR*)L"dbAdmin", SQL_NTS, (SQLWCHAR*)L"2018180005", SQL_NTS);
-
 				SQLWCHAR* connectionString = (SQLWCHAR*)L"DRIVER=SQL Server;SERVER=58.229.106.16;DATABASE=VooDooDoll_DB; UID=dbAdmin; PWD=2018180005;";
 
 				retcode = SQLDriverConnect(hdbc, NULL, connectionString, SQL_NTS, NULL, 1024, NULL, SQL_DRIVER_NOPROMPT);
@@ -88,7 +102,6 @@ void DB_Thread()
 						SQLWCHAR* param1 = ev.user_id;
 						SQLWCHAR* param2 = ev.user_password;
 						SQLINTEGER param3 = ev.session_id;
-						// SQLINTEGER param4 = ev.cur_stage;
 						auto requested_session = getClient(ev.session_id);
 						if (requested_session == nullptr) {
 							cout << "wrong session_id - DB Request\n";
@@ -191,70 +204,6 @@ void DB_Thread()
 							SQLFreeStmt(hstmt, SQL_CLOSE);
 							break;
 						}
-						//case EV_SAVE: {
-						//	wcout << "DB THREAD RECVED SAVE EVENT\n";
-						//	retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
-						//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						//		SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
-						//		SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
-						//		SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
-						//		retcode = SQLExecute(hstmt);
-						//		wcout << param1 << ", " << param3 << ", " << param4 << endl;
-						//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						//			retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
-						//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						//				std::cout << "COMMIT OK\n";
-						//			}
-						//			else {
-						//				std::cout << "COMMIT FAILED\n";
-						//				HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-						//			}
-						//		}
-						//		else {
-						//			std::cout << "UPDATE FAILED \n";
-						//			HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-						//		}
-						//	}
-						//	else {
-						//		wcout << "SQLPrepare failed \n";
-						//		HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-						//	}
-						//	SQLFreeStmt(hstmt, SQL_UNBIND);
-						//	break;
-						//}
-						//case EV_RESET: {
-						//	param3 = -1;
-						//	param4 = 0;
-						//	wcout << "DB THREAD RECVED RESET EVENT\n";
-						//	retcode = SQLPrepare(hstmt, (SQLWCHAR*)L"{CALL save_info(?, ?, ?)}", SQL_NTS);
-						//	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						//		SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WCHAR, 11, 0, (SQLPOINTER)param1, 0, NULL);
-						//		SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param3, 0, NULL);
-						//		SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, (SQLPOINTER)&param4, 0, NULL);
-						//		retcode = SQLExecute(hstmt);
-						//		wcout << param1 << ", " << param3 << ", " << param4 << endl;
-						//		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						//			retcode = SQLEndTran(SQL_HANDLE_DBC, hdbc, SQL_COMMIT);
-						//			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						//				std::cout << "COMMIT OK\n";
-						//			}
-						//			else {
-						//				std::cout << "COMMIT FAILED\n";
-						//				HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-						//			}
-						//		}
-						//		else {
-						//			std::cout << "UPDATE FAILED \n";
-						//			HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-						//		}
-						//	}
-						//	else {
-						//		wcout << "SQLPrepare failed \n";
-						//		HandleDiagnosticRecord(hdbc, SQL_HANDLE_DBC, retcode);
-						//	}
-						//	SQLFreeStmt(hstmt, SQL_UNBIND);
-						//	break;
-						//}
 						}
 					}
 					else this_thread::sleep_for(100ms);
@@ -271,6 +220,17 @@ void DB_Thread()
 	}
 }
 
+
+/**
+ * @brief 타이머 이벤트를 처리하는 스레드 함수
+ *
+ * 타이머 큐를 모니터링하고 예약된 이벤트를 처리합니다.
+ * 현재 구현된 이벤트:
+ * - EV_MONSTER_UPDATE: 몬스터 상태 업데이트
+ *
+ * @note 이벤트는 지정된 wakeup_time에 처리됩니다.
+ * @note 1ms 간격으로 타이머 큐를 확인합니다.
+ */
 void Timer_Thread()
 {
 	while (1)
@@ -296,7 +256,21 @@ void Timer_Thread()
 	}
 }
 
-
+/**
+ * @brief 클라이언트로부터 수신한 패킷을 처리하는 함수
+ * @param c_id 클라이언트 ID
+ * @param packet 수신된 패킷 데이터
+ *
+ * 처리하는 패킷 타입:
+ * - CS_LOGIN: 게임 로그인 및 매칭
+ * - CS_SIGNUP: 회원가입
+ * - CS_SIGNIN: 로그인
+ * - CS_HEARTBEAT: 위치 업데이트
+ * - CS_ROTATE: 회전 정보
+ * - CS_ATTACK: 공격 처리
+ * - CS_INTERACTION: 상호작용(퍼즐 오브젝트 획득)
+ * - CS_CHANGEWEAPON: 무기 변경
+ */
 void process_packet(const int c_id, char* packet)
 {
 	SESSION* CL = getClient(c_id);
@@ -387,6 +361,7 @@ void process_packet(const int c_id, char* packet)
 		XMFLOAT3 Cur_Pos = CL->GetPosition();
 		switch (CL->weapon_type)
 		{
+		// BLADE: 근접 공격으로 거리 15 이내의 첫번째 몬스터에게 데미지
 		case BLADE:
 		{
 			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 15, false));
@@ -412,6 +387,7 @@ void process_packet(const int c_id, char* packet)
 			}
 		}
 		break;
+		// GUN: 레이캐스트 방식으로 장애물에 막히는 원거리 공격
 		case GUN:
 		{
 			XMVECTOR Bullet_Origin = XMLoadFloat3(&Cur_Pos);
@@ -475,6 +451,7 @@ void process_packet(const int c_id, char* packet)
 			}
 			break;
 		}
+		// PUNCH: 근접 공격으로 거리 10 이내의 첫번째 몬스터에게 데미지
 		case PUNCH:
 		{
 			Cur_Pos = Vector3::Add(Cur_Pos, Vector3::ScalarProduct(Cur_LookVector, 10, false));
@@ -536,6 +513,17 @@ void process_packet(const int c_id, char* packet)
 	}
 }
 
+/**
+ * @brief IOCP 워커 스레드 함수
+ * @param h_iocp IOCP 핸들
+ *
+ * 처리하는 작업 타입:
+ * - OP_ACCEPT: 새로운 클라이언트 연결 수락
+ * - OP_RECV: 데이터 수신 처리
+ * - OP_SEND: 데이터 송신 완료 처리
+ * - OP_NPC_UPDATE: NPC 상태 업데이트
+ *
+ */
 void worker_thread(HANDLE h_iocp)
 {
 	while (1) {
@@ -628,6 +616,7 @@ void worker_thread(HANDLE h_iocp)
 
 			if (monster->alive.load() == true) {
 				{
+					// 몬스터의 상태를 주기적으로 업데이트하고 모든 클라이언트에게 동기화
 					lock_guard<mutex> mm{ monster->m_lock };
 					monster->Update(duration_cast<milliseconds>(high_resolution_clock::now() - monster->recent_updateTime).count() / 1000.f);
 					monster->recent_updateTime = high_resolution_clock::now();
@@ -635,6 +624,8 @@ void worker_thread(HANDLE h_iocp)
 				for (auto& cl : clients[roomNum]) {
 					if (cl._state.load() == ST_INGAME || cl._state.load() == ST_DEAD)  cl.send_monster_update_packet(monster);
 				}
+
+				// 업데이트 후 다음 업데이트를 위한 타이머 이벤트 등록
 				TIMER_EVENT ev{ roomNum, mon_id, monster->recent_updateTime + 100ms, EV_MONSTER_UPDATE };
 				timer_queue.push(ev);
 			}
